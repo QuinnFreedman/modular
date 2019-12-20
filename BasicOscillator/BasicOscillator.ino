@@ -1,89 +1,63 @@
 #include <cstdint>
 #include <SPI.h>
 
-/*
-//const int ledPin =  13;
-const int dacChipSelectPin = 9;
 
-uint32_t interval = 1000;
-
-unsigned int ticks = 0;
-int ledState = LOW;
-
-uint32_t startTime;
-
-void setup() {
-    pinMode(1, OUTPUT);
-    pinMode(dacChipSelectPin, OUTPUT);
-    digitalWrite(dacChipSelectPin, HIGH);
-    for (int i = 0; i < 5; i++) {
-        digitalWrite(1, HIGH);
-        delay(100);
-        digitalWrite(1, LOW);
-        delay(100);
-    }
-    Serial.begin(9600);
-
-    SPI.begin();
-    SPI.setBitOrder(MSBFIRST);
-    SPI.setDataMode(SPI_MODE0);
-
-    startTime = micros();
-}
-
-void loop(){
-    digitalWrite(1, HIGH);
-
-    float hertz = .5;
-    uint32_t periodMicros = (uint32_t) (1.0 / hertz * 1000000);
-
-    uint32_t currentTime = micros();
-    uint32_t elapsed = currentTime - startTime;
-    elapsed = elapsed %  periodMicros;
-
-    float output = sin(elapsed * TWO_PI / periodMicros);
-    output = (output + 1) / 2;
-    writeToDac(output, 0);
-}
-*/
-
-const uint16_t potentiometer = 14;
-
+// PINS
+const uint16_t PITCH_CV_PIN = A0;
+const uint16_t WAVE_SELECT_PIN = A1;
 const uint16_t chip_select = 4;
 
-uint32_t periodStart;
+const int PITCH_CV_SAMPLE_RATE = 50;
+const int WAVE_SELECT_SAMPLE_RATE = 1;
+//const int WAVE_SELECT_SAMPLE_RATE = 100;
 
 void setup() {
-    pinMode(chip_select, OUTPUT);
-    digitalWrite(chip_select, HIGH);
+    {
+        pinMode(chip_select, OUTPUT);
+        digitalWrite(chip_select, HIGH);
 
-    pinMode(1, OUTPUT);
-    for (int i = 0; i < 5; i++) {
+        pinMode(1, OUTPUT);
+        for (int i = 0; i < 5; i++) {
+            digitalWrite(1, HIGH);
+            delay(100);
+            digitalWrite(1, LOW);
+            delay(100);
+        }
         digitalWrite(1, HIGH);
-        delay(100);
-        digitalWrite(1, LOW);
-        delay(100);
+
+        SPI.begin();
+        SPI.setBitOrder(MSBFIRST);
+        SPI.setDataMode(SPI_MODE0);
+
+        pinMode(PITCH_CV_PIN, INPUT);
+        pinMode(WAVE_SELECT_PIN, INPUT);
     }
-    digitalWrite(1, HIGH);
 
-    SPI.begin();
+    Serial.begin(9600);
 
-    pinMode(potentiometer, INPUT);
+    uint32_t periodStart = micros();
 
-    periodStart = micros();
-}
+    float hertz = 500;
+    int mode = 2;
+    uint32_t periodMicros = 0;
 
-float hertz = 500;
+    for (int i = 0;; i++) {
+        if (i % PITCH_CV_SAMPLE_RATE == 0) {
+            // sample pitch cv
+            uint16_t potValue = analogRead(PITCH_CV_PIN);
+            float newHertz = potValue + 100;
+            float hertzDelta = (newHertz - hertz) * 0.1;
+            hertz += hertzDelta;
+            periodMicros = (uint32_t) (1.0 / hertz * 1000000);
+        }
+        
+        if ((i + 79) % WAVE_SELECT_SAMPLE_RATE == 0) {
+            // sample wave select
+            uint16_t potValue = analogRead(WAVE_SELECT_PIN);
+            mode = potValue / 256;
+        }
 
-void loop() {
-    //float hertz = 500;
 
-    uint16_t potValue = analogRead(potentiometer);
-    float newHertz = potValue + 100;
-    float hertzDelta = (newHertz - hertz) * 0.1;
-    hertz += hertzDelta;
-    uint32_t periodMicros = (uint32_t) (1.0 / hertz * 1000000);
-    for (int i = 0; i < 50; i++) {
         uint32_t currentTime = micros();
         uint32_t elapsed = currentTime - periodStart;
         while (elapsed >= periodMicros) {
@@ -93,23 +67,50 @@ void loop() {
 
         float elapsedFraction = ((float) elapsed) / ((float) periodMicros);
 
-        uint16_t value = (uint16_t) (waveSaw(elapsedFraction) * 4095);
+        uint16_t value = (uint16_t) (waveFunction(elapsedFraction, mode) * 4095);
 
         MCP4922_write(chip_select, 0, value);
     }
+
 }
 
-float waveSin(float x) {
-    if (x < .5) {
-        return 0;
-    } else {
-        return 1;
+void loop() {
+    // This function should never run
+}
+
+const int SAW = 0;
+const int TRI = 1;
+const int SIN = 2;
+const int SQR = 3;
+
+/*
+ * mode - {1, 2, 3, 4} - which wave function to use.
+ * x - {0..1} - Time as a fraction of the period. 
+ * returns {0..1} wave function value at time x.
+ */
+float waveFunction(const float x, const int mode) {
+    switch(mode) {
+        case SAW:
+            return x;
+        case TRI:
+            if (x < .5) {
+                return 2 * x;
+            } else {
+                return 1 - 2 * (x - .5);
+            }
+        case SIN:
+            // TODO use a lookup table to make this faster
+            return (1 + sin(x * 2 * PI)) / 2;
+        case SQR:
+            if (x < .5) {
+                return 0;
+            } else {
+                return 1;
+            }
     }
+    return 0;
 }
 
-float waveSaw(float x) {
-    return x;
-}
 
 void MCP4922_write(int cs_pin, byte dac, uint16_t value) {
     byte low = value & 0xff;

@@ -1,0 +1,36 @@
+1. Basic Oscillator
+    * V/O CV
+    * Wave shape select
+    * octave select
+2. Test keyboard
+3. Passive attenuator
+4. Passive mixer
+5. ADSR Envelope (2HP?)
+6. Bitcrusher
+    * Switch between crushing horizontally (time) and vertically (amp)
+    * Horizontal crush -> lowpass (Niquist theorem)
+    * Dry/wet, crush amount controls
+7. Lowpass filter 
+    * Spring-damper physics based?
+8. Fancy Oscillator
+    * Shape/bend waveforms
+    * 3 voices
+9. Multivoice/detune osilator
+    * Many digital voices that can be detuned from eachother
+    * control voice number, detune amount, detune volume
+    * Could this be done as a filter?
+10. Granular synth
+    * Controls:
+        * Sample buffer position
+        * Grain density (Negative = more random intervals b/t seeds)
+            * + trig cv to seed a grain
+        * Grain spread (i.e. how likely thte grain is to be sampled from far away)
+        * Relative grain pitch
+        * Grain length
+11. Random function generator
+    * Looping buffer of random values 
+    * Adjustable chance for each value to be re-generated as it is played.
+    * Gate to freeze loop.
+    * Adjustable loop length 
+12. Quantizer 
+    * Scale presets (or select individual notes)
