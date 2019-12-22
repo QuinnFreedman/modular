@@ -34,3 +34,7 @@
     * Adjustable loop length 
 12. Quantizer 
     * Scale presets (or select individual notes)
+
+
+## Cases
+1. Cre8Audio NiftyCASE
