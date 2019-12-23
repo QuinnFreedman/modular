@@ -17,13 +17,7 @@ void setup() {
         digitalWrite(chip_select, HIGH);
 
         pinMode(1, OUTPUT);
-        for (int i = 0; i < 5; i++) {
-            digitalWrite(1, HIGH);
-            delay(100);
-            digitalWrite(1, LOW);
-            delay(100);
-        }
-        digitalWrite(1, HIGH);
+        flashLights();
 
         SPI.begin();
         SPI.setBitOrder(MSBFIRST);
@@ -78,6 +72,16 @@ void loop() {
     // This function should never run
 }
 
+void flashLights() {
+    for (int i = 0; i < 5; i++) {
+        digitalWrite(1, HIGH);
+        delay(100);
+        digitalWrite(1, LOW);
+        delay(100);
+    }
+    digitalWrite(1, HIGH);
+}
+
 const int SAW = 0;
 const int TRI = 1;
 const int SIN = 2;
@@ -99,8 +103,13 @@ float waveFunction(const float x, const int mode) {
                 return 1 - 2 * (x - .5);
             }
         case SIN:
+            if (x < .5) {
+                return 2 * x;
+            } else {
+                return 1 - 2 * (x - .5);
+            }
             // TODO use a lookup table to make this faster
-            return (1 + sin(x * 2 * PI)) / 2;
+            // return (1 + sin(x * 2 * PI)) / 2;
         case SQR:
             if (x < .5) {
                 return 0;
@@ -108,6 +117,7 @@ float waveFunction(const float x, const int mode) {
                 return 1;
             }
     }
+    flashLights();
     return 0;
 }
 
