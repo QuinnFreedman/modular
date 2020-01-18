@@ -58,6 +58,20 @@ void setup() {
             periodStart = currentTime;
             elapsed -= periodMicros;
         }
+        
+        // maybe instead:
+        /*
+        uint32_t currentTime = micros();
+        uint32_t elapsed = currentTime - periodStart;
+        // assume this loop will only ever run once, but use `while` instead of `if` to
+        // handle it slightly more gracefully if the chip freezes for more than a full
+        // period (although that would still sound bad no matter what we do).
+        // But using a loop here lets us keep the invarient 0 <= elapsed < periodMicros
+        while (elapsed >= periodMicros) {
+            elapsed -= periodMicros;
+            periodStart = currentTime - elapsed;
+        }
+        */
 
         float elapsedFraction = ((float) elapsed) / ((float) periodMicros);
 
