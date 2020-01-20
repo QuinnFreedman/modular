@@ -8,8 +8,7 @@ const uint16_t WAVE_SELECT_PIN = A1;
 const uint16_t chip_select = 4;
 
 const int PITCH_CV_SAMPLE_RATE = 50;
-const int WAVE_SELECT_SAMPLE_RATE = 1;
-//const int WAVE_SELECT_SAMPLE_RATE = 100;
+const int WAVE_SELECT_SAMPLE_RATE = 100;
 
 void setup() {
     {
@@ -34,6 +33,7 @@ void setup() {
     float hertz = 500;
     int mode = 2;
     uint32_t periodMicros = 0;
+    float waveSelectPotValue = 0;
 
     for (int i = 0;; i++) {
         if (i % PITCH_CV_SAMPLE_RATE == 0) {
@@ -48,19 +48,13 @@ void setup() {
         if ((i + 79) % WAVE_SELECT_SAMPLE_RATE == 0) {
             // sample wave select
             uint16_t potValue = analogRead(WAVE_SELECT_PIN);
-            mode = potValue / 256;
+            float potValueDelta = (potValue - waveSelectPotValue) * 0.1;
+            waveSelectPotValue += potValueDelta;
+            mode = (uint16_t) (waveSelectPotValue / 256);
         }
 
 
-        uint32_t currentTime = micros();
-        uint32_t elapsed = currentTime - periodStart;
-        while (elapsed >= periodMicros) {
-            periodStart = currentTime;
-            elapsed -= periodMicros;
-        }
         
-        // maybe instead:
-        /*
         uint32_t currentTime = micros();
         uint32_t elapsed = currentTime - periodStart;
         // assume this loop will only ever run once, but use `while` instead of `if` to
@@ -71,7 +65,6 @@ void setup() {
             elapsed -= periodMicros;
             periodStart = currentTime - elapsed;
         }
-        */
 
         float elapsedFraction = ((float) elapsed) / ((float) periodMicros);
 
@@ -84,6 +77,7 @@ void setup() {
 
 void loop() {
     // This function should never run
+    flashLights();
 }
 
 void flashLights() {
@@ -117,13 +111,8 @@ float waveFunction(const float x, const int mode) {
                 return 1 - 2 * (x - .5);
             }
         case SIN:
-            if (x < .5) {
-                return 2 * x;
-            } else {
-                return 1 - 2 * (x - .5);
-            }
             // TODO use a lookup table to make this faster
-            // return (1 + sin(x * 2 * PI)) / 2;
+            return (1 + sin(x * 2 * PI)) / 2;
         case SQR:
             if (x < .5) {
                 return 0;
