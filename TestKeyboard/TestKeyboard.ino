@@ -1,32 +1,32 @@
-#include <cstdint>
+#include <stdint.h>
 
 const int NUM_KEYS = 12;
 
 const uint16_t KEY_PINS[NUM_KEYS] = {
-    D1,
-    D2,
-    D3,
-    D4,
-    D5,
-    D6,
-    D7,
-    D8,
-    D9,
-    D10,
-    D11,
-    D12,
-}
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+};
 
-const uint16t LED_PIN = A1;
-const uint16t GATE_PIN = A2;
-const uint16t TRIG_PIN = A3;
-const uint16t VPO_PIN = A3;
+const uint16_t LED_PIN = A2;
+const uint16_t GATE_PIN = A1;
+const uint16_t TRIG_PIN = A0;
 
-const bool KEYS_PRESSED[NUM_KEYS];
+bool KEYS_PRESSED[NUM_KEYS];
 
 int currentKey = 1;
 
 void setup() {
+  Serial.begin(9600);
     for (int i = 0; i < NUM_KEYS; i++) {
         pinMode(KEY_PINS[i], INPUT);
         KEYS_PRESSED[i] = false;
@@ -35,7 +35,6 @@ void setup() {
     pinMode(LED_PIN, OUTPUT);
     pinMode(GATE_PIN, OUTPUT);
     pinMode(TRIG_PIN, OUTPUT);
-    pinMode(VPO_PIN, OUTPUT);
 }
 
 void loop() {
@@ -44,11 +43,13 @@ void loop() {
     // Loop through all 12 keys
     for (int i = 0; i < NUM_KEYS; i++) {
         // Check if this key is being pressed right now
-        bool keyIsPressed = digitalRead(KEY_PINS[i]);
+        bool keyIsPressed = !digitalRead(KEY_PINS[i]);
 
         // If it *is* being pressed but *wasn't* being pressed last
         // time we checked, remember that
         if (keyIsPressed && !KEYS_PRESSED[i]) {
+            Serial.print("Key ");
+            Serial.println(i);
             newPressedKey = i;
         }
 
