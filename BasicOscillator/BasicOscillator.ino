@@ -1,21 +1,22 @@
-#include <cstdint>
+#include <stdint.h>
 #include <SPI.h>
 
 
 // PINS
 const uint16_t PITCH_CV_PIN = A0;
 const uint16_t WAVE_SELECT_PIN = A1;
-const uint16_t chip_select = 4;
+const uint16_t CHIP_SELECT_PIN = 4;
+const uint16_t LED_PIN = 1;
 
 const int PITCH_CV_SAMPLE_RATE = 50;
 const int WAVE_SELECT_SAMPLE_RATE = 100;
 
 void setup() {
     {
-        pinMode(chip_select, OUTPUT);
-        digitalWrite(chip_select, HIGH);
+        pinMode(CHIP_SELECT_PIN, OUTPUT);
+        digitalWrite(CHIP_SELECT_PIN, HIGH);
 
-        pinMode(1, OUTPUT);
+        pinMode(LED_PIN, OUTPUT);
         flashLights();
 
         SPI.begin();
@@ -54,6 +55,7 @@ void setup() {
         }
 
 
+
         
         uint32_t currentTime = micros();
         uint32_t elapsed = currentTime - periodStart;
@@ -70,7 +72,7 @@ void setup() {
 
         uint16_t value = (uint16_t) (waveFunction(elapsedFraction, mode) * 4095);
 
-        MCP4922_write(chip_select, 0, value);
+        MCP4922_write(CHIP_SELECT_PIN, 0, value);
     }
 
 }
@@ -82,9 +84,9 @@ void loop() {
 
 void flashLights() {
     for (int i = 0; i < 5; i++) {
-        digitalWrite(1, HIGH);
+        digitalWrite(LED_PIN, HIGH);
         delay(100);
-        digitalWrite(1, LOW);
+        digitalWrite(LED_PIN, LOW);
         delay(100);
     }
     digitalWrite(1, HIGH);
