@@ -3,19 +3,19 @@
 
 
 // PINS
-/*
 // Arduino NANO
 const uint16_t PITCH_CV_PIN = A0;
 const uint16_t WAVE_SELECT_PIN = A1;
 const uint16_t CHIP_SELECT_PIN = A4;
 const uint16_t LED_PIN = A3;
-*/
 
+/*
 // Teensy 4.0
 const uint16_t PITCH_CV_PIN = A0;
 const uint16_t WAVE_SELECT_PIN = A1;
 const uint16_t CHIP_SELECT_PIN = 4;
 const uint16_t LED_PIN = 1;
+*/
 
 // If set, the control voltage values for period and wave shape will
 // be sampled at the beginning of every period of the sound wave.
@@ -35,7 +35,7 @@ const bool SAMPLE_CV_AT_PERIOD_START = true;
 const int PITCH_CV_SAMPLE_RATE = 50;
 const int WAVE_SELECT_SAMPLE_RATE = 100;
 
-const LARGE_PRIME = 79;
+const int LARGE_PRIME = 79;
 
 void setup() {
     {
@@ -115,7 +115,7 @@ void setup() {
 
         float elapsedFraction = ((float) elapsed) / ((float) periodMicros);
 
-        uint16_t value = (uint16_t) (waveFunction(elapsedFraction, mode) * 4095);
+        float value = waveFunction(elapsedFraction, mode);
 
         MCP4922_write(CHIP_SELECT_PIN, 0, value);
     }
@@ -171,10 +171,21 @@ float waveFunction(const float x, const int mode) {
     return 0;
 }
 
-
-void MCP4922_write(int cs_pin, byte dac, uint16_t value) {
-    byte low = value & 0xff;
-    byte high = (value >> 8) & 0x0f;
+/*
+ * Writes a given value to a MCP4922 DAC chip to be output as
+ * a voltage.
+ *
+ * cs_pin - which Arduino pin to use as the CHIP SELECT pin
+ *     (should be connected to the CS pin of the DAC)
+ * dac - 0 or 1 - Which of the MCP4922's internal DAC channels
+ *     to output to (see MCP4922 datasheet for pinout diagram)
+ * value - {0..1} - The value to output as a fraction of the
+ *     DAC's max/reference voltage. Converted to a 12-bit int.
+ */
+void MCP4922_write(int cs_pin, byte dac, float value) {
+    uint16_t value12 = (uint16_t) (value * 4095);
+    byte low = value12 & 0xff;
+    byte high = (value12 >> 8) & 0x0f;
     dac = (dac & 1) << 7;
     digitalWrite(cs_pin, LOW);
     SPI.transfer(dac | 0x30 | high);
