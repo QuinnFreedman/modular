@@ -36,7 +36,7 @@ void setup() {
     digitalWrite(DAC_CS_PIN, HIGH);
 
     for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
-        buffer[i] = 0;//random(MAX_VALUE);
+        buffer[i] = random(MAX_VALUE);
     }
     buffer[0] = MAX_VALUE;
 
