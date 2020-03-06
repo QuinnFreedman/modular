@@ -9,10 +9,16 @@ const int LED_PIN_2 = 11;
 const int ENCODER_PIN_A = 3;
 const int ENCODER_PIN_B = 4;
 
+const int CLOCK_INPUT_PIN = A0;
+
 const int NUM_OUTPUTS = 8;
 const int OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
 
 const uint32_t SLEEP_TIMEOUT_MICROS = 8000000;
+
+const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
+const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
+/* const float CLOCK_INPUT_TOLERANCE_RATIO = 0.75; */
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -49,8 +55,12 @@ void setup() {
     pinMode(LED_PIN_2, OUTPUT);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
+    pinMode(CLOCK_INPUT_PIN, INPUT);
+    /* attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT_PIN), clockInputChangeHandler, RISING); */
     attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonChangeHandler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoderHandler, CHANGE);
+    enableInterrupt(CLOCK_INPUT_PIN);
+
     Serial.begin(9600);
  
     if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_I2C_ADDRESS)) {
@@ -117,8 +127,6 @@ void loop() {
             digitalWrite(OUTPUT_PINS[i], output);
         }
     }
-    
-
 
     // draw screen
     #if SCREEN_SAVER != SS_NONE
@@ -187,6 +195,20 @@ void rotaryEncoderHandler() {
     }
 
     lastCLK = currentStateCLK;
+}
+
+// builtin Arduino handler for pin change interrupt for pins A0 to A5
+ISR(PCINT1_vect) {
+    clockInputChangeHandler();
+}
+
+inline void clockInputChangeHandler() {
+    static int lastValue = digitalRead(CLOCK_INPUT_PIN);
+    const int currentValue = digitalRead(CLOCK_INPUT_PIN);
+    if (lastValue == LOW && currentValue == HIGH) {
+        onClockInput();
+    }
+    lastValue = currentValue;
 }
 
 void onLongPress() {
@@ -266,6 +288,71 @@ void onKnobTurned(int direction, int counter) {
         state.mode = NAVIGATE;
     } break;
     }
+}
+
+
+void onClockInput() {
+    const int NUM_DELTA_SAMPLES = 3;
+    static uint32_t deltas[NUM_DELTA_SAMPLES] = {0, 0, 0};
+    static uint8_t ringBufferPtr = NUM_DELTA_SAMPLES - 1;
+    static uint8_t numSamplesRecorded = 0;
+    static uint32_t lastPressedTime = 0;
+
+    const uint32_t currentTime = lastRecordedTime;
+    const uint32_t deltaTime = currentTime - lastPressedTime;
+
+    // if the delta is very rappid (prob an accidental double-press) ignore it
+    if (deltaTime < CLOCK_INPUT_TIME_MIN) {
+        return;
+    }
+
+    lastPressedTime = currentTime;
+
+    Serial.print("delta: ");
+    Serial.println(deltaTime);
+
+    if (deltaTime > CLOCK_INPUT_TIME_MAX) {
+        Serial.println(F(" > skip"));
+
+        numSamplesRecorded = 0;
+        return;
+    }
+    
+    /* if (numSamplesRecorded > 0) { */
+    /*     Serial.print(F(" > ")); */
+    /*     Serial.print(F("prevDelta: ")); */
+    /*     Serial.println(deltas[ringBufferPtr]); */
+
+    /*     const float ratioToLastDelta = (float) deltaTime / (float) deltas[ringBufferPtr]; */
+
+    /*     Serial.print(F(" > ")); */
+    /*     Serial.print(F("ratioToLastDelta: ")); */
+    /*     Serial.println(ratioToLastDelta); */
+
+    /*     if (ratioToLastDelta < 1 + CLOCK_INPUT_TOLERANCE_RATIO || */ 
+    /*         ratioToLastDelta < 1 - CLOCK_INPUT_TOLERANCE_RATIO */
+    /*     ) { */
+    /*         Serial.println(F(" > skip")); */
+    /*         numSamplesRecorded = 0; */
+    /*         return; */
+    /*     } */
+    /* } */
+
+    ringBufferPtr = (ringBufferPtr + 1) % NUM_DELTA_SAMPLES;
+    deltas[ringBufferPtr] = deltaTime;
+    numSamplesRecorded++;
+    
+    if (numSamplesRecorded >= NUM_DELTA_SAMPLES) {
+        uint32_t sum = 0;
+        for (int i = 0; i < NUM_DELTA_SAMPLES; i++) {
+            sum += deltas[i];
+        }
+        const uint32_t mean = sum / NUM_DELTA_SAMPLES;
+        const int bpm = 60000000 / mean;
+        Serial.print("bpm: ");
+        Serial.println(bpm);
+    }
+    
 }
 
 void redrawMenu(Adafruit_SSD1306 display, State state) {
@@ -415,4 +502,10 @@ inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, boo
 
 inline int sign(int x) {
     return x < 0 ? -1 : 1;
+}
+
+inline void enableInterrupt(byte pin) {
+    *digitalPinToPCMSK(pin) |= bit (digitalPinToPCMSKbit(pin));  // enable pin
+    PCIFR  |= bit (digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
+    PCICR  |= bit (digitalPinToPCICRbit(pin)); // enable interrupt for the group
 }
