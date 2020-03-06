@@ -2,17 +2,17 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-const int BUTTON_PIN = 2;
-const int LED_PIN_1 = 12;
-const int LED_PIN_2 = 11;
+const uint8_t BUTTON_PIN = 2;
+const uint8_t LED_PIN_1 = 12;
+const uint8_t LED_PIN_2 = 11;
 
-const int ENCODER_PIN_A = 3;
-const int ENCODER_PIN_B = 4;
+const uint8_t ENCODER_PIN_A = 3;
+const uint8_t ENCODER_PIN_B = 4;
 
-const int CLOCK_INPUT_PIN = A0;
+const uint8_t CLOCK_INPUT_PIN = A0;
 
-const int NUM_OUTPUTS = 8;
-const int OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
+const uint8_t NUM_OUTPUTS = 8;
+const uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
 
 const uint32_t SLEEP_TIMEOUT_MICROS = 8000000;
 
@@ -31,11 +31,18 @@ const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
 #define SS_BARS  3
 #define SCREEN_SAVER SS_BLACK 
 
-typedef enum {NAVIGATE, EDIT_FAST, EDIT_SLOW, SLEEP} MenuMode;
+typedef enum : uint8_t {NAVIGATE, EDIT_FAST, EDIT_SLOW, SLEEP} MenuMode;
+typedef enum : uint8_t {MULTIPLY, DIVIDE} ClockMode;
+
+typedef struct {
+    uint8_t multiplier;
+    ClockMode mode;
+    /* float offset; */
+} Clock;
 
 typedef struct {
     int bpm;
-    int values[NUM_OUTPUTS];
+    Clock clocks[NUM_OUTPUTS];
     int cursor;
     MenuMode mode;
     bool newInput;
@@ -56,7 +63,6 @@ void setup() {
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
     pinMode(CLOCK_INPUT_PIN, INPUT);
-    /* attachInterrupt(digitalPinToInterrupt(CLOCK_INPUT_PIN), clockInputChangeHandler, RISING); */
     attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonChangeHandler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoderHandler, CHANGE);
     enableInterrupt(CLOCK_INPUT_PIN);
@@ -69,13 +75,20 @@ void setup() {
         while (true) {}
     }
 
-    state = {
-        .bpm = 70,
-        .values = {1, -2, -4, -8, 2, 4, 8, 16},
-        .cursor = -1,
-        .mode = NAVIGATE,
-        .newInput = true
-    };
+    state.bpm = 70;
+    state.cursor = -1;
+    state.mode = NAVIGATE;
+    state.newInput = true;
+
+    const static int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
+    for (int i = 0; i < NUM_OUTPUTS; i++) {
+        int val = initClockValues[i];
+        Clock* clock = &state.clocks[i];
+
+        clock->mode = val < 0 ? DIVIDE : MULTIPLY;
+        clock->multiplier = abs(val);
+        /* clock->offset = 0; */
+    }
     
     lastRecordedTime = micros();
 }
@@ -107,18 +120,16 @@ void loop() {
     // Send signals to output pins
     for (int i = 0; i < NUM_OUTPUTS; i++) {
         float elapsed;
-        const int fraction = state.values[i];
-        if (fraction > 0) {
-            // multiple of beat
-            elapsed = getElapsed(fraction, numBeats, elapsedFraction);
+        const Clock clock = state.clocks[i];
+        if (clock.mode == MULTIPLY) {
+            elapsed = getElapsed(clock.multiplier, numBeats, elapsedFraction);
         } else {
-            // fraction of beat
-            const float period = 1.0 / (float) abs(fraction);
+            const float fraction = 1.0 / (float) clock.multiplier;
             float remainder = elapsedFraction;
-            while (remainder >= period) {
-                remainder -= period;
+            while (remainder >= fraction) {
+                remainder -= fraction;
             }
-            elapsed = remainder / period;
+            elapsed = remainder / fraction;
             /* elapsed = elapsedFraction; */
         }
         const uint8_t output = elapsed < 0.5 ? HIGH : LOW;
@@ -211,7 +222,7 @@ inline void clockInputChangeHandler() {
     lastValue = currentValue;
 }
 
-void onLongPress() {
+inline void onLongPress() {
     state.newInput = true;
     switch (state.mode) {
     case NAVIGATE: 
@@ -223,7 +234,7 @@ void onLongPress() {
     }
 }
 
-void onShortPress() {
+inline void onShortPress() {
     state.newInput = true;
     switch (state.mode) {
     case NAVIGATE: 
@@ -235,7 +246,7 @@ void onShortPress() {
     }
 }
 
-void onKnobTurned(int direction, int counter) {
+inline void onKnobTurned(int direction, int counter) {
     state.newInput = true;
     switch (state.mode) {
     case NAVIGATE: {
@@ -250,16 +261,18 @@ void onKnobTurned(int direction, int counter) {
         if (state.cursor == -1) {
             state.bpm += direction;
         } else {
-            int value = state.values[state.cursor];
-            if (value == 1 && direction == -1) {
-                value = -2;
-            } else if (value == -2 && direction == 1) {
-                value = 1;
+            Clock* clock = &state.clocks[state.cursor];
+            if (clock->mode == MULTIPLY && clock->multiplier == 1 && direction == -1) {
+                clock->mode = DIVIDE;
+                clock->multiplier = 2;
+            } else if (clock->mode == DIVIDE && clock->multiplier == 2 && direction == 1) {
+                clock->mode = MULTIPLY;
+                clock->multiplier = 1;
             } else {
-                value += direction;
-            }
-            if (value <= 99 && value >= -99) {
-                state.values[state.cursor] = value;
+                const int newValue = clock->multiplier + direction;
+                if (newValue <= 99) {
+                    clock->multiplier = newValue;
+                }
             }
         }
     } break;
@@ -267,20 +280,31 @@ void onKnobTurned(int direction, int counter) {
         if (state.cursor == -1) {
             state.bpm += direction;
         } else {
-            int value = state.values[state.cursor];
-            if (value == 1 && direction == -1) {
-                value = -2;
-            } else if (value == -2 && direction == 1) {
-                value = 1;
+            Clock* clock = &state.clocks[state.cursor];
+            if (clock->mode == MULTIPLY && clock->multiplier == 1 && direction == -1) {
+                clock->mode = DIVIDE;
+                clock->multiplier = 2;
+            } else if (clock->mode == DIVIDE && clock->multiplier == 2 && direction == 1) {
+                clock->mode = MULTIPLY;
+                clock->multiplier = 1;
             } else {
-                if (sign(direction) == sign(value)) {
-                   value *= 2;
+                int newValue = clock->multiplier;
+                if (clock->mode == MULTIPLY) {
+                    if (direction > 0) {
+                        newValue *= 2;
+                    } else {
+                        newValue /= 2;
+                    }
                 } else {
-                   value /= 2;
+                    if (direction > 0) {
+                        newValue /= 2;
+                    } else {
+                        newValue *= 2;
+                    }
                 }
-            }
-            if (value <= 99 && value >= -99) {
-                state.values[state.cursor] = value;
+                if (newValue <= 99) {
+                    clock->multiplier = newValue;
+                }
             }
         }
     } break;
@@ -308,7 +332,7 @@ void onClockInput() {
 
     lastPressedTime = currentTime;
 
-    Serial.print("delta: ");
+    Serial.print(F("delta: "));
     Serial.println(deltaTime);
 
     if (deltaTime > CLOCK_INPUT_TIME_MAX) {
@@ -349,7 +373,7 @@ void onClockInput() {
         }
         const uint32_t mean = sum / NUM_DELTA_SAMPLES;
         const int bpm = 60000000 / mean;
-        Serial.print("bpm: ");
+        Serial.print(F("bpm: "));
         Serial.println(bpm);
     }
     
@@ -359,22 +383,22 @@ void redrawMenu(Adafruit_SSD1306 display, State state) {
     display.clearDisplay();
     display.cp437(true);
 
-    const int screenWidth = SCREEN_WIDTH;
-    const int screenHeight = SCREEN_HEIGHT;
+    const uint8_t screenWidth = SCREEN_WIDTH;
+    const uint8_t screenHeight = SCREEN_HEIGHT;
 
     if (state.cursor == -1) {
         // Draw BPM
-        const int bpmNumberFontSize = 4;
-        const int bpmLabelFontSize = 2;
-        const int charWidth = 6;
-        char bpmText[5];
+        const uint8_t bpmNumberFontSize = 4;
+        const uint8_t bpmLabelFontSize = 2;
+        const uint8_t charWidth = 6;
+        char bpmText[4];
         itoa(state.bpm, bpmText, 10);
-        const int bpmStrLen = strlen(bpmText);
-        const int bpmNumberWidthPx = bpmStrLen * charWidth * bpmNumberFontSize;
+        const uint8_t bpmStrLen = strlen(bpmText);
+        const uint8_t bpmNumberWidthPx = bpmStrLen * charWidth * bpmNumberFontSize;
 
-        const int bpmNumberHeight = 8 * bpmNumberFontSize;
-        const int bpmLabelHeight  = 8 * bpmLabelFontSize;
-        const int totalHeight = bpmLabelHeight + bpmNumberHeight;
+        const uint8_t bpmNumberHeight = 8 * bpmNumberFontSize;
+        const uint8_t bpmLabelHeight  = 8 * bpmLabelFontSize;
+        const uint8_t totalHeight = bpmLabelHeight + bpmNumberHeight;
         const int y1 = (screenHeight - totalHeight) / 2;
         const int x1 = (screenWidth - bpmNumberWidthPx) / 2;
 
@@ -389,7 +413,7 @@ void redrawMenu(Adafruit_SSD1306 display, State state) {
 
         display.setTextColor(SSD1306_WHITE);
 
-        const int bpmLabelWidthPx = 3 * charWidth * bpmLabelFontSize;
+        const uint8_t bpmLabelWidthPx = 3 * charWidth * bpmLabelFontSize;
 
         const int x2 = (screenWidth - bpmLabelWidthPx) / 2;
         const int y2 = y1 + bpmNumberHeight;
@@ -399,27 +423,27 @@ void redrawMenu(Adafruit_SSD1306 display, State state) {
         display.write("bpm");
     } else {
         // Draw menu
-        const int fontSize = 3;
+        const uint8_t fontSize = 3;
         display.setTextSize(fontSize);
-        const int numHorizontalBoxes = 2;
-        const int numVerticalBoxes = 2;
-        const int boxesPerScreen = numVerticalBoxes * numHorizontalBoxes;
-        const int boxWidth = screenWidth / numHorizontalBoxes;
-        const int boxHeight = screenHeight / numHorizontalBoxes;
-        const int startIndex = (state.cursor / boxesPerScreen) * boxesPerScreen;
-        const int relativeIndex = state.cursor % boxesPerScreen;
+        const uint8_t numHorizontalBoxes = 2;
+        const uint8_t numVerticalBoxes = 2;
+        const uint8_t boxesPerScreen = numVerticalBoxes * numHorizontalBoxes;
+        const uint8_t boxWidth = screenWidth / numHorizontalBoxes;
+        const uint8_t boxHeight = screenHeight / numHorizontalBoxes;
+        const uint8_t startIndex = (state.cursor / boxesPerScreen) * boxesPerScreen;
+        const uint8_t relativeIndex = state.cursor % boxesPerScreen;
 
-        for (int i = 0; i < boxesPerScreen; i++) {
-            const int x = i % numHorizontalBoxes;
-            const int y = i / numHorizontalBoxes;
-            const int screenX = x * boxWidth;
-            const int screenY = y * boxHeight;
+        for (uint8_t i = 0; i < boxesPerScreen; i++) {
+            const uint8_t x = i % numHorizontalBoxes;
+            const uint8_t y = i / numHorizontalBoxes;
+            const uint8_t screenX = x * boxWidth;
+            const uint8_t screenY = y * boxHeight;
 
-            const int index = i + startIndex;
+            const uint8_t index = i + startIndex;
             const bool isActiveBox = index == state.cursor;
 
-            const int borderRadius = 8;
-            const int borderWidth = 2;
+            const uint8_t borderRadius = 8;
+            const uint8_t borderWidth = 2;
 
             if (isActiveBox && state.mode) {
                 display.setTextColor(SSD1306_BLACK);
@@ -436,14 +460,14 @@ void redrawMenu(Adafruit_SSD1306 display, State state) {
                 display.setTextColor(SSD1306_WHITE);
             }
             
-            const int value = state.values[index];
+            const Clock clock = state.clocks[index];
             char buffer[4];
-            buffer[0] = value < 0 ? '/' : 'x';
-            itoa(abs(value), &buffer[1], 10);
-            const int textLength = strlen(buffer);
+            buffer[0] = clock.mode == DIVIDE ? '/' : 'x';
+            itoa(clock.multiplier, &buffer[1], 10);
+            const uint8_t textLength = strlen(buffer);
 
-            const int textHeight = 8 * fontSize;
-            const int textWidth = 6 * fontSize * textLength - fontSize;
+            const uint8_t textHeight = 8 * fontSize;
+            const uint8_t textWidth = 6 * fontSize * textLength - fontSize;
 
             display.setCursor(
                 screenX + (boxWidth - textWidth) / 2,
@@ -465,11 +489,11 @@ inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, boo
         display.display();
     }
 #elif SCREEN_SAVER == SS_PULSE
-    static int lastHeight = 0;
-    static int lastWidth = 0;
+    static uint8_t lastHeight = 0;
+    static uint8_t lastWidth = 0;
     const float fraction = 2 * (elapsedFraction < 0.5 ? elapsedFraction : 1 - elapsedFraction);
-    const int width = fraction * SCREEN_WIDTH;
-    const int height = fraction * SCREEN_HEIGHT;
+    const uint8_t width = fraction * SCREEN_WIDTH;
+    const uint8_t height = fraction * SCREEN_HEIGHT;
     
     if (!forceRedraw && width == lastWidth && height == lastHeight) {
         return;
@@ -484,9 +508,9 @@ inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, boo
     display.drawRect(x, y, width, height, SSD1306_WHITE);
     display.display();
 #elif SCREEN_SAVER == SS_BARS
-    static int lastBars = 0;
-    const int numBars = 4;
-    int bars = (numBars + 1) * elapsedFraction;
+    static uint8_t lastBars = 0;
+    const static uint8_t numBars = 4;
+    uint8_t bars = (numBars + 1) * elapsedFraction;
     if (!forceRedraw && bars == lastBars) {
         return;
     }
@@ -498,10 +522,6 @@ inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, boo
     display.fillRect(0, SCREEN_HEIGHT / numBars * (bars), SCREEN_WIDTH, SCREEN_HEIGHT / numBars, SSD1306_INVERSE);
     display.display();
 #endif
-}
-
-inline int sign(int x) {
-    return x < 0 ? -1 : 1;
 }
 
 inline void enableInterrupt(byte pin) {
