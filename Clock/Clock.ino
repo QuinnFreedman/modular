@@ -31,19 +31,21 @@ const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
 #define SS_BARS  3
 #define SCREEN_SAVER SS_BLACK 
 
-typedef enum : uint8_t {NAVIGATE, EDIT_FAST, EDIT_SLOW, SLEEP} MenuMode;
+typedef enum : uint8_t {NAVIGATE, EDIT_FAST, SUBMENU, SUBMENU_EDIT, SLEEP} MenuMode;
 typedef enum : uint8_t {MULTIPLY, DIVIDE} ClockMode;
 
 typedef struct {
     uint8_t multiplier;
     ClockMode mode;
-    /* float offset; */
+    int8_t offset;
+    int8_t pulseWidth;
 } Clock;
 
 typedef struct {
-    int bpm;
+    uint8_t bpm;
     Clock clocks[NUM_OUTPUTS];
-    int cursor;
+    int8_t cursor;
+    int8_t submenuCursor;
     MenuMode mode;
     bool newInput;
 } State;
@@ -77,17 +79,19 @@ void setup() {
 
     state.bpm = 70;
     state.cursor = -1;
+    state.submenuCursor = 0;
     state.mode = NAVIGATE;
     state.newInput = true;
 
-    const static int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
+    const int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
     for (int i = 0; i < NUM_OUTPUTS; i++) {
         int val = initClockValues[i];
         Clock* clock = &state.clocks[i];
 
         clock->mode = val < 0 ? DIVIDE : MULTIPLY;
         clock->multiplier = abs(val);
-        /* clock->offset = 0; */
+        clock->offset = 0;
+        clock->pulseWidth = 50;
     }
     
     lastRecordedTime = micros();
@@ -130,7 +134,6 @@ void loop() {
                 remainder -= fraction;
             }
             elapsed = remainder / fraction;
-            /* elapsed = elapsedFraction; */
         }
         const uint8_t output = elapsed < 0.5 ? HIGH : LOW;
         if (output != outputCache[i]) {
@@ -153,7 +156,11 @@ void loop() {
         float elapsed = getElapsed(1, numBeats, elapsedFraction);
         drawScreenSaver(display, elapsed, forceRedrawScreen);
     } else if (newInput) {
-        redrawMenu(display, state);
+        if (state.mode == NAVIGATE || state.mode == EDIT_FAST) {
+            drawMainMenu(display, state);
+        } else if (state.mode == SUBMENU || state.mode == SUBMENU_EDIT) {
+            drawSubMenu(display, state);
+        }
     }
     delay(1);
 }
@@ -226,7 +233,12 @@ inline void onLongPress() {
     state.newInput = true;
     switch (state.mode) {
     case NAVIGATE: 
-        state.mode = EDIT_SLOW;
+        if (state.cursor == -1) {
+            state.mode = EDIT_FAST;
+        } else {
+            state.mode = SUBMENU;
+            state.submenuCursor = 0;
+        }
         break;
     default:
         state.mode = NAVIGATE;
@@ -239,6 +251,12 @@ inline void onShortPress() {
     switch (state.mode) {
     case NAVIGATE: 
         state.mode = EDIT_FAST;
+        break;
+    case SUBMENU: 
+        state.mode = SUBMENU_EDIT;
+        break;
+    case SUBMENU_EDIT: 
+        state.mode = SUBMENU;
         break;
     default:
         state.mode = NAVIGATE;
@@ -257,23 +275,12 @@ inline void onKnobTurned(int direction, int counter) {
             state.cursor = NUM_OUTPUTS - 1;
         }
     } break;
-    case EDIT_SLOW: {
-        if (state.cursor == -1) {
-            state.bpm += direction;
-        } else {
-            Clock* clock = &state.clocks[state.cursor];
-            if (clock->mode == MULTIPLY && clock->multiplier == 1 && direction == -1) {
-                clock->mode = DIVIDE;
-                clock->multiplier = 2;
-            } else if (clock->mode == DIVIDE && clock->multiplier == 2 && direction == 1) {
-                clock->mode = MULTIPLY;
-                clock->multiplier = 1;
-            } else {
-                const int newValue = clock->multiplier + direction;
-                if (newValue <= 99) {
-                    clock->multiplier = newValue;
-                }
-            }
+    case SUBMENU: {
+        state.submenuCursor += direction;
+        if (state.submenuCursor < 0) {
+            state.submenuCursor = 0;
+        } else if (state.submenuCursor > 2) {
+            state.submenuCursor = 2;
         }
     } break;
     case EDIT_FAST: {
@@ -308,12 +315,49 @@ inline void onKnobTurned(int direction, int counter) {
             }
         }
     } break;
+    case SUBMENU_EDIT: {
+        Clock* clock = &state.clocks[state.cursor];
+        switch(state.submenuCursor) {
+        case 0: {
+            if (clock->mode == MULTIPLY && clock->multiplier == 1 && direction == -1) {
+                clock->mode = DIVIDE;
+                clock->multiplier = 2;
+            } else if (clock->mode == DIVIDE && clock->multiplier == 2 && direction == 1) {
+                clock->mode = MULTIPLY;
+                clock->multiplier = 1;
+            } else {
+                if (clock->mode == MULTIPLY) {
+                    clock->multiplier += direction;
+                } else {
+                    clock->multiplier -= direction;
+                }
+                if (clock->multiplier > 99) {
+                    clock->multiplier = 99;
+                }
+            }
+        } break;
+        case 1: {
+            addMaxMin(&clock->pulseWidth, direction, 0, 100);
+        } break;
+        case 2: {
+            addMaxMin(&clock->offset, direction, 0, 100);
+        } break;
+        }
+    } break;
     case SLEEP: {
         state.mode = NAVIGATE;
     } break;
     }
 }
 
+inline void addMaxMin(int8_t* value, int8_t delta, int8_t min, int8_t max) {
+    *value += delta;
+    if (*value < min) {
+        *value = max;
+    } else if (*value > max) {
+        *value = max;
+    }
+}
 
 void onClockInput() {
     const int NUM_DELTA_SAMPLES = 3;
@@ -332,12 +376,7 @@ void onClockInput() {
 
     lastPressedTime = currentTime;
 
-    Serial.print(F("delta: "));
-    Serial.println(deltaTime);
-
     if (deltaTime > CLOCK_INPUT_TIME_MAX) {
-        Serial.println(F(" > skip"));
-
         numSamplesRecorded = 0;
         return;
     }
@@ -373,13 +412,11 @@ void onClockInput() {
         }
         const uint32_t mean = sum / NUM_DELTA_SAMPLES;
         const int bpm = 60000000 / mean;
-        Serial.print(F("bpm: "));
-        Serial.println(bpm);
     }
     
 }
 
-void redrawMenu(Adafruit_SSD1306 display, State state) {
+void drawMainMenu(Adafruit_SSD1306 display, const State state) {
     display.clearDisplay();
     display.cp437(true);
 
@@ -482,6 +519,89 @@ void redrawMenu(Adafruit_SSD1306 display, State state) {
 }
 
 
+void drawSubMenu(Adafruit_SSD1306 display, const State state) {
+    display.clearDisplay();
+    display.cp437(true);
+
+    const uint8_t screenWidth = SCREEN_WIDTH;
+    const uint8_t screenHeight = SCREEN_HEIGHT;
+
+    Clock* clock = &state.clocks[state.cursor];
+
+    const uint8_t fontSize = 3;
+    display.setTextSize(fontSize);
+
+    const int8_t textHeight = fontSize * 8 * 3;
+    const int8_t offsetY = state.submenuCursor == 2 
+        ? (int) screenHeight - (int) textHeight
+        : 0;
+    
+    {
+        display.setTextColor(SSD1306_WHITE);
+
+        char label[5];
+        label[0] = '[';
+        itoa(state.cursor + 1, label + 1, 10);
+        label[2] = ']';
+        label[3] = state.submenuCursor == 0 ? '>' : ' ';
+        label[4] = '\0';
+        
+        display.setCursor(0, offsetY);
+        display.write(label);
+
+        char buffer[4];
+        buffer[0] = clock->mode == DIVIDE ? '/' : 'x';
+        itoa(clock->multiplier, &buffer[1], 10);
+
+        if (state.mode == SUBMENU_EDIT && state.submenuCursor == 0) {
+            display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
+        }
+        display.write(buffer);
+    }
+
+    {
+        display.setTextColor(SSD1306_WHITE);
+
+        char label[5] = "PW:";
+        label[3] = state.submenuCursor == 1 ? '>' : ' ';
+        label[4] = '\0';
+
+        display.setCursor(0, offsetY + 8 * fontSize);
+        display.write(label);
+        
+        char buffer[4];
+        itoa(clock->pulseWidth, buffer, 10);
+        
+        if (state.mode == SUBMENU_EDIT && state.submenuCursor == 1) {
+            display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
+        }
+        display.write(buffer);
+    }
+
+    {
+        display.setTextColor(SSD1306_WHITE);
+
+        char label[5] = "PS:";
+        label[3] = state.submenuCursor == 2 ? '>' : ' ';
+        label[4] = '\0';
+
+        display.setCursor(0, offsetY + 2 * 8 * fontSize);
+        display.write(label);
+        
+        char buffer[4];
+        itoa(clock->offset, buffer, 10);
+
+        if (state.mode == SUBMENU_EDIT && state.submenuCursor == 2) {
+            display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
+        }
+        display.write(buffer);
+    }
+
+
+    display.display();
+}
+
+
 inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, bool forceRedraw) {
 #if SCREEN_SAVER == SS_BLACK
     if (forceRedraw) {
@@ -509,7 +629,7 @@ inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, boo
     display.display();
 #elif SCREEN_SAVER == SS_BARS
     static uint8_t lastBars = 0;
-    const static uint8_t numBars = 4;
+    const uint8_t numBars = 4;
     uint8_t bars = (numBars + 1) * elapsedFraction;
     if (!forceRedraw && bars == lastBars) {
         return;
