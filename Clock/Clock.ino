@@ -126,16 +126,26 @@ void loop() {
         float elapsed;
         const Clock clock = state.clocks[i];
         if (clock.mode == MULTIPLY) {
-            elapsed = getElapsed(clock.multiplier, numBeats, elapsedFraction);
+            float _elapsedFraction = elapsedFraction - (float) clock.offset / (float) 200 * clock.multiplier;
+            float _numBeats = numBeats;
+            if (_elapsedFraction > 1) {
+                _numBeats++;
+                _elapsedFraction -= 1;
+            } else if (_elapsedFraction < 0) {
+                _numBeats--;
+                _elapsedFraction += 1;
+            } 
+            elapsed = getElapsed(clock.multiplier, _numBeats, _elapsedFraction);
         } else {
             const float fraction = 1.0 / (float) clock.multiplier;
-            float remainder = elapsedFraction;
+            float _elapsedFraction = 1 + elapsedFraction - (float) clock.offset / (float) 200 * fraction;
+            float remainder = _elapsedFraction;
             while (remainder >= fraction) {
                 remainder -= fraction;
             }
             elapsed = remainder / fraction;
         }
-        const uint8_t output = elapsed < 0.5 ? HIGH : LOW;
+        const uint8_t output = elapsed < (float) clock.pulseWidth / (float) 100 ? HIGH : LOW;
         if (output != outputCache[i]) {
             outputCache[i] = output;
             digitalWrite(OUTPUT_PINS[i], output);
@@ -340,7 +350,7 @@ inline void onKnobTurned(int direction, int counter) {
             addMaxMin(&clock->pulseWidth, direction, 0, 100);
         } break;
         case 2: {
-            addMaxMin(&clock->offset, direction, 0, 100);
+            addMaxMin(&clock->offset, direction, -50, 50);
         } break;
         }
     } break;
@@ -353,7 +363,7 @@ inline void onKnobTurned(int direction, int counter) {
 inline void addMaxMin(int8_t* value, int8_t delta, int8_t min, int8_t max) {
     *value += delta;
     if (*value < min) {
-        *value = max;
+        *value = min;
     } else if (*value > max) {
         *value = max;
     }
