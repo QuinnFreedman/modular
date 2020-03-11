@@ -2,17 +2,16 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-const uint8_t BUTTON_PIN = 2;
 const uint8_t LED_PIN_1 = 12;
 const uint8_t LED_PIN_2 = 11;
-
+const uint8_t ENCODER_BUTTON_PIN = 2;
 const uint8_t ENCODER_PIN_A = 3;
 const uint8_t ENCODER_PIN_B = 4;
-
 const uint8_t CLOCK_INPUT_PIN = A0;
+const uint8_t PAUSE_BUTTON_PIN = A1;
 
 const uint8_t NUM_OUTPUTS = 8;
-const uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
+const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
 
 const uint32_t SLEEP_TIMEOUT_MICROS = 8000000;
 
@@ -58,16 +57,22 @@ uint32_t lastRecordedTime;
 
 uint8_t outputCache[NUM_OUTPUTS] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 
+bool paused = false;
+
+const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
+
 void setup() {
-    pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(LED_PIN_1, OUTPUT);
     pinMode(LED_PIN_2, OUTPUT);
+    pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
     pinMode(CLOCK_INPUT_PIN, INPUT);
-    attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonChangeHandler, CHANGE);
+    pinMode(PAUSE_BUTTON_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON_PIN), rotaryButtonChangeHandler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoderHandler, CHANGE);
     enableInterrupt(CLOCK_INPUT_PIN);
+    enableInterrupt(PAUSE_BUTTON_PIN);
 
     Serial.begin(9600);
  
@@ -83,9 +88,9 @@ void setup() {
     state.mode = NAVIGATE;
     state.newInput = true;
 
-    const int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
-    for (int i = 0; i < NUM_OUTPUTS; i++) {
-        int val = initClockValues[i];
+    for (uint8_t i = 0; i < NUM_OUTPUTS; i++) {
+        pinMode(pgm_read_byte(&OUTPUT_PINS[i]), OUTPUT);
+        const int8_t val = pgm_read_byte(&(initClockValues[i]));
         Clock* clock = &state.clocks[i];
 
         clock->mode = val < 0 ? DIVIDE : MULTIPLY;
@@ -99,6 +104,7 @@ void setup() {
 
 
 void loop() {
+    if (paused) return;
     static uint32_t beatStart = micros();
     static uint32_t lastInputTime = micros();
     // Keep track of time
@@ -148,7 +154,7 @@ void loop() {
         const uint8_t output = elapsed < (float) clock.pulseWidth / (float) 100 ? HIGH : LOW;
         if (output != outputCache[i]) {
             outputCache[i] = output;
-            digitalWrite(OUTPUT_PINS[i], output);
+            digitalWrite(pgm_read_byte(&OUTPUT_PINS[i]), output);
         }
     }
 
@@ -186,9 +192,9 @@ inline float getElapsed(uint32_t periodLenBeats, uint32_t numBeatsElapsed,
 
 const uint32_t LONG_PRESS_TIME_MICROS = 500000;
 
-void buttonChangeHandler() {
+void rotaryButtonChangeHandler() {
     static uint32_t pressTime = 0;
-    bool buttonPressed = digitalRead(BUTTON_PIN) == LOW;
+    bool buttonPressed = digitalRead(ENCODER_BUTTON_PIN) == LOW;
     uint32_t now = lastRecordedTime;
     if (buttonPressed) {
         pressTime = now;
@@ -228,6 +234,7 @@ void rotaryEncoderHandler() {
 // builtin Arduino handler for pin change interrupt for pins A0 to A5
 ISR(PCINT1_vect) {
     clockInputChangeHandler();
+    pauseButtonChagneHandler();
 }
 
 inline void clockInputChangeHandler() {
@@ -235,6 +242,15 @@ inline void clockInputChangeHandler() {
     const int currentValue = digitalRead(CLOCK_INPUT_PIN);
     if (lastValue == LOW && currentValue == HIGH) {
         onClockInput();
+    }
+    lastValue = currentValue;
+}
+
+inline void pauseButtonChagneHandler() {
+    static int lastValue = digitalRead(PAUSE_BUTTON_PIN);
+    const int currentValue = digitalRead(PAUSE_BUTTON_PIN);
+    if (lastValue == LOW && currentValue == HIGH) {
+        onPuasePressed();
     }
     lastValue = currentValue;
 }
@@ -370,10 +386,6 @@ inline void addMaxMin(int8_t* value, int8_t delta, int8_t min, int8_t max) {
 }
 
 void onClockInput() {
-    const int NUM_DELTA_SAMPLES = 3;
-    static uint32_t deltas[NUM_DELTA_SAMPLES] = {0, 0, 0};
-    static uint8_t ringBufferPtr = NUM_DELTA_SAMPLES - 1;
-    static uint8_t numSamplesRecorded = 0;
     static uint32_t lastPressedTime = 0;
 
     const uint32_t currentTime = lastRecordedTime;
@@ -387,43 +399,14 @@ void onClockInput() {
     lastPressedTime = currentTime;
 
     if (deltaTime > CLOCK_INPUT_TIME_MAX) {
-        numSamplesRecorded = 0;
         return;
     }
     
-    /* if (numSamplesRecorded > 0) { */
-    /*     Serial.print(F(" > ")); */
-    /*     Serial.print(F("prevDelta: ")); */
-    /*     Serial.println(deltas[ringBufferPtr]); */
+    state.bpm = 60000000 / deltaTime;
+}
 
-    /*     const float ratioToLastDelta = (float) deltaTime / (float) deltas[ringBufferPtr]; */
-
-    /*     Serial.print(F(" > ")); */
-    /*     Serial.print(F("ratioToLastDelta: ")); */
-    /*     Serial.println(ratioToLastDelta); */
-
-    /*     if (ratioToLastDelta < 1 + CLOCK_INPUT_TOLERANCE_RATIO || */ 
-    /*         ratioToLastDelta < 1 - CLOCK_INPUT_TOLERANCE_RATIO */
-    /*     ) { */
-    /*         Serial.println(F(" > skip")); */
-    /*         numSamplesRecorded = 0; */
-    /*         return; */
-    /*     } */
-    /* } */
-
-    ringBufferPtr = (ringBufferPtr + 1) % NUM_DELTA_SAMPLES;
-    deltas[ringBufferPtr] = deltaTime;
-    numSamplesRecorded++;
-    
-    if (numSamplesRecorded >= NUM_DELTA_SAMPLES) {
-        uint32_t sum = 0;
-        for (int i = 0; i < NUM_DELTA_SAMPLES; i++) {
-            sum += deltas[i];
-        }
-        const uint32_t mean = sum / NUM_DELTA_SAMPLES;
-        const int bpm = 60000000 / mean;
-    }
-    
+inline void onPuasePressed() {
+    paused = !paused;
 }
 
 void drawMainMenu(Adafruit_SSD1306 display, const State state) {
