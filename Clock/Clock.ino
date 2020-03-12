@@ -2,6 +2,14 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+/*
+ * Pins (for Arduino Nano)
+ * Change if you want a different layout or a different board.
+ * Note: this code is expecting ENCODER_BUTTON_PIN and ENCODER_PIN_A
+ *       to be external interrupt pins and CLOCK_INPUT and 
+ *       PAUSE_BUTTON to be in PCINT1_vect for ISR. Search the Arduino
+ *       documentation if you're not sure about your board.
+ */
 const uint8_t LED_PIN_1 = 12;
 const uint8_t LED_PIN_2 = 11;
 const uint8_t ENCODER_BUTTON_PIN = 2;
@@ -13,22 +21,42 @@ const uint8_t PAUSE_BUTTON_PIN = A1;
 const uint8_t NUM_OUTPUTS = 8;
 const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
 
-const uint32_t SLEEP_TIMEOUT_MICROS = 8000000;
+// Number of seconds before the screen goes to sleep
+const uint32_t SLEEP_TIMEOUT_MICROS = 8 * 1000000;
 
+// How mong you have to hold down the rotary button to count as a long press
+const uint32_t LONG_PRESS_TIME_MICROS = 500000;
+
+// Min & max input clock deltas (micros) for running in slave mode.
 const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
 const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
-/* const float CLOCK_INPUT_TOLERANCE_RATIO = 0.75; */
 
+/*
+ * OLED screen settings. See Adafruit_SSD1306 for more info.
+ */
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 #define SCREEN_I2C_ADDRESS 0x3C // Change to correct address for your screen
 
-#define SS_NONE  0
-#define SS_BLACK 1
-#define SS_PULSE 2
-#define SS_BARS  3
-#define SCREEN_SAVER SS_BLACK 
+/*
+ * Screen saver mode. After SLEEP_TIMEOUT_MICROS microseconds since th last
+ * user input, the screen will go to one of these modes.
+ *
+ * Set SCREEN_SAVER to be equal to whatever mode you want to use.
+ *
+ * Note - drawing to the screen takes time (I2C is really slow)
+ *        so setting a fast-moving screen saver may cause fast
+ *        subdivisions to be a little out of sync. SS_NONE, SS_BLACK,
+ *        and SS_BPM all don't require any redraws after the first one
+ *        so they should be fine.
+ */
+#define SS_NONE  0 // No screensaver -- stay on the current menu
+#define SS_BLACK 1 // Turn the screen off
+#define SS_BPM   2 // Return to the BPM-select screen
+#define SS_PULSE 3 // Show a pulsing 1-beat animation
+#define SS_BARS  4 // Show a 4-beat scroll animation
+#define SCREEN_SAVER SS_BARS 
 
 typedef enum : uint8_t {NAVIGATE, EDIT_FAST, SUBMENU, SUBMENU_EDIT, SLEEP} MenuMode;
 typedef enum : uint8_t {MULTIPLY, DIVIDE} ClockMode;
@@ -61,6 +89,9 @@ bool paused = false;
 
 const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
 
+/*
+ * Initialize variables, setup pins
+ */
 void setup() {
     pinMode(LED_PIN_1, OUTPUT);
     pinMode(LED_PIN_2, OUTPUT);
@@ -104,14 +135,17 @@ void setup() {
 
 
 void loop() {
-    if (paused) return;
     static uint32_t beatStart = micros();
     static uint32_t lastInputTime = micros();
-    // Keep track of time
+
+    /*  
+     * Keep track of time
+     */
     static uint32_t numBeats = 0;
     const uint32_t beatMicros = 60000000 / state.bpm;
     const uint32_t currentTime = micros();
     lastRecordedTime = currentTime;
+    if (paused) return;
     uint32_t elapsed = currentTime - beatStart;
     while (elapsed >= beatMicros) {
         elapsed -= beatMicros;
@@ -119,15 +153,19 @@ void loop() {
         numBeats++;
     }
     float elapsedFraction = ((float) elapsed) / ((float) beatMicros);
-
-    // Check if there has been new knob/button input
+    
+    /*
+     * Check if there has been new knob/button input
+     */
     const bool newInput = state.newInput;
     if (newInput) {
         lastInputTime = currentTime;
         state.newInput = false;
     }
 
-    // Send signals to output pins
+    /*
+     * Send signals to output pins
+     */
     for (int i = 0; i < NUM_OUTPUTS; i++) {
         float elapsed;
         const Clock clock = state.clocks[i];
@@ -158,18 +196,29 @@ void loop() {
         }
     }
 
-    // draw screen
+    /*
+     * draw screen
+     */
     #if SCREEN_SAVER != SS_NONE
     bool forceRedrawScreen = false;
     if (state.mode != SLEEP && currentTime - lastInputTime > SLEEP_TIMEOUT_MICROS) {
+        #if SCREEN_SAVER == SS_BPM
+        state.mode = NAVIGATE;
+        state.newInput = true;
+        #else
         state.mode = SLEEP;
-        state.cursor = -1;
         forceRedrawScreen = true;
+        #endif
+        state.cursor = -1;
     }
     #endif
 
     if (state.mode == SLEEP) {
+        #if SCREEN_SAVER == SS_BARS
+        float elapsed = getElapsed(4, numBeats, elapsedFraction);
+        #elif SCREEN_SAVER == SS_PULSE
         float elapsed = getElapsed(1, numBeats, elapsedFraction);
+        #endif
         drawScreenSaver(display, elapsed, forceRedrawScreen);
     } else if (newInput) {
         if (state.mode == NAVIGATE || state.mode == EDIT_FAST) {
@@ -181,7 +230,11 @@ void loop() {
     delay(1);
 }
 
-inline float getElapsed(uint32_t periodLenBeats, uint32_t numBeatsElapsed,
+/*
+ * given elapsedFraction -- the amount of the the current beat that has passed --
+ * gives the amount of a larger multi-beat section that has passed.
+ */
+inline float getElapsed(uint8_t periodLenBeats, uint32_t numBeatsElapsed,
                        float elapsedInCurrentBeat) {
     const uint32_t beatsInCurrentPeriod = numBeatsElapsed % periodLenBeats;
     const float fractionElapsedPrevious = (float) beatsInCurrentPeriod / (float) periodLenBeats;
@@ -190,7 +243,11 @@ inline float getElapsed(uint32_t periodLenBeats, uint32_t numBeatsElapsed,
     return fractionElapsed;
 }
 
-const uint32_t LONG_PRESS_TIME_MICROS = 500000;
+/*
+ * BEGIN HANDLERS --
+ * simple functions attatched to interrupts to handle button input.
+ * Most of them call anoither function to handle actual application logic.
+ */
 
 void rotaryButtonChangeHandler() {
     static uint32_t pressTime = 0;
@@ -254,6 +311,10 @@ inline void pauseButtonChagneHandler() {
     }
     lastValue = currentValue;
 }
+
+/*
+ * END HANDLERS
+ */
 
 inline void onLongPress() {
     state.newInput = true;
@@ -376,6 +437,9 @@ inline void onKnobTurned(int direction, int counter) {
     }
 }
 
+/*
+ * Add a delta value to an int pointer without exceeding max/min values
+ */
 inline void addMaxMin(int8_t* value, int8_t delta, int8_t min, int8_t max) {
     *value += delta;
     if (*value < min) {
@@ -623,20 +687,23 @@ inline void drawScreenSaver(Adafruit_SSD1306 display, float elapsedFraction, boo
 #elif SCREEN_SAVER == SS_BARS
     static uint8_t lastBars = 0;
     const uint8_t numBars = 4;
-    uint8_t bars = (numBars + 1) * elapsedFraction;
+    uint8_t bars = numBars * elapsedFraction;
     if (!forceRedraw && bars == lastBars) {
         return;
     }
     lastBars = bars;
     
-    if (forceRedraw) {
-        display.clearDisplay();
-    }
-    display.fillRect(0, SCREEN_HEIGHT / numBars * (bars), SCREEN_WIDTH, SCREEN_HEIGHT / numBars, SSD1306_INVERSE);
+    display.clearDisplay();
+    display.fillRect(SCREEN_WIDTH / numBars * bars, 0, SCREEN_WIDTH / numBars, SCREEN_HEIGHT, SSD1306_WHITE);
+    // Horizontal:
+    // display.fillRect(0, SCREEN_HEIGHT / numBars * bars, SCREEN_WIDTH, SCREEN_HEIGHT / numBars, SSD1306_WHITE);
     display.display();
 #endif
 }
 
+/*
+ * Helper function for Arduino ICR macro
+ */
 inline void enableInterrupt(byte pin) {
     *digitalPinToPCMSK(pin) |= bit (digitalPinToPCMSKbit(pin));  // enable pin
     PCIFR  |= bit (digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
