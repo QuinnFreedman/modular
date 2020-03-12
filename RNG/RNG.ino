@@ -9,7 +9,8 @@ const uint16_t LED_PINS[NUM_LEDS] = {
 const uint16_t RANDOMNESS_POT_PIN = A6;
 const uint16_t DAC_CS_PIN = 2;
 const uint16_t THRESHOLD_POT_PIN = A7;
-const uint16_t GATE_PIN = 3;
+const uint16_t GATE_PIN_A = 3;
+const uint16_t GATE_PIN_B = 4;
 
 const int LED_OFFSET = 2;
 
@@ -31,7 +32,8 @@ void setup() {
     pinMode(RANDOMNESS_POT_PIN, INPUT);
     pinMode(THRESHOLD_POT_PIN, INPUT);
     pinMode(DAC_CS_PIN, OUTPUT);
-    pinMode(GATE_PIN, OUTPUT);
+    pinMode(GATE_PIN_A, OUTPUT);
+    pinMode(GATE_PIN_B, OUTPUT);
 
     digitalWrite(DAC_CS_PIN, HIGH);
 
@@ -72,7 +74,8 @@ void step() {
         gate = buffer[ptr] > threshold;
     }
     
-    digitalWrite(GATE_PIN, gate ? HIGH : LOW);
+    digitalWrite(GATE_PIN_A, gate ? HIGH : LOW);
+    digitalWrite(GATE_PIN_B, gate ? LOW : HIGH);
 
     for (int led = 0; led < NUM_LEDS; led++) {
         int index = (ptr + led) % bufferSize;
