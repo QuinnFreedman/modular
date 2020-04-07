@@ -1,13 +1,11 @@
 #include <stdint.h>
-#include <assert.h>
 #include <SPI.h>
+#include <Tlc5940.h>
 
-const int NUM_LEDS = 6;
-const uint16_t LED_PINS[NUM_LEDS] = {
-    A0, A1, A2, A3, A4, A5
-};
+const int NUM_LEDS = 7;
+
 const uint16_t RANDOMNESS_POT_PIN = A6;
-const uint16_t DAC_CS_PIN = 9;
+const uint16_t DAC_CS_PIN = 8;
 const uint16_t THRESHOLD_POT_PIN = A7;
 const uint16_t GATE_PIN_A = 7;
 const uint16_t GATE_PIN_B = 6;
@@ -15,7 +13,7 @@ const uint16_t RECORD_SWITCH_PIN = 5;
 const uint16_t GATE_TRIG_SWITCH_PIN = 4;
 const uint16_t CLOCK_IN_PIN = 2;
 
-const int LED_OFFSET = 2;
+const uint16_t LED_OFFSET = 3;
 const int TRIG_LENGTH_MS = 100;
 const int MAX_BUFFER_SIZE = 32;
 const bool YOYO = false;
@@ -37,9 +35,6 @@ uint32_t lastStepTime = 0;
 bool reverse = false;
 
 void setup() {
-    for (int i = 0; i < NUM_LEDS; i++) {
-        pinMode(LED_PINS[i], OUTPUT);
-    }
     pinMode(RANDOMNESS_POT_PIN, INPUT);
     pinMode(THRESHOLD_POT_PIN, INPUT);
     pinMode(DAC_CS_PIN, OUTPUT);
@@ -58,7 +53,12 @@ void setup() {
     for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
         buffer[i] = random(MAX_VALUE);
     }
-    buffer[0] = MAX_VALUE;
+
+    Serial.begin(9600);
+    
+    Tlc.init();
+    Tlc.clear();
+    Tlc.update();
 
     SPI.begin();
     SPI.setBitOrder(MSBFIRST);
@@ -66,6 +66,8 @@ void setup() {
     
     lastRecordedTime = millis();
 
+    delay(100);
+    loop();
     step();
 }
 
@@ -78,7 +80,7 @@ void loop() {
     
     lastRecordedTime = millis();
 
-    if (lastRecordedTime - lastStepTime > TRIG_LENGTH_MS) {
+    if (gatesAreTriggers && lastRecordedTime - lastStepTime > TRIG_LENGTH_MS) {
         digitalWrite(GATE_PIN_A, LOW);
         digitalWrite(GATE_PIN_B, LOW);
     }
@@ -94,7 +96,9 @@ void stepInterruptWrapper() {
 }
 
 void step() {
-    static int ptr = 0;
+    static uint16_t ptr = 0;
+
+    Serial.println("step");
 
     if (random(MAX_READ_VALUE) < randomness) {
         buffer[ptr] = random(MAX_VALUE);
@@ -114,10 +118,11 @@ void step() {
     digitalWrite(GATE_PIN_A, gate ? HIGH : LOW);
     digitalWrite(GATE_PIN_B, gate ? LOW : HIGH);
 
-    for (int led = 0; led < NUM_LEDS; led++) {
-        int index = (ptr + led) % bufferSize;
-        analogWrite(LED_PINS[(led + LED_OFFSET) % NUM_LEDS], (float) buffer[index] / (MAX_VALUE / 255));
+    for (uint16_t led = 0; led < NUM_LEDS; led++) {
+        uint16_t index = (ptr + led - LED_OFFSET) % bufferSize;
+        Tlc.set(led, buffer[index]);
     }
+    Tlc.update();
 
     if (!YOYO) {
         ptr = (ptr + 1) % bufferSize;
@@ -145,9 +150,7 @@ void MCP4922_write(int cs_pin, byte dac, uint16_t value) {
     byte high = (value >> 8) & 0x0f;
     dac = (dac & 1) << 7;
     digitalWrite(cs_pin, LOW);
-    delay(100);
     SPI.transfer(dac | 0x30 | high);
     SPI.transfer(low);
-    delay(100);
     digitalWrite(cs_pin, HIGH);
 }
