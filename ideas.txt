@@ -38,3 +38,5 @@
 
 ## Cases
 1. Cre8Audio NiftyCASE
+2. Tiptop Mantis
+3. Tiptop Happy Ending
