@@ -1,0 +1,39 @@
+1. position
+2. size
+3. density
+  * -1 = no grains
+  *  0 = (mean spacing = grain size) (if the output stdev == 0, this will recreate the original signal
+  *  1 = double density (mean spacing = 1/2 grain size)
+4. randomness
+  * std dev of position in input (around *position*) or output or both
+  * would change how freeze works
+    * if randomness in where to sample from input, then freeze will have some random sounds
+    * if randomness only in where to place sample, freeze will all be the same grain but with randomness in placing (i.e. 
+    * if randomness in output position, positions could be calculated ahead (before audio sample comes in) so that a grain never needs to be placed in the past
+    * if randomness in input sample position, then it could sample past the edges of the buffer
+      * could just fold the distribution at buffer end
+5. texture
+  * shape of grain envelope
+  * -1 = square
+  *  1 = equal length attack/decay (max length)
+
+6. pitch shift
+  * V/O
+
+7. feedback
+  * -1 : no feedback
+  * volume of output signal that is summed with the input and added to the front of the buffer
+
+8. dry/wet blend
+
+9. freeze
+ * bool
+ * if yes, stop recording (read cursor will stay at same point in buffer, adjustable by *position*)
+
+
+/*
+* density
+  * 0 = no grains
+  * negative = sewn regularly
+  * positive = sewn randomly
+*/
