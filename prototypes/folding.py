@@ -41,7 +41,7 @@ SIGMOID_SCALE = 10
 
 
 def sigmoid(x):
-    return 1 / (1 + np.e ** -x)
+    return 1 / (1 + np.e ** -x) * 2 - 1
 
 def process_data(data):
     data = data * FOLD_AMOUNT
@@ -53,7 +53,8 @@ def process_data(data):
             elif x < MIN_FOLD:
                 x = MIN_FOLD - (x - MIN_FOLD)
 
-        data[i] = sigmoid((x * SIGMOID_SCALE + 1) / 2) 
+        data[i] = sigmoid(x * SIGMOID_SCALE)
+        data[i] /= sigmoid(1 * SIGMOID_SCALE)
     return data
 
 fig, ax = plt.subplots()
