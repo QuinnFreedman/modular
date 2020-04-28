@@ -1,6 +1,8 @@
 import numpy as np
 from numpy.random import normal, random
 
+DEBUG = True
+
 MAX_DENSITY = 1 / 4
 MIN_DENSITY = 4
 ONE_DENSITY = (1 - MIN_DENSITY) / (MAX_DENSITY - MIN_DENSITY)
@@ -81,30 +83,23 @@ class Grain():
         self.out_length = out_length
         self.debug_index = debug_index
 
-def split_list(items, predicate):
-    a, b = [], []
-    for x in items:
-        if predicate(x):
-            a.append(x)
-        else:
-            b.append(x)
-    return a, b
 
 class GranularSynth:
     def __init__(self, params: GranularSynthParams, input):
         self.input_stream = input
         self.params = params
-        self.buffer = Ringbuffer(params.buffer_size)
+        self.buffer = Ringbuffer(params.buffer_size, float)
         # self.buffer = np.zeros(params.buffer_size, dtype=int)
         self.time = 0
-        self.last_grain_made_at = 0
+        self.last_grain_made_at = -9999 # 0
         self.playing_grains = []
 
-        self.debug_index = 0
-        self.debug_input = ""
-        self.debug_output_data = ["" for _ in range(10)]
-        self.debug_envelopes = ["" for _ in range(10)]
-        self.debug_output = ""
+        if DEBUG:
+            self.debug_index = 0
+            self.debug_input = ""
+            self.debug_output_data = ["" for _ in range(10)]
+            self.debug_envelopes = ["" for _ in range(10)]
+            self.debug_output = ""
 
 
     def get_envelope_at(self, x):
@@ -157,9 +152,10 @@ class GranularSynth:
             input_length = self.params.size,
             output_time = self.time,
             out_length = self.params.size * self.params.pitch,
-            debug_index = self.debug_index
+            debug_index = self.debug_index if DEBUG else None
         ))
-        self.debug_index = (self.debug_index + 1) % 10
+        if DEBUG:
+            self.debug_index = (self.debug_index + 1) % 10
 
 
     def __next__(self):
@@ -170,7 +166,8 @@ class GranularSynth:
         
         self.buffer.push_back(input_sample)
 
-        self.debug_input += f"{input_sample:3} "
+        if DEBUG:
+            self.debug_input += f"{input_sample: 6.1f}"
 
         position = self.params.position # TODO times buffer length
 
@@ -209,9 +206,10 @@ class GranularSynth:
         
         output = 0
 
-        for i in range(len(self.debug_output_data)):
-            self.debug_output_data[i] += "  . "
-            self.debug_envelopes[i] += "  . "
+        if DEBUG:
+            for i in range(len(self.debug_output_data)):
+                self.debug_output_data[i] += "    . "
+                self.debug_envelopes[i] += "    . "
             
         for grain in self.playing_grains:
             time_since_started_playing = self.time - grain.output_time
@@ -221,16 +219,28 @@ class GranularSynth:
             index = grain_start_index + int(grain.input_length * fraction_played)
             data = self.buffer[index]
             envelope = self.get_envelope_at(fraction_played + 1 / (2 * grain.out_length))
-            self.debug_output_data[grain.debug_index] = \
-                    self.debug_output_data[grain.debug_index][:-4] + f"{data:3} "
-            self.debug_envelopes[grain.debug_index] = \
-                    self.debug_envelopes[grain.debug_index][:-4] + f"{envelope:.1f} "
+            if DEBUG:
+                self.debug_output_data[grain.debug_index] = \
+                        self.debug_output_data[grain.debug_index][:-6] + f"{data: 6.1f}"
+                self.debug_envelopes[grain.debug_index] = \
+                        self.debug_envelopes[grain.debug_index][:-6] + f"{envelope: 6.1f}"
             output += envelope * data
 
         if self.playing_grains:
             output /= len(self.playing_grains)
-        
-        self.debug_output += f"{int(round(output)):3} "
+
+        if DEBUG:
+            self.debug_output += f"{output: 6.1f}"
+
+        ##
+        ## 4. Feedback
+        ##
+
+        self.buffer[len(self.buffer) - 1] += output * self.params.feedback
+
+        ##
+        ## Cleanup
+        ##
 
         self.time += 1
         return output
@@ -241,26 +251,32 @@ class GranularSynth:
 
 if __name__ == "__main__":
     params = GranularSynthParams({
-        "position": 0,
+        "position": 20,
         "density": ONE_DENSITY,
-        "texture": 0.5,
+        "texture": 0,
         "buffer_size": 200,
-        "pitch": .5,
-        "spread": .5
+        "pitch": 2,
+        "spread": 0,
+        "feedback": .8,
     })
 
-    input = iter(np.arange(1000))
+    input = np.sin(np.arange(1000) / 10) / 2 + .5
+    input = iter(input / 2)
 
-    synth = GranularSynth(params, input)
+    input = np.zeros(1000)
+    input[:6] = [1, .5, 0, -.5, -1, -.5]
+
+    synth = GranularSynth(params, iter(input))
     list(synth)
 
-    print(synth.debug_input)
-    print("-" * len(synth.debug_output_data[0]))
-    for line in synth.debug_output_data:
-        print(line)
-    print("-" * len(synth.debug_output_data[0]))
-    for line in synth.debug_envelopes:
-        print(line)
-    print("-" * len(synth.debug_output_data[0]))
-    print(synth.debug_output)
+    if DEBUG:
+        print(synth.debug_input)
+        print("-" * len(synth.debug_output_data[0]))
+        for line in synth.debug_output_data:
+            print(line)
+        print("-" * len(synth.debug_output_data[0]))
+        for line in synth.debug_envelopes:
+            print(line)
+        print("-" * len(synth.debug_output_data[0]))
+        print(synth.debug_output)
         
