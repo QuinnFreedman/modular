@@ -45,13 +45,64 @@ class DftConvolver:
             return None
 
         return self.output_buffer[t - self.out_buffer_start_time]
+
+
+class NaiveConvolver:
+    def __init__(self, kernel, out_buffer_size):
+        self.kernel = kernel
+        self.output_buffer = np.zeros(out_buffer_size)
+        self.output_buffer_start = -out_buffer_size
+        self.input_buffer = np.zeros(len(kernel))
+
+    def push(self, value, time):
+        assert time == self.output_buffer_start + len(self.output_buffer)
+        self.input_buffer = np.roll(self.input_buffer, -1)
+        self.input_buffer[-1] = value
         
+        self.output_buffer = np.roll(self.output_buffer, -1)
+        self.output_buffer[-1] = np.dot(self.input_buffer, np.flip(self.kernel))
+        
+        self.output_buffer_start += 1
+
+    def get_at_time(self, t):
+        if t < self.output_buffer_start:
+            return f"{t} out of bounds <{self.output_buffer_start}-{self.output_buffer_start+len(self.output_buffer)}>"
+        if t >= self.output_buffer_start + len(self.output_buffer):
+            return f"{t} out of bounds <{self.output_buffer_start}-{self.output_buffer_start+len(self.output_buffer)}>"
+
+        return self.output_buffer[t - self.output_buffer_start]
+
 
 N = 4
 
-dfts = [DftConvolver(N), DftConvolver(2*N), DftConvolver(4*N)]
+#dfts = [DftConvolver(N), DftConvolver(2*N), DftConvolver(4*N)]
 
-for i in range(100):
-    dfts[0].push(i, i)
-    get_at = i - 3
-    print(f"time: {i}, conv@{get_at}: {dfts[0].get_at_time(get_at)}")
+kernel = np.array([.5, 1, .5, .25])
+
+convolver = NaiveConvolver(kernel, 1)
+#convolver2 = NaiveConvolver([0, 0, 0, 0], 5)
+
+data = np.arange(100)
+
+resultA = []
+for i in data:
+    convolver.push(i, i)
+    resultA.append(convolver.get_at_time(i))
+    #get_at = i
+    #print(f"time: {i}, conv@{get_at}: {convolver.get_at_time(get_at)}")
+
+resultA = np.array(resultA)
+
+print(resultA)
+
+resultB = np.convolve(data, kernel, mode="same")
+
+print(resultB)
+
+resultC = []
+padded_data = np.concatenate((np.zeros(len(kernel) - 1), data))
+for i in range(len(padded_data) - len(kernel)):
+    resultC.append(np.dot(padded_data[i:i+len(kernel)], np.flip(kernel)))
+
+resultC = np.array(resultC)
+print(resultC)
