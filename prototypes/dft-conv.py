@@ -114,13 +114,15 @@ class DFTBufferedConvolver:
         self.M = len(kernel)
         self.L = N - (self.M - 1)
         self.h = np.array(kernel.tolist() + ([0] * (self.L - 1)))
-        
+
+        """
         print("offset:", offset)
         print("N:", self.N)
         print("M:", self.M)
         print("L:", self.L) 
         print("kernel:", len(kernel))
         print("h:", len(self.h))
+        """
         
         assert self.L <= offset
         assert self.M <= self.N
@@ -136,16 +138,14 @@ class DFTBufferedConvolver:
         return np.real(np.fft.ifft( np.fft.fft(signal) * np.fft.fft(kernel)  ))
 
     def convolve_block(self):
-        input_ptr = self.block_start_ptr + 1
-        block = np.array(self.input_buffer[input_ptr - self.L:input_ptr])
+        block = np.array(self.input_buffer[self.block_start_ptr-1:self.block_start_ptr+self.L-1])
+        #print("input:", block)
         if self.last_block is None:
             padded_block = ([0] * (self.M - 1)) + block.tolist()
         else:
             padded_block = self.last_block.tolist()[-(self.M-1):] + block.tolist()
         self.last_block = np.array(padded_block)
         return DFTBufferedConvolver.circ_conv(padded_block, self.h)[self.M-1:]
-        
-
 
     def update(self):
         self.input_length += 1
@@ -155,7 +155,7 @@ class DFTBufferedConvolver:
             result = self.convolve_block()
             self.block_start_ptr += self.L
             self.output_buffer[-self.L:] = result
-        print("time t =", self.input_length, "| output:", self.output_buffer)
+        #print("time t =", self.input_length, "| output:", self.output_buffer)
 
     def get_current_value(self):
         return self.output_buffer[0]
@@ -205,8 +205,9 @@ if __name__ == "__main__":
 
 #SBS = 64 # or 32 -- starting block size, aka N
 
-kernel = np.array([0, 0, 0, 0, 0, 1, 2, 3, 4])
-input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
+kernel = np.array([-3, -2, 5, 0, 1, 2, 3, 4])
+#input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
+input = np.arange(25) + 1
 """
 #kernel = np.array([.5, 1, .5, .25, .2, .15, .1, .01, .8, .7, .2])
 kernel = np.array([0, 0, 0, 0, 0, 0, .1, .01, .8, .7, .2, .1, .3, .4 ])
@@ -214,9 +215,9 @@ kernel = (kernel * 25).astype(np.int)
 """
 
 data = ZeroPrepaddedBuffer()
-split = 5
+split = 4
 convolver1 = NaiveConvolver(kernel[:split], data, 0)
-convolver2 = DFTBufferedConvolver(kernel[split:], data, offset=split, N=8)
+convolver2 = DFTBufferedConvolver(kernel[split:], data, offset=split, N=4)
 
 
 resultA = []
@@ -323,7 +324,7 @@ def chunk_stream(input_stream, chunk_size):
 
 if __name__ == "__main__":
     kernel = [1, 2, 3, 4]
-    input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
+    #input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
     os1_result = overlap_save(kernel, input)
     print("overlap-save result:         ", os1_result)
     os2_result = overlap_save_stream(kernel, chunk_stream(input, 5))
