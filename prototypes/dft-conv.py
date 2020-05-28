@@ -160,9 +160,8 @@ class DFTBufferedConvolver:
     def get_current_value(self):
         return self.output_buffer[0]
 
-"""
 if __name__ == "__main__":
-    print("Running tests...")
+    print("Testing basic stacked convolution...")
     for test in tqdm(range(100)):
         seed = np.random.randint(9999)
         np.random.seed(seed)
@@ -201,18 +200,58 @@ if __name__ == "__main__":
             print("correct:")
             print(numpy_result)
             sys.exit(1)
+
+if __name__ == "__main__":
+    print("Testing Gardner stacked DFT convolution...")
+    SBS = 32  # or 64 -- starting block size, aka N in G.95
+    for test in tqdm(range(100)):
+        seed = np.random.randint(9999)
+        np.random.seed(seed)
+
+        num_conv = np.random.randint(low=1, high=5)
+
+        max_kernel_length = (2 ** num_conv) * SBS
+        kernel_length = np.random.randint(low=max_kernel_length//2 + 1, high=max_kernel_length)
+        kernel = np.random.randint(low=0, high=100, size=kernel_length, dtype=np.int)
+        data = ZeroPrepaddedBuffer()
+
+        convolvers = [NaiveConvolver(kernel[:SBS], data, 0)]
+        for i in range(num_conv):
+            length = 2**i * SBS
+            offset = length
+            convolvers.append(
+                DFTBufferedConvolver(kernel[offset:offset+length], data, offset=offset, N=length))
+
+        result = []
+        for i in range(1, 100):
+            data.append(i)
+            sum = 0
+            for conv in convolvers:
+                conv.update()
+                sum += conv.get_current_value()
+            result.append(sum)
+
+        
+        naive_result = []
+        for i in range(1, len(data) + 1):
+            naive_result.append(np.dot(data[i-len(kernel):i], np.flip(kernel)))
+
+        numpy_result = np.convolve(np.array(data.data), kernel, mode="full")[:-(len(kernel)-1)]
+
+        assert np.array_equal(naive_result, numpy_result)
+        if not np.array_equal(naive_result, result):
+            print("test faild for seed", seed)
+            print("kernel == ", kernel)
+            print("result:")
+            print(result)
+            print("correct:")
+            print(naive_result)
+            sys.exit(1)
+
 """
-
-#SBS = 64 # or 32 -- starting block size, aka N
-
 kernel = np.array([-3, -2, 5, 0, 1, 2, 3, 4])
 #input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
 input = np.arange(25) + 1
-"""
-#kernel = np.array([.5, 1, .5, .25, .2, .15, .1, .01, .8, .7, .2])
-kernel = np.array([0, 0, 0, 0, 0, 0, .1, .01, .8, .7, .2, .1, .3, .4 ])
-kernel = (kernel * 25).astype(np.int)
-"""
 
 data = ZeroPrepaddedBuffer()
 split = 4
@@ -242,7 +281,7 @@ for i in range(1, len(data) + 1):
 
 resultC = np.array(resultC)
 print(resultC)
-
+"""
 
 def overlap_save(kernel, input, N=8):
     def conv_circ( signal, ker ):
@@ -253,14 +292,14 @@ def overlap_save(kernel, input, N=8):
         """
         return np.real(np.fft.ifft( np.fft.fft(signal) * np.fft.fft(ker) ))
 
-    print("convolving using overlap-save")
+    #print("convolving using overlap-save")
     M = len(kernel)
     L = N - (M - 1)
     h = kernel + [0] * (L - 1)
-    print("M:", M)
-    print("N:", N)
-    print("L:", L)
-    print("h:", h)
+    #print("M:", M)
+    #print("N:", N)
+    #print("L:", L)
+    #print("h:", h)
     
     blocks = [[]]
     for value in input:
@@ -278,13 +317,13 @@ def overlap_save(kernel, input, N=8):
         else:
             blocks[i] = blocks[i - 1][-(M-1):] + b
             
-    print("xs:", blocks)
+    #print("xs:", blocks)
 
     ys = []
     for x in blocks:
         ys.append(np.round(conv_circ(x, h)[M-1:]).astype(int).tolist())
 
-    print("ys:", ys)
+    #print("ys:", ys)
 
     return [value for block in ys for value in block]
 
@@ -324,14 +363,13 @@ def chunk_stream(input_stream, chunk_size):
 
 if __name__ == "__main__":
     kernel = [1, 2, 3, 4]
-    #input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
+    input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
     os1_result = overlap_save(kernel, input)
-    print("overlap-save result:         ", os1_result)
+    #print("overlap-save result:         ", os1_result)
     os2_result = overlap_save_stream(kernel, chunk_stream(input, 5))
     os2_result = [value for block in os2_result for value in block]
-    print("overlap-save (stream) result:", os2_result)
+    #print("overlap-save (stream) result:", os2_result)
     np_result = np.convolve(kernel, input)[:len(input)]
-    print("numpy result:                ", np_result.tolist())
+    #print("numpy result:                ", np_result.tolist())
     assert np.array_equal(np_result, os1_result) 
     assert np.array_equal(np_result, os2_result) 
-
