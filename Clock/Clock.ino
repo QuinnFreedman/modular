@@ -245,7 +245,7 @@ inline float getElapsed(uint8_t periodLenBeats, uint32_t numBeatsElapsed,
 
 /*
  * BEGIN HANDLERS --
- * simple functions attatched to interrupts to handle button input.
+ * simple functions attached to interrupts to handle button input.
  * Most of them call anoither function to handle actual application logic.
  */
 

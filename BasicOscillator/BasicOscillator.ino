@@ -1,21 +1,22 @@
 #include <stdint.h>
 #include <SPI.h>
 
+const float TWELFTH_ROOT_TWO = pow(2.0, 1.0 / 12.0);
 
 // PINS
+/*
 // Arduino NANO
 const uint16_t PITCH_CV_PIN = A0;
 const uint16_t WAVE_SELECT_PIN = A1;
 const uint16_t CHIP_SELECT_PIN = A4;
 const uint16_t LED_PIN = A3;
+*/
 
-/*
 // Teensy 4.0
 const uint16_t PITCH_CV_PIN = A0;
 const uint16_t WAVE_SELECT_PIN = A1;
 const uint16_t CHIP_SELECT_PIN = 4;
 const uint16_t LED_PIN = 1;
-*/
 
 // If set, the control voltage values for period and wave shape will
 // be sampled at the beginning of every period of the sound wave.
@@ -57,7 +58,7 @@ void setup() {
 
     uint32_t periodStart = micros();
 
-    float hertz = 500;
+    /* float hertz = 500; */
     int mode = 2;
     uint32_t periodMicros = 0;
     float waveSelectPotValue = 0;
@@ -85,10 +86,22 @@ void setup() {
 
         if (shouldSamplePitchCV) {
             // sample pitch cv
-            uint16_t potValue = analogRead(PITCH_CV_PIN);
-            float newHertz = potValue + 100;
-            float hertzDelta = (newHertz - hertz) * 0.1;
-            hertz += hertzDelta;
+            /* uint16_t potValue = analogRead(PITCH_CV_PIN); */
+            /* float newHertz = potValue + 100; */
+            /* float hertzDelta = (newHertz - hertz) * 0.1; */
+            /* hertz += hertzDelta; */
+            /* periodMicros = (uint32_t) (1.0 / hertz * 1000000); */
+            const uint16_t rawValue = analogRead(PITCH_CV_PIN);
+            const float volts = rawValue * 5.0 / 1024.0;
+            Serial.print("volts: ");
+            Serial.println(volts);
+            // semitones relative to a4, given 0v == c3
+            const float semitones = volts * 12 - 21;
+            Serial.print("semitones: ");
+            Serial.println(semitones);
+            const float hertz = TWELFTH_ROOT_TWO * semitones + 440;
+            Serial.print("hertz: ");
+            Serial.println(hertz);
             periodMicros = (uint32_t) (1.0 / hertz * 1000000);
         }
         
