@@ -160,7 +160,75 @@ class DFTBufferedConvolver:
     def get_current_value(self):
         return self.output_buffer[0]
 
-if __name__ == "__main__":
+
+class CompositeConvolver:
+    """
+    Given an FIR (kernel), this class makes a convolver out of multiple
+    staggered DFT and naive convolvers in order to perform zero-point delay
+    convolution
+    Args:
+        input (stream): input stream of data to convolve with kernel (i.e.
+            the signal)
+        kernel (list): array to convolve with the input (i.e. the FIR)
+        SBS (int, optional): Starting block size. This is the size of the
+            smallest block used for DFT convolution. Only effects speed.
+            Should probably be 32 or 64.
+    """
+    def __init__(self, input, kernel, SBS=32, debug=False):
+        self.input = input
+        self.kernel = kernel
+        self.data = ZeroPrepaddedBuffer()
+
+        if debug:
+            print("len(kernel)", len(kernel))
+        
+        # How many SBS-sized chunks do we need to cover the kernel?
+        kernel_size = len(kernel)
+        
+        # The first block will be convolved plain colvolution
+        self.convolvers = [NaiveConvolver(kernel[:SBS], self.data, 0)]
+        kernel_size -= SBS
+
+        n = 0
+        while kernel_size > 0:
+            length = 2**n * SBS
+            offset = length
+            self.convolvers.append(
+                DFTBufferedConvolver(kernel[offset:offset+length], self.data, offset=offset, N=length))
+            n += 1
+            kernel_size -= length
+
+        if debug:
+            print("convovers:")
+            for c in self.convolvers:
+                if isinstance(c, NaiveConvolver):
+                    print("    Naive")
+                elif isinstance(c, DFTBufferedConvolver):
+                    print("    DFT: N =", c.N)
+
+    def __next__(self):
+        """
+        When an iterator requests the next value, read a value in from
+        the input and then pass it to every convolver.
+        """
+        input_value = next(self.input)
+        # `data` is the shared input buffer for all convolvers
+        self.data.append(input_value)
+        sum = 0
+        for conv in self.convolvers:
+            conv.update()
+            sum += conv.get_current_value()
+        return sum
+
+    def __iter__(self):
+        return self
+
+
+def do_tests():
+    #
+    # Basic tests
+    #
+    
     print("Testing basic stacked convolution...")
     for test in tqdm(range(100)):
         seed = np.random.randint(9999)
@@ -201,42 +269,32 @@ if __name__ == "__main__":
             print(numpy_result)
             sys.exit(1)
 
-if __name__ == "__main__":
+    #
+    # DFT tests
+    #
+    
     print("Testing Gardner stacked DFT convolution...")
     SBS = 32  # or 64 -- starting block size, aka N in G.95
     for test in tqdm(range(100)):
         seed = np.random.randint(9999)
         np.random.seed(seed)
-
-        num_conv = np.random.randint(low=1, high=5)
-
-        max_kernel_length = (2 ** num_conv) * SBS
-        kernel_length = np.random.randint(low=max_kernel_length//2 + 1, high=max_kernel_length)
+        
+        kernel_length = np.random.randint(low=1, high=500)
         kernel = np.random.randint(low=0, high=100, size=kernel_length, dtype=np.int)
-        data = ZeroPrepaddedBuffer()
-
-        convolvers = [NaiveConvolver(kernel[:SBS], data, 0)]
-        for i in range(num_conv):
-            length = 2**i * SBS
-            offset = length
-            convolvers.append(
-                DFTBufferedConvolver(kernel[offset:offset+length], data, offset=offset, N=length))
-
+        #TODO sometimes when data length gets too long there is an error
+        data = list(range(1, 500))
+        
         result = []
-        for i in range(1, 100):
-            data.append(i)
-            sum = 0
-            for conv in convolvers:
-                conv.update()
-                sum += conv.get_current_value()
-            result.append(sum)
-
+        convolver = CompositeConvolver(iter(data), kernel)
+        for value in convolver:
+            result.append(value)
         
         naive_result = []
-        for i in range(1, len(data) + 1):
-            naive_result.append(np.dot(data[i-len(kernel):i], np.flip(kernel)))
+        prepadded_data = ZeroPrepaddedBuffer(data)
+        for i in range(1, len(prepadded_data) + 1):
+            naive_result.append(np.dot(prepadded_data[i-len(kernel):i], np.flip(kernel)))
 
-        numpy_result = np.convolve(np.array(data.data), kernel, mode="full")[:-(len(kernel)-1)]
+        numpy_result = np.convolve(data, kernel, mode="full")[:-(len(kernel)-1)]
 
         assert np.array_equal(naive_result, numpy_result)
         if not np.array_equal(naive_result, result):
@@ -361,6 +419,7 @@ def chunk_stream(input_stream, chunk_size):
             block = []
 
 
+"""
 if __name__ == "__main__":
     kernel = [1, 2, 3, 4]
     input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
@@ -372,4 +431,9 @@ if __name__ == "__main__":
     np_result = np.convolve(kernel, input)[:len(input)]
     #print("numpy result:                ", np_result.tolist())
     assert np.array_equal(np_result, os1_result) 
-    assert np.array_equal(np_result, os2_result) 
+    assert np.array_equal(np_result, os2_result)
+"""
+
+
+if __name__ == "__main__":
+    do_tests()
