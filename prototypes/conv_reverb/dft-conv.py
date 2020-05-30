@@ -7,6 +7,10 @@ import sys
 np.set_printoptions(suppress=True)
 
 class ZeroPaddedBuffer(UserList):
+    """
+    A standard Python list except that if you access any index beyond
+    the bounds of the list, 0 will be returned instead of an exception.
+    """
     def __getitem__(self, index):
         if isinstance(index, int):
             assert index < len(self)
@@ -27,6 +31,10 @@ class ZeroPaddedBuffer(UserList):
         return super().__getitem__(index)
 
 class ZeroPrepaddedBuffer(UserList):
+    """
+    A standard Python list except that if you access any negative index,
+    you will get 0.
+    """
     def __getitem__(self, index):
         if isinstance(index, int):
             if index < 0:
@@ -45,17 +53,37 @@ class ZeroPrepaddedBuffer(UserList):
         return super().__getitem__(index)
 
 class NaiveConvolver:
+    """
+    An object to handle convolution on a stream at a given offset.
+    The convolution is done in a normal, straightforward way. if an
+    offset is set, the output is buffered by that much so that
+    getting element 0 of the output buffer always gets the value
+    at the "current time".
+
+    Args:
+        kernel (list): a FIR to convolve with the input buffer
+        input_buffer (list): the input data or signal to colvoleve. This is
+            treated like a list by the Convolver (i.e. it is indexed at
+            ceretain values) but all the data does not need to be there at
+            the start of convolution. The buffer can start empy as long as
+            you append at least one value to it before each time you call
+            `update()`. In practice, you should probably use a
+            ZeroPrepaddedBuffer for this purpose.
+        offset (int): an offset into the input buffer. A Convolver with
+            offset N will have its output be "delayed" by N values relative
+            to a Convolver with offset 0.
+    """
     def __init__(self, kernel, input_buffer, offset):
         self.kernel = kernel
         self.input_buffer = input_buffer
-        if True:
-            self.input_buffer_ptr = 0
-            self.output_buffer = np.zeros(1 + offset)
-        else:
-            self.input_buffer_ptr = -offset
-            self.output_buffer = np.zeros(1)
+        self.input_buffer_ptr = 0
+        self.output_buffer = np.zeros(1 + offset)
 
     def update(self):
+        """
+        Causes the convolver to read one new value from the input stream
+        and compute one new output which is shifted into the output buffer.
+        """
         self.input_buffer_ptr += 1
         output_val = np.dot(
             self.input_buffer[
@@ -72,6 +100,13 @@ class NaiveConvolver:
 
 
 class BufferedConvolver:
+    """
+    Same as NaiveConvolver except that the input stream is buffered and the
+    convolution is done in chunks instead of one value at a time. There is
+    no practical reason to do this. It is just a conceptual lead-in to
+    implementing DFTBufferedConvolver which takes advantage of this chunking
+    to get much faster performance.
+    """
     def __init__(self, kernel, input_buffer, offset, block_size):
         assert block_size <= offset
         self.kernel = kernel
@@ -81,7 +116,7 @@ class BufferedConvolver:
         self.input_length = 0
         self.output_buffer = np.zeros(offset)
 
-    def convolve_block(self):
+    def _convolve_block(self):
         result = np.empty(self.block_size)
         for i in range(self.block_size):
             input_ptr = i + self.block_start_ptr + 1
@@ -95,11 +130,18 @@ class BufferedConvolver:
         return result
 
     def update(self):
+        """
+        Reads one new value from the input buffer. If it does not have a full
+        block to process yet, nothing will happen -- the inputvalue will just
+        be buffered. Once `block_size` values will be buffered, the
+        convolution with that whole block will be computed and shifted into
+        the output buffer.
+        """
         self.input_length += 1
         self.output_buffer = np.roll(self.output_buffer, -1)
         self.output_buffer[-1] = 0
         if self.input_length - self.block_start_ptr > self.block_size:
-            result = self.convolve_block()
+            result = self._convolve_block()
             self.block_start_ptr += self.block_size
             self.output_buffer[-self.block_size:] = result
 
@@ -138,7 +180,7 @@ class DFTBufferedConvolver:
     def circ_conv(signal, kernel):
         return np.real(np.fft.ifft( np.fft.fft(signal) * np.fft.fft(kernel)  ))
 
-    def convolve_block(self):
+    def _convolve_block(self):
         block = np.array(self.input_buffer[self.block_start_ptr-1:self.block_start_ptr+self.L-1])
         if self.last_block is None:
             padded_block = ([0] * (self.M - 1)) + block.tolist()
@@ -156,7 +198,7 @@ class DFTBufferedConvolver:
         self.output_buffer = np.roll(self.output_buffer, -1)
         self.output_buffer[-1] = -1
         if self.input_length - self.block_start_ptr >= self.L:
-            result = self.convolve_block()
+            result = self._convolve_block()
             self.block_start_ptr += self.L
             self.output_buffer[-self.L:] = result
         #print("time t =", self.input_length, "| output:", self.output_buffer)
@@ -193,6 +235,7 @@ class CompositeConvolver:
         self.convolvers = [NaiveConvolver(kernel[:SBS], self.data, 0)]
         kernel_size -= SBS
 
+        # Allocate each convolver with size 2**n starts at offset 2**n
         n = 0
         while kernel_size > 0:
             length = 2**n * SBS
@@ -351,7 +394,7 @@ resultC = np.array(resultC)
 print(resultC)
 """
 
-def overlap_save(kernel, input, N=8):
+def overlap_save(kernel, input, N=8, debug=False):
     def conv_circ( signal, ker ):
         """
         signal: real 1D array
@@ -360,14 +403,16 @@ def overlap_save(kernel, input, N=8):
         """
         return np.real(np.fft.ifft( np.fft.fft(signal) * np.fft.fft(ker) ))
 
-    #print("convolving using overlap-save")
     M = len(kernel)
     L = N - (M - 1)
     h = kernel + [0] * (L - 1)
-    #print("M:", M)
-    #print("N:", N)
-    #print("L:", L)
-    #print("h:", h)
+    
+    if debug:
+        print("convolving using overlap-save")
+        print("M:", M)
+        print("N:", N)
+        print("L:", L)
+        print("h:", h)
     
     blocks = [[]]
     for value in input:
@@ -385,13 +430,13 @@ def overlap_save(kernel, input, N=8):
         else:
             blocks[i] = blocks[i - 1][-(M-1):] + b
             
-    #print("xs:", blocks)
+    if debug: print("xs:", blocks)
 
     ys = []
     for x in blocks:
         ys.append(np.round(conv_circ(x, h)[M-1:]).astype(int).tolist())
 
-    #print("ys:", ys)
+    if debug: print("ys:", ys)
 
     return [value for block in ys for value in block]
 
@@ -429,7 +474,6 @@ def chunk_stream(input_stream, chunk_size):
             block = []
 
 
-"""
 if __name__ == "__main__":
     kernel = [1, 2, 3, 4]
     input = [1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7]
@@ -442,7 +486,6 @@ if __name__ == "__main__":
     #print("numpy result:                ", np_result.tolist())
     assert np.array_equal(np_result, os1_result) 
     assert np.array_equal(np_result, os2_result)
-"""
 
 
 if __name__ == "__main__":
