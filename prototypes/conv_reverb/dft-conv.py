@@ -2,6 +2,7 @@ import numpy as np
 import numpy.fft as fft
 from collections import UserList
 from tqdm import tqdm
+import sys
 
 np.set_printoptions(suppress=True)
 
@@ -115,14 +116,14 @@ class DFTBufferedConvolver:
         self.L = N - (self.M - 1)
         self.h = np.array(kernel.tolist() + ([0] * (self.L - 1)))
 
-        """
-        print("offset:", offset)
-        print("N:", self.N)
-        print("M:", self.M)
-        print("L:", self.L) 
-        print("kernel:", len(kernel))
-        print("h:", len(self.h))
-        """
+        if False:
+            print("Creating DFT convolver")
+            print("  offset:", offset)
+            print("  N:", self.N)
+            print("  M:", self.M)
+            print("  L:", self.L) 
+            print("  kernel:", len(kernel))
+            print("  h:", len(self.h))
         
         assert self.L <= offset
         assert self.M <= self.N
@@ -139,11 +140,14 @@ class DFTBufferedConvolver:
 
     def convolve_block(self):
         block = np.array(self.input_buffer[self.block_start_ptr-1:self.block_start_ptr+self.L-1])
-        #print("input:", block)
         if self.last_block is None:
             padded_block = ([0] * (self.M - 1)) + block.tolist()
         else:
-            padded_block = self.last_block.tolist()[-(self.M-1):] + block.tolist()
+            last_block_index = -(self.M-1)
+            if last_block_index == 0:
+                padded_block = block.tolist()
+            else:
+                padded_block = self.last_block.tolist()[last_block_index:] + block.tolist()
         self.last_block = np.array(padded_block)
         return DFTBufferedConvolver.circ_conv(padded_block, self.h)[self.M-1:]
 
@@ -280,14 +284,20 @@ def do_tests():
         np.random.seed(seed)
         
         kernel_length = np.random.randint(low=1, high=500)
+        data_length = np.random.randint(low=1, high=1000)
         kernel = np.random.randint(low=0, high=100, size=kernel_length, dtype=np.int)
-        #TODO sometimes when data length gets too long there is an error
-        data = list(range(1, 500))
-        
-        result = []
-        convolver = CompositeConvolver(iter(data), kernel)
-        for value in convolver:
-            result.append(value)
+        data = np.random.randint(low=0, high=100, size=data_length, dtype=np.int)
+
+        try:
+            dft_result = []
+            convolver = CompositeConvolver(iter(data), kernel)
+            for value in convolver:
+                dft_result.append(value)
+                
+        except Exception as e:
+            print("test faild for seed", seed)
+            print(f"  Error on line {sys.exc_info()[-1].tb_lineno}: {e}")
+            sys.exit(1)
         
         naive_result = []
         prepadded_data = ZeroPrepaddedBuffer(data)
@@ -296,12 +306,12 @@ def do_tests():
 
         numpy_result = np.convolve(data, kernel, mode="full")[:-(len(kernel)-1)]
 
-        assert np.array_equal(naive_result, numpy_result)
-        if not np.array_equal(naive_result, result):
+        assert np.allclose(naive_result, numpy_result)
+        if not np.allclose(naive_result, dft_result):
             print("test faild for seed", seed)
             print("kernel == ", kernel)
-            print("result:")
-            print(result)
+            print("dft_result:")
+            print(dft_result)
             print("correct:")
             print(naive_result)
             sys.exit(1)
