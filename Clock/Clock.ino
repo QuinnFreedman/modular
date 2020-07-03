@@ -22,12 +22,15 @@ const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {A3, 9, A2, 10, A1, 11,  A0, 12
 // Number of seconds before the screen goes to sleep
 const uint32_t SLEEP_TIMEOUT_MICROS = 8 * 1000000;
 
-// How mong you have to hold down the rotary button to count as a long press
+// How long you have to hold down the rotary button to count as a long press
 const uint32_t LONG_PRESS_TIME_MICROS = 500000;
 
 // Min & max input clock deltas (micros) for running in slave mode.
 const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
 const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
+
+// What is the maximum value that can be set for the swing of each clock (0-99)
+const int8_t MAX_SWING = 75;
 
 /*
  * OLED screen settings. See Adafruit_SSD1306 for more info.
@@ -64,7 +67,7 @@ typedef struct {
     ClockMode mode;
     int8_t offset;
     int8_t pulseWidth;
-    // int8_t swing;
+    int8_t swing;
 } Clock;
 
 typedef struct {
@@ -373,8 +376,8 @@ inline void onKnobTurned(int direction, int counter) {
         state.submenuCursor += direction;
         if (state.submenuCursor < 0) {
             state.submenuCursor = 0;
-        } else if (state.submenuCursor > 2) {
-            state.submenuCursor = 2;
+        } else if (state.submenuCursor > 3) {
+            state.submenuCursor = 3;
         }
     } break;
     case EDIT_FAST: {
@@ -435,6 +438,9 @@ inline void onKnobTurned(int direction, int counter) {
         } break;
         case 2: {
             addMaxMin(&clock->offset, direction, -50, 50);
+        } break;
+        case 3: {
+            addMaxMin(&clock->swing, direction, 0, MAX_SWING);
         } break;
         }
     } break;
@@ -582,6 +588,29 @@ void drawMainMenu(Adafruit_SSD1306 display, const State state) {
     display.display();
 }
 
+// inline void drawSubmenuLine(Adafruit_SSD1306 display, const State state,
+//                             const char tag[3], const int8_t value,
+//                             const int8_t menuNumber, const int8_t offsetY) {
+#define drawSubmenuLine(tag, value, menuNumber) {                          \
+                                                                           \
+    display.setTextColor(SSD1306_WHITE);                                   \
+                                                                           \
+    char label[5] = tag;                                                   \
+    label[3] = state.submenuCursor == menuNumber ? '>' : ' ';              \
+    label[4] = '\0';                                                       \
+                                                                           \
+    display.setCursor(0, offsetY + lineHeight);                            \
+    display.write(label);                                                  \
+                                                                           \
+    char buffer[4];                                                        \
+    itoa(value, buffer, 10);                                               \
+                                                                           \
+    if (state.mode == SUBMENU_EDIT && state.submenuCursor == menuNumber) { \
+        display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);                \
+    }                                                                      \
+    display.write(buffer);                                                 \
+    }
+
 
 void drawSubMenu(Adafruit_SSD1306 display, const State state) {
     display.clearDisplay();
@@ -595,14 +624,15 @@ void drawSubMenu(Adafruit_SSD1306 display, const State state) {
     const uint8_t fontSize = 3;
     display.setTextSize(fontSize);
 
-    const int8_t textHeight = fontSize * 8 * 3;
+    const int8_t lineHeight = fontSize * 8;
+    const int8_t pageHeight = lineHeight * 4;
     const int8_t offsetY = state.submenuCursor == 2 
-        ? (int) screenHeight - (int) textHeight
+        ? -lineHeight
+        : state.submenuCursor == 3
+        ? (int) screenHeight - (int) pageHeight
         : 0;
     
     {
-        display.setTextColor(SSD1306_WHITE);
-
         char label[5];
         label[0] = '[';
         itoa(state.cursor + 1, label + 1, 10);
@@ -623,44 +653,9 @@ void drawSubMenu(Adafruit_SSD1306 display, const State state) {
         display.write(buffer);
     }
 
-    {
-        display.setTextColor(SSD1306_WHITE);
-
-        char label[5] = "PW:";
-        label[3] = state.submenuCursor == 1 ? '>' : ' ';
-        label[4] = '\0';
-
-        display.setCursor(0, offsetY + 8 * fontSize);
-        display.write(label);
-        
-        char buffer[4];
-        itoa(clock->pulseWidth, buffer, 10);
-        
-        if (state.mode == SUBMENU_EDIT && state.submenuCursor == 1) {
-            display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
-        }
-        display.write(buffer);
-    }
-
-    {
-        display.setTextColor(SSD1306_WHITE);
-
-        char label[5] = "PS:";
-        label[3] = state.submenuCursor == 2 ? '>' : ' ';
-        label[4] = '\0';
-
-        display.setCursor(0, offsetY + 2 * 8 * fontSize);
-        display.write(label);
-        
-        char buffer[4];
-        itoa(clock->offset, buffer, 10);
-
-        if (state.mode == SUBMENU_EDIT && state.submenuCursor == 2) {
-            display.setTextColor(SSD1306_BLACK, SSD1306_WHITE);
-        }
-        display.write(buffer);
-    }
-
+    drawSubmenuLine("PW:", clock->pulseWidth, 1);
+    drawSubmenuLine("PS:", clock->offset, 2);
+    drawSubmenuLine("SW:", clock->swing, 3);
 
     display.display();
 }

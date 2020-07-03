@@ -6,6 +6,10 @@ A clock module sends rythmic voltage pulses at different subdevisions or multipl
 
 > TODO
 
+PW: Pulse Width
+PS: Phase Shift
+SW: Swing
+
 ## Assembly
 
 > TODO
