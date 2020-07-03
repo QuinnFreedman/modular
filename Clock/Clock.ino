@@ -29,8 +29,13 @@ const uint32_t LONG_PRESS_TIME_MICROS = 500000;
 const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
 const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
 
-// What is the maximum value that can be set for the swing of each clock (0-99)
+// What is the maximum value that can be set for the swing of each clock
 const int8_t MAX_SWING = 75;
+// What is the maximum value that can be set for the swing of each clock
+// (i.e. can swing be negative?)
+const int8_t MIN_SWING = 0;
+// Swing is divided by this number to get a fraction from -1 to 1.
+const float SWING_SCALE = 100;
 
 /*
  * OLED screen settings. See Adafruit_SSD1306 for more info.
@@ -106,10 +111,10 @@ void setup() {
     enableInterrupt(PAUSE_BUTTON_PIN);
     enableInterrupt(ENCODER_BUTTON_PIN);
 
-    Serial.begin(9600);
-
     display.setRotation(2);
+    
     if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_I2C_ADDRESS)) {
+        Serial.begin(9600);
         Serial.println(F("SSD1306 allocation failed"));
         // Loop forever
         while (true) {}
@@ -169,28 +174,10 @@ void loop() {
      * Send signals to output pins
      */
     for (int i = 0; i < NUM_OUTPUTS; i++) {
-        float elapsed;
         const Clock clock = state.clocks[i];
-        if (clock.mode == MULTIPLY) {
-            float _elapsedFraction = elapsedFraction - (float) clock.offset / (float) 200 * clock.multiplier;
-            float _numBeats = numBeats;
-            if (_elapsedFraction > 1) {
-                _numBeats++;
-                _elapsedFraction -= 1;
-            } else if (_elapsedFraction < 0) {
-                _numBeats--;
-                _elapsedFraction += 1;
-            } 
-            elapsed = getElapsed(clock.multiplier, _numBeats, _elapsedFraction);
-        } else {
-            const float fraction = 1.0 / (float) clock.multiplier;
-            float _elapsedFraction = 1 + elapsedFraction - (float) clock.offset / (float) 200 * fraction;
-            float remainder = _elapsedFraction;
-            while (remainder >= fraction) {
-                remainder -= fraction;
-            }
-            elapsed = remainder / fraction;
-        }
+
+        float elapsed = getElapsedFractionForClock(&clock, elapsedFraction, numBeats);
+        
         const uint8_t output = elapsed < (float) clock.pulseWidth / (float) 100 ? HIGH : LOW;
         if (output != outputCache[i]) {
             outputCache[i] = output;
@@ -217,9 +204,9 @@ void loop() {
 
     if (state.mode == SLEEP) {
         #if SCREEN_SAVER == SS_BARS
-        float elapsed = getElapsed(4, numBeats, elapsedFraction);
+        float elapsed = getFractionElapsedInPeriod(4, numBeats, elapsedFraction);
         #elif SCREEN_SAVER == SS_PULSE
-        float elapsed = getElapsed(1, numBeats, elapsedFraction);
+        float elapsed = getFractionElapsedInPeriod(1, numBeats, elapsedFraction);
         #endif
         drawScreenSaver(display, elapsed, forceRedrawScreen);
     } else if (newInput) {
@@ -232,12 +219,89 @@ void loop() {
     delay(1);
 }
 
+/**
+ * Given the global authority time state (fraction elapsed in current beat
+ * and number of beats elapsed), returns the fraction elapsed for a given
+ * clock, accounting for phase shift and swing 
+ */
+inline float getElapsedFractionForClock(const Clock* clock,
+                                        const float elapsedFraction,
+                                        const uint32_t numBeatsElapsed
+                                        ) {
+
+    //
+    // Figure out how many times this clock has pulsed so far
+    // It would be more robust to store this info for each clock
+    // (might make it more graceful when changing division/bpm)
+    // but we don't have the memory to spare
+    // 
+    uint32_t numClockCyclesElapsed;
+    if (clock->mode == MULTIPLY) {
+        numClockCyclesElapsed = numBeatsElapsed / clock->multiplier;
+    } else {
+        const float fraction = 1.0 / (float) clock->multiplier;
+        numClockCyclesElapsed = numBeatsElapsed * clock->multiplier;
+        float remainder = elapsedFraction;
+        while (remainder >= fraction) {
+            remainder -= fraction;
+            numClockCyclesElapsed++;
+        }
+    }
+
+    
+    //
+    // Handle basic clock multiplier
+    // 
+    float elapsedFractionOfClockCycle;
+    if (clock->mode == MULTIPLY) {
+        elapsedFractionOfClockCycle = getFractionElapsedInPeriod(clock->multiplier, numBeatsElapsed, elapsedFraction);
+    } else {
+        const float multiplier = 1.0 / (float) clock->multiplier;
+        
+        float remainder = elapsedFraction;
+        while (remainder >= multiplier) {
+            remainder -= multiplier;
+        }
+        elapsedFractionOfClockCycle = remainder / multiplier;
+    }
+
+    //
+    // Handle Offset
+    // 
+    elapsedFractionOfClockCycle += clock->offset / (float) 100;
+
+    if (elapsedFractionOfClockCycle < 0) {
+        elapsedFractionOfClockCycle += 1;
+        numClockCyclesElapsed -= 1;
+    } else if (elapsedFractionOfClockCycle > 1) {
+        elapsedFractionOfClockCycle -= 1;
+        numClockCyclesElapsed += 1;
+    }
+
+    //
+    // Handle swing
+    // 
+    if (clock->swing && numClockCyclesElapsed % 2 == 1) {
+        const float swingFraction = clock->swing / SWING_SCALE;
+        
+        elapsedFractionOfClockCycle -= swingFraction;
+        if (elapsedFractionOfClockCycle < 0) {
+            elapsedFractionOfClockCycle = 1;
+        } else if (elapsedFractionOfClockCycle > 1) {
+            elapsedFractionOfClockCycle = 0;
+        }
+    }
+
+    return elapsedFractionOfClockCycle;
+}
+
 /*
  * given elapsedFraction -- the amount of the the current beat that has passed --
  * gives the amount of a larger multi-beat section that has passed.
  */
-inline float getElapsed(uint8_t periodLenBeats, uint32_t numBeatsElapsed,
-                       float elapsedInCurrentBeat) {
+inline float getFractionElapsedInPeriod(const uint8_t periodLenBeats,
+                                        const uint32_t numBeatsElapsed,
+                                        const float elapsedInCurrentBeat) {
     const uint32_t beatsInCurrentPeriod = numBeatsElapsed % periodLenBeats;
     const float fractionElapsedPrevious = (float) beatsInCurrentPeriod / (float) periodLenBeats;
     const float fractionElapsed = fractionElapsedPrevious + 
@@ -440,7 +504,7 @@ inline void onKnobTurned(int direction, int counter) {
             addMaxMin(&clock->offset, direction, -50, 50);
         } break;
         case 3: {
-            addMaxMin(&clock->swing, direction, 0, MAX_SWING);
+            addMaxMin(&clock->swing, direction, MIN_SWING, MAX_SWING);
         } break;
         }
     } break;
@@ -599,7 +663,7 @@ void drawMainMenu(Adafruit_SSD1306 display, const State state) {
     label[3] = state.submenuCursor == menuNumber ? '>' : ' ';              \
     label[4] = '\0';                                                       \
                                                                            \
-    display.setCursor(0, offsetY + lineHeight);                            \
+    display.setCursor(0, offsetY + menuNumber * lineHeight);               \
     display.write(label);                                                  \
                                                                            \
     char buffer[4];                                                        \
@@ -633,6 +697,8 @@ void drawSubMenu(Adafruit_SSD1306 display, const State state) {
         : 0;
     
     {
+        display.setTextColor(SSD1306_WHITE);
+        
         char label[5];
         label[0] = '[';
         itoa(state.cursor + 1, label + 1, 10);
