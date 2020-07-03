@@ -9,12 +9,14 @@
  *       to be external interrupt pins and CLOCK_INPUT and 
  *       PAUSE_BUTTON to be in PCINT1_vect for ISR. Search the Arduino
  *       documentation if you're not sure about your board.
+ * 
  */
-const uint8_t ENCODER_BUTTON_PIN = 5;
 const uint8_t ENCODER_PIN_A = 3;
 const uint8_t ENCODER_PIN_B = 4;
+const uint8_t ENCODER_BUTTON_PIN = 5;
 const uint8_t CLOCK_INPUT_PIN = 6;
-const uint8_t PAUSE_BUTTON_PIN = 7;
+const uint8_t PAUSED_LED_PIN = 7;
+const uint8_t PAUSE_BUTTON_PIN = 8;
 
 const uint8_t NUM_OUTPUTS = 8;
 const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {A3, 9, A2, 10, A1, 11,  A0, 12};
@@ -29,13 +31,33 @@ const uint32_t LONG_PRESS_TIME_MICROS = 500000;
 const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
 const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
 
+#define SWING_ENABLED        true
+#define PHASE_SHIFT_ENABLED  true
+#define PAUSE_BUTTON_ENABLED false
+
+#if SWING_ENABLED 
 // What is the maximum value that can be set for the swing of each clock
-const int8_t MAX_SWING = 75;
+const int8_t MAX_SWING_ENABLED = 75;
 // What is the maximum value that can be set for the swing of each clock
 // (i.e. can swing be negative?)
-const int8_t MIN_SWING = 0;
+const int8_t MIN_SWING_ENABLED = 0;
 // Swing is divided by this number to get a fraction from -1 to 1.
-const float SWING_SCALE = 100;
+const float SWING_ENABLED_SCALE = 100;
+#endif
+
+#if PAUSE_BUTTON_ENABLED
+// If true, the LED pin will be set HIGHT when paused
+// Otherwise, will be set HIGH when not
+const bool glowOnPaused = true;
+#endif
+
+#if SWING_ENABLED && PHASE_SHIFT_ENABLED
+#define MENU_SIZE 3
+#elif SWING_ENABLED || PHASE_SHIFT_ENABLED
+#define MENU_SIZE 2
+#else
+#define MENU_SIZE 1
+#endif
 
 /*
  * OLED screen settings. See Adafruit_SSD1306 for more info.
@@ -70,9 +92,13 @@ typedef enum : uint8_t {MULTIPLY, DIVIDE} ClockMode;
 typedef struct {
     uint8_t multiplier;
     ClockMode mode;
-    int8_t offset;
     int8_t pulseWidth;
+    #if PHASE_SHIFT_ENABLED
+    int8_t offset;
+    #endif
+    #if SWING_ENABLED
     int8_t swing;
+    #endif
 } Clock;
 
 typedef struct {
@@ -102,14 +128,20 @@ const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16}
 void setup() {
     pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
     pinMode(ENCODER_PIN_A, INPUT_PULLUP);
-	  pinMode(ENCODER_PIN_B, INPUT_PULLUP);
-    pinMode(CLOCK_INPUT_PIN, INPUT);
-    pinMode(PAUSE_BUTTON_PIN, INPUT_PULLUP);
-    // attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON_PIN), rotaryButtonChangeHandler, CHANGE);
+	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
+    
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoderHandler, CHANGE);
-    enableInterrupt(CLOCK_INPUT_PIN);
-    enableInterrupt(PAUSE_BUTTON_PIN);
     enableInterrupt(ENCODER_BUTTON_PIN);
+    
+    #if PAUSE_BUTTON_ENABLED
+    pinMode(PAUSE_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(PAUSED_LED_PIN, OUTPUT);
+    enableInterrupt(PAUSE_BUTTON_PIN);
+    #endif
+    
+    // pinMode(CLOCK_INPUT_PIN, INPUT);
+    // enableInterrupt(CLOCK_INPUT_PIN);
+    // attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON_PIN), rotaryButtonChangeHandler, CHANGE);
 
     display.setRotation(2);
     
@@ -117,7 +149,14 @@ void setup() {
         Serial.begin(9600);
         Serial.println(F("SSD1306 allocation failed"));
         // Loop forever
-        while (true) {}
+        while (true) {
+            const uint8_t pin = pgm_read_byte(&OUTPUT_PINS[0]);
+            pinMode(pin, OUTPUT);
+            digitalWrite(pin, HIGH);
+            delay(400);
+            digitalWrite(pin, LOW);
+            delay(400);
+        }
     }
 
     state.bpm = 70;
@@ -133,8 +172,13 @@ void setup() {
 
         clock->mode = val < 0 ? DIVIDE : MULTIPLY;
         clock->multiplier = abs(val);
-        clock->offset = 0;
         clock->pulseWidth = 50;
+        #if PHASE_SHIFT_ENABLED
+        clock->offset = 0;
+        #endif
+        #if SWING_ENABLED
+        clock->swing = 0;
+        #endif
     }
     
     lastRecordedTime = micros();
@@ -145,6 +189,9 @@ void loop() {
     static uint32_t beatStart = micros();
     static uint32_t lastInputTime = micros();
 
+    const uint32_t NOT_PAUSED = 0xffffffff;
+    static uint32_t pausedTime = NOT_PAUSED;
+
     /*  
      * Keep track of time
      */
@@ -152,15 +199,49 @@ void loop() {
     const uint32_t beatMicros = 60000000 / state.bpm;
     const uint32_t currentTime = micros();
     lastRecordedTime = currentTime;
-    if (paused) return;
-    uint32_t elapsed = currentTime - beatStart;
-    while (elapsed >= beatMicros) {
-        elapsed -= beatMicros;
-        beatStart = currentTime - elapsed;
-        numBeats++;
+
+    if (!paused && pausedTime != NOT_PAUSED) {
+        //just unpaused
+        beatStart = currentTime - pausedTime;
+        pausedTime = NOT_PAUSED;
     }
-    float elapsedFraction = ((float) elapsed) / ((float) beatMicros);
+
+    const bool justPaused = paused && pausedTime == NOT_PAUSED;
+
     
+    float elapsedFraction;
+    if (!paused || justPaused) {
+        uint32_t elapsed = currentTime - beatStart;
+        while (elapsed >= beatMicros) {
+            elapsed -= beatMicros;
+            beatStart = currentTime - elapsed;
+            numBeats++;
+        }
+
+        if (justPaused) {
+            pausedTime = elapsed;
+        }    
+        
+        elapsedFraction = ((float) elapsed) / ((float) beatMicros);
+    
+        /*
+         * Send signals to output pins
+         */
+        for (int i = 0; i < NUM_OUTPUTS; i++) {
+            const Clock clock = state.clocks[i];
+
+            float elapsed = getElapsedFractionForClock(&clock, elapsedFraction, numBeats);
+            
+            const uint8_t output = elapsed < (float) clock.pulseWidth / (float) 100 ? HIGH : LOW;
+            if (output != outputCache[i]) {
+                outputCache[i] = output;
+                digitalWrite(pgm_read_byte(&OUTPUT_PINS[i]), output);
+            }
+        }
+    } else {
+        elapsedFraction = ((float) pausedTime) / ((float) beatMicros);
+    }
+
     /*
      * Check if there has been new knob/button input
      */
@@ -168,21 +249,6 @@ void loop() {
     if (newInput) {
         lastInputTime = currentTime;
         state.newInput = false;
-    }
-
-    /*
-     * Send signals to output pins
-     */
-    for (int i = 0; i < NUM_OUTPUTS; i++) {
-        const Clock clock = state.clocks[i];
-
-        float elapsed = getElapsedFractionForClock(&clock, elapsedFraction, numBeats);
-        
-        const uint8_t output = elapsed < (float) clock.pulseWidth / (float) 100 ? HIGH : LOW;
-        if (output != outputCache[i]) {
-            outputCache[i] = output;
-            digitalWrite(pgm_read_byte(&OUTPUT_PINS[i]), output);
-        }
     }
 
     /*
@@ -204,9 +270,9 @@ void loop() {
 
     if (state.mode == SLEEP) {
         #if SCREEN_SAVER == SS_BARS
-        float elapsed = getFractionElapsedInPeriod(4, numBeats, elapsedFraction);
+        const float elapsed = getFractionElapsedInPeriod(4, numBeats, elapsedFraction);
         #elif SCREEN_SAVER == SS_PULSE
-        float elapsed = getFractionElapsedInPeriod(1, numBeats, elapsedFraction);
+        const float elapsed = getFractionElapsedInPeriod(1, numBeats, elapsedFraction);
         #endif
         drawScreenSaver(display, elapsed, forceRedrawScreen);
     } else if (newInput) {
@@ -265,6 +331,7 @@ inline float getElapsedFractionForClock(const Clock* clock,
         elapsedFractionOfClockCycle = remainder / multiplier;
     }
 
+    #if PHASE_SHIFT_ENABLED
     //
     // Handle Offset
     // 
@@ -277,12 +344,14 @@ inline float getElapsedFractionForClock(const Clock* clock,
         elapsedFractionOfClockCycle -= 1;
         numClockCyclesElapsed += 1;
     }
+    #endif
 
+    #if SWING_ENABLED
     //
     // Handle swing
     // 
     if (clock->swing && numClockCyclesElapsed % 2 == 1) {
-        const float swingFraction = clock->swing / SWING_SCALE;
+        const float swingFraction = clock->swing / SWING_ENABLED_SCALE;
         
         elapsedFractionOfClockCycle -= swingFraction;
         if (elapsedFractionOfClockCycle < 0) {
@@ -291,6 +360,7 @@ inline float getElapsedFractionForClock(const Clock* clock,
             elapsedFractionOfClockCycle = 0;
         }
     }
+    #endif
 
     return elapsedFractionOfClockCycle;
 }
@@ -354,14 +424,13 @@ void rotaryEncoderHandler() {
     lastCLK = currentStateCLK;
 }
 
-/**
- TODO switch to correct pins
+#if PAUSE_BUTTON_ENABLED
 // builtin Arduino handler for pin change interrupt for pins D8 to D13
 ISR(PCINT0_vect) {
-    clockInputChangeHandler();
+    //clockInputChangeHandler();
     pauseButtonChagneHandler();
 }
-*/
+#endif
 
 // Pins D0 to D7
 ISR(PCINT2_vect) {
@@ -369,8 +438,8 @@ ISR(PCINT2_vect) {
 }
 
 inline void clockInputChangeHandler() {
-    static int lastValue = digitalRead(CLOCK_INPUT_PIN);
-    const int currentValue = digitalRead(CLOCK_INPUT_PIN);
+    static uint8_t lastValue = digitalRead(CLOCK_INPUT_PIN);
+    const uint8_t currentValue = digitalRead(CLOCK_INPUT_PIN);
     if (lastValue == LOW && currentValue == HIGH) {
         onClockInput();
     }
@@ -378,10 +447,10 @@ inline void clockInputChangeHandler() {
 }
 
 inline void pauseButtonChagneHandler() {
-    static int lastValue = digitalRead(PAUSE_BUTTON_PIN);
-    const int currentValue = digitalRead(PAUSE_BUTTON_PIN);
+    static uint8_t lastValue = digitalRead(PAUSE_BUTTON_PIN);
+    const uint8_t currentValue = digitalRead(PAUSE_BUTTON_PIN);
     if (lastValue == LOW && currentValue == HIGH) {
-        onPuasePressed();
+        onPausePressed();
     }
     lastValue = currentValue;
 }
@@ -440,8 +509,8 @@ inline void onKnobTurned(int direction, int counter) {
         state.submenuCursor += direction;
         if (state.submenuCursor < 0) {
             state.submenuCursor = 0;
-        } else if (state.submenuCursor > 3) {
-            state.submenuCursor = 3;
+        } else if (state.submenuCursor > MENU_SIZE) {
+            state.submenuCursor = MENU_SIZE;
         }
     } break;
     case EDIT_FAST: {
@@ -500,12 +569,16 @@ inline void onKnobTurned(int direction, int counter) {
         case 1: {
             addMaxMin(&clock->pulseWidth, direction, 0, 100);
         } break;
+        #if PHASE_SHIFT_ENABLED
         case 2: {
             addMaxMin(&clock->offset, direction, -50, 50);
         } break;
-        case 3: {
-            addMaxMin(&clock->swing, direction, MIN_SWING, MAX_SWING);
+        #endif
+        #if SWING_ENABLED
+        default: {
+            addMaxMin(&clock->swing, direction, MIN_SWING_ENABLED, MAX_SWING_ENABLED);
         } break;
+        #endif
         }
     } break;
     case SLEEP: {
@@ -546,8 +619,9 @@ void onClockInput() {
     state.bpm = 60000000 / deltaTime;
 }
 
-inline void onPuasePressed() {
+inline void onPausePressed() {
     paused = !paused;
+    digitalWrite(PAUSED_LED_PIN, paused);
 }
 
 void drawMainMenu(Adafruit_SSD1306 display, const State state) {
@@ -683,18 +757,24 @@ void drawSubMenu(Adafruit_SSD1306 display, const State state) {
     const uint8_t screenWidth = SCREEN_WIDTH;
     const uint8_t screenHeight = SCREEN_HEIGHT;
 
-    Clock* clock = &state.clocks[state.cursor];
+    const Clock* clock = &state.clocks[state.cursor];
 
     const uint8_t fontSize = 3;
     display.setTextSize(fontSize);
 
     const int8_t lineHeight = fontSize * 8;
-    const int8_t pageHeight = lineHeight * 4;
+    const int8_t pageHeight = lineHeight * (MENU_SIZE + 1);
+    #if MENU_SIZE == 3
     const int8_t offsetY = state.submenuCursor == 2 
         ? -lineHeight
         : state.submenuCursor == 3
         ? (int) screenHeight - (int) pageHeight
         : 0;
+    #else
+    const int8_t offsetY = state.submenuCursor == 2 
+            ? (int) screenHeight - (int) pageHeight
+            : 0;
+    #endif
     
     {
         display.setTextColor(SSD1306_WHITE);
@@ -720,8 +800,12 @@ void drawSubMenu(Adafruit_SSD1306 display, const State state) {
     }
 
     drawSubmenuLine("PW:", clock->pulseWidth, 1);
+    #if PHASE_SHIFT_ENABLED
     drawSubmenuLine("PS:", clock->offset, 2);
-    drawSubmenuLine("SW:", clock->swing, 3);
+    #endif
+    #if SWING_ENABLED
+    drawSubmenuLine("SW:", clock->swing, MENU_SIZE);
+    #endif
 
     display.display();
 }
