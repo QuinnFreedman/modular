@@ -10,16 +10,14 @@
  *       PAUSE_BUTTON to be in PCINT1_vect for ISR. Search the Arduino
  *       documentation if you're not sure about your board.
  */
-const uint8_t LED_PIN_1 = 12;
-const uint8_t LED_PIN_2 = 11;
-const uint8_t ENCODER_BUTTON_PIN = 2;
+const uint8_t ENCODER_BUTTON_PIN = 5;
 const uint8_t ENCODER_PIN_A = 3;
 const uint8_t ENCODER_PIN_B = 4;
-const uint8_t CLOCK_INPUT_PIN = A0;
-const uint8_t PAUSE_BUTTON_PIN = A1;
+const uint8_t CLOCK_INPUT_PIN = 6;
+const uint8_t PAUSE_BUTTON_PIN = 7;
 
 const uint8_t NUM_OUTPUTS = 8;
-const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {5, 6, 7, 8, 9, 10, 11, 12};
+const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {A3, 9, A2, 10, A1, 11,  A0, 12};
 
 // Number of seconds before the screen goes to sleep
 const uint32_t SLEEP_TIMEOUT_MICROS = 8 * 1000000;
@@ -66,6 +64,7 @@ typedef struct {
     ClockMode mode;
     int8_t offset;
     int8_t pulseWidth;
+    // int8_t swing;
 } Clock;
 
 typedef struct {
@@ -93,20 +92,20 @@ const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16}
  * Initialize variables, setup pins
  */
 void setup() {
-    pinMode(LED_PIN_1, OUTPUT);
-    pinMode(LED_PIN_2, OUTPUT);
     pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
-	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
-	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
+    pinMode(ENCODER_PIN_A, INPUT_PULLUP);
+	  pinMode(ENCODER_PIN_B, INPUT_PULLUP);
     pinMode(CLOCK_INPUT_PIN, INPUT);
     pinMode(PAUSE_BUTTON_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON_PIN), rotaryButtonChangeHandler, CHANGE);
+    // attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON_PIN), rotaryButtonChangeHandler, CHANGE);
     attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), rotaryEncoderHandler, CHANGE);
     enableInterrupt(CLOCK_INPUT_PIN);
     enableInterrupt(PAUSE_BUTTON_PIN);
+    enableInterrupt(ENCODER_BUTTON_PIN);
 
     Serial.begin(9600);
- 
+
+    display.setRotation(2);
     if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_I2C_ADDRESS)) {
         Serial.println(F("SSD1306 allocation failed"));
         // Loop forever
@@ -288,10 +287,18 @@ void rotaryEncoderHandler() {
     lastCLK = currentStateCLK;
 }
 
-// builtin Arduino handler for pin change interrupt for pins A0 to A5
-ISR(PCINT1_vect) {
+/**
+ TODO switch to correct pins
+// builtin Arduino handler for pin change interrupt for pins D8 to D13
+ISR(PCINT0_vect) {
     clockInputChangeHandler();
     pauseButtonChagneHandler();
+}
+*/
+
+// Pins D0 to D7
+ISR(PCINT2_vect) {
+    rotaryButtonChangeHandler();
 }
 
 inline void clockInputChangeHandler() {
