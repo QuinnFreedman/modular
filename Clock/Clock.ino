@@ -14,9 +14,9 @@
 const uint8_t ENCODER_PIN_A = 3;
 const uint8_t ENCODER_PIN_B = 4;
 const uint8_t ENCODER_BUTTON_PIN = 5;
-const uint8_t CLOCK_INPUT_PIN = 6;
+const uint8_t CLOCK_INPUT_PIN = 8;
 const uint8_t PAUSED_LED_PIN = 7;
-const uint8_t PAUSE_BUTTON_PIN = 8;
+const uint8_t PAUSE_BUTTON_PIN = 6;
 
 const uint8_t NUM_OUTPUTS = 8;
 const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {A3, 9, A2, 10, A1, 11,  A0, 12};
@@ -34,6 +34,7 @@ const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
 #define SWING_ENABLED        true
 #define PHASE_SHIFT_ENABLED  true
 #define PAUSE_BUTTON_ENABLED false
+#define TAP_TEMPO_ENABLED    false
 
 #if SWING_ENABLED 
 // What is the maximum value that can be set for the swing of each clock
@@ -114,11 +115,17 @@ State state;
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+//The current time. Reccorded here because you can't get time in interrupt handlers
 uint32_t lastRecordedTime;
 
+//Cache the values that we output to each clock channel so we don't have to
+//call digitalWrite() as often, which takes time
 uint8_t outputCache[NUM_OUTPUTS] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 
 bool paused = false;
+
+//The last time the rotary encoder button was pused down, or 0 if it is not down
+uint32_t buttonLastDepressedTime = 0;
 
 const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
 
@@ -138,10 +145,12 @@ void setup() {
     pinMode(PAUSED_LED_PIN, OUTPUT);
     enableInterrupt(PAUSE_BUTTON_PIN);
     #endif
-    
-    // pinMode(CLOCK_INPUT_PIN, INPUT);
-    // enableInterrupt(CLOCK_INPUT_PIN);
+
+    #if TAP_TEMPO_ENABLED   
+    pinMode(CLOCK_INPUT_PIN, INPUT);
+    enableInterrupt(CLOCK_INPUT_PIN);
     // attachInterrupt(digitalPinToInterrupt(ENCODER_BUTTON_PIN), rotaryButtonChangeHandler, CHANGE);
+    #endif
 
     display.setRotation(2);
     
@@ -200,15 +209,17 @@ void loop() {
     const uint32_t currentTime = micros();
     lastRecordedTime = currentTime;
 
+    // If the clock was just un-paused, restore the saved time
     if (!paused && pausedTime != NOT_PAUSED) {
-        //just unpaused
         beatStart = currentTime - pausedTime;
         pausedTime = NOT_PAUSED;
     }
 
     const bool justPaused = paused && pausedTime == NOT_PAUSED;
 
-    
+    /*
+     * Handle the clock outputs
+     */
     float elapsedFraction;
     if (!paused || justPaused) {
         uint32_t elapsed = currentTime - beatStart;
@@ -218,6 +229,8 @@ void loop() {
             numBeats++;
         }
 
+        // If the pause button was just pressed, reccord how far into
+        // the current cycle we are
         if (justPaused) {
             pausedTime = elapsed;
         }    
@@ -245,6 +258,12 @@ void loop() {
     /*
      * Check if there has been new knob/button input
      */
+
+    if (shouldTriggerLongPress()) {
+        buttonLastDepressedTime = 0;
+        onLongPress();
+    }
+    
     const bool newInput = state.newInput;
     if (newInput) {
         lastInputTime = currentTime;
@@ -379,6 +398,12 @@ inline float getFractionElapsedInPeriod(const uint8_t periodLenBeats,
     return fractionElapsed;
 }
 
+inline bool shouldTriggerLongPress() {
+    const uint32_t now = lastRecordedTime;
+    const uint32_t holdTime = now - buttonLastDepressedTime;
+    return buttonLastDepressedTime && holdTime >= LONG_PRESS_TIME_MICROS;
+}
+
 /*
  * BEGIN HANDLERS --
  * simple functions attached to interrupts to handle button input.
@@ -386,16 +411,15 @@ inline float getFractionElapsedInPeriod(const uint8_t periodLenBeats,
  */
 
 void rotaryButtonChangeHandler() {
-    static uint32_t pressTime = 0;
-    bool buttonPressed = digitalRead(ENCODER_BUTTON_PIN) == LOW;
-    uint32_t now = lastRecordedTime;
+    const bool buttonPressed = digitalRead(ENCODER_BUTTON_PIN) == LOW;
+    const uint32_t now = lastRecordedTime;
     if (buttonPressed) {
-        pressTime = now;
+        buttonLastDepressedTime = now;
     } else {
-        uint32_t holdTime = now - pressTime;
-        if (holdTime >= LONG_PRESS_TIME_MICROS) {
-            onLongPress();
-        } else {
+        if (buttonLastDepressedTime != 0) {
+            //If buttonLastDepressedTime == 0, the button has already been
+            //"released", which means loop() has already called onLongPress()
+            buttonLastDepressedTime = 0;
             onShortPress();
         }
     }
@@ -424,17 +448,19 @@ void rotaryEncoderHandler() {
     lastCLK = currentStateCLK;
 }
 
-#if PAUSE_BUTTON_ENABLED
+#if TAP_TEMPO_ENABLED
 // builtin Arduino handler for pin change interrupt for pins D8 to D13
 ISR(PCINT0_vect) {
-    //clockInputChangeHandler();
-    pauseButtonChagneHandler();
+    clockInputChangeHandler();
 }
 #endif
 
 // Pins D0 to D7
 ISR(PCINT2_vect) {
     rotaryButtonChangeHandler();
+    #if PAUSE_BUTTON_ENABLED
+    pauseButtonChagneHandler();
+    #endif
 }
 
 inline void clockInputChangeHandler() {

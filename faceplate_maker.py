@@ -167,10 +167,11 @@ class JackSocket(BasicCircle(0, 4.92, 4)):
         return elements
 
 
+SmallLED = BasicCircle(0, inches(.05), 1.5)
 LED = BasicCircle(0, inches(.05), 2.5)
 
 
-class Potentiometer(BasicCircle(inches(.15), inches(.3), 3)):
+class Potentiometer(BasicCircle(inches(.1), inches(.3), 5)):
     def __init__(self, x, y, label=None, rotation=0, font_size=None):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label

@@ -8,9 +8,9 @@ from faceplate_maker import *
 if __name__ == "__main__":
     module = Module(8, (10, 10), title="Clock")
 
-    module.add(OLED(inches(.2), inches(1)))
+    module.add(OLED(inches(.2), inches(.9)))
 
-    module.add(Potentiometer(inches(.3), inches(1.5), rotation=3))
+    module.add(Potentiometer(inches(.3), inches(1.4), rotation=3))
 
     jack_start_y = inches(1.8)
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
             _y = inches(.6 * y) + jack_start_y
             i += 1
             module.add(JackSocket(_x + inches(0), _y + inches(0), str(i), False))
-            module.add(LED(_x + inches(.3), _y + inches(.3)))
+            module.add(SmallLED(_x + inches(.3), _y + inches(.3)))
 
 
     module.save()

@@ -12,7 +12,23 @@ SW: Swing
 
 ## Assembly
 
-> TODO
+See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly).
+
+### Components
+
+See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
+
+* 16 Resistors
+* 8 Jacks
+* 8 LEDs
+* 1 I2C 128x64 OLED display
+* 1 Rotary encoder
+
+### Resistor values
+
+The resistors in this module can be basically any value you want. The vertical resitors (the ones that connect directly to the LEDs) control the brightness of the LEDs. They can be as low as 220 Ohms for a very bright LED to 10k for a very dim one. The best value might depend on the LEDs you have. I used a value of 470Ohm in my prototype which was pretty retina melting with the 3mm LEDs I had but good for some generic 5mm LEDs I tried.
+
+The horizontal LEDs control the output imedance. This just makes it so that if the output ever gets shorted to ground (like when plugging in a cable) the Arduino doesn't get fried. Again, I used 470Ohm in my prototype, which worked fine. A very low value would just waste power while a very high value might give a slightly less precise output for some modules. I would probably recommend a slightly higher value, maybe 1k.
 
 ## Extra features
 
