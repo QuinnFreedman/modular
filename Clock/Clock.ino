@@ -40,7 +40,7 @@ const char CLOCK_MULTIPLE_SYMBOL = 'x';
 const char SUBMENU_CURSOR_SYMBOL = '>';
 
 //The initial values of each clock channel. Negative = division
-const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
+const PROGMEM int8_t DEFAULT_CLOCK_VALUES[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
 
 // The initial BPM value
 const uint8_t DEFAULT_BPM = 70;
@@ -52,7 +52,7 @@ const uint8_t DEFAULT_BPM = 70;
 #define CACHE_OUTPUTS_ENABLED true
 
 #if TAP_TEMPO_ENABLED
-// Min & max input clock deltas (micros) for running in slave mode.
+// Min & max input clock deltas (micros) for running in follow mode.
 const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
 const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
 #endif
@@ -68,9 +68,9 @@ const float SWING_ENABLED_SCALE = 100;
 #endif
 
 #if PAUSE_BUTTON_ENABLED
-// If true, the LED pin will be set HIGHT when paused
-// Otherwise, will be set HIGH when not
-const bool glowOnPaused = true;
+// If true, the LED pin will be set HIGH when paused.
+// Otherwise, will be set HIGH when not paused
+const bool GLOW_ON_PAUSED = true;
 #endif
 
 #if SWING_ENABLED && PHASE_SHIFT_ENABLED
@@ -205,7 +205,7 @@ void setup() {
 
     for (uint8_t i = 0; i < NUM_OUTPUTS; i++) {
         pinMode(pgm_read_byte(&OUTPUT_PINS[i]), OUTPUT);
-        const int8_t val = pgm_read_byte(&(initClockValues[i]));
+        const int8_t val = pgm_read_byte(&(DEFAULT_CLOCK_VALUES[i]));
         Clock* clock = &state.clocks[i];
 
         clock->mode = val < 0 ? DIVIDE : MULTIPLY;

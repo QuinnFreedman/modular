@@ -39,6 +39,17 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 * 8 LEDs
 * 1 I2C 128x64 OLED display
 * 1 Rotary encoder
+* 1 Arduino Nano
+
+### Orientation
+
+Insert the LEDs with the short legs (cathodes) facing downward when the module is in the case (on the flat side of the circles in the PCB silkscreen).
+
+Position the Arduino with the USB port facing downward (match the square solder pads on the Arduino to the square pad on the PCB).
+
+Put in the screen "upside down" with the pins at the bottom.
+
+Put all the components on the side of each PCB with the sikscreen markings. The copper traces of the two boards should face each other.
 
 ### Resistor values
 
@@ -48,7 +59,31 @@ The horizontal LEDs control the output imedance. This just makes it so that if t
 
 ## Extra features
 
-> TODO
+There are a lot of configurable options at the top of `Clock.ino`. Edit it with Arduino IDE. They should be self-explanitory based on their comments.
+
+In addition there are a couple features that the hardware and software supports that I couln't find room for in the PCB or faceplate. You could put them in an expander module or put them instead of something else.
+
+These features must be enabled in configuration.
+
+### Pause button
+
+Connecting pin D6 on the Arduino to GROUND will pause or un-pause the clock. Attatch a momentary push button to the output for D6 and attatch the other end to GROUND.
+
+When the module is paused, D7 will be set HIGH (5v). You can use this to turn on an LED, a CV gate output, or both. If you prefer, you can configre it to be HIGH when the module is **not** paused. In either case, make sure to add a resistor to the output.
+
+### Sync (follow mode) input and/or tap tempo
+
+When you connect the D8 pin to 5v multiple times, the clock's tempo will be set to the durration between those triggers. This can be used to make a tap-tempo button and/or an input to follow an external clock (or both!).
+
+In both cases, you will need to tie D8 to GROUND via a pulldown resistor (~10k).
+
+#### Follow mode
+
+If you are attatcing an external input to the module, you will need some mechanism to ensure that the voltage never goes outside of 0-5v. A transistor or opto-isolator (vactrol) should work.
+
+#### Tap tempo
+
+If you are just implementing a tap tempo button and don't want to solder on a pulldown resistor, you can set the pin mode of D8 ot `INPUT_PULLUP` in `setup()` in Clock.ino. Then, use a button to connect the pin to GROUND instead.
 
 ## Requirements
 
