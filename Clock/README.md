@@ -10,13 +10,13 @@ A clock module sends rythmic voltage pulses at different subdevisions or multipl
 
 Using the Clock is simple. Use the clickable rotarty encoder knob/button to navigate the menu. 
 
-[main menu][images/main_menu.jpg]
+![main menu](images/main_menu.jpg)
 
 Scroll to move between the differnt channels and the global BPM. Click to edit the BPM or clock division. Click again to go back to navigating.
 
 Hold the button down for .5 secconds to get an extended menu for any channel. This menu lets you edit more propperties of the channel. Long press again to get out.
 
-[sub menu][images/sub_menu.jpg]
+![sub menu](images/sub_menu.jpg)
 
 | Property | Abberviation | Details |
 |----------|--------------|---------|
