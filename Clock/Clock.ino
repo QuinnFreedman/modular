@@ -5,11 +5,10 @@
 /*
  * Pins (for Arduino Nano)
  * Change if you want a different layout or a different board.
- * Note: this code is expecting ENCODER_BUTTON_PIN and ENCODER_PIN_A
- *       to be external interrupt pins and CLOCK_INPUT and 
- *       PAUSE_BUTTON to be in PCINT1_vect for ISR. Search the Arduino
+ * Note: this code is expecting ENCODER_PIN_A to be an external interrupt
+ *       pin, ENCODER_BUTTON_PIN and PAUSE_BUTTON_PIN to be in PCINT2_vect,
+ *       and CLOCK_INPUT to be in PCINT0_vect. Search the Arduino
  *       documentation if you're not sure about your board.
- * 
  */
 const uint8_t ENCODER_PIN_A = 3;
 const uint8_t ENCODER_PIN_B = 4;
@@ -21,20 +20,42 @@ const uint8_t PAUSE_BUTTON_PIN = 6;
 const uint8_t NUM_OUTPUTS = 8;
 const PROGMEM uint8_t OUTPUT_PINS[NUM_OUTPUTS] = {A3, 9, A2, 10, A1, 11,  A0, 12};
 
-// Number of seconds before the screen goes to sleep
+/*
+ * Configuration
+ * Change the following values to change how the module works.
+ */
+ 
+// Number of (micro)seconds before the screen goes to sleep
 const uint32_t SLEEP_TIMEOUT_MICROS = 8 * 1000000;
 
 // How long you have to hold down the rotary button to count as a long press
-const uint32_t LONG_PRESS_TIME_MICROS = 500000;
+const uint32_t LONG_PRESS_TIME_MICROS = .5 * 1000000;
 
+// Symbol used for clock speeds that are SLOWER than base
+// Use 246 for the ASCII division symbol
+const char CLOCK_DIVISION_SYMBOL = '/';
+// Symbol used for clock speeds that are FASTER than base
+const char CLOCK_MULTIPLE_SYMBOL = 'x';
+// Character used for the menu cursor when edititng channel properties
+const char SUBMENU_CURSOR_SYMBOL = '>';
+
+//The initial values of each clock channel. Negative = division
+const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
+
+// The initial BPM value
+const uint8_t DEFAULT_BPM = 70;
+
+#define SWING_ENABLED         true
+#define PHASE_SHIFT_ENABLED   true
+#define PAUSE_BUTTON_ENABLED  false
+#define TAP_TEMPO_ENABLED     false
+#define CACHE_OUTPUTS_ENABLED true
+
+#if TAP_TEMPO_ENABLED
 // Min & max input clock deltas (micros) for running in slave mode.
 const uint32_t CLOCK_INPUT_TIME_MAX = 60000000 / 35;
 const uint32_t CLOCK_INPUT_TIME_MIN = 200000;
-
-#define SWING_ENABLED        true
-#define PHASE_SHIFT_ENABLED  true
-#define PAUSE_BUTTON_ENABLED false
-#define TAP_TEMPO_ENABLED    false
+#endif
 
 #if SWING_ENABLED 
 // What is the maximum value that can be set for the swing of each clock
@@ -69,7 +90,7 @@ const bool glowOnPaused = true;
 #define SCREEN_I2C_ADDRESS 0x3C // Change to correct address for your screen
 
 /*
- * Screen saver mode. After SLEEP_TIMEOUT_MICROS microseconds since th last
+ * Screen saver mode. After SLEEP_TIMEOUT_MICROS microseconds since the last
  * user input, the screen will go to one of these modes.
  *
  * Set SCREEN_SAVER to be equal to whatever mode you want to use.
@@ -87,6 +108,10 @@ const bool glowOnPaused = true;
 #define SS_BARS  4 // Show a 4-beat scroll animation
 #define SCREEN_SAVER SS_BARS 
 
+/*
+ * End of Configuration
+ */
+ 
 typedef enum : uint8_t {NAVIGATE, EDIT_FAST, SUBMENU, SUBMENU_EDIT, SLEEP} MenuMode;
 typedef enum : uint8_t {MULTIPLY, DIVIDE} ClockMode;
 
@@ -118,16 +143,20 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 //The current time. Reccorded here because you can't get time in interrupt handlers
 uint32_t lastRecordedTime;
 
+#if CACHE_OUTPUTS_ENABLED
 //Cache the values that we output to each clock channel so we don't have to
 //call digitalWrite() as often, which takes time
 uint8_t outputCache[NUM_OUTPUTS] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW, LOW};
+#endif
 
+#if PAUSE_BUTTON_ENABLED
 bool paused = false;
+#else
+const bool paused = false;
+#endif
 
 //The last time the rotary encoder button was pused down, or 0 if it is not down
 uint32_t buttonLastDepressedTime = 0;
-
-const PROGMEM int8_t initClockValues[NUM_OUTPUTS] = {1, -2, -4, -8, 2, 4, 8, 16};
 
 /*
  * Initialize variables, setup pins
@@ -168,7 +197,7 @@ void setup() {
         }
     }
 
-    state.bpm = 70;
+    state.bpm = DEFAULT_BPM;
     state.cursor = -1;
     state.submenuCursor = 0;
     state.mode = NAVIGATE;
@@ -246,10 +275,14 @@ void loop() {
             float elapsed = getElapsedFractionForClock(&clock, elapsedFraction, numBeats);
             
             const uint8_t output = elapsed < (float) clock.pulseWidth / (float) 100 ? HIGH : LOW;
+            #if CACHE_OUTPUTS_ENABLED
             if (output != outputCache[i]) {
                 outputCache[i] = output;
                 digitalWrite(pgm_read_byte(&OUTPUT_PINS[i]), output);
             }
+            #else
+                digitalWrite(pgm_read_byte(&OUTPUT_PINS[i]), output);
+            #endif
         }
     } else {
         elapsedFraction = ((float) pausedTime) / ((float) beatMicros);
@@ -463,6 +496,7 @@ ISR(PCINT2_vect) {
     #endif
 }
 
+#if TAP_TEMPO_ENABLED
 inline void clockInputChangeHandler() {
     static uint8_t lastValue = digitalRead(CLOCK_INPUT_PIN);
     const uint8_t currentValue = digitalRead(CLOCK_INPUT_PIN);
@@ -471,7 +505,9 @@ inline void clockInputChangeHandler() {
     }
     lastValue = currentValue;
 }
+#endif
 
+#if PAUSE_BUTTON_ENABLED
 inline void pauseButtonChagneHandler() {
     static uint8_t lastValue = digitalRead(PAUSE_BUTTON_PIN);
     const uint8_t currentValue = digitalRead(PAUSE_BUTTON_PIN);
@@ -480,6 +516,7 @@ inline void pauseButtonChagneHandler() {
     }
     lastValue = currentValue;
 }
+#endif
 
 /*
  * END HANDLERS
@@ -625,6 +662,7 @@ inline void addMaxMin(int8_t* value, int8_t delta, int8_t min, int8_t max) {
     }
 }
 
+#if TAP_TEMPO_ENABLED
 void onClockInput() {
     static uint32_t lastPressedTime = 0;
 
@@ -644,11 +682,14 @@ void onClockInput() {
     
     state.bpm = 60000000 / deltaTime;
 }
+#endif
 
+#if PAUSE_BUTTON_ENABLED
 inline void onPausePressed() {
     paused = !paused;
     digitalWrite(PAUSED_LED_PIN, paused);
 }
+#endif
 
 void drawMainMenu(Adafruit_SSD1306 display, const State state) {
     display.clearDisplay();
@@ -733,7 +774,7 @@ void drawMainMenu(Adafruit_SSD1306 display, const State state) {
             
             const Clock clock = state.clocks[index];
             char buffer[4];
-            buffer[0] = clock.mode == DIVIDE ? '/' : 'x';
+            buffer[0] = clock.mode == DIVIDE ? CLOCK_DIVISION_SYMBOL : CLOCK_MULTIPLE_SYMBOL;
             itoa(clock.multiplier, &buffer[1], 10);
             const uint8_t textLength = strlen(buffer);
 
@@ -760,7 +801,7 @@ void drawMainMenu(Adafruit_SSD1306 display, const State state) {
     display.setTextColor(SSD1306_WHITE);                                   \
                                                                            \
     char label[5] = tag;                                                   \
-    label[3] = state.submenuCursor == menuNumber ? '>' : ' ';              \
+    label[3] = state.submenuCursor == menuNumber ? SUBMENU_CURSOR_SYMBOL : ' '; \
     label[4] = '\0';                                                       \
                                                                            \
     display.setCursor(0, offsetY + menuNumber * lineHeight);               \
@@ -809,14 +850,14 @@ void drawSubMenu(Adafruit_SSD1306 display, const State state) {
         label[0] = '[';
         itoa(state.cursor + 1, label + 1, 10);
         label[2] = ']';
-        label[3] = state.submenuCursor == 0 ? '>' : ' ';
+        label[3] = state.submenuCursor == 0 ? SUBMENU_CURSOR_SYMBOL : ' ';
         label[4] = '\0';
         
         display.setCursor(0, offsetY);
         display.write(label);
 
         char buffer[4];
-        buffer[0] = clock->mode == DIVIDE ? '/' : 'x';
+        buffer[0] = clock->mode == DIVIDE ? CLOCK_DIVISION_SYMBOL : CLOCK_MULTIPLE_SYMBOL;
         itoa(clock->multiplier, &buffer[1], 10);
 
         if (state.mode == SUBMENU_EDIT && state.submenuCursor == 0) {
