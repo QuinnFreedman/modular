@@ -42,6 +42,9 @@ SIGMOID_SCALE = 10
 
 def sigmoid(x):
     return 1 / (1 + np.e ** -x) * 2 - 1
+    
+def sigmoid2(x):
+    return np.tanh(x)
 
 def process_data(data):
     data = data * FOLD_AMOUNT
