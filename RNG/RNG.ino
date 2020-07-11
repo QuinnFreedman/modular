@@ -73,6 +73,7 @@ uint32_t lastStepTime = 0;
 bool reverse = false;
 bool encoderButtonDown = false;
 bool recording = false;
+uint16_t lastRecordedInputValue = 0;
 
 void setup() {
 Serial.begin(9600);
@@ -131,12 +132,10 @@ void loop() {
     //TODO use interrupts for these boolean reads
     bool gatesAreTriggers = digitalRead(GATE_TRIG_SWITCH_PIN);
     encoderButtonDown = digitalRead(ENCODER_BUTTON_PIN) == LOW;
-    /*
     recording = digitalRead(RECORD_SWITCH_PIN);
     if (recording) {
         lastRecordedInputValue = analogRead(RECORD_INPUT_PIN) * (MAX_VALUE / MAX_READ_VALUE);
     }
-    */
     
     lastRecordedTime = millis();
 
@@ -179,8 +178,9 @@ void step() {
     //int bufferSize = bufferSize;
 
     // maybe randomize the value at the cursor (ptr)
+    // or read input voltages if recording
     if (random(MAX_READ_VALUE) < randomness) {
-        buffer[ptr] = random(MAX_VALUE);
+        buffer[ptr] = recording ? lastRecordedInputValue : random(MAX_VALUE);
     }
     
     // Write the value to our DAC chip to output the main analog value
