@@ -1,1 +1,13 @@
-* text eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.mp3 binary
+*.flv binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.fzz binary
+
+* text=auto
