@@ -9,10 +9,12 @@ except ImportError:
     import sys
     sys.exit(1)
 
-import urllib.request
-import base64
+HOLE_ALLOWANCE = .2  # mm 
 
 try:
+    import urllib.request
+    import base64
+
     with urllib.request.urlopen("https://fonts.gstatic.com/s/ubuntu/v14/4iCv6KVjbNBYlgoCjC3jsGyN.woff2") as response:
         font_b64 = base64.b64encode(response.read())
         font_string = "url(\"data:application/font-woff;charset=utf-8;base64,{}\")".format(font_b64.decode('utf-8'))
@@ -28,7 +30,7 @@ class Module:
     def __init__(self, hp, global_offset, title=None, filename="output.svg"):
         HP = inches(0.2)
         self.height = 128.5
-        self.width = hp * HP - 1
+        self.width = hp * HP - .5
 
         self.d = svgwrite.Drawing(filename=filename, size=(self.width * mm, self.height * mm))
         self.d.defs.add(self.d.style(content="@font-face {{ font-family: 'Ubuntu'; font-style: normal; font-weight: 500; src: {}; }}".format(font_string)))
@@ -61,9 +63,12 @@ class Module:
 
         # Draw title
         if title:
+            title_offset_y = 5
+            if hp < 8:
+                title_offset_y = 8
             self.stencil.add(
                 self.d.text(title,
-                    insert=(self.width / 2, 5),
+                    insert=(self.width / 2, title_offset_y),
                     font_size=5,
                     text_anchor="middle"
                 ))
@@ -84,6 +89,9 @@ class Module:
         group.translate(*component.position)
         for x in component.draw_stencil(self.d):
             group.add(x)
+
+    def draw(self, function):
+        self.stencil.add(function(self.d))
 
     def save(self):
         self.d.save()
@@ -124,7 +132,7 @@ def BasicCircle(offset_x, offset_y, r):
     return BasicCircle
 
 
-class JackSocket(BasicCircle(0, 4.92, 4)):
+class JackSocket(BasicCircle(0, 4.92, 3 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label, is_output, rotation=0, font_size=None):
        super(JackSocket, self).__init__(x, y, rotation)
        self.label = label
@@ -167,11 +175,11 @@ class JackSocket(BasicCircle(0, 4.92, 4)):
         return elements
 
 
-SmallLED = BasicCircle(0, inches(.05), 1.5)
-LED = BasicCircle(0, inches(.05), 2.5)
+SmallLED = BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)
+LED = BasicCircle(0, inches(.05), 2.5 + HOLE_ALLOWANCE)
 
 
-class Potentiometer(BasicCircle(inches(.1), inches(.3), 5)):
+class Potentiometer(BasicCircle(inches(.1), inches(.3), 3.5 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label=None, rotation=0, font_size=None):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label
@@ -180,7 +188,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(.3), 5)):
     def draw_stencil(self, context):
         elements = []
         text_props = {
-            "insert": (self.offset[0], self.offset[1] + 11),
+            "insert": (self.offset[0], self.offset[1] + 9.5),
             "text_anchor": "middle",
         }
 
