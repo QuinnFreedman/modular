@@ -9,10 +9,6 @@ extern "C" {
  * Configuration
  */
 
-const uint16_t CHIP_SELECT_PIN = 8;
-const uint16_t SPEED_POT_PIN = A0;
-const uint16_t TEXTURE_POT_PIN = A1;
-
 const double MAX_SPEED = 0.001;
 const double MIN_SPEED = 0;
 
@@ -22,7 +18,23 @@ const double MAX_TEXTURE = 0.8;
 const uint16_t NUM_OCTAVES = 4; 
 const uint16_t OCTAVE_STEP = 4;
 
+const uint16_t CV_SAMPLING_FREQUENCY = 30;
+
+// The voltage coming through the input transistors when the base is grounded
+// on a scale of 0 = 0v, ANALOG_READ_MAX_VALUE = 5v
+const uint16_t TRANSISTOR_ZERO_VALUE = 110;
+// The voltage coming through the input transistors when the base connected to 5v
+const uint16_t TRANSISTOR_5V_VALUE = 1017;
+
 const uint16_t ANALOG_READ_MAX_VALUE = 1023;
+
+//Pins
+const uint16_t CHIP_SELECT_PIN = 8;
+const uint16_t SPEED_POT_PIN = A0;
+const uint16_t TEXTURE_POT_PIN = A1;
+const uint16_t ATTENUATION_POT_PIN = A2;
+const uint16_t SPEED_CV_PIN = A4;
+const uint16_t TEXTURE_CV_PIN = A3;
 
 /*
  * End config
@@ -34,13 +46,13 @@ const uint8_t SEEDS[NUM_OCTAVES] = {
     random() * 256,
 };
 
-double texture = 0;
-double speed = 0;
-
 void setup() {
     pinMode(CHIP_SELECT_PIN, OUTPUT);
     pinMode(SPEED_POT_PIN, INPUT);
     pinMode(TEXTURE_POT_PIN, INPUT);
+    pinMode(ATTENUATION_POT_PIN, INPUT);
+    pinMode(SPEED_CV_PIN, INPUT);
+    pinMode(TEXTURE_CV_PIN, INPUT);
     digitalWrite(CHIP_SELECT_PIN, HIGH);
 
     SPI.begin();
@@ -51,15 +63,23 @@ void setup() {
     
     for (int i = 0; i < 5; i++) {
         MCP4922_write(CHIP_SELECT_PIN, 0, 1);
+        MCP4922_write(CHIP_SELECT_PIN, 1, 1);
         delay(300);
         MCP4922_write(CHIP_SELECT_PIN, 0, 0);
+        MCP4922_write(CHIP_SELECT_PIN, 1, 1);
         delay(300);
     }
-    //Serial.println("oct1 oct2 oct3 total");
 }
 
-
 void loop() {
+    static double texturePotValue = 0;
+    static double speedPotValue = 0;
+    static double textureCvValue = 0;
+    static double speedCvValue = 0;
+    static double texture = 0;
+    static double speed = 0;
+    static double amplitude = 0;
+
     static double perlinTime = 0;
     static uint32_t loopCount = 0;
     static uint32_t lastTime = micros();
@@ -80,29 +100,74 @@ void loop() {
         //Serial.print(" ");
     }
     noise /= maxValue;
+    //noise *= amplitude;
     
     
     //double noise = noise2d(index / 100.0, index / 100.0);
 
-    Serial.println(noise * 3);
+    // Serial.println(noise * 3);
     MCP4922_write(CHIP_SELECT_PIN, 0, (noise + 1) / 2);
-    //MCP4922_write(CHIP_SELECT_PIN, 1, i / 100.0);
+    MCP4922_write(CHIP_SELECT_PIN, 1, (noise + 1) / 2);
 
-    if (loopCount % 71 == 0) {
-        speed = analogReadRange(SPEED_POT_PIN, MIN_SPEED, MAX_SPEED, 15);
+    const uint16_t NUM_CV_CHANNELS = 5;
+
+    switch (loopCount % (CV_SAMPLING_FREQUENCY * NUM_CV_CHANNELS)) {
+        case 0 * CV_SAMPLING_FREQUENCY: {
+            speedPotValue = analogReadRange(SPEED_POT_PIN, MIN_SPEED, MAX_SPEED, 15);
+            speed = clamp(speedCvValue + speedPotValue, MIN_SPEED, MAX_SPEED);
+        } break;
+        case 1 * CV_SAMPLING_FREQUENCY: {
+            texturePotValue = analogReadRange(TEXTURE_POT_PIN, MIN_TEXTURE, MAX_TEXTURE, 0);
+            //texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
+        } break;
+        case 2 * CV_SAMPLING_FREQUENCY: {
+            //amplitude = analogReadRange(ATTENUATION_POT_PIN, 0, 1, 0);
+        } break;
+        case 3 * CV_SAMPLING_FREQUENCY: {
+            speedCvValue = analogReadRange(SPEED_CV_PIN, MIN_SPEED, MAX_SPEED, 0, true);
+            speed = clamp(speedCvValue + speedPotValue, MIN_SPEED, MAX_SPEED);
+            /*
+            Serial.print(speedPotValue * 3000);
+            Serial.print(" ");
+            Serial.print(speedCvValue * 3000);
+            Serial.print(" ");
+            Serial.println(speed * 3000);
+            */
+        } break;
+        case 4 * CV_SAMPLING_FREQUENCY: {
+            textureCvValue = analogReadRange(TEXTURE_CV_PIN, MIN_TEXTURE, MAX_TEXTURE, 0);
+            //texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
+        } break;
     }
-    
-    if (loopCount % 37 == 0) {
-        texture = analogReadRange(TEXTURE_POT_PIN, MIN_TEXTURE, MAX_TEXTURE, 0);
-    }
+
+    loopCount += 1;
 }
 
-double analogReadRange(const uint8_t pin, const double min, const double max, const double exp) {
-    double x = analogRead(pin) / (double) ANALOG_READ_MAX_VALUE;
+inline double analogReadRange(const uint8_t pin, const double min, const double max, const double exp) {
+    return analogReadRange(pin, min, max, exp, false);
+}
+    
+double analogReadRange(const uint8_t pin, const double min, const double max, const double exp, const bool transistorAdjust) {
+    uint16_t rawValue = analogRead(pin);
+    double x; 
+    if (transistorAdjust) {
+        x = ((double) rawValue - TRANSISTOR_ZERO_VALUE) / (TRANSISTOR_5V_VALUE - TRANSISTOR_ZERO_VALUE);
+        x = clamp(x, 0, 1);
+    } else {
+        x = ((double) rawValue) / ANALOG_READ_MAX_VALUE;
+    }
+    
+    // f(x) = 2^ax
+    // g(x) = f(x) - f(0) = f(x) - 1
+    // h(x) = g(x)/g(1)
     if (exp != 0) {
         x = (pow(2, x * exp) - 1) / (pow(2, exp) - 1);
     }
     return (1 - x) * min + x * max;
+}
+
+inline double clamp(const double x, const double min, const double max) {
+    return x < min ? min : x > max ? max : x;
 }
 
 /*
