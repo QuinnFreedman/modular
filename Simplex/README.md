@@ -88,7 +88,7 @@ The capacitors are intended to remove noise from the power supply. But, with my 
 
 The long jumper wire in the PCB design is to connect the signal to the left LED. If you want the 2 LEDs to be identical, connect it with a wire as shown below. If you want to use a bipolar LED for the left channel (so it will be a different color when the output is negative), instead connect the bottom jumper wire terminal with the top of the 1k resistor right next to it. You will probably also want to replace the adjacent 220k resistor with something larger (like 880 or 1k).
 
-![PCB](images/Simplex PCB middle_pcb.jpg)
+![PCB](images/Simplex_PCB_middle_pcb.jpg)
 
 ## Requirements
 
