@@ -106,23 +106,21 @@ void loop() {
         perlinTime -= 256;
     }
 
-    double noise = 0;
-    double maxValue = 0;
-    for (uint8_t i = 0; i < NUM_OCTAVES; i++) {
-        uint8_t oct = i * OCTAVE_STEP;
-        double decayValue = pow(texture, oct);
-        double x = SEEDS[i] + perlinTime * (oct + 1);
-        double randomValue = noise1d(x);
-        noise += randomValue * decayValue;
-        maxValue += decayValue;
+    for (int i = 0; i < 2; i++) {
+        double noise = 0;
+        double maxValue = 0;
+        for (uint8_t i = 0; i < NUM_OCTAVES; i++) {
+            uint8_t oct = i * OCTAVE_STEP;
+            double decayValue = pow(texture, oct);
+            double x = SEEDS[i] + perlinTime * (oct + 1);
+            double randomValue = noise1d(x);
+            noise += randomValue * decayValue;
+            maxValue += decayValue;
+        }
+        noise /= maxValue;
+        noise *= amplitude;
+        MCP4922_write(CHIP_SELECT_PIN, i, (noise + 1) / 2);
     }
-    noise /= maxValue;
-    noise *= amplitude;
-    
-    //double noise = noise2d(index / 100.0, index / 100.0);
-
-    MCP4922_write(CHIP_SELECT_PIN, 0, (noise + 1) / 2);
-    MCP4922_write(CHIP_SELECT_PIN, 1, (noise + 1) / 2);
 
     const uint16_t NUM_CV_CHANNELS = 5;
 
