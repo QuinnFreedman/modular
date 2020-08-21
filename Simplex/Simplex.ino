@@ -9,7 +9,7 @@ extern "C" {
  * Configuration
  */
 
-const double MAX_SPEED = 0.001;
+const double MAX_SPEED = 0.000008;//0.001;
 const double MIN_SPEED = 0;
 
 const double MIN_TEXTURE = 0;
@@ -18,7 +18,7 @@ const double MAX_TEXTURE = 0.8;
 const uint16_t NUM_OCTAVES = 4; 
 const uint16_t OCTAVE_STEP = 4;
 
-const uint16_t CV_SAMPLING_FREQUENCY = 30;
+const uint16_t CV_SAMPLING_FREQUENCY = 5;
 
 // The voltage coming through the input transistors when the base is grounded
 // on a scale of 0 = 0v, ANALOG_READ_MAX_VALUE = 5v
@@ -41,6 +41,7 @@ const uint16_t TEXTURE_CV_PIN = A3;
  */
 
 const uint8_t SEEDS[NUM_OCTAVES] = {
+    random() * 256,
     random() * 256,
     random() * 256,
     random() * 256,
@@ -87,25 +88,25 @@ void loop() {
     uint32_t dt = now - lastTime;
     lastTime = now;
     perlinTime += dt * speed;
+    while (perlinTime > 256) {
+        perlinTime -= 256;
+    }
 
     double noise = 0;
     double maxValue = 0;
     for (uint8_t i = 0; i < NUM_OCTAVES; i++) {
         uint8_t oct = i * OCTAVE_STEP;
         double decayValue = pow(texture, oct);
-        double randomValue = noise1d(SEEDS[i] + perlinTime * (oct + 1));
+        double x = SEEDS[i] + perlinTime * (oct + 1);
+        double randomValue = noise1d(x);
         noise += randomValue * decayValue;
         maxValue += decayValue;
-        //Serial.print(randomValue * decayValue * 3);
-        //Serial.print(" ");
     }
     noise /= maxValue;
-    //noise *= amplitude;
-    
+    noise *= amplitude;
     
     //double noise = noise2d(index / 100.0, index / 100.0);
 
-    // Serial.println(noise * 3);
     MCP4922_write(CHIP_SELECT_PIN, 0, (noise + 1) / 2);
     MCP4922_write(CHIP_SELECT_PIN, 1, (noise + 1) / 2);
 
@@ -113,30 +114,23 @@ void loop() {
 
     switch (loopCount % (CV_SAMPLING_FREQUENCY * NUM_CV_CHANNELS)) {
         case 0 * CV_SAMPLING_FREQUENCY: {
-            speedPotValue = analogReadRange(SPEED_POT_PIN, MIN_SPEED, MAX_SPEED, 15);
+            speedPotValue = analogReadRange(SPEED_POT_PIN, MIN_SPEED, MAX_SPEED, 8);
             speed = clamp(speedCvValue + speedPotValue, MIN_SPEED, MAX_SPEED);
         } break;
         case 1 * CV_SAMPLING_FREQUENCY: {
             texturePotValue = analogReadRange(TEXTURE_POT_PIN, MIN_TEXTURE, MAX_TEXTURE, 0);
-            //texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
+            texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
         } break;
         case 2 * CV_SAMPLING_FREQUENCY: {
-            //amplitude = analogReadRange(ATTENUATION_POT_PIN, 0, 1, 0);
+            amplitude = analogReadRange(ATTENUATION_POT_PIN, 0, 1, 0);
         } break;
         case 3 * CV_SAMPLING_FREQUENCY: {
             speedCvValue = analogReadRange(SPEED_CV_PIN, MIN_SPEED, MAX_SPEED, 0, true);
             speed = clamp(speedCvValue + speedPotValue, MIN_SPEED, MAX_SPEED);
-            /*
-            Serial.print(speedPotValue * 3000);
-            Serial.print(" ");
-            Serial.print(speedCvValue * 3000);
-            Serial.print(" ");
-            Serial.println(speed * 3000);
-            */
         } break;
         case 4 * CV_SAMPLING_FREQUENCY: {
-            textureCvValue = analogReadRange(TEXTURE_CV_PIN, MIN_TEXTURE, MAX_TEXTURE, 0);
-            //texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
+            textureCvValue = analogReadRange(TEXTURE_CV_PIN, MIN_TEXTURE, MAX_TEXTURE, 0, true);
+            texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
         } break;
     }
 
