@@ -9,15 +9,27 @@ extern "C" {
  * Configuration
  */
 
+// The range of the speed or "frequency" of the noise.
+// Measured in terms of microsecconds per step.
+// 0.000001 (1e-6) is something like 1Hz.
 const double MAX_SPEED = 0.000008;//0.001;
 const double MIN_SPEED = 0;
 
+// The range of the texture. Texture is just the coefficient applied to each
+// successive octave. So a texture of 1 would stack all octaves with the same
+// weight. A texture of 0 would only play the root octave.
 const double MIN_TEXTURE = 0;
 const double MAX_TEXTURE = 0.8;
 
+// The number of "octaves" in the noise algorithm -- how many layers of perlin
+// noise are stacked to get the result.
 const uint16_t NUM_OCTAVES = 4; 
+// The distance between the octaves. I.e. the number of times faster octive 2 is
+// than octave 1.
 const uint16_t OCTAVE_STEP = 4;
 
+// How long between when the CV, POTS are sampled. A lower value means 
+// more responsive controls but possibly a less smooth output.
 const uint16_t CV_SAMPLING_FREQUENCY = 5;
 
 // The voltage coming through the input transistors when the base is grounded
@@ -26,6 +38,8 @@ const uint16_t TRANSISTOR_ZERO_VALUE = 110;
 // The voltage coming through the input transistors when the base connected to 5v
 const uint16_t TRANSISTOR_5V_VALUE = 1017;
 
+// The maximum value of the Arduino's internal DAC
+// see: https://www.arduino.cc/reference/en/language/functions/analog-io/analogread/
 const uint16_t ANALOG_READ_MAX_VALUE = 1023;
 
 //Pins
