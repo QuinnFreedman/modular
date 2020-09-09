@@ -38,6 +38,7 @@ MAX_FOLD = 1
 MIN_FOLD = -1
 FOLD_AMOUNT = 1.2
 SIGMOID_SCALE = 10
+OFFSET = 0
 
 
 def sigmoid(x):
@@ -47,6 +48,7 @@ def sigmoid2(x):
     return np.tanh(x)
 
 def process_data(data):
+    data = data + OFFSET
     data = data * FOLD_AMOUNT
     for i in range(len(data)):
         x = data[i]
@@ -67,9 +69,11 @@ graph, = plt.plot(process_data(input_data))
 
 ax_fold = plt.axes([0.25, 0.1, 0.65, 0.03])
 ax_smooth = plt.axes([0.25, 0.15, 0.65, 0.03])
+ax_offset = plt.axes([0.25, 0.05, 0.65, 0.03])
 
 s_fold = Slider(ax_fold, 'Fold', 1, 15, valinit=FOLD_AMOUNT)
 s_smooth = Slider(ax_smooth, 'Smooth', 1, 15, valinit=SIGMOID_SCALE)
+s_offset = Slider(ax_offset, 'Offset', -1, 1, valinit=OFFSET)
 
 def update():
     y = process_data(input_data)
@@ -85,8 +89,14 @@ def update_smooth(val):
     global SIGMOID_SCALE
     SIGMOID_SCALE = val
     update()
+    
+def update_offset(val):
+    global OFFSET
+    OFFSET = val
+    update()
 
 s_fold.on_changed(update_fold)
 s_smooth.on_changed(update_smooth)
+s_offset.on_changed(update_offset)
 
 plt.show()
