@@ -71,6 +71,9 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
 * Resistors
+  * 9x 1kohm
+  * 2x 1Mohm
+  * 2x 220ohm
 * 4 Jacks
 * 2 LEDs
 * 2 PNP transistors
@@ -79,6 +82,13 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 * 1 MCP4922
 * 1 TL072
 
+### Instructions
+
+The capacitors are intended to remove noise from the power supply. But, with my power supply, I was not able to even measure a difference. You can just leave them out if you want, or put in multiple capacitors of different values in parallel.
+
+The long jumper wire in the PCB design is to connect the signal to the left LED. If you want the 2 LEDs to be identical, connect it with a wire as shown below. If you want to use a bipolar LED for the left channel (so it will be a different color when the output is negative), instead connect the bottom jumper wire terminal with the top of the 1k resistor right next to it. You will probably also want to replace the adjacent 220k resistor with something larger (like 880 or 1k).
+
+![PCB](./images/Simplex_PCB_middle.jpg)
 
 ## Requirements
 
