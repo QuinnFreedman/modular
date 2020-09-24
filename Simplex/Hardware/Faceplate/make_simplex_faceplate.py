@@ -9,13 +9,13 @@ HP = 4
 
 
 if __name__ == "__main__":
-    module = Module(HP, (inches(-.015), 25), title="Simplex")
+    module = Module(HP, (inches(-.015), 30), title="Simplex")
 
-    speed_pot = Potentiometer(inches(.5), inches(0), rotation=2, label="Speed")
+    speed_pot = Potentiometer(inches(.5), inches(-.2), rotation=2, label="Speed")
     texture_pot = Potentiometer(inches(.5), inches(.7), rotation=2, label="Texture")
     module.add(speed_pot)
     module.add(texture_pot)
-    module.add(Potentiometer(inches(.5), inches(1.4), rotation=2, label="Atten"))
+    module.add(Potentiometer(inches(.5), inches(1.6), rotation=2, label="Atten"))
 
     jack_start_y = inches(2.6)
 
