@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="Rotary Encoder PCB.svg"
+   id="svg4364"
+   height="0.7039755in"
+   version="1.1"
+   width="0.59703088in">
+  <sodipodi:namedview
+     units="in"
+     inkscape:pagecheckerboard="false"
+     inkscape:current-layer="pcb"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="28.893255"
+     inkscape:cx="36.325378"
+     inkscape:zoom="11.313708"
+     showgrid="true"
+     id="namedview28"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     inkscape:document-rotation="0"
+     inkscape:document-units="in">
+    <inkscape:grid
+       type="xygrid"
+       id="grid841"
+       units="in"
+       spacingx="9.6"
+       spacingy="9.6"
+       originx="9.4578939"
+       originy="5.1477198" />
+  </sodipodi:namedview>
+  <defs
+     id="defs4366">
+    <inkscape:path-effect
+       message="Use fill-rule evenodd on &lt;b&gt;fill and stroke&lt;/b&gt; dialog if no flatten result after convert clip to paths."
+       hide_clip="false"
+       flatten="false"
+       inverse="true"
+       lpeversion="1"
+       is_visible="true"
+       id="path-effect898"
+       effect="powerclip" />
+    <clipPath
+       id="clipPath894"
+       clipPathUnits="userSpaceOnUse">
+      <rect
+         y="704.94586"
+         x="4.8401833"
+         height="10.317045"
+         width="61.820396"
+         id="rect896"
+         style="display:none;opacity:0.992;fill:#ff0000;fill-opacity:0.557078;stroke-width:1.97559" />
+      <path
+         d="m 6.472563,671.13793 h 59.00157 v 77.58164 H 6.472563 Z m -1.6323797,33.80793 v 10.31705 H 66.66058 v -10.31705 z"
+         class="powerclip"
+         style="opacity:0.992;fill:#ff0000;fill-opacity:0.557078;stroke-width:1.97559"
+         id="lpe_path-effect898" />
+    </clipPath>
+  </defs>
+  <metadata
+     id="metadata4369">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-7.0360151,-984.40924)"
+     id="layer1"
+     style="display:inline" />
+  <g
+     transform="translate(-7.0360151,-4.043455)"
+     id="pcb">
+    <g
+       inkscape:path-effect="#path-effect898"
+       clip-path="url(#clipPath894)"
+       transform="translate(-0.279169,-672.09447)"
+       id="silkscreen"
+       style="stroke-width:1.00157;stroke-miterlimit:4;stroke-dasharray:none">
+      <path
+         inkscape:original-d="m 22.238973,676.63871 v 7.57422 H 11.973348 v 48 h 10.265625 v 11.00586 H 49.70577 v -11.00586 h 10.267578 v -48 H 49.707723 v -7.57422 z"
+         id="rect857"
+         style="fill:none;stroke:#ffffff;stroke-width:1.00157;stroke-miterlimit:4;stroke-dasharray:none"
+         d="m 22.238973,676.63871 v 7.57422 H 11.973348 v 48 h 10.265625 v 11.00586 H 49.70577 v -11.00586 h 10.267578 v -48 H 49.707723 v -7.57422 z" />
+    </g>
+    <g
+       transform="translate(0,-672.09447)"
+       id="copper0">
+      <path
+         d="m 47.856565,738.88564 a 2.516543,2.518434 0 0 1 -5.033085,0 2.516543,2.518434 0 1 1 5.033085,0 z"
+         id="connector3pin"
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16314;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <path
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16314;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="connector3pin-6"
+         d="m 38.221175,738.88564 a 2.516543,2.518434 0 0 1 -5.033085,0 2.516543,2.518434 0 1 1 5.033085,0 z" />
+      <path
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16314;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="connector3pin-3"
+         d="m 28.656565,738.83923 a 2.516543,2.518434 0 0 1 -5.033085,0 2.516543,2.518434 0 1 1 5.033085,0 z" />
+      <path
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16314;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="connector3pin-2"
+         d="m 28.656565,681.28564 a 2.516543,2.518434 0 0 1 -5.033085,0 2.516543,2.518434 0 1 1 5.033085,0 z" />
+      <path
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16189;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="connector3pin-8"
+         d="m 47.855939,681.28564 a 2.516543,2.518434 0 0 1 -5.033085,0 2.516543,2.518434 0 1 1 5.033085,0 z" />
+      <path
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16189;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="connector3pin-87"
+         d="m 63.270035,710.08564 a 3.5740307,3.5759239 0 0 1 -7.14806,0 3.5740307,3.5759239 0 1 1 7.14806,0 z" />
+      <path
+         d="m 15.265021,710.08564 a 3.5740307,3.5759239 0 0 1 -7.14806,0 3.5740307,3.5759239 0 1 1 7.14806,0 z"
+         id="connector3pin-87-4"
+         style="display:inline;fill:none;stroke:#f6ca34;stroke-width:2.16189;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+    </g>
+  </g>
+</svg>
