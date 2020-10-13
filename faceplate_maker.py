@@ -9,6 +9,8 @@ except ImportError:
     import sys
     sys.exit(1)
 
+LOGO_DATAURL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='523.843' height='243.844' viewBox='0 0 138.6 64.517' xmlns:v='https://vecta.io/nano' style='background-color:white'%3E%3Cdefs%3E%3CclipPath id='A'%3E%3Cpath d='M115.46-14.165h44.634v93.277H115.46z' opacity='.997' fill='%23fff' fill-opacity='1' stroke='none' stroke-width='6' stroke-miterlimit='4' stroke-dasharray='none' stroke-opacity='1'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M106.34 5.8c14.613 0 26.458 11.846 26.458 26.458s-11.846 26.458-26.458 26.458S85.175 48.133 69.3 32.258C85.175 16.383 91.73 5.8 106.34 5.8zm-74.083 0C17.645 5.8 5.8 17.645 5.8 32.258s11.846 26.458 26.458 26.458S53.425 48.133 69.3 32.258C53.425 16.383 46.87 5.8 32.258 5.8z' opacity='.996' fill='none' stroke='%23000' stroke-width='11.6'/%3E%3Cpath d='M61.07 16.1l-.012 7.31c-11.285-.015-22.57-.01-33.854.006-.252.113-1.024-.295-1.474-.392-1.062-.302-2.1-.79-3.214-.86-1.52.167-2.033 1.836-2.898 2.847l-5.24 7.26 7.64 10.43c2.34-.75 4.652-1.587 7.014-2.266 1.784 1.165 4 .55 5.98.68l26.06.005-.008 6.875c.335.967 1.505 1.018 2.31.908l42.5.014 11.63-4.5 14.182.158-.04-4.734 5.328-2.46.182-9.926-5.623-2.756-.04-4.62c-4.87-.323-9.83.16-14.6-.518-4.037-1.365-7.967-3.124-12.156-3.982h-43.68v.53z' opacity='.997' fill='%23fff'/%3E%3Cpath d='M65.26 19.777v7.825H31.763v9.312H65.26v7.825h39.835l11.64-4.527 10.735.13-.03-3.922 7.45-.4.134-7.253-7.65-.668-.03-3.922-10.347-.13-11.9-4.268zm-41.71 6.96l-4 5.535 4.03 5.505 6.482-2.133-.026-6.824z' opacity='.997'/%3E%3Cpath clip-path='url(%23A)' d='M105.833 5.292c14.613 0 26.458 11.846 26.458 26.458s-11.846 26.458-26.458 26.458S84.667 47.625 68.792 31.75C84.667 15.875 91.22 5.292 105.833 5.292zm-74.083 0c-14.613 0-26.458 11.846-26.458 26.458S17.137 58.208 31.75 58.208 52.917 47.625 68.792 31.75C52.917 15.875 46.363 5.292 31.75 5.292z' opacity='.996' fill='none' stroke='%23000' stroke-width='11.6' transform='translate(.508 .508)'/%3E%3Cpath d='M31.92 22.98h.275v18.014h-.275z' opacity='.997' stroke='%23fff' stroke-width='3.217'/%3E%3C/svg%3E"
+
 HOLE_ALLOWANCE = .2  # mm 
 
 try:
@@ -27,7 +29,7 @@ def inches(n):
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_offset, title=None, filename="output.svg"):
+    def __init__(self, hp, global_offset, title=None, filename="output.svg", debug=False):
         HP = inches(0.2)
         self.height = 128.5
         self.width = hp * HP - .5
@@ -38,11 +40,10 @@ class Module:
         self.outline = self.d.add(self.d.g(id="outline", fill="none", stroke="black"))
         self.stencil = self.d.add(self.d.g(id="stencil", font_family="Ubuntu", font_size=3))
         self.holes = self.d.add(self.d.g(id="throughholes", fill="black", stroke="none"))
+        self.debug = None
+        if debug:
+            self.debug = self.d.add(self.d.g(id="debug", fill="red", stroke="red"))
 
-        # Draw outline
-        self.outline.add(
-            self.d.rect(size=(self.width, self.height), stroke_width=1))
-                        
         screw_hole_y = 3
         screw_hole_x = 1.5 * HP
         screw_hole_d = 3.2
@@ -65,7 +66,7 @@ class Module:
         if title:
             title_offset_y = 5
             if hp < 8:
-                title_offset_y = 8
+                title_offset_y = 9
             self.stencil.add(
                 self.d.text(title,
                     insert=(self.width / 2, title_offset_y),
@@ -73,11 +74,54 @@ class Module:
                     text_anchor="middle"
                 ))
 
+        # Draw logo
+        logo_y = self.height - 9
+        if hp < 8:
+            logo_y = self.height - 12
+        logo_width = min(self.width, 15)
+            
+        image = self.d.image(LOGO_DATAURL, insert=(self.width / 2 - logo_width / 2, logo_y), size=(logo_width, 8))
+        image.fit("center", "middle", "meet")
+        self.stencil.add(image)
+
+        # Draw outline
+        if debug:
+            self.outline.add(
+                self.d.rect(size=(self.width, self.height), stroke_width=1))
+        else:
+            length = 3
+            lines = [
+                ((0, 0), (0, length)),
+                ((0, 0), (length, 0)),
+                ((self.width, 0), (self.width - length, 0)),
+                ((self.width, 0), (self.width, length)),
+                ((0, self.height), (0, self.height - length)),
+                ((0, self.height), (length, self.height)),
+                ((self.width, self.height), (self.width, self.height - length)),
+                ((self.width, self.height), (self.width - length, self.height)),
+                ]
+            for start, end in lines:
+                self.stencil.add(self.d.line(start, end, stroke_width=1, stroke="black"))
+
+        if self.debug:
+            self.debug.add(self.d.line((self.width / 2, 0), (self.width / 2, self.height), stroke="green", stroke_dasharray="4,3", stroke_width=.5))
+                        
         if global_offset:
             self.holes = self.holes.add(self.d.g(id="throughholes_offset"))
             self.holes.translate(global_offset)
             self.stencil = self.stencil.add(self.d.g(id="stencil_offset"))
             self.stencil.translate(global_offset)
+            if self.debug:
+                self.debug = self.debug.add(self.d.g(id="debug_offset"))
+                self.debug.translate(global_offset)
+
+        if self.debug:
+            for x in range(hp * 2):
+                _x = x * inches(0.1)
+                self.debug.add(self.d.line((_x, 0), (_x, inches(5)), stroke_width=0.1))
+            for y in range(50):
+                _y = y * inches(0.1)
+                self.debug.add(self.d.line((0, _y), (inches(hp * .2), _y), stroke_width=0.1))
 
     def add(self, component):
         group = self.holes.add(self.d.g())
@@ -89,6 +133,12 @@ class Module:
         group.translate(*component.position)
         for x in component.draw_stencil(self.d):
             group.add(x)
+
+        if self.debug and hasattr(component, "draw_debug"):
+            group = self.debug.add(self.d.g())
+            group.translate(*component.position)
+            for x in component.draw_debug(self.d):
+                group.add(x)
 
     def draw(self, function):
         self.stencil.add(function(self.d))
@@ -128,6 +178,9 @@ def BasicCircle(offset_x, offset_y, r):
             
         def draw_holes(self, context):
             return [context.circle(center=self.offset, r=self.radius)]
+            
+        def draw_debug(self, context):
+            return [context.circle(center=(0,0), r=.6)]
             
     return BasicCircle
 
@@ -170,16 +223,35 @@ class JackSocket(BasicCircle(0, 4.92, 3 + HOLE_ALLOWANCE)):
 
         elements.append(context.text(self.label, **text_props))
 
-        # elements.append(context.circle(center=(0, 0), r=.5, fill="red"))
-        
         return elements
+
+
+class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
+    def __init__(self, x, y, label, font_size=None):
+       super(Switch, self).__init__(x, y, 0)
+       self.label = label
+       self.font_size = font_size
+       self.hole_radius = self.radius
+       self.hole_center = self.offset
+
+    def draw_stencil(self, context):
+        text_props = {
+            "insert": (self.hole_center[0], self.hole_center[1] + 8),
+            "text_anchor": "middle",
+        }
+
+        if self.font_size:
+            text_props["font_size"] = self.font_size
+        
+        return [ context.text(self.label, **text_props) ]
+    
 
 
 SmallLED = BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)
 LED = BasicCircle(0, inches(.05), 2.5 + HOLE_ALLOWANCE)
 
 
-class Potentiometer(BasicCircle(inches(.1), inches(.3), 3.5 + HOLE_ALLOWANCE)):
+class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label=None, rotation=0, font_size=None):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label
@@ -188,7 +260,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(.3), 3.5 + HOLE_ALLOWANCE)):
     def draw_stencil(self, context):
         elements = []
         text_props = {
-            "insert": (self.offset[0], self.offset[1] + 9.5),
+            "insert": (self.offset[0], self.offset[1] + 10.5),
             "text_anchor": "middle",
         }
 
@@ -197,8 +269,6 @@ class Potentiometer(BasicCircle(inches(.1), inches(.3), 3.5 + HOLE_ALLOWANCE)):
 
         if self.label:
             elements.append(context.text(self.label, **text_props))
-        
-        # elements.append(context.circle(center=(0, 0), r=.5, fill="red"))
         
         return elements
 
@@ -227,12 +297,16 @@ class OLED(Component):
 
         elements.append(context.rect(insert=screen_offset, size=(width, height)))
 
-        # elements.append(context.circle(center=(0,0), r=.5))
-        # elements.append(context.circle(center=(inches(.1),0), r=.5))
-        # elements.append(context.circle(center=(inches(.2),0), r=.5))
-        # elements.append(context.circle(center=(inches(.3),0), r=.5))
 
         return elements
+        
+    def draw_debug(self, context):
+        return [
+            context.circle(center=(0,0), r=.5),
+            context.circle(center=(inches(.1),0), r=.5),
+            context.circle(center=(inches(.2),0), r=.5),
+            context.circle(center=(inches(.3),0), r=.5)
+        ]
 
 
 if __name__ == "__main__":
