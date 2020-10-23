@@ -1,29 +1,15 @@
 #include "envelope.h"
+#include "config.h"
 #include <Arduino.h>
 
-/*
- * Config
- */
-
-#define MILLION 1000000
-const uint32_t ADSR_ATTACK_MAX_DURATION_MICROS = 5 * MILLION;
-const uint32_t ADSR_DECAY_MAX_DURATION_MICROS = 5 * MILLION;
-//sustain time only used in TRAP mode
-const uint32_t ADSR_SUSTAIN_MAX_DURATION_MICROS = 5 * MILLION;
-const uint32_t ADSR_RELEASE_MAX_DURATION_MICROS = 5 * MILLION;
-
-const float EXP_RATE_SCALE = 4;
-const float EXP_FUNCTION_ZERO_THRESH = 0.0001;
-
-const bool LOOP_HARD_SYNC_ON_PING = true;
-const bool LOOP_WHEN_GATE_OFF = true;
-
-/*
- * End config
- */
-
-typedef enum Phase {ATTACK, RELEASE, SUSTAIN, DECAY, OFF} Phase;
-typedef enum Mode {ADSR, AARR, AARR_LOOP} Mode;
+typedef enum Phase {
+    ATTACK = 0,
+    DECAY = 1,
+    SUSTAIN = 2,
+    RELEASE = 3,
+    OFF = 4
+} Phase;
+typedef enum Mode {ADSR, AARR, AARR_LOOP, TRAP_LOOP} Mode;
 
 void goToPhase(Phase phase, bool hardReset);
 float calculateAmountIntoPhase(Phase phase, Mode mode);
@@ -34,15 +20,19 @@ float inverseExpFunction(float t, float k);
 bool isLooping();
 bool shouldLoop();
 
-float cvValues[4] = {0.2, 0.5, 0.2, 0.0};
+float cvValues[4] = {0.2, 0.2, 0.2, 0.2};
 #define CV_ATTACK  (cvValues[0])
 #define CV_DECAY   (cvValues[1])
 #define CV_SUSTAIN (cvValues[2])
 #define CV_RELEASE (cvValues[3])
 #define CV_ATTACK_EXP  (cvValues[1] * 2 - 1)
 #define CV_RELEASE_EXP (cvValues[3] * 2 - 1)
+#define CV_TRAP_ATTACK  (cvValues[0])
+#define CV_TRAP_SUSTAIN (cvValues[1])
+#define CV_TRAP_RELEASE (cvValues[2])
+#define CV_TRAP_DELAY   (cvValues[3])
 
-Mode currentMode = AARR_LOOP;
+Mode currentMode = ADSR;
 Phase currentPhase = OFF;
 float currentValue = 0;
 float phaseStartTime = 0;
@@ -187,6 +177,42 @@ float getValue(Mode mode, Phase phase, float t, Phase* shouldChangePhaseTo) {
             }
         }
         break;
+        case TRAP_LOOP:
+        switch(phase) {
+            case ATTACK: {
+                float x = t;
+                if (t >= 1) {
+                    *shouldChangePhaseTo = SUSTAIN;
+                    x = 1;
+                }
+                return x;
+            }
+            case DECAY: {
+                *shouldChangePhaseTo = SUSTAIN;
+                return 1;
+            }
+            case SUSTAIN: {
+                if (t >= 1) {
+                    *shouldChangePhaseTo = RELEASE;
+                }
+                return 1;
+            }
+            case RELEASE: {
+                float x = 1 - t;
+                if (t >= 1) {
+                    *shouldChangePhaseTo = OFF;
+                    x = 0;
+                }
+                return x;
+            }
+            case OFF: {
+                if (t >= 1 && shouldLoop()) {
+                    *shouldChangePhaseTo = ATTACK;
+                }
+                return 0;
+            }
+        }
+        break;
     }
 }
 
@@ -208,24 +234,78 @@ float expFunction(float t, float k) {
     if (abs(k) < EXP_FUNCTION_ZERO_THRESH) {
         return t;
     }
-    return ( exp(2 * EXP_RATE_SCALE * k * t) - 1 ) / ( exp(4 * EXP_RATE_SCALE * k) - 1 );
+    return ( exp(2 * EXP_RATE_SCALE * k * t * 2) - 1 ) / ( exp(4 * EXP_RATE_SCALE * k) - 1 );
 }
 
 float inverseExpFunction(float t, float k) {
     if (abs(k) < EXP_FUNCTION_ZERO_THRESH) {
         return t;
     }
-    return log( (exp(4 * EXP_RATE_SCALE * k - 1) - 1) * t + 1 ) / ( 2 * EXP_RATE_SCALE * k );
+    return log( (exp(4 * EXP_RATE_SCALE * k) - 1) * t + 1 ) / ( 4 * EXP_RATE_SCALE * k );
 }
 
 void goToPhase(Phase phase, bool hardReset) {
-    // read pots for next phase
-    //float x = analogRead(A2);
+    sampleCV(currentMode, phase);
+    if (currentPhase < 4) {
+        digitalWrite(LED_PINS[currentPhase], LOW);
+    }
+    if (phase < 4) {
+        digitalWrite(LED_PINS[phase], HIGH);
+    }
 
     float amountIntoPhase = hardReset ? 0 : calculateAmountIntoPhase(phase, currentMode);
     currentPhaseDuration = getPhaseDuration(phase, currentMode);
     phaseStartTime = currentTime - currentPhaseDuration * amountIntoPhase;
     currentPhase = phase;
+}
+
+void sampleCV(Mode mode, Phase phase) {
+    switch(mode) {
+        case ADSR:
+        switch(phase) {
+            case ATTACK:
+                cvValues[0] = analogRead(CV_PIN_A) / 1024.0;
+            break;
+            case DECAY:
+                cvValues[1] = analogRead(CV_PIN_D) / 1024.0;
+                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+            break;
+            case SUSTAIN:
+                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+            break;
+            case RELEASE:
+                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+                cvValues[3] = analogRead(CV_PIN_R) / 1024.0;
+            break;
+        } break;
+        case AARR:
+        case AARR_LOOP:
+        switch(phase) {
+            case ATTACK:
+                cvValues[0] = analogRead(CV_PIN_A) / 1024.0;
+                cvValues[1] = analogRead(CV_PIN_D) / 1024.0;
+            break;
+            case RELEASE:
+                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+                cvValues[3] = analogRead(CV_PIN_R) / 1024.0;
+            break;
+        } break;
+        case TRAP_LOOP:
+        switch(phase) {
+            case ATTACK:
+                cvValues[0] = analogRead(CV_PIN_A) / 1024.0;
+            break;
+            case SUSTAIN:
+                cvValues[1] = analogRead(CV_PIN_D) / 1024.0;
+            break;
+            case RELEASE:
+                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+            break;
+            case OFF:
+                cvValues[3] = analogRead(CV_PIN_R) / 1024.0;
+            break;
+        } break;
+    }
 }
 
 /**
@@ -243,6 +323,15 @@ float calculateAmountIntoPhase(Phase phase, Mode mode) {
             case DECAY: return 1 - (currentValue - CV_SUSTAIN) / (1 - CV_SUSTAIN);
             case SUSTAIN: return 0;
             case RELEASE: return 1 - currentValue / CV_SUSTAIN;
+            case OFF: return 0;
+        }
+        break;
+        case TRAP_LOOP:
+        switch(phase) {
+            case ATTACK: return currentValue;
+            case DECAY: return 0;
+            case SUSTAIN: return 0;
+            case RELEASE: return 1 - currentValue;
             case OFF: return 0;
         }
         break;
@@ -291,11 +380,20 @@ float getPhaseDuration(Phase phase, Mode mode) {
             case OFF: return 0;
         }
         break;
+        case TRAP_LOOP:
+        switch(phase) {
+            case ATTACK: return CV_TRAP_ATTACK * ADSR_ATTACK_MAX_DURATION_MICROS;
+            case DECAY: return 0;
+            case SUSTAIN: return CV_TRAP_SUSTAIN * ADSR_SUSTAIN_MAX_DURATION_MICROS;
+            case RELEASE: return CV_TRAP_RELEASE * ADSR_RELEASE_MAX_DURATION_MICROS;
+            case OFF: return CV_TRAP_DELAY * ADSR_DELAY_MAX_DURATION_MICROS;
+        }
+        break;
     }
 }
 
-bool isLooping() {
-    return currentMode == AARR_LOOP;
+inline bool isLooping() {
+    return currentMode == AARR_LOOP || currentMode == TRAP_LOOP;
 }
 
 inline bool shouldLoop() {

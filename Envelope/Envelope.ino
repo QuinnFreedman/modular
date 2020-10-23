@@ -1,11 +1,9 @@
 #include <stdint.h>
+#include "config.h"
 
 extern "C" {
     #include "envelope.h"
 }
-
-const uint16_t GATE_IN_PIN = 2;
-const uint16_t RETRIG_IN_PIN = 3;
 
 void setup() {
     pinMode(GATE_IN_PIN, INPUT_PULLUP);
@@ -14,6 +12,15 @@ void setup() {
 
     attachInterrupt(digitalPinToInterrupt(GATE_IN_PIN), handleGateChange, CHANGE);
     attachInterrupt(digitalPinToInterrupt(RETRIG_IN_PIN), handleRetrigChange, CHANGE);
+
+    pinMode(CV_PIN_A, INPUT);
+    pinMode(CV_PIN_D, INPUT);
+    pinMode(CV_PIN_S, INPUT);
+    pinMode(CV_PIN_R, INPUT);
+
+    for (int i = 0; i < 4; i++) {
+        pinMode(LED_PINS[i], OUTPUT);
+    }
 
     Serial.begin(9600);
 }
