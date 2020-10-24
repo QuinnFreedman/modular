@@ -2,6 +2,8 @@
 #include "config.h"
 #include <Arduino.h>
 
+typedef enum Mode {ADSR, AARR, AARR_LOOP, TRAP_LOOP} Mode;
+
 typedef enum Phase {
     ATTACK = 0,
     DECAY = 1,
@@ -9,7 +11,11 @@ typedef enum Phase {
     RELEASE = 3,
     OFF = 4
 } Phase;
-typedef enum Mode {ADSR, AARR, AARR_LOOP, TRAP_LOOP} Mode;
+
+typedef enum LEDMode {
+    SHOW_MODE,
+    SHOW_PHASE,
+} LEDMode;
 
 void goToPhase(Phase phase, bool hardReset);
 float calculateAmountIntoPhase(Phase phase, Mode mode);
@@ -19,8 +25,9 @@ float expFunction(float t, float k);
 float inverseExpFunction(float t, float k);
 bool isLooping();
 bool shouldLoop();
+void sampleCV(Mode mode, Phase phase);
 
-float cvValues[4] = {0.2, 0.2, 0.2, 0.2};
+volatile float cvValues[4] = {0.2, 0.2, 0.2, 0.2};
 #define CV_ATTACK  (cvValues[0])
 #define CV_DECAY   (cvValues[1])
 #define CV_SUSTAIN (cvValues[2])
@@ -32,16 +39,27 @@ float cvValues[4] = {0.2, 0.2, 0.2, 0.2};
 #define CV_TRAP_RELEASE (cvValues[2])
 #define CV_TRAP_DELAY   (cvValues[3])
 
-Mode currentMode = ADSR;
-Phase currentPhase = OFF;
-float currentValue = 0;
-float phaseStartTime = 0;
-float currentPhaseDuration = 0;
-uint32_t currentTime = 0;
-bool gateOpen = false;
+volatile Mode currentMode = ADSR;
+volatile Phase currentPhase = OFF;
+volatile LEDMode ledMode = SHOW_MODE;
+volatile float currentValue = 0;
+volatile float phaseStartTime = 0;
+volatile float currentPhaseDuration = 0;
+volatile uint32_t currentTime = 0;
+volatile uint32_t lastButtonPressTime = 0;
+volatile bool gateOpen = false;
 
 float update(uint32_t _currentTime) {
     currentTime = _currentTime;
+
+    //switch LED mode if needed
+    if (currentTime - lastButtonPressTime >= LED_SHOW_MODE_TIME_MICROS) {
+        digitalWrite(LED_PINS[currentMode], LOW);
+        digitalWrite(LED_PINS[currentPhase], HIGH);
+        ledMode = SHOW_PHASE;
+        digitalWrite(LED_MODE_INDICATOR_PIN, LOW);
+    }
+    
     float elapsedTimeInPhase = currentTime - phaseStartTime;
     float t = elapsedTimeInPhase / (float) currentPhaseDuration;
     Phase newPhase = currentPhase;
@@ -75,6 +93,30 @@ void ping() {
     } else {
         goToPhase(ATTACK, false);
     }
+}
+
+void cycleModes() {
+    //debounce
+    if (currentTime - lastButtonPressTime <= MIN_TIME_BETWEEN_BUTTON_PRESSES_MICROS) {
+        return;
+    }
+
+    //update
+    lastButtonPressTime = currentTime;
+    currentMode = (currentMode + 1) % 4;
+
+    //set leds
+    ledMode = SHOW_MODE;
+    for (int i = 0; i < 4; i++) {
+        digitalWrite(LED_PINS[i], i == currentMode ? HIGH : LOW);
+    }
+    digitalWrite(LED_MODE_INDICATOR_PIN, HIGH);
+
+    /*
+    //sample CV
+    sampleCV(currentMode, currentPhase);
+    */
+    goToPhase(OFF, true);
 }
 
 float getValue(Mode mode, Phase phase, float t, Phase* shouldChangePhaseTo) {
@@ -246,11 +288,13 @@ float inverseExpFunction(float t, float k) {
 
 void goToPhase(Phase phase, bool hardReset) {
     sampleCV(currentMode, phase);
-    if (currentPhase < 4) {
-        digitalWrite(LED_PINS[currentPhase], LOW);
-    }
-    if (phase < 4) {
-        digitalWrite(LED_PINS[phase], HIGH);
+    if (ledMode == SHOW_PHASE) {
+        if (currentPhase < 4) {
+            digitalWrite(LED_PINS[currentPhase], LOW);
+        }
+        if (phase < 4) {
+            digitalWrite(LED_PINS[phase], HIGH);
+        }
     }
 
     float amountIntoPhase = hardReset ? 0 : calculateAmountIntoPhase(phase, currentMode);

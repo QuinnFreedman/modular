@@ -7,6 +7,7 @@
 float update(uint32_t currentTime);
 void gate(bool on);
 void ping();
+void cycleModes();
 
 #endif
 
