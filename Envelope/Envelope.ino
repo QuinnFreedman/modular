@@ -31,11 +31,10 @@ void setup() {
     for (int i = 0; i < 4; i++) {
         pinMode(LED_PINS[i], OUTPUT);
     }
-    digitalWrite(LED_PINS[0], HIGH);
+    digitalWrite(LED_PINS[DEFAULT_MODE], HIGH);
 
     Serial.begin(9600);
 }
-
 
 void loop() {
     uint32_t currentTime = micros();

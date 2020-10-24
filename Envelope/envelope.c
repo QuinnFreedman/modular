@@ -39,7 +39,7 @@ volatile float cvValues[4] = {0.2, 0.2, 0.2, 0.2};
 #define CV_TRAP_RELEASE (cvValues[2])
 #define CV_TRAP_DELAY   (cvValues[3])
 
-volatile Mode currentMode = ADSR;
+volatile Mode currentMode = DEFAULT_MODE;
 volatile Phase currentPhase = OFF;
 volatile LEDMode ledMode = SHOW_MODE;
 volatile float currentValue = 0;
@@ -303,50 +303,53 @@ void goToPhase(Phase phase, bool hardReset) {
     currentPhase = phase;
 }
 
+#define clamp(x) (x < 0 ? 0 : x > 1 ? 1 : x)
+#define readCV(i, pin) (cvValues[i] = clamp(((float) analogRead(pin) - (float) ANALOG_READ_ZERO_VALUE) / (float) (ANALOG_READ_MAX_VALUE - ANALOG_READ_ZERO_VALUE)))
+
 void sampleCV(Mode mode, Phase phase) {
     switch(mode) {
         case ADSR:
         switch(phase) {
             case ATTACK:
-                cvValues[0] = analogRead(CV_PIN_A) / 1024.0;
+                readCV(0, CV_PIN_A); 
             break;
             case DECAY:
-                cvValues[1] = analogRead(CV_PIN_D) / 1024.0;
-                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+                readCV(1, CV_PIN_D);
+                readCV(2, CV_PIN_S);
             break;
             case SUSTAIN:
-                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+                readCV(2, CV_PIN_S);
             break;
             case RELEASE:
-                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
-                cvValues[3] = analogRead(CV_PIN_R) / 1024.0;
+                readCV(2, CV_PIN_S);
+                readCV(3, CV_PIN_R);
             break;
         } break;
         case AARR:
         case AARR_LOOP:
         switch(phase) {
             case ATTACK:
-                cvValues[0] = analogRead(CV_PIN_A) / 1024.0;
-                cvValues[1] = analogRead(CV_PIN_D) / 1024.0;
+                readCV(0, CV_PIN_A);
+                readCV(1, CV_PIN_D);
             break;
             case RELEASE:
-                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
-                cvValues[3] = analogRead(CV_PIN_R) / 1024.0;
+                readCV(2, CV_PIN_S);
+                readCV(3, CV_PIN_R);
             break;
         } break;
         case TRAP_LOOP:
         switch(phase) {
             case ATTACK:
-                cvValues[0] = analogRead(CV_PIN_A) / 1024.0;
+                readCV(0, CV_PIN_A);
             break;
             case SUSTAIN:
-                cvValues[1] = analogRead(CV_PIN_D) / 1024.0;
+                readCV(1, CV_PIN_D);
             break;
             case RELEASE:
-                cvValues[2] = analogRead(CV_PIN_S) / 1024.0;
+                readCV(2, CV_PIN_S);
             break;
             case OFF:
-                cvValues[3] = analogRead(CV_PIN_R) / 1024.0;
+                readCV(3, CV_PIN_R);
             break;
         } break;
     }
@@ -366,7 +369,7 @@ float calculateAmountIntoPhase(Phase phase, Mode mode) {
             case ATTACK: return currentValue;
             case DECAY: return 1 - (currentValue - CV_SUSTAIN) / (1 - CV_SUSTAIN);
             case SUSTAIN: return 0;
-            case RELEASE: return 1 - currentValue / CV_SUSTAIN;
+            case RELEASE: return 1 - currentValue; // / CV_SUSTAIN;
             case OFF: return 0;
         }
         break;
