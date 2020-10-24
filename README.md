@@ -1,4 +1,4 @@
-<img align="right" src="images/logo_with_text.svg" width=300px>
+<a href="https://github.com/QuinnFreedman/modular/wiki"><img align="right" src="images/logo_with_text.svg" width=300px></a>
 
 This project is an attempt to make Eurorack modular syntehsis affordable and accessable to everyone.
 
