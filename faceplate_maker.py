@@ -24,25 +24,37 @@ except Exception as e:
     print("Warning: Unable to download font")
     font_string = "local('Ubuntu Medium'), local('Ubuntu-Medium')"
 
+import math
+
 def inches(n):
     """Returns n inches in mm"""
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_offset, title=None, filename="output.svg", debug=False):
+    def __init__(self, hp, global_offset, title=None, filename="output.svg", debug=False, cosmetics=False):
         HP = inches(0.2)
         self.height = 128.5
         self.width = hp * HP - .5
 
         self.d = svgwrite.Drawing(filename=filename, size=(self.width * mm, self.height * mm))
+
+        if cosmetics:
+            self.d.add(
+                self.d.rect(size=(self.width, self.height), fill="white"))
+        
         self.d.defs.add(self.d.style(content="@font-face {{ font-family: 'Ubuntu'; font-style: normal; font-weight: 500; src: {}; }}".format(font_string)))
         self.d.viewbox(width=self.width, height=self.height)
         self.outline = self.d.add(self.d.g(id="outline", fill="none", stroke="black"))
         self.stencil = self.d.add(self.d.g(id="stencil", font_family="Ubuntu", font_size=3))
         self.holes = self.d.add(self.d.g(id="throughholes", fill="black", stroke="none"))
+        
         self.debug = None
         if debug:
             self.debug = self.d.add(self.d.g(id="debug", fill="red", stroke="red"))
+            
+        self.cosmetics = None
+        if cosmetics:
+            self.cosmetics = self.d.add(self.d.g(id="cosmetics"))
 
         screw_hole_y = 3
         screw_hole_x = 1.5 * HP
@@ -85,7 +97,9 @@ class Module:
         self.stencil.add(image)
 
         # Draw outline
-        if debug:
+        if cosmetics:
+            pass
+        elif debug:
             self.outline.add(
                 self.d.rect(size=(self.width, self.height), stroke_width=1))
         else:
@@ -114,6 +128,9 @@ class Module:
             if self.debug:
                 self.debug = self.debug.add(self.d.g(id="debug_offset"))
                 self.debug.translate(global_offset)
+            if self.cosmetics:
+                self.cosmetics = self.cosmetics.add(self.d.g(id="cosmetics_offset"))
+                self.cosmetics.translate(global_offset)
 
         if self.debug:
             for x in range(hp * 2):
@@ -139,6 +156,12 @@ class Module:
             group.translate(*component.position)
             for x in component.draw_debug(self.d):
                 group.add(x)
+                
+        if self.cosmetics and hasattr(component, "draw_cosmetics"):
+            group = self.cosmetics.add(self.d.g())
+            group.translate(*component.position)
+            for x in component.draw_cosmetics(self.d):
+                group.add(x)
 
     def draw(self, function):
         self.stencil.add(function(self.d))
@@ -155,6 +178,9 @@ class Component:
         return []
 
     def draw_stencil(self, context):
+        return []
+        
+    def draw_cosmetics(self, context):
         return []
 
 
@@ -224,7 +250,66 @@ class JackSocket(BasicCircle(0, 4.92, 3 + HOLE_ALLOWANCE)):
         elements.append(context.text(self.label, **text_props))
 
         return elements
+        
+    def draw_cosmetics(self, context):
+        elements = []
+        gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        gradient.add_stop_color(-1, "white")
+        gradient.add_stop_color(2, "black")
+        context.defs.add(gradient)
+        elements.append(draw_bumpy_circle(
+            context,
+            self.offset,
+            self.radius + .4,
+            self.radius + .6,
+            18,
+            fill=gradient.get_paint_server()
+        ))
 
+        ring_thickness = .8
+        gradient = context.radialGradient((.5, .5), .5)
+        gradient.add_stop_color(1 - ring_thickness / self.radius, "black")
+        gradient.add_stop_color(1 - ring_thickness / self.radius / 2, "white")
+        gradient.add_stop_color(1, "#444")
+        context.defs.add(gradient)
+        elements.append(context.circle(
+            self.offset,
+            self.radius,
+            fill=gradient.get_paint_server()
+        ))
+        
+        gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        gradient.add_stop_color(0, "black")
+        gradient.add_stop_color(1, "#333")
+        context.defs.add(gradient)
+        elements.append(context.circle(
+            self.offset,
+            self.radius - ring_thickness,
+            fill=gradient.get_paint_server()
+        ))
+        return elements
+
+
+def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
+    n *= 4
+    path = context.path(**kwargs)
+    for i in range(n):
+        if i % 4 < 2:
+            r = r1
+        else:
+            r = r2
+        theta = 2 * math.pi / n * i
+        x = center[0] + math.cos(theta) * r
+        y = center[1] + math.sin(theta) * r
+        path.push(f"{'M' if i == 0 else 'L'} {x} {y}")
+    path.push("z")
+    return path
 
 class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label, font_size=None):
@@ -244,18 +329,75 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
             text_props["font_size"] = self.font_size
         
         return [ context.text(self.label, **text_props) ]
+
+
+class SmallLED(BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)):
+    def __init__(self, x, y, rotation=0, font_size=None, color="red"):
+       super(SmallLED, self).__init__(x, y, rotation)
+       self.color = color
+
+
+class LED(BasicCircle(0, inches(.05), 2.5 + HOLE_ALLOWANCE)):
+    def __init__(self, x, y, rotation=0, font_size=None, color="red"):
+       super(SmallLED, self).__init__(x, y, rotation)
+       self.color = color
+
+
+def draw_led_cosmetic(self, context):
+    gradient = context.radialGradient((.5, .5), .5)
+    gradient.add_stop_color(0, "white")
+    gradient.add_stop_color(1, self.color)
+    context.defs.add(gradient)
+    elements = []
+    elements.append(context.circle(center=self.offset,
+            r=self.radius,
+            fill=gradient.get_paint_server()))
+
+    highlight_center = (self.offset[0] + self.radius / 3, self.offset[1] - self.radius / 2)
+    highlight = context.ellipse(
+            center=highlight_center,
+            r=(self.radius / 2, self.radius / 3),
+            fill="white",
+            opacity=0.8)
+    highlight.rotate(20, center=highlight_center)
+    elements.append(highlight)
+    return elements
+
+    
+setattr(SmallLED, 'draw_cosmetics', draw_led_cosmetic)
+setattr(LED, 'draw_cosmetics', draw_led_cosmetic)
+
+
+def draw_button_cosmetic(self, context):
+    gradient = context.radialGradient((.5, .5), .5)
+    gradient.add_stop_color(0, "#999")
+    gradient.add_stop_color(1, "#111")
+    context.defs.add(gradient)
+    elements = []
+    elements.append(context.circle(center=self.offset,
+            r=self.radius,
+            fill=gradient.get_paint_server()))
+    highlight_center = (self.offset[0] + self.radius / 3, self.offset[1] - self.radius / 2)
+    highlight = context.ellipse(
+            center=highlight_center,
+            r=(self.radius / 3, self.radius / 5),
+            fill="white",
+            opacity=0.3)
+    highlight.rotate(30, center=highlight_center)
+    elements.append(highlight)
+    return elements
     
 
-
-SmallLED = BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)
-LED = BasicCircle(0, inches(.05), 2.5 + HOLE_ALLOWANCE)
+Button = BasicCircle(0, 0, 3.5)
+setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, rotation=0, font_size=None):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white"):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label
         self.font_size = font_size
+        self.color = color
 
     def draw_stencil(self, context):
         elements = []
@@ -270,6 +412,52 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         if self.label:
             elements.append(context.text(self.label, **text_props))
         
+        return elements
+        
+    def draw_cosmetics(self, context):
+        colors = {
+            "yellow": "#f5d400",
+            "blue": "#3b75ff",
+            "red": "#ed2222",
+            "green": "#5ece1c",
+            "black": "#444",
+            "white": "#eee"
+        }
+        border_width = 2
+        marker_width = 2
+        top_radius = inches(1/4) - .5
+        gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        gradient.add_stop_color(0, "white")
+        gradient.add_stop_color(1, "black")
+        context.defs.add(gradient)
+        elements = []
+        elements.append(context.circle(center=self.offset,
+                #r=inches(5/16),
+                r=inches(5/16),
+                fill=gradient.get_paint_server()))
+        elements.append(context.circle(center=self.offset,
+                r=top_radius,
+                fill=colors[self.color],
+                stroke="black",
+                stroke_width=border_width))
+        tip_offset = (top_radius ** 2 / 2) ** (1/2)
+        tip_size = (marker_width ** 2 / 2) ** (1/2)
+        marker_tip =  (self.offset[0] - tip_offset, self.offset[1] - tip_offset)
+        elements.append(context.line(self.offset,
+            marker_tip,
+            stroke="black",
+            stroke_width=marker_width,
+            stroke_linecap="round"
+            ))
+        square_offset = ((border_width / 2) ** 2 / 2) ** (1/2)
+        elements.append(context.rect(
+            (marker_tip[0] - square_offset - tip_size / 2, marker_tip[1] - square_offset - tip_size / 2),
+            (tip_size, tip_size),
+            fill="black"
+        ))
         return elements
 
 
