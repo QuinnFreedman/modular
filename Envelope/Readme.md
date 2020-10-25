@@ -80,13 +80,17 @@ There are 4 knobs, each with CV control from 0-5v. They roughly control the leng
 
 #### ADSR mode
 
-![ADSR graph](images/ADSR.svg)
+<p align="center" width="100%">
+    <img alt="ADSR graph" src="images/ADSR.svg" width=500 />
+</p>
 
 ADSR is a "standard" linear envelope mode with attack, decay, sustain, and release controlled by the 4 inputs, respectively.
 
 #### AARR
 
-![AARR graph](images/AARR.svg)
+<p align="center" width="100%">
+    <img alt="AARR graph" src="images/AARR.svg" width=500 />
+</p>
 
 AARR (or A,A',D,D') mode gives up control of the attack and decay. Instead, knobs (2) and (4) are used to control the exponential rate of the attack & decay. These controls can go through zero, so both attack and decay can be either exponential or logarithmic.
 
@@ -96,6 +100,8 @@ AARR Loop is exactly like AARR mode except that it loops continuously. It goes b
 
 #### TRAP Loop
 
-![TRAP graph](images/TRAP.svg)
+<p align="center" width="100%">
+    <img alt="TRAP graph" src="images/TRAP.svg" width=500 />
+</p>
 
 This mode could be called ASRD for Attack/Sustain/Release/Delay, but I call it TRAP for "trapezoid" to remove confusion. This mode is another looping mode where you can control how long the envelope stays HIGH and LOW between Attack/Decay in the loop. This lets you create a pulse-width modulated square wave or saw wave, or any other simple waveform.
