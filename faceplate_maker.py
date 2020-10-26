@@ -464,12 +464,14 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
 class OLED(Component):
     def __init__(self, x, y):
        super(OLED, self).__init__(x, y)
+       self.screen_height = inches(1/2)
+       self.screen_width = inches(15/16)
+       self.screen_offset = (inches(-(1/4 + 1/16)), inches(-(1/8 + 1/32)) - self.screen_height)
 
     def draw_holes(self, context):
-        height = inches(1/2)
-        width = inches(15/16)
+        height = self.screen_height 
+        width = self.screen_width 
 
-        screen_offset = (inches(-(1/4 + 1/16)), inches(-(1/8 + 1/32)) - height)
         left_hole_offset_x = -inches(1/4)
         right_hole_offset_x = inches(0.3) - left_hole_offset_x
         bottom_hole_offset = -inches(1/32)
@@ -483,7 +485,7 @@ class OLED(Component):
             for y in (top_hole_offset, bottom_hole_offset):
                 elements.append(context.circle(center=(x, y), r=screw_hole_d/2))
 
-        elements.append(context.rect(insert=screen_offset, size=(width, height)))
+        elements.append(context.rect(insert=self.screen_offset, size=(width, height)))
 
 
         return elements
@@ -495,6 +497,21 @@ class OLED(Component):
             context.circle(center=(inches(.2),0), r=.5),
             context.circle(center=(inches(.3),0), r=.5)
         ]
+
+    def draw_cosmetics(self, context):
+        clip_path = context.defs.add(context.clipPath())
+        clip_path.add(context.rect(insert=self.screen_offset, size=(self.screen_width, self.screen_height)))
+        
+        elements = []
+        
+        elements.append(context.rect(insert=self.screen_offset, size=(self.screen_width, self.screen_height), fill="black"))
+        elements.append(context.ellipse(
+            (self.screen_offset[0] + self.screen_width, self.screen_offset[1]),
+            r=(self.screen_width / 2, self.screen_height / 2),
+            fill="white", opacity=.5,
+            clip_path=f"url(#{clip_path.get_id()})"))
+
+        return elements
 
 
 if __name__ == "__main__":
