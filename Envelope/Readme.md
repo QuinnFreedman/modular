@@ -1,40 +1,8 @@
 # Envelope
 
-```
-+------------------+
-| o   Envelope   o |
-|  _               |
-| [_] (*)(*)(*)(*) | <-- Button & LEDs
-|           ___    |
-|  _       /  /\   |
-| (_) - - |  *  |  | <-- 1
-|          \___/   |
-|         A/A/A/A  |
-|           ___    |
-|  _       /  /\   |
-| (_) - - |  *  |  | <-- 2
-|          \___/   |
-|        D/A'/A'/S |
-|           ___    |
-|  _       /  /\   |
-| (_) - - |  *  |  | <-- 3
-|          \___/   |
-|         S/R/R/R  |
-|           ___    |
-|  _       /  /\   |
-| (_) - - |  *  |  | <-- 4
-|          \___/   |
-|        R/R'/R'/R |
-|                  |
-|  _   _    _   _  |
-| (_) (_)  (_) (_) | <-- input/output
-|Gate Ping OUT INV |
-|                  |
-| o              o |
-+------------------+
-```
-
 A simple but powerful envelope generator with 4 modes. Can be used as a linear ADSR or exponential AD, looping or not.
+
+<img src="images/envelope_faceplate.svg" />
 
 
 # Manual
