@@ -339,7 +339,7 @@ class SmallLED(BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)):
 
 class LED(BasicCircle(0, inches(.05), 2.5 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
-       super(SmallLED, self).__init__(x, y, rotation)
+       super(LED, self).__init__(x, y, rotation)
        self.color = color
 
 
@@ -402,7 +402,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
     def draw_stencil(self, context):
         elements = []
         text_props = {
-            "insert": (self.offset[0], self.offset[1] + 10.5),
+            "insert": (self.offset[0], self.offset[1] + 12),
             "text_anchor": "middle",
         }
 
