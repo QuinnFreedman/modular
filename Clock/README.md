@@ -3,8 +3,8 @@
 A clock module sends rythmic voltage pulses at different subdevisions or multiples of a given tempo. If you want to have any kind a syncronous tempo to your music, use a clock to drive all your other modules and keep them in sync. You can use a clock output to step a sequencer or plug it directly into gate and trigger inputs.
 
 ## Manual
-
-<img src="images/clock_faceplate.svg" aligh="left"/>
+<p>
+<img src="images/clock_faceplate.svg" align="left"/>
 
 ### (A) OLDED Screen
 
@@ -17,7 +17,7 @@ Navigates the menu. Turn to move up/down. Click to select an item. Long-hold (.5
 ### (C) Outputs.
 
 8 digital gate output channels (0-5v).
-
+</p>
 ### Menu
 
 ![main menu](images/main_menu.jpg)
