@@ -2,13 +2,23 @@
 
 A clock module sends rythmic voltage pulses at different subdevisions or multiples of a given tempo. If you want to have any kind a syncronous tempo to your music, use a clock to drive all your other modules and keep them in sync. You can use a clock output to step a sequencer or plug it directly into gate and trigger inputs.
 
+![Clock Faceplate](images/clock_faceplate.svg)
+
 ## Manual
 
-| Inputs | Outputs            | Interface                                        |
-|--------|--------------------|--------------------------------------------------|
-| None*  | 8 adjustable gates | 128x64 monochrome display and one clickable knob |
+### (A) OLDED Screen
 
-Using the Clock is simple. Use the clickable rotarty encoder knob/button to navigate the menu. 
+Displays menu with configurable screensaver animation
+
+### (B) Encoder
+
+Navigates the menu. Turn to move up/down. Click to select an item. Long-hold (.5 secconds) to enter or exit a sub-menu.
+
+### (C) Outputs.
+
+8 digital gate output channels (0-5v).
+
+### Menu
 
 ![main menu](images/main_menu.jpg)
 
