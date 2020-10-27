@@ -38,9 +38,8 @@ class Module:
 
         self.d = svgwrite.Drawing(filename=filename, size=(self.width * mm, self.height * mm))
 
-        if cosmetics:
-            self.d.add(
-                self.d.rect(size=(self.width, self.height), fill="white"))
+        self.d.add(
+            self.d.rect(size=(self.width, self.height), fill="white", id="background"))
         
         self.d.defs.add(self.d.style(content="@font-face {{ font-family: 'Ubuntu'; font-style: normal; font-weight: 500; src: {}; }}".format(font_string)))
         self.d.viewbox(width=self.width, height=self.height)
