@@ -4,9 +4,9 @@ A clock module sends rythmic voltage pulses at different subdevisions or multipl
 
 ## Manual
 
-<img src="images/clock_faceplate.svg" />
+<img src="images/clock_faceplate.svg" aligh="left"/>
 
-**(A) OLDED Screen**
+### (A) OLDED Screen
 
 Displays menu with configurable screensaver animation
 
