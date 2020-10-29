@@ -26,6 +26,12 @@ const uint16_t ANALOG_READ_ZERO_VALUE = 15;
 
 #define GATE_PASSTHROUGH_ENABLED false
 #define LED_MODE_INDICATOR_ENABLED false
+#define EOR_TRIGGER_ENABLED false
+#define EOF_TRIGGER_ENABLED false
+
+#if EOR_TRIGGER_ENABLED || EOF_TRIGGER_ENABLED
+const uint16_t TRIGGER_TIME_MICROS = 50000; // 5ms
+#endif
 
 //PINS
 const uint16_t GATE_IN_PIN = 3;
@@ -36,15 +42,25 @@ const uint16_t DAC_CS_PIN = 9;
 #define CV_PIN_D A0
 #define CV_PIN_S A1
 #define CV_PIN_R A3
+#define AUX_PIN_1 A4 
+#define AUX_PIN_2 A5 
 
 #define BUTTON_PIN 4
 
 #if GATE_PASSTHROUGH_ENABLED
-const uint16_t GATE_OUT_PIN = 13;
+#define GATE_OUT_PIN AUX_PIN_1
 #endif
 
 #if LED_MODE_INDICATOR_ENABLED
-const uint16_t LED_MODE_INDICATOR_PIN = 13;
+#define LED_MODE_INDICATOR_PIN AUX_PIN_1
+#endif
+
+#if EOR_TRIGGER_ENABLED
+#define EOR_TRIGGER_PIN AUX_PIN_1
+#endif
+
+#if EOF_TRIGGER_ENABLED
+#define EOF_TRIGGER_PIN AUX_PIN_2
 #endif
 
 #endif // __config_h__

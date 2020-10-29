@@ -49,8 +49,37 @@ volatile uint32_t currentTime = 0;
 volatile uint32_t lastButtonPressTime = 0;
 volatile bool gateOpen = false;
 
+#if EOR_TRIGGER_ENABLED
+volatile uint32_t lastEORTriggerTime = 0;
+volatile bool EORTriggerOn = false;
+#endif
+#if EOF_TRIGGER_ENABLED
+volatile uint32_t lastEOFTriggerTime = 0;
+volatile bool EOFTriggerOn = false;
+#endif
+
 float update(uint32_t _currentTime) {
     currentTime = _currentTime;
+
+    //turn off EOR and EOF triggers if necessary
+    #if EOR_TRIGGER_ENABLED
+    if (EORTriggerOn) {
+        uint32_t timeTriggerHasBeenOn = currentTime - lastEORTriggerTime;
+        if (timeTriggerHasBeenOn >= TRIGGER_TIME_MICROS) {
+            EORTriggerOn = true;
+            digitalWrite(EOR_TRIGGER_PIN, LOW);
+        }
+    }
+    #endif
+    #if EOF_TRIGGER_ENABLED
+    if (EOFTriggerOn) {
+        uint32_t timeTriggerHasBeenOn = currentTime - lastEOFTriggerTime;
+        if (timeTriggerHasBeenOn >= TRIGGER_TIME_MICROS) {
+            EOFTriggerOn = true;
+            digitalWrite(EOF_TRIGGER_PIN, LOW);
+        }
+    }
+    #endif
 
     //switch LED mode if needed
     if (currentTime - lastButtonPressTime >= LED_SHOW_MODE_TIME_MICROS) {
@@ -61,17 +90,28 @@ float update(uint32_t _currentTime) {
         digitalWrite(LED_MODE_INDICATOR_PIN, LOW);
         #endif
     }
-    
+
+    //calculate envelope value
     float elapsedTimeInPhase = currentTime - phaseStartTime;
     float t = elapsedTimeInPhase / (float) currentPhaseDuration;
     Phase newPhase = currentPhase;
     currentValue = getValue(currentMode, currentPhase, t, &newPhase);
     if (newPhase != currentPhase) {
+        #if EOR_TRIGGER_ENABLED
+        if (currentPhase == ATTACK) {
+            lastEORTriggerTime = currentTime;
+            EORTriggerOn = true;
+            digitalWrite(EOR_TRIGGER_PIN, HIGH);
+        }
+        #endif
         goToPhase(newPhase, false);
     }
     return currentValue;
 }
 
+/**
+ * Call to notify that the gate has been turned on or off
+ */
 void gate(bool on) {
     gateOpen = on;
     if (isLooping() && LOOP_WHEN_GATE_OFF) {
@@ -89,6 +129,9 @@ void gate(bool on) {
     }
 }
 
+/**
+ * Call to notify that a ping input has been recieved 
+ */
 void ping() {
     if (isLooping() && LOOP_HARD_SYNC_ON_PING) {
         goToPhase(ATTACK, true);
@@ -97,6 +140,9 @@ void ping() {
     }
 }
 
+/**
+ * Go to the next operating mode (i.e. the button has just been pressed)
+ */
 void cycleModes() {
     //debounce
     if (currentTime - lastButtonPressTime <= MIN_TIME_BETWEEN_BUTTON_PRESSES_MICROS) {
@@ -123,6 +169,13 @@ void cycleModes() {
     goToPhase(OFF, true);
 }
 
+/**
+ * For a given mode and phase, get the value that the envelope should be [0-1] based on
+ * how far into that phase we are (t in [0-1]).
+ * 
+ * If it's time to go to the next phase, `shouldChangePhaseTo` will be written to as an
+ * OUT parameter.
+ */
 float getValue(Mode mode, Phase phase, float t, Phase* shouldChangePhaseTo) {
     switch(mode) {
         case ADSR:
