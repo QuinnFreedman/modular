@@ -25,18 +25,19 @@ const uint16_t ANALOG_READ_ZERO_VALUE = 15;
 #define DEFAULT_MODE 0
 
 #define GATE_PASSTHROUGH_ENABLED false
-#define LED_MODE_INDICATOR_ENABLED true
+#define LED_MODE_INDICATOR_ENABLED false
 
 //PINS
-const uint16_t GATE_IN_PIN = 2;
-const uint16_t RETRIG_IN_PIN = 3;
-const uint16_t LED_PINS[4] = {4, 5, 6, 7};
-#define CV_PIN_A A0
-#define CV_PIN_D A1
-#define CV_PIN_S A2
+const uint16_t GATE_IN_PIN = 3;
+const uint16_t RETRIG_IN_PIN = 2;
+const uint16_t LED_PINS[4] = {5, 6, 7, 8};
+const uint16_t DAC_CS_PIN = 9;
+#define CV_PIN_A A2
+#define CV_PIN_D A0
+#define CV_PIN_S A1
 #define CV_PIN_R A3
 
-#define BUTTON_PIN 9
+#define BUTTON_PIN 4
 
 #if GATE_PASSTHROUGH_ENABLED
 const uint16_t GATE_OUT_PIN = 13;

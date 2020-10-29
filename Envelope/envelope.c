@@ -27,7 +27,7 @@ bool isLooping();
 bool shouldLoop();
 void sampleCV(Mode mode, Phase phase);
 
-volatile float cvValues[4] = {0.2, 0.2, 0.2, 0.2};
+volatile float cvValues[4] = {0.2, 0.2, 0.8, 0.2};
 #define CV_ATTACK  (cvValues[0])
 #define CV_DECAY   (cvValues[1])
 #define CV_SUSTAIN (cvValues[2])
@@ -57,7 +57,9 @@ float update(uint32_t _currentTime) {
         digitalWrite(LED_PINS[currentMode], LOW);
         digitalWrite(LED_PINS[currentPhase], HIGH);
         ledMode = SHOW_PHASE;
+        #if LED_MODE_INDICATOR_ENABLED
         digitalWrite(LED_MODE_INDICATOR_PIN, LOW);
+        #endif
     }
     
     float elapsedTimeInPhase = currentTime - phaseStartTime;
@@ -110,7 +112,9 @@ void cycleModes() {
     for (int i = 0; i < 4; i++) {
         digitalWrite(LED_PINS[i], i == currentMode ? HIGH : LOW);
     }
+    #if LED_MODE_INDICATOR_ENABLED
     digitalWrite(LED_MODE_INDICATOR_PIN, HIGH);
+    #endif
 
     /*
     //sample CV
@@ -288,6 +292,7 @@ float inverseExpFunction(float t, float k) {
 
 void goToPhase(Phase phase, bool hardReset) {
     sampleCV(currentMode, phase);
+    
     if (ledMode == SHOW_PHASE) {
         if (currentPhase < 4) {
             digitalWrite(LED_PINS[currentPhase], LOW);
@@ -369,7 +374,7 @@ float calculateAmountIntoPhase(Phase phase, Mode mode) {
             case ATTACK: return currentValue;
             case DECAY: return 1 - (currentValue - CV_SUSTAIN) / (1 - CV_SUSTAIN);
             case SUSTAIN: return 0;
-            case RELEASE: return 1 - currentValue; // / CV_SUSTAIN;
+            case RELEASE: return 1 - currentValue / CV_SUSTAIN;
             case OFF: return 0;
         }
         break;
@@ -405,7 +410,7 @@ float getPhaseDuration(Phase phase, Mode mode) {
             case ATTACK: return CV_ATTACK * ADSR_ATTACK_MAX_DURATION_MICROS;
             case DECAY: return CV_DECAY * ADSR_DECAY_MAX_DURATION_MICROS;
             case SUSTAIN: return 1;
-            case RELEASE: return CV_RELEASE * ADSR_RELEASE_MAX_DURATION_MICROS;
+            case RELEASE: return CV_RELEASE * ADSR_RELEASE_MAX_DURATION_MICROS * CV_SUSTAIN;
             case OFF: return 1;
         }
         break;
