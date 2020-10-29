@@ -85,3 +85,49 @@ AARR Loop is exactly like AARR mode except that it loops continuously. It goes b
 </p>
 
 This mode could be called ASRD for Attack/Sustain/Release/Delay, but I call it TRAP for "trapezoid" to remove confusion. This mode is another looping mode where you can control how long the envelope stays HIGH and LOW between Attack/Decay in the loop. This lets you create a pulse-width modulated square wave or saw wave, or any other simple waveform.
+
+# Assembly
+
+### Components
+
+See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
+
+* Resistors
+  * 2x 100kohm
+  * 2x 200kohm
+  * 4x 66.5ohm
+  * 4x 10kohm
+  * 2x 2kohm (should match potentiometers -- so if you are using B50k potentiometers use 10k resistors here)
+  * 2x 1kohm (controls output impedance)
+  * 4x 220ohm (controls LED brightness -- I would actually reccomend something more like 680 for dimmer LEDs)
+* 4 Potentiometers (B10k)
+* 8 Jacks
+* 4 LEDs
+* 1 Button (momentary switch -- SPST)
+* 2 NPN transistors
+* 1 MCP4922 (DAC)
+* 1 MCP6004 (Op-Amp)
+* 2 10uF capacitors (optional)
+* 1 100nf capacitor (optional)
+* m/f stacking headers and 1 2x8 shrouded header.
+* a few inches of insulated wire
+
+### Instructions
+
+See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly).
+
+#### Mounting the button
+
+Most of the buttons I have found are not pcb-mounted so I have left a hole in the front PCB for the button to poke through.
+
+Mount the button in the faceplate and then solder wires from the two terminals of the button into the two holes labelled "Switch" in the front PCB.  In my experience, this button can be the most unreliable part of the module, so make sure the solder joints are insulated and try to ground the housing of the button if it is metal.
+
+When I had my PCBs printed from pcbway.com, they didn't actually cut out the button hole. If this happens to you, you will need to drill or cut out a hole big enough for the button to fit through (or just find a very short button or mount it higher). You can cut up to the solder protection but not into it -- there are traces right up to the edge of the hole.
+
+#### Soldering the bottom jacks
+
+I keep all my PCBs to be less than 10cm tall. This makes them much cheeper to print, but it means that this design doesn't quite fit on the board. The bottom row of jacks hang off the edge a little bit. If you don't mind paying extra, you can just extend the PCB 5mm in Fritzing. Otherwise, you will need to solder a wire to the bottom pin of these 4 jacks.
+
+The wire is a ground so it can be a bare wire. Solder it to the bottom-most (shank) pins of all for jacks and then to the hole marked GND. If your PCB manufacturer has left solder pads for the middle (switch) pins, you can solder those to the board for stability. Otherwise, leave them hanging. They are not used in this module.
+
+As always, I reccomend screwing the jacks into the faceplate before soldering to hold them in place.
