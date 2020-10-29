@@ -35,10 +35,10 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 * Resistors
   * 10x 10kohm (or any value as long as they all match -- 1k is fine)
   * 2x 1kohm (controls output impedance)
-  * 2x 470ohm (controls LED brightness -- I would actually reccomend something more like 600-1k for dimmer LEDs)
+  * 2x 470ohm (controls LED brightness -- I would actually reccomend something more like 1k-1.4k for dimmer LEDs)
 * 4 Potentiometers (any value)
 * 4 Jacks
-* 2 Bi-directional LEDs (or regular LEDs if you cant find any)
+* 2 Bi-directional LEDs (or regular LEDs if you can't find any)
 * 1 TL074
 * 2 10uF capacitors (optional)
 * 1 100nf capacitor (optional)
