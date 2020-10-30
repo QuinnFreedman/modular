@@ -211,20 +211,25 @@ def BasicCircle(offset_x, offset_y, r):
 
 
 class JackSocket(BasicCircle(0, 4.92, 3 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label, is_output, rotation=0, font_size=None):
+    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
        super(JackSocket, self).__init__(x, y, rotation)
        self.label = label
        self.is_output = is_output
        self.font_size = font_size
        self.hole_radius = self.radius
        self.hole_center = self.offset
+       self.label_above = label_above
        
     def draw_holes(self, context):
         return [context.circle(center=self.hole_center, r=self.hole_radius)]
 
     def draw_stencil(self, context):
+        text_offset = 8
+        if self.label_above:
+            text_offset = -5.5
+            
         text_props = {
-            "insert": (self.hole_center[0], self.hole_center[1] + 8),
+            "insert": (self.hole_center[0], self.hole_center[1] + text_offset),
             "text_anchor": "middle",
         }
 
@@ -311,24 +316,118 @@ def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
     return path
 
 class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label, font_size=None):
+    def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None):
        super(Switch, self).__init__(x, y, 0)
        self.label = label
        self.font_size = font_size
+       self.left_text = left_text
+       self.right_text = right_text
        self.hole_radius = self.radius
        self.hole_center = self.offset
 
     def draw_stencil(self, context):
         text_props = {
-            "insert": (self.hole_center[0], self.hole_center[1] + 8),
             "text_anchor": "middle",
         }
 
         if self.font_size:
             text_props["font_size"] = self.font_size
-        
-        return [ context.text(self.label, **text_props) ]
 
+        if self.font_size:
+            approx_text_size = self.font_size
+        else:
+            approx_text_size = 3
+
+        elements = []
+
+        if self.label:
+            elements.append(context.text(self.label,
+                insert=(self.hole_center[0], self.hole_center[1] + 8),
+                **text_props))
+        if self.left_text:
+            elements.append(context.text(self.left_text,
+                insert=(self.hole_center[0] - 8, self.hole_center[1] + approx_text_size / 2),
+                **text_props))
+        if self.right_text:
+            elements.append(context.text(self.right_text,
+                insert=(self.hole_center[0] + 8, self.hole_center[1] + approx_text_size / 2),
+                **text_props))
+            
+        return elements
+        
+    def draw_cosmetics(self, context):
+        elements = []
+        gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        gradient.add_stop_color(-1, "white")
+        gradient.add_stop_color(2, "black")
+        context.defs.add(gradient)
+        elements.append(context.circle(
+            self.offset,
+            self.radius + .35,
+            fill=gradient.get_paint_server()
+        ))
+
+        ring_thickness = .8
+        gradient = context.radialGradient((.5, .5), .5)
+        gradient.add_stop_color(1 - ring_thickness / self.radius, "black")
+        gradient.add_stop_color(1 - ring_thickness / self.radius / 2, "white")
+        gradient.add_stop_color(1, "#444")
+        context.defs.add(gradient)
+        elements.append(context.circle(
+            self.offset,
+            self.radius,
+            fill=gradient.get_paint_server()
+        ))
+        
+        elements.append(context.circle(
+            self.offset,
+            self.radius - ring_thickness,
+            fill="#111"
+        ))
+
+        angle = 0#-.2
+        length = 4
+        width = 2.2
+        spread = .1
+        rounding = 2.5
+        wide_width = width + 2 * length * math.sin(spread)
+
+        gradient = context.radialGradient((.8, .5), .6)
+        gradient.add_stop_color(0, "#eee")
+        gradient.add_stop_color(1, "#111")
+        context.defs.add(gradient)
+
+        path = context.path(fill=gradient.get_paint_server())
+        y = math.sin(angle - math.pi / 2) * width / 2
+        x = math.cos(angle - math.pi / 2) * width / 2
+        path.push(f"M {self.offset[0] + x} {self.offset[1] + y}")
+        
+        y = math.sin(angle - spread) * length
+        x = math.cos(angle - spread) * length
+        path.push(f"l {x} {y}")
+        
+        y = math.sin(angle + math.pi / 2) * wide_width
+        x = math.cos(angle + math.pi / 2) * wide_width
+        
+        cy1 = math.sin(angle - spread) * rounding
+        cx1 = math.cos(angle - spread) * rounding
+        
+        cy2 = y + math.sin(angle + spread) * rounding
+        cx2 = x + math.cos(angle + spread) * rounding
+        path.push(f"c {cx1} {cy1} {cx2} {cy2} {x} {y}")
+        
+        y = math.sin(angle + spread + math.pi) * length
+        x = math.cos(angle + spread + math.pi) * length
+        path.push(f"l {x} {y}")
+        path.push(f"z")
+
+        
+        elements.append(path)
+        
+        return elements
 
 class SmallLED(BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
@@ -392,16 +491,17 @@ setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white"):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=12):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label
         self.font_size = font_size
         self.color = color
+        self.text_offset = text_offset
 
     def draw_stencil(self, context):
         elements = []
         text_props = {
-            "insert": (self.offset[0], self.offset[1] + 12),
+            "insert": (self.offset[0], self.offset[1] + self.text_offset),
             "text_anchor": "middle",
         }
 
