@@ -19,7 +19,7 @@ if __name__ == "__main__":
         module.add(LED(x, y))
 
     y += inches(1)
-    module.add(Potentiometer(CENTER_X - inches(.5), y - inches(.1), label="Chaos"))
+    module.add(Potentiometer(CENTER_X - inches(.5), y - inches(.1), label="Chaos", cosmetic_radius=inches(3/8), text_offset=14.75))
     module.add(Potentiometer(CENTER_X + inches(.4), y, label="Time"))
 
     y += inches(.9)

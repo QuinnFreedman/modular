@@ -491,12 +491,13 @@ setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=12):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=12, cosmetic_radius=None):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label
         self.font_size = font_size
         self.color = color
         self.text_offset = text_offset
+        self.cosmetic_radius = cosmetic_radius
 
     def draw_stencil(self, context):
         elements = []
@@ -524,7 +525,12 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         }
         border_width = 2
         marker_width = 2
-        top_radius = inches(1/4) - .5
+        if self.cosmetic_radius:
+            base_radius = self.cosmetic_radius
+        else:
+            base_radius = inches(1/4)
+        
+        top_radius = base_radius - .5
         gradient = context.linearGradient(
             (1, 0),
             (0, 1),
@@ -534,8 +540,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         context.defs.add(gradient)
         elements = []
         elements.append(context.circle(center=self.offset,
-                #r=inches(5/16),
-                r=inches(5/16),
+                r=base_radius + inches(1/16),
                 fill=gradient.get_paint_server()))
         elements.append(context.circle(center=self.offset,
                 r=top_radius,
