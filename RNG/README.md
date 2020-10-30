@@ -12,38 +12,7 @@ RNG stands for Random Number Generator. The ability to generate random control v
 
 ## Manual
 
-```
-+-----------------------------+
-| o           RNG           o |
-|                             |
-| (*) (*) (*) (*) (*) (*) (*) | <-- LEDs
-|      ____                   | 
-|     /   /\         ___      |
-|    /   /  \       /  /\     |
-|    \      /      |  *  |    | <-- Potentiometers
-|     \____/        \___/     |
-|      Chaos        Length    |
-|                             |
-|      ___           ___      |
-|     /\  \    |    /  /\     |
-|    |  *  |   |   |  *  |    |
-|     \___/    |    \___/     |
-|     Range    |     Bias     |
-|              |              |
-|              |              |
-|      \       |     \        |
-|    [  *  ]   |   [  *  ]    | <- Switches
-|  Bi/unipolar | Trigger/Gate |
-|              |              |
-|    _     _   |      _       |
-|   (_)   (_)  |     (_)      | <-- Jack sockets
-|  Clock  CV   |     Bias     |
-|       _      | (*)     (*)  |
-|      (_)     |  (_)   (_)   |
-|      OUT     |   A     B    |
-| o                         o |
-+-----------------------------+
-```
+![RNG Faceplate](images/rng_faceplate.svg)
 
 ### Interface
 
