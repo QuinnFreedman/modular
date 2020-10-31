@@ -14,21 +14,37 @@ RNG stands for Random Number Generator. The ability to generate random control v
 
 ![RNG Faceplate](images/rng_faceplate.svg)
 
-### Interface
+**(A) LEDs**. A row of LEDs across the top show the current sequence being played. Brighter LEDs correspond to higher values. The middle LED is the value currently being played.
 
-* **LEDs**. A row of LEDs across the top show the current sequence being played. Brighter LEDs correspond to higher values. The middle LED is the value currently being played.
-* **Chaos**: Controls how much randomness in injected into the sequence. At zero (all the way left) the sequence is locked in a loop and no randomness is added. All the way to the right, each value played is completely random. In the middle, values will be played from the saved loop but with a chance of mutating each time they are played.
-* **Length**: A rotary encoder that allows you to control the length of the sequence. When you turn the knob, the length of the sequence will be displayed in binary on the top row of LEDs. Hold the knob down to quickly skip between powers of twos. If set to a negative number (indicated with a HIGH value on the far left bit) then the sequence will "yoyo," playing alternatingly forward and backward.
-* Left Side: stepped voltage mode. This half of the module outputs a stepped random voltage 
-  * **Range**: The range/spread of the random voltages output.
-  * **Bi/unipolar**: Whether the values are unipolar (0 to +10v) or bipolar (-10v to +10v)
-  * **Clock** (input): Whenever HIGH, the values are advanced by one, a new value from the loop is played (and maybe mutated).
-  * **CV** (input): Control voltage to control the Chaos parameter. There are two configurable modes. It can either act as a direct CV (i.e. higher values = more randomness) or as a lock gate so it has no effect when LOW and then locks the sequence in place and prevents any mutation when HIGH.
-* Right Side: Binary choice mode. This side of the module randomly chooses between two output trigger/gates based on the value of the left side.
-  * **Bias**: The probability of outputting to channel A vs B.
-  * **Trigger/Gate**: Chooses whether the A/B outputs should be triggers (a short voltage spike with every new clock pulse) or gates (remain steadily high until the output channel is changed).
-  * **Bias** (input): CV control for the Bias knob
-  * **A** & **B** (output): Two channels of gate/trigger output. A corresponding LED lights up when each gate is open.
+**(B) Chaos**: Controls how much randomness in injected into the sequence. At zero (all the way left) the sequence is locked in a loop and no randomness is added. All the way to the right, each value played is completely random. In the middle, values will be played from the saved loop but with a chance of mutating each time they are played.
+
+**(C) Length**: A rotary encoder that allows you to control the length of the sequence. When you turn the knob, the length of the sequence will be displayed in binary on the top row of LEDs. Hold the knob down to quickly skip between powers of twos. If set to a negative number (indicated with a HIGH value on the far left bit) then the sequence will "yoyo," playing alternatingly forward and backward.
+
+### Left Side
+
+Stepped voltage mode. This half of the module outputs a stepped random voltage 
+
+**(D) Range**: The range/spread of the random voltages output.
+
+**(E) Bi/unipolar**: Whether the values are unipolar (0 to +10v) or bipolar (-10v to +10v)
+
+**(F) Clock** (input): Whenever HIGH, the values are advanced by one, a new value from the loop is played (and maybe mutated).
+
+**(G) CV** (input): Control voltage to control the Chaos parameter. There are two configurable modes. It can either act as a direct CV (i.e. higher values = more randomness) or as a lock gate so it has no effect when LOW and then locks the sequence in place and prevents any mutation when HIGH.
+
+**(H) Out** (output): Stepped random voltage output.
+
+### Right Side
+
+Binary choice mode. This side of the module randomly chooses between two output trigger/gates based on the value of the left side.
+
+**(I) Bias**: The probability of outputting to channel A vs B.
+
+**(J) Trigger/Gate**: Chooses whether the A/B outputs should be triggers (a short voltage spike with every new clock pulse) or gates (remain steadily high until the output channel is changed).
+
+**(K) Bias** (input): CV control for the Bias knob
+
+**(L/M) A** & **B** (output): Two channels of gate/trigger output. A corresponding LED lights up when each gate is open.
 
 ## Assembly
 
