@@ -13,7 +13,8 @@ const uint16_t POT_ADDRESSES[2][8] = {{5, 7, 6, 4, 0, 0, 0, 0},
 
 // volatile bool ledValues[4][4] = {{HIGH, HIGH, HIGH, HIGH}, {HIGH, HIGH, HIGH, HIGH}};
 
-MCP io(0, A0);
+MCP triggerBank(0, A0);
+MCP ledDriver(1, A1);
 
 void setup() {
     for (int i = 0; i < 3; i++) {
@@ -25,28 +26,20 @@ void setup() {
     }
 
     Serial.begin(9600);
-    io.begin();
+    triggerBank.begin();
+    ledDriver.begin();
 
+    ledDriver.pinMode(0xFFFF);
+    
     /*
     for (int i = 1; i <= 16; i++) {
-       io.pinMode(i, INPUT);
-       io.pullupMode(i, true);
-       io.inputInvert(i, false);
+       triggerBank.pinMode(i, INPUT);
+       triggerBank.pullupMode(i, true);
+       triggerBank.inputInvert(i, false);
     }
     */
-    io.pinMode(0xFFFF);
-    io.pullupMode(0xFFFF);
-    io.inputInvert(0x0000);
-    
-    // enable interrupts
-    io.byteWrite(0x04, 0xFF); // GPINTENA
-    io.byteWrite(0x05, 0xFF); // GPINTENB
-    // interrupt refference value
-    io.byteWrite(0x06, 0x00); // DEFVALA
-    io.byteWrite(0x07, 0x00); // DEFVALB
-    // interrupt condition (change vs high/low)
-    io.byteWrite(0x08, 0x00); // INTCONA 
-    io.byteWrite(0x09, 0x00); // INTCONB 
+
+    /*
     const uint8_t INTPOL = 0b00000010;
     const uint8_t ORD    = 0b00000100;
     const uint8_t HAEN   = 0b00001000;
@@ -54,9 +47,24 @@ void setup() {
     const uint8_t SEQOP  = 0b00100000;
     const uint8_t MIRROR = 0b01000000;
     const uint8_t BANK   = 0b10000000;
-    const uint8_t config = 0; //MIRROR;// | INTPOL;
-    io.byteWrite(0x0A, config);
-    io.byteWrite(0x0B, config);
+    const uint8_t config = HAEN; //MIRROR;// | INTPOL;
+    triggerBank.byteWrite(0x0A, config);
+    triggerBank.byteWrite(0x0B, config);
+    */
+    
+    triggerBank.pinMode(0xFFFF);
+    triggerBank.pullupMode(0xFFFF);
+    triggerBank.inputInvert(0x0000);
+    
+    // enable interrupts
+    triggerBank.byteWrite(0x04, 0xFF); // GPINTENA
+    triggerBank.byteWrite(0x05, 0xFF); // GPINTENB
+    // interrupt refference value
+    triggerBank.byteWrite(0x06, 0x00); // DEFVALA
+    triggerBank.byteWrite(0x07, 0x00); // DEFVALB
+    // interrupt condition (change vs high/low)
+    triggerBank.byteWrite(0x08, 0x00); // INTCONA 
+    triggerBank.byteWrite(0x09, 0x00); // INTCONB 
 
     pinMode(INTERRUPT_PIN_A, INPUT);
     pinMode(INTERRUPT_PIN_B, INPUT);
@@ -83,7 +91,7 @@ float readPotValue(uint8_t pot) {
 
 void onIOExpanderInterruptA() {
     static uint16_t lastValue = 0xFFFF;
-    uint16_t value = io.digitalRead();
+    uint16_t value = triggerBank.digitalRead();
     if (value == lastValue) return; 
     
     lastValue = value;
@@ -98,7 +106,7 @@ void onIOExpanderInterruptA() {
 
 void onIOExpanderInterruptB() {
     static uint16_t lastValue = 0xFFFF;
-    uint16_t value = io.digitalRead();
+    uint16_t value = triggerBank.digitalRead();
     if (value == lastValue) return; 
     
     lastValue = value;
@@ -112,6 +120,11 @@ void onIOExpanderInterruptB() {
 }
 
 void loop() {
+    ledDriver.pinMode(0x0000); // Output
+    ledDriver.digitalWrite(0x0000);
+    delay(400);
+    ledDriver.pinMode(0xFFFF); // high-impedence
+    delay(400);
     /*
     Serial.print(readPotValue(0));
     Serial.print(" ");
@@ -138,6 +151,6 @@ void loop() {
     }
     */
     // for (int i = 9; i <=16; i++) {
-    //     io.digitalWrite(i, value);
+    //     triggerBank.digitalWrite(i, value);
     // }
 }
