@@ -210,7 +210,8 @@ def BasicCircle(offset_x, offset_y, r):
     return BasicCircle
 
 
-class JackSocket(BasicCircle(0, 4.92, 3 + HOLE_ALLOWANCE)):
+# The datasheet says this should be an offset of 4.92mm for the "Thonkicon" but it actually seems closer to 3.9
+class JackSocket(BasicCircle(0, 3.92, 3 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
        super(JackSocket, self).__init__(x, y, rotation)
        self.label = label
