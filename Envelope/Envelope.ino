@@ -26,6 +26,14 @@ void setup() {
     digitalWrite(LED_MODE_INDICATOR_PIN, HIGH);
     #endif
 
+    #if EOR_TRIGGER_ENABLED
+    pinMode(EOR_TRIGGER_PIN, OUTPUT);
+    #endif
+
+    #if EOF_TRIGGER_ENABLED
+    pinMode(EOF_TRIGGER_PIN, OUTPUT);
+    #endif
+
     attachInterrupt(digitalPinToInterrupt(GATE_IN_PIN), handleGateChange, CHANGE);
     attachInterrupt(digitalPinToInterrupt(RETRIG_IN_PIN), handleRetrigChange, CHANGE);
     enableInterrupt(BUTTON_PIN);

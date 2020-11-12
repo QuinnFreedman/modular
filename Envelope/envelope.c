@@ -97,13 +97,6 @@ float update(uint32_t _currentTime) {
     Phase newPhase = currentPhase;
     currentValue = getValue(currentMode, currentPhase, t, &newPhase);
     if (newPhase != currentPhase) {
-        #if EOR_TRIGGER_ENABLED
-        if (currentPhase == ATTACK) {
-            lastEORTriggerTime = currentTime;
-            EORTriggerOn = true;
-            digitalWrite(EOR_TRIGGER_PIN, HIGH);
-        }
-        #endif
         goToPhase(newPhase, false);
     }
     return currentValue;
@@ -144,6 +137,7 @@ void ping() {
  * Go to the next operating mode (i.e. the button has just been pressed)
  */
 void cycleModes() {
+    return;
     //debounce
     if (currentTime - lastButtonPressTime <= MIN_TIME_BETWEEN_BUTTON_PRESSES_MICROS) {
         return;
@@ -344,25 +338,60 @@ float inverseExpFunction(float t, float k) {
 }
 
 void goToPhase(Phase phase, bool hardReset) {
-    sampleCV(currentMode, phase);
-    
+    #if EOR_TRIGGER_ENABLED
+    bool shouldTriggerEOR = false;
+    #endif
+    #if EOF_TRIGGER_ENABLED
+    bool shouldTriggerEOF = false;
+    #endif
+    Phase oldPhase = currentPhase;
+    do {
+        sampleCV(currentMode, phase);
+        currentPhaseDuration = getPhaseDuration(phase, currentMode);
+        currentPhase = phase;
+        #if EOR_TRIGGER_ENABLED
+        if (phase == ATTACK) shouldTriggerEOR = true;
+        #endif
+        #if EOF_TRIGGER_ENABLED
+        if (phase == RELEASE) shouldTriggerEOF = true;
+        #endif
+        // try the next phase if this phase has 0 duration
+        phase = (phase + 1) % 5;
+    } while (currentPhaseDuration == 0);
+    float amountIntoPhase = hardReset ? 0 : calculateAmountIntoPhase(currentPhase, currentMode);
+    phaseStartTime = currentTime - currentPhaseDuration * amountIntoPhase;
+
+    // Handle EOR/EOF triggers
+    #if EOR_TRIGGER_ENABLED
+    if (shouldTriggerEOR) {
+        lastEORTriggerTime = currentTime;
+        EORTriggerOn = true;
+        digitalWrite(EOR_TRIGGER_PIN, HIGH);
+    }
+    #endif
+    #if EOF_TRIGGER_ENABLED
+    if (shouldTriggerEOF) {
+        lastEOFTriggerTime = currentTime;
+        EOFTriggerOn = true;
+        digitalWrite(EOF_TRIGGER_PIN, HIGH);
+    }
+    #endif
+
+    // set LEDs
     if (ledMode == SHOW_PHASE) {
         if (currentPhase < 4) {
-            digitalWrite(LED_PINS[currentPhase], LOW);
+            digitalWrite(LED_PINS[oldPhase], LOW);
         }
         if (phase < 4) {
             digitalWrite(LED_PINS[phase], HIGH);
         }
-    }
-
-    float amountIntoPhase = hardReset ? 0 : calculateAmountIntoPhase(phase, currentMode);
-    currentPhaseDuration = getPhaseDuration(phase, currentMode);
-    phaseStartTime = currentTime - currentPhaseDuration * amountIntoPhase;
-    currentPhase = phase;
+    }    
 }
 
 #define clamp(x) (x < 0 ? 0 : x > 1 ? 1 : x)
-#define readCV(i, pin) (cvValues[i] = clamp(((float) analogRead(pin) - (float) ANALOG_READ_ZERO_VALUE) / (float) (ANALOG_READ_MAX_VALUE - ANALOG_READ_ZERO_VALUE)))
+#define readCV(i, pin) (cvValues[i] = clamp( \
+            ((float) analogRead(pin) - (float) ANALOG_READ_ZERO_VALUE) \
+            / (float) (ANALOG_READ_MAX_VALUE - ANALOG_READ_ZERO_VALUE) ))
 
 void sampleCV(Mode mode, Phase phase) {
     switch(mode) {
@@ -425,9 +454,9 @@ float calculateAmountIntoPhase(Phase phase, Mode mode) {
         case ADSR:
         switch(phase) {
             case ATTACK: return currentValue;
-            case DECAY: return 1 - (currentValue - CV_SUSTAIN) / (1 - CV_SUSTAIN);
+            case DECAY: return CV_SUSTAIN == 0 ? 1 - currentValue : 1 - (currentValue - CV_SUSTAIN) / (1 - CV_SUSTAIN);
             case SUSTAIN: return 0;
-            case RELEASE: return 1 - currentValue / CV_SUSTAIN;
+            case RELEASE: return CV_SUSTAIN == 0 ? 1 : 1 - currentValue / CV_SUSTAIN;
             case OFF: return 0;
         }
         break;
@@ -453,6 +482,8 @@ float calculateAmountIntoPhase(Phase phase, Mode mode) {
     }
 }
 
+
+#define lerp(x, min, max) (min + x * (max - min))
 /**
  * Get the total duration of a full iteration of the given phase in micros
  */
@@ -460,38 +491,38 @@ float getPhaseDuration(Phase phase, Mode mode) {
     switch(mode) {
         case ADSR:
         switch(phase) {
-            case ATTACK: return CV_ATTACK * ADSR_ATTACK_MAX_DURATION_MICROS;
-            case DECAY: return CV_DECAY * ADSR_DECAY_MAX_DURATION_MICROS;
+            case ATTACK:  return lerp(CV_ATTACK,  ATTACK_MIN_DURATION_MICROS,  ATTACK_MAX_DURATION_MICROS);
+            case DECAY:   return lerp(CV_DECAY,   DECAY_MIN_DURATION_MICROS,   DECAY_MAX_DURATION_MICROS);
             case SUSTAIN: return 1;
-            case RELEASE: return CV_RELEASE * ADSR_RELEASE_MAX_DURATION_MICROS * CV_SUSTAIN;
-            case OFF: return 1;
+            case RELEASE: return lerp(CV_RELEASE, RELEASE_MIN_DURATION_MICROS, RELEASE_MAX_DURATION_MICROS * CV_SUSTAIN);
+            case OFF:     return 1;
         }
         break;
         case AARR:
         switch(phase) {
-            case ATTACK: return CV_ATTACK * ADSR_ATTACK_MAX_DURATION_MICROS;
-            case DECAY: return 0;
+            case ATTACK:  return lerp(CV_ATTACK,  ATTACK_MIN_DURATION_MICROS,  ATTACK_MAX_DURATION_MICROS);
+            case DECAY:   return 0;
             case SUSTAIN: return 1;
-            case RELEASE: return CV_SUSTAIN * ADSR_RELEASE_MAX_DURATION_MICROS;
-            case OFF: return 1;
+            case RELEASE: return lerp(CV_SUSTAIN, RELEASE_MIN_DURATION_MICROS, RELEASE_MAX_DURATION_MICROS);
+            case OFF:     return 1;
         }
         break;
         case AARR_LOOP:
         switch(phase) {
-            case ATTACK: return CV_ATTACK * ADSR_ATTACK_MAX_DURATION_MICROS;
-            case DECAY: return 0;
+            case ATTACK:  return lerp(CV_ATTACK,  ATTACK_MIN_DURATION_MICROS,  ATTACK_MAX_DURATION_MICROS);
+            case DECAY:   return 0;
             case SUSTAIN: return 0;
-            case RELEASE: return CV_SUSTAIN * ADSR_RELEASE_MAX_DURATION_MICROS;
-            case OFF: return 0;
+            case RELEASE: return lerp(CV_SUSTAIN, RELEASE_MIN_DURATION_MICROS, RELEASE_MAX_DURATION_MICROS);
+            case OFF:     return 0;
         }
         break;
         case TRAP_LOOP:
         switch(phase) {
-            case ATTACK: return CV_TRAP_ATTACK * ADSR_ATTACK_MAX_DURATION_MICROS;
-            case DECAY: return 0;
-            case SUSTAIN: return CV_TRAP_SUSTAIN * ADSR_SUSTAIN_MAX_DURATION_MICROS;
-            case RELEASE: return CV_TRAP_RELEASE * ADSR_RELEASE_MAX_DURATION_MICROS;
-            case OFF: return CV_TRAP_DELAY * ADSR_DELAY_MAX_DURATION_MICROS;
+            case ATTACK:  return lerp(CV_TRAP_ATTACK,  ATTACK_MIN_DURATION_MICROS,  ATTACK_MAX_DURATION_MICROS);
+            case DECAY:   return 0;
+            case SUSTAIN: return lerp(CV_TRAP_SUSTAIN, SUSTAIN_MIN_DURATION_MICROS, SUSTAIN_MAX_DURATION_MICROS);
+            case RELEASE: return lerp(CV_TRAP_RELEASE, RELEASE_MIN_DURATION_MICROS, RELEASE_MAX_DURATION_MICROS);
+            case OFF:     return lerp(CV_TRAP_DELAY,   DELAY_MIN_DURATION_MICROS,   DELAY_MAX_DURATION_MICROS);
         }
         break;
     }
