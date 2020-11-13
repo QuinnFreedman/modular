@@ -131,3 +131,17 @@ I keep all my PCBs to be less than 10cm tall. This makes them much cheeper to pr
 The wire is a ground so it can be a bare wire. Solder it to the bottom-most (shank) pins of all for jacks and then to the hole marked GND. If your PCB manufacturer has left solder pads for the middle (switch) pins, you can solder those to the board for stability. Otherwise, leave them hanging. They are not used in this module.
 
 As always, I reccomend screwing the jacks into the faceplate before soldering to hold them in place.
+
+### Customization & Hidden Features
+
+There are a lot of configurable options in the `config.h` file. Edit them before uploading the firmware to chenge the behavior of the module. There are also two unused pins on the Arduino (A4 and A5) which can be set to perform other functions like end-of-rise and end-of-fall triggers if you want to make an expander or add some more inputs to the faceplate.
+
+#### `ANALOG_READ_MAX_VALUE` and `ANALOG_READ_MIN_VALUE`
+
+When the Arduino reads an analog value, it will get a number between 0 and 1024. However, the potentiometers might not go all the way from exactly 0 volts to exactly 5 volts. If you want to be able to totally max out a parameter (like setting the sustain at actually 100%) you can set these parameters to adjust what range the Arduino will expect. For example, if you set `ANALOG_READ_MIN_VALUE = 15`, then any raw value &le;15 will be considdered 0 volts.j
+
+#### `ATTACK_MAX_DURATION_MICROS`, `ATTACK_MIN_DURATION_MICROS`, etc...
+
+When detecting a maximum or minimum voltage (as given by the parameters above), these parameters dictate what value that should corrospond to in the envelope.
+
+By default, all of the times can be turned down all the way to zero, which means that the envelope will skip that segment entirely. But, this means that if you set all the knobs to zero the envelope will skip every stage and essentially not work. Setting the minimum values to even just 1 microseccond will force the envelope to actually run through that stage as fast as it can, which will probably get you the fastest LFO. Or, set it to a higher minimum if you always want a little slew in your envelope.
