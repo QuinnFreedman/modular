@@ -27,8 +27,8 @@ module.add(texture_jack)
 
 y += inches(.5)
 
-module.add(LED(inches(.2), y, color="blue"))
-module.add(LED(inches(.6), y, color="blue"))
+module.add(SmallLED(inches(.2), y, color="blue"))
+module.add(SmallLED(inches(.6), y, color="blue"))
 
 y += inches(.5)
 

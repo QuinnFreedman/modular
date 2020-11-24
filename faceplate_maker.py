@@ -11,7 +11,7 @@ except ImportError:
 
 LOGO_DATAURL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='523.843' height='243.844' viewBox='0 0 138.6 64.517' xmlns:v='https://vecta.io/nano' style='background-color:white'%3E%3Cdefs%3E%3CclipPath id='A'%3E%3Cpath d='M115.46-14.165h44.634v93.277H115.46z' opacity='.997' fill='%23fff' fill-opacity='1' stroke='none' stroke-width='6' stroke-miterlimit='4' stroke-dasharray='none' stroke-opacity='1'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M106.34 5.8c14.613 0 26.458 11.846 26.458 26.458s-11.846 26.458-26.458 26.458S85.175 48.133 69.3 32.258C85.175 16.383 91.73 5.8 106.34 5.8zm-74.083 0C17.645 5.8 5.8 17.645 5.8 32.258s11.846 26.458 26.458 26.458S53.425 48.133 69.3 32.258C53.425 16.383 46.87 5.8 32.258 5.8z' opacity='.996' fill='none' stroke='%23000' stroke-width='11.6'/%3E%3Cpath d='M61.07 16.1l-.012 7.31c-11.285-.015-22.57-.01-33.854.006-.252.113-1.024-.295-1.474-.392-1.062-.302-2.1-.79-3.214-.86-1.52.167-2.033 1.836-2.898 2.847l-5.24 7.26 7.64 10.43c2.34-.75 4.652-1.587 7.014-2.266 1.784 1.165 4 .55 5.98.68l26.06.005-.008 6.875c.335.967 1.505 1.018 2.31.908l42.5.014 11.63-4.5 14.182.158-.04-4.734 5.328-2.46.182-9.926-5.623-2.756-.04-4.62c-4.87-.323-9.83.16-14.6-.518-4.037-1.365-7.967-3.124-12.156-3.982h-43.68v.53z' opacity='.997' fill='%23fff'/%3E%3Cpath d='M65.26 19.777v7.825H31.763v9.312H65.26v7.825h39.835l11.64-4.527 10.735.13-.03-3.922 7.45-.4.134-7.253-7.65-.668-.03-3.922-10.347-.13-11.9-4.268zm-41.71 6.96l-4 5.535 4.03 5.505 6.482-2.133-.026-6.824z' opacity='.997'/%3E%3Cpath clip-path='url(%23A)' d='M105.833 5.292c14.613 0 26.458 11.846 26.458 26.458s-11.846 26.458-26.458 26.458S84.667 47.625 68.792 31.75C84.667 15.875 91.22 5.292 105.833 5.292zm-74.083 0c-14.613 0-26.458 11.846-26.458 26.458S17.137 58.208 31.75 58.208 52.917 47.625 68.792 31.75C52.917 15.875 46.363 5.292 31.75 5.292z' opacity='.996' fill='none' stroke='%23000' stroke-width='11.6' transform='translate(.508 .508)'/%3E%3Cpath d='M31.92 22.98h.275v18.014h-.275z' opacity='.997' stroke='%23fff' stroke-width='3.217'/%3E%3C/svg%3E"
 
-HOLE_ALLOWANCE = .2  # mm 
+HOLE_ALLOWANCE = .5  # mm 
 
 try:
     import urllib.request
@@ -31,7 +31,7 @@ def inches(n):
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_offset, title=None, filename="output.svg", debug=False, cosmetics=False):
+    def __init__(self, hp, global_offset, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None):
         HP = inches(0.2)
         self.height = 128.5
         self.width = hp * HP - .5
@@ -96,12 +96,22 @@ class Module:
         self.stencil.add(image)
 
         # Draw outline
-        if cosmetics:
+        if outline is None:
+            if cosmetics:
+                outline = 0
+            elif debug:
+                outline = 2
+            else:
+                outline = 1
+        elif outline not in [0, 1, 2]:
+                raise ValueError("rotation must be 0, 1, 2, or None (default)")
+            
+        if outline == 0:
             pass
-        elif debug:
+        elif outline == 2:
             self.outline.add(
                 self.d.rect(size=(self.width, self.height), stroke_width=1))
-        else:
+        elif outline == 1:
             length = 3
             lines = [
                 ((0, 0), (0, length)),
@@ -210,8 +220,10 @@ def BasicCircle(offset_x, offset_y, r):
     return BasicCircle
 
 
-# The datasheet says this should be an offset of 4.92mm for the "Thonkicon" but it actually seems closer to 3.9
-class JackSocket(BasicCircle(0, 3.92, 3 + HOLE_ALLOWANCE)):
+# The datasheet says this should be an offset of 4.92mm for the "Thonkicon" but it
+# the distance between the throughholes is 8.3mm (.33 inches) so I kept the ratio and scaled
+# it down to .3in
+class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
        super(JackSocket, self).__init__(x, y, rotation)
        self.label = label
@@ -244,7 +256,7 @@ class JackSocket(BasicCircle(0, 3.92, 3 + HOLE_ALLOWANCE)):
         if self.is_output:
             padding = 1
             width = 2 * (self.hole_radius + padding)
-            height = 15
+            height = 15 if self.label else width
             elements.append(context.rect(
                 insert=(self.hole_center[0] - width/2, self.hole_center[1] - self.hole_radius - padding),
                 size=(width, height),
@@ -430,7 +442,7 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
         
         return elements
 
-class SmallLED(BasicCircle(0, inches(.05), 1.5 + HOLE_ALLOWANCE)):
+class SmallLED(BasicCircle(0, inches(.05), 1.45)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
        super(SmallLED, self).__init__(x, y, rotation)
        self.color = color
