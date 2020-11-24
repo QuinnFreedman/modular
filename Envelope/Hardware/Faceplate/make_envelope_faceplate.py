@@ -8,7 +8,7 @@ from svgwrite.path import Path
 
 HP = 8
 
-module = Module(HP, (inches(.2), 12), title="Envelope", filename="envelope_faceplate.svg")
+module = Module(HP, (inches(.2), 12), title="Envelope", filename="envelope_faceplate.svg", title_size=4.5)
 
 y = 0
 
@@ -33,7 +33,7 @@ def get_center(circle):
             
 for i in range(4):
     y += inches(.3)
-    jack = JackSocket(inches(0.1), y, labels[i], False)
+    jack = JackSocket(inches(0.1), y + inches(.025), labels[i], False)
     module.add(jack)
     
     stroke_width = .6
