@@ -17,6 +17,7 @@ MCP triggerBank(0, A0);
 MCP ledDriver(1, A1);
 
 void setup() {
+    pinMode(10, OUTPUT);
     for (int i = 0; i < 3; i++) {
         pinMode(POT_ADDR_PINS[i], OUTPUT);
     }
@@ -125,6 +126,13 @@ void loop() {
     delay(400);
     ledDriver.pinMode(0xFFFF); // high-impedence
     delay(400);
+    digitalWrite(10, HIGH);
+    ledDriver.pinMode(0x0000); // Output
+    ledDriver.digitalWrite(0x0000);
+    delay(400);
+    ledDriver.pinMode(0xFFFF); // high-impedence
+    delay(400);
+    digitalWrite(10, LOW);
     /*
     Serial.print(readPotValue(0));
     Serial.print(" ");
