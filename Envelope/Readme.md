@@ -138,10 +138,38 @@ There are a lot of configurable options in the `config.h` file. Edit them before
 
 #### `ANALOG_READ_MAX_VALUE` and `ANALOG_READ_MIN_VALUE`
 
-When the Arduino reads an analog value, it will get a number between 0 and 1024. However, the potentiometers might not go all the way from exactly 0 volts to exactly 5 volts. If you want to be able to totally max out a parameter (like setting the sustain at actually 100%) you can set these parameters to adjust what range the Arduino will expect. For example, if you set `ANALOG_READ_MIN_VALUE = 15`, then any raw value &le;15 will be considdered 0 volts.j
+When the Arduino reads an analog value, it will get a number between 0 and 1024. However, the potentiometers might not go all the way from exactly 0 volts to exactly 5 volts. If you want to be able to totally max out a parameter (like setting the sustain at actually 100%) you can set these parameters to adjust what range the Arduino will expect. For example, if you set `ANALOG_READ_MIN_VALUE = 15`, then any raw value &le;15 will be considdered 0 volts.
 
 #### `ATTACK_MAX_DURATION_MICROS`, `ATTACK_MIN_DURATION_MICROS`, etc...
 
 When detecting a maximum or minimum voltage (as given by the parameters above), these parameters dictate what value that should corrospond to in the envelope.
 
 By default, all of the times can be turned down all the way to zero, which means that the envelope will skip that segment entirely. But, this means that if you set all the knobs to zero the envelope will skip every stage and essentially not work. Setting the minimum values to even just 1 microseccond will force the envelope to actually run through that stage as fast as it can, which will probably get you the fastest LFO. Or, set it to a higher minimum if you always want a little slew in your envelope.
+
+#### `EXP_RATE_SCALE`
+
+How extreme the max log/exp curve is. Default: 4
+
+#### `LOOP_WHEN_GATE_OFF`
+
+If `true`, then the looping modes will loop when the GATE input is LOW and will pause/not loop when the GATE is HIGH. If `false`, the opposite is ture. Looping on GATE HIGH probably makes more sense in a vacuum, but GATE is normalled LOW (for the non-looping modes) which makes looping on HIGH inconvenient.
+
+#### `LOOP_HARD_SYNC_ON_PING`
+
+If `true`, recieving a "ping"/"retrigger" pulse while in a looping mode will cause a hard sync (i.e. go back to the beginning of the loop). If `false`, this trigger will cause the LFO to go smoothly into attack mode.
+
+### AUX Pins
+
+There are two unused pins on the arduino (A4 and A5) that can be configured to perform a number of features.
+
+#### EOR and EOF triggers
+
+If these modes are enabled, the Arduino will send short triggers to the two aux pins at the end of the rise and fall of the envelope. EOR will always trigger right after the attack phase ends (or would end if attack time is zero). EOF will trigger at the end of the release. in ADSR mode, if sustain is zero, then this means that EOF will trigger when the gate is turned off, which might be after the envelope has gone to zero.
+
+#### Gate passthrough (`GATE_PASSTHROUGH_ENABLED true`)
+
+When enabled, the aux pin will be triggered as long as the input gate is HIGH. This is output after the gate signal has been processed by the computer, so it may be a few milisecconds delayed from the GATE input and is pretty much a totally separate circuit. This can be useful for an LED indicator or just passing the signal through.
+
+#### LED mode indicator (`LED_MODE_INDICATOR_ENABLED true`)
+
+When enabled, the aux win will be held HIGH whenever the LEDs are displaying the mode (instead of the phase). This could be used to add an indicator LED or light-up button if it is confusing what state the display is in.
