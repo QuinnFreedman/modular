@@ -18,7 +18,7 @@ def get_center(circle):
 y = 0
             
 for i in range(5):
-    jack = JackSocket(inches(0.0), y + inches(0.05), "", False)
+    jack = JackSocket(inches(0.0), y + inches(0.025), "", False)
     module.add(jack)
     
     stroke_width = .6
@@ -32,7 +32,7 @@ for i in range(5):
     module.add(Switch(inches(.4), y + inches(.2)))
 
     if i == 4:
-        module.add(JackSocket(inches(1.05), y + inches(0.05), "OUT", True))
+        module.add(JackSocket(inches(1.025), y + inches(0.05), "OUT", True))
     else: 
         module.add(Potentiometer(inches(0.75), y + inches(0.1), rotation=1))
         
