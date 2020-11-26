@@ -137,7 +137,6 @@ void ping() {
  * Go to the next operating mode (i.e. the button has just been pressed)
  */
 void cycleModes() {
-    return;
     //debounce
     if (currentTime - lastButtonPressTime <= MIN_TIME_BETWEEN_BUTTON_PRESSES_MICROS) {
         return;
