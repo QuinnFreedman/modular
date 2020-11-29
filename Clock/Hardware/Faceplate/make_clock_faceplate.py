@@ -13,7 +13,7 @@ module.add(OLED(inches(.2), inches(.9)))
 
 module.add(Potentiometer(inches(.9), inches(1.4), rotation=3))
 
-jack_start_y = inches(1.7)
+jack_start_y = inches(1.8)
 
 i = 0
 for y in range(4):
