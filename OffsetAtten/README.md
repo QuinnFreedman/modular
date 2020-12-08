@@ -16,13 +16,13 @@ For an audio signal, this will likely have no effect unless you push it far enou
 
 ### (B) Attenuvert
 
-Attenubert is a mix of attenuate and invert. All the way right, the signal is passed through unaffected. At 12 o'clock, the signal is completely muted. All the way to the left, the signal is output at full volume but inverted.
+"Attenuvert" is a mix of attenuate and invert. All the way right, the signal is passed through unaffected. At 12 o'clock, the signal is completely muted. All the way to the left, the signal is output at full volume but inverted.
 
 ### (C) Input
 
 Audio or CV input
 
-### (D) Input
+### (D) Output
 
 Outputs the attenverted signal. LED indicates the level of the output signal.
 
