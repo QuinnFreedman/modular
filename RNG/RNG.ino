@@ -11,9 +11,9 @@ const uint16_t GATE_TRIG_SWITCH_PIN = A0;
 const uint16_t RANDOMNESS_CV_PIN = A2;
 const uint16_t THRESHOLD_CV_PIN = A3;
 const uint16_t AMPLITUDE_POT_PIN = A4;
-const uint16_t THRESHOLD_POT_PIN = A5;
+const uint16_t ENCODER_BUTTON_PIN = A5;
+const uint16_t THRESHOLD_POT_PIN = A6;
 const uint16_t RANDOMNESS_POT_PIN = A7;
-const uint16_t ENCODER_BUTTON_PIN = A6;
 const uint16_t CLOCK_IN_PIN = 2;
 //D3: LED Driver
 const uint16_t ENCODER_PIN_B = 4;
@@ -114,13 +114,14 @@ void setup() {
     Serial.begin(9600);
     // setup pins
     pinMode(RANDOMNESS_POT_PIN, INPUT);
-    pinMode(RANDOMNESS_CV_PIN, INPUT);
     pinMode(THRESHOLD_POT_PIN, INPUT);
     pinMode(DAC_CS_PIN, OUTPUT);
     pinMode(GATE_PIN_A, OUTPUT);
     pinMode(GATE_PIN_B, OUTPUT);
     pinMode(GATE_TRIG_SWITCH_PIN, INPUT_PULLUP);
-    pinMode(CLOCK_IN_PIN, INPUT);
+    pinMode(RANDOMNESS_CV_PIN, INPUT_PULLUP);
+    pinMode(THRESHOLD_CV_PIN, INPUT_PULLUP);
+    pinMode(CLOCK_IN_PIN, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
 	pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
