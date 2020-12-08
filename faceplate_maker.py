@@ -442,13 +442,13 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
         
         return elements
 
-class SmallLED(BasicCircle(0, inches(.05), 1.45)):
+class SmallLED(BasicCircle(0, inches(.05), 1.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
        super(SmallLED, self).__init__(x, y, rotation)
        self.color = color
 
 
-class LED(BasicCircle(0, inches(.05), 2.5 + HOLE_ALLOWANCE)):
+class LED(BasicCircle(0, inches(.05), 2.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
        super(LED, self).__init__(x, y, rotation)
        self.color = color

@@ -2,29 +2,39 @@
 #include <SPI.h>
 #include <Tlc5940.h>
 
+#define RECORD_ENABLED false
+
 /*
  * Pins
  */
-const uint16_t THRESHOLD_POT_PIN = A7;
-const uint16_t RANDOMNESS_POT_PIN = A6;
-const uint16_t RECORD_INPUT_PIN = A5;
-//A4 bias cv
-//A3 randomness CV 
-const uint16_t ENCODER_BUTTON_PIN = A2;
-const uint16_t ENCODER_PIN_B = A1;
-const uint16_t ENCODER_PIN_A = A0;
-//D9-13: LED Driver
-const uint16_t DAC_CS_PIN = 8;
-const uint16_t GATE_PIN_A = 7;
-const uint16_t GATE_PIN_B = 6;
-const uint16_t RECORD_SWITCH_PIN = 5;
-const uint16_t GATE_TRIG_SWITCH_PIN = 4;
-//D3: LED Driver
+const uint16_t GATE_TRIG_SWITCH_PIN = A0;
+const uint16_t RANDOMNESS_CV_PIN = A2;
+const uint16_t THRESHOLD_CV_PIN = A3;
+const uint16_t AMPLITUDE_POT_PIN = A4;
+const uint16_t THRESHOLD_POT_PIN = A5;
+const uint16_t RANDOMNESS_POT_PIN = A7;
+const uint16_t ENCODER_BUTTON_PIN = A6;
 const uint16_t CLOCK_IN_PIN = 2;
+//D3: LED Driver
+const uint16_t ENCODER_PIN_B = 4;
+const uint16_t ENCODER_PIN_A = 5;
+const uint16_t GATE_PIN_B = 6;
+const uint16_t GATE_PIN_A = 7;
+const uint16_t DAC_CS_PIN = 8;
+//D9-13: LED Driver
+
+#if RECORD_ENABLED
+const uint16_t RECORD_SWITCH_PIN = -1;
+const uint16_t RECORD_INPUT_PIN = -1;
+#endif
 
 /*
  * Configuration
  */
+// If true, the "CV" input will be treated as a freeze gate. When HIGH, the
+// buffer will not be changed. If false, "CV" will be added to the value of
+// "Randomness" control.
+const bool CV_MODE_FREEZE = true;
 // The physical number of LEDs you have attatched to the 
 // TLC5940 chip.
 const int NUM_LEDS = 7;
@@ -48,12 +58,34 @@ const int BUFFER_SIZE_SHOW_TIME = 1000;
 // holding it down allows you to select other numbers
 const int POW2_ON_HOLD = true;
 
-// The max value for numbers in the buffer (given
-// by the max value writable to the external DAC)
+// The max value for numbers in the buffer
+// This is currently the max value that can be output by the DAC
+// AND the max value that can be output to the LED controller.
+// If one of those changes, the buffer values will have to be
+// adjusted before writing to one or the other.
 const uint16_t MAX_VALUE = pow(2, 12) - 1;
 
 // Max value from an analogRead()
+// see: https://www.arduino.cc/reference/en/language/functions/analog-io/analogread/
 const int MAX_READ_VALUE = 1023;
+
+// If true, LED brightness will correspond to buffer value. If false,
+// LEDs will only be on/off, depending on if the corresponding buffer
+// value would trigger gate A or not
+const bool LED_GRAYSCALE = true;
+
+// The voltage coming through the input transistors when the base is grounded
+// on a scale of 0 = 0v, MAX_READ_VALUE = 5v
+const uint16_t TRANSISTOR_ZERO_VALUE = 110;
+// The voltage coming through the input transistors when the base connected to 5v
+const uint16_t TRANSISTOR_5V_VALUE = 1017;
+
+// The potentiometers can't go all the way to to 0 or 100%. These offsets adjust
+// the input values from pots. Min input value from pots:
+const uint16_t POT_ZERO_VALUE = 5;
+// max input value from pots
+const uint16_t POT_MAX_VALUE = MAX_READ_VALUE - 7;
+
 
 /*
  * Global variables
@@ -68,27 +100,35 @@ uint16_t buffer[MAX_BUFFER_SIZE];
 
 uint16_t randomness = 0;
 uint16_t threshold = 0;
+float scale = 0;
 uint32_t lastRecordedTime;
 uint32_t lastStepTime = 0;
 bool reverse = false;
 bool encoderButtonDown = false;
+#if RECORD_ENABLED
 bool recording = false;
 uint16_t lastRecordedInputValue = 0;
+#endif
 
 void setup() {
-Serial.begin(9600);
+    Serial.begin(9600);
     // setup pins
     pinMode(RANDOMNESS_POT_PIN, INPUT);
+    pinMode(RANDOMNESS_CV_PIN, INPUT);
     pinMode(THRESHOLD_POT_PIN, INPUT);
     pinMode(DAC_CS_PIN, OUTPUT);
     pinMode(GATE_PIN_A, OUTPUT);
     pinMode(GATE_PIN_B, OUTPUT);
     pinMode(GATE_TRIG_SWITCH_PIN, INPUT_PULLUP);
-    pinMode(RECORD_SWITCH_PIN, INPUT_PULLUP);
     pinMode(CLOCK_IN_PIN, INPUT);
 	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
 	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
 	pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
+	#if RECORD_ENABLED
+    pinMode(RECORD_SWITCH_PIN, INPUT_PULLUP);
+    pinMode(RECORD_INPUT_PIN, INPUT);
+    #endif
+    
 
     digitalWrite(DAC_CS_PIN, HIGH);
 
@@ -98,7 +138,9 @@ Serial.begin(9600);
     // Initialize 
     for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
         buffer[i] = random(MAX_VALUE);
+        //buffer[i] = 0;
     }
+    //buffer[0] = MAX_VALUE;
 
     Tlc.init();
     Tlc.clear();
@@ -115,8 +157,11 @@ Serial.begin(9600);
     step();
 }
 
-// Set up additional interrupt listeners
-ISR(PCINT1_vect) {
+
+ISR(PCINT2_vect) {
+    static_assert(ENCODER_PIN_A >= 0 && ENCODER_PIN_A <= 7 &&
+                  ENCODER_PIN_B >= 0 && ENCODER_PIN_B <= 7, 
+                  "This code assumes that the encoder pins are Arduino digital pins 0..7. Look up PCINT vec for more.");
     rotaryEncoderHandler();
 }
 
@@ -127,15 +172,31 @@ ISR(PCINT1_vect) {
  * have to waste time checking them.
  */
 void loop() {
-    randomness = analogRead(RANDOMNESS_POT_PIN);
-    threshold = analogRead(THRESHOLD_POT_PIN) * (MAX_VALUE / MAX_READ_VALUE);
+    float randomness_value = analogReadPot(RANDOMNESS_POT_PIN);
+    if (!CV_MODE_FREEZE) {
+        randomness_value += analogReadCV(RANDOMNESS_CV_PIN);
+    } else {
+        if (digitalRead(RANDOMNESS_CV_PIN)) {
+            randomness_value = 0;
+        }
+    }
+    randomness = MAX_VALUE * clamp(randomness_value, 0, 1);
+    threshold = MAX_VALUE * clamp(analogReadPot(THRESHOLD_POT_PIN) + analogReadCV(THRESHOLD_POT_PIN), 0, 1);
+    scale = analogReadPot(AMPLITUDE_POT_PIN);
     //TODO use interrupts for these boolean reads
     bool gatesAreTriggers = digitalRead(GATE_TRIG_SWITCH_PIN);
-    encoderButtonDown = digitalRead(ENCODER_BUTTON_PIN) == LOW;
+    if (ENCODER_BUTTON_PIN == A6 || ENCODER_BUTTON_PIN == A7) {
+        // Requires an external pullup resistor if A6 or A7
+        encoderButtonDown = analogRead(ENCODER_BUTTON_PIN) < 500;
+    } else {
+        encoderButtonDown = digitalRead(ENCODER_BUTTON_PIN) == LOW;
+    }
+    #if RECORD_ENABLED
     recording = digitalRead(RECORD_SWITCH_PIN);
     if (recording) {
         lastRecordedInputValue = analogRead(RECORD_INPUT_PIN) * (MAX_VALUE / MAX_READ_VALUE);
     }
+    #endif
     
     lastRecordedTime = millis();
 
@@ -151,6 +212,14 @@ void loop() {
     } else if (showBufferSize) {
         updateLeds();
     }
+
+    /*
+    static uint32_t lastStepTime = 0;
+    if (lastRecordedTime - lastStepTime > 500) {
+        lastStepTime += 500;
+        step();
+    }
+    */
 }
 
 /**
@@ -180,21 +249,19 @@ void step() {
     // maybe randomize the value at the cursor (ptr)
     // or read input voltages if recording
     if (random(MAX_READ_VALUE) < randomness) {
+        #if RECORD_ENABLED
         buffer[ptr] = recording ? lastRecordedInputValue : random(MAX_VALUE);
+        #else 
+        buffer[ptr] = random(MAX_VALUE);
+        #endif
     }
     
     // Write the value to our DAC chip to output the main analog value
-    MCP4922_write(DAC_CS_PIN, 0, buffer[ptr]);
+    uint16_t scaled = ((float) buffer[ptr]) * scale;
+    MCP4922_write(DAC_CS_PIN, 0, scaled);
 
     // handle the two gate outputs.
-    bool gate;
-    if (threshold <= 5) {
-        gate = true;
-    } else if (threshold >= MAX_VALUE - 10) {
-        gate = false;
-    } else {
-        gate = buffer[ptr] > threshold;
-    }
+    bool gate = buffer[ptr] > threshold;
     digitalWrite(GATE_PIN_A, gate ? HIGH : LOW);
     digitalWrite(GATE_PIN_B, gate ? LOW : HIGH);
 
@@ -270,18 +337,21 @@ void updateLeds() {
     if (showBufferSize) {
         for (uint16_t i = 0; i < NUM_LEDS - 1; i++) {
             bool ledOn = (bufferSize >> i) & 0x01;
-            Tlc.set(i, ledOn ? MAX_VALUE : 0);
+            Tlc.set((NUM_LEDS - 1) - i, ledOn ? MAX_VALUE : 0);
         }
-        Tlc.set(NUM_LEDS - 1, yoyo ? MAX_VALUE : 0);
+        Tlc.set(0, yoyo ? MAX_VALUE : 0);
         Tlc.update();
     } else {
         for (uint16_t led = 0; led < NUM_LEDS; led++) {
             uint16_t index = (ptr + led - LED_OFFSET) % bufferSize;
-            Tlc.set(led, buffer[index]);
+            if (LED_GRAYSCALE) {
+                Tlc.set(led, buffer[index]);
+            } else {
+                Tlc.set(led, buffer[index] > threshold ? MAX_VALUE : 0);
+            }
         }
         Tlc.update();
     }
-
 }
 
 /**
@@ -308,6 +378,22 @@ void rotaryEncoderHandler() {
     }
 
     lastCLK = currentStateCLK;
+}
+
+inline float clamp(const float x, const float min, const float max) {
+    return x < min ? min : x > max ? max : x;
+}
+
+float analogReadCV(const uint16_t pin) {
+    uint16_t rawValue = analogRead(pin);
+    float x = ((float) rawValue - TRANSISTOR_ZERO_VALUE) / (TRANSISTOR_5V_VALUE - TRANSISTOR_ZERO_VALUE);
+    return clamp(x, 0, 1);
+}
+    
+float analogReadPot(const uint16_t pin) {
+    uint16_t rawValue = analogRead(pin);
+    float x = ((float) rawValue - POT_ZERO_VALUE) / (POT_MAX_VALUE - POT_ZERO_VALUE);
+    return clamp(x, 0, 1);
 }
 
 inline void enableInterrupt(byte pin) {
