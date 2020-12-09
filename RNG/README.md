@@ -24,9 +24,9 @@ RNG stands for Random Number Generator. The ability to generate random control v
 
 Stepped voltage mode. This half of the module outputs a stepped random voltage 
 
-**(D) Range**: The range/spread of the random voltages output.
+**(D) Range**: The range/spread of the random voltages output. This is a digital scaling that is applied before the signal is output. This means that theoretically if you turned the range way down and then boosted it way back up with a VCA, you could get some digital artifacts. But, it also means that via firmware updates this could be reconfigured to effect the range or distribution of new values that are created instead of scaling the output.
 
-**(E) Bi/unipolar**: Whether the values are unipolar (0 to +10v) or bipolar (-10v to +10v)
+**(E) Bi/unipolar**: Determines whether the values are unipolar (0 to +10v) or bipolar (-10v to +10v)
 
 **(F) Clock** (input): Whenever HIGH, the values are advanced by one, a new value from the loop is played (and maybe mutated).
 
@@ -38,11 +38,11 @@ Stepped voltage mode. This half of the module outputs a stepped random voltage
 
 Binary choice mode. This side of the module randomly chooses between two output trigger/gates based on the value of the left side.
 
-**(I) Bias**: The probability of outputting to channel A vs B.
+**(I) Bias**: The probability of outputting to channel A vs B. In practice, this input is interpreted as a threshold value. Whenever an output would be generated that is above the threshold, channel A is triggered. When it is below, channel B is triggered.
 
-**(J) Trigger/Gate**: Chooses whether the A/B outputs should be triggers (a short voltage spike with every new clock pulse) or gates (remain steadily high until the output channel is changed).
+**(J) Trigger/Gate**: Chooses whether the A/B outputs should be triggers (a short voltage spike with every new clock pulse) or gates (remain steadily high until the output channel is changed). THe duration of the triggers is configurable in the firmware.
 
-**(K) Bias** (input): CV control for the Bias knob
+**(K) Bias** (input): Addative CV control for the Bias knob
 
 **(L/M) A** & **B** (output): Two channels of gate/trigger output. A corresponding LED lights up when each gate is open.
 
@@ -58,12 +58,11 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
   * 8x 1kohm
   * 1x 2khm
   * 2x 10khm
-  * 3x 1Mohm
-  * 9x 220ohm (or any value -- to control LED brightness)
+  * 9x 220ohm (Controls LED brightness. I have used as high as 10k depending on the LEDs)
 * 6 Jacks
-* 9 LEDs (7x5mm and 2x3mm -- or just drill the faceplate holes to fit what you have)
+* 9 LEDs (7x 5mm and 2x 3mm -- or just drill the faceplate holes to fit what you have)
 * 3 PNP transistors
-* 2 100nf fixed capacitors (optional)
+* 2 100nf fixed capacitors (optional -- noise reduction)
 * 1 Arduino Nano
 * 1 MCP4922
 * 1 TL072
