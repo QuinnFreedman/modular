@@ -148,7 +148,11 @@ By default, all of the times can be turned down all the way to zero, which means
 
 #### `EXP_RATE_SCALE`
 
-How extreme the max log/exp curve is. Default: 4
+How extreme the max log/exp curve is. Default: 4 Must be &gt; 0. The formula for the exponential curve is given by:
+
+<img src="https://render.githubusercontent.com/render/math?math=\frac{e^{4rkt}-1}{e^{4rk}-1}, k \in [-1,1], t \in [0, 1]">
+
+Where `t` is time, `k` is knob position, and `r` is `EXP_RATE_SCALE`.
 
 #### `LOOP_WHEN_GATE_OFF`
 
@@ -168,7 +172,7 @@ If these modes are enabled, the Arduino will send short triggers to the two aux 
 
 #### Gate passthrough (`GATE_PASSTHROUGH_ENABLED true`)
 
-When enabled, the aux pin will be triggered as long as the input gate is HIGH. This is output after the gate signal has been processed by the computer, so it may be a few milisecconds delayed from the GATE input and is pretty much a totally separate circuit. This can be useful for an LED indicator or just passing the signal through.
+When enabled, the aux pin will be triggered as long as the input gate is HIGH. This is output after the gate signal has been processed by the computer, so it may be a few milisecconds delayed from the GATE input and is pretty much a totally separate circuit. This can be useful for an LED indicator.
 
 #### LED mode indicator (`LED_MODE_INDICATOR_ENABLED true`)
 
