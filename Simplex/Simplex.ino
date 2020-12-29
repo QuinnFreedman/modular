@@ -43,14 +43,14 @@ const uint16_t TRANSISTOR_5V_VALUE = 1017;
 const uint16_t ANALOG_READ_MAX_VALUE = 1023;
 
 // A0 = top pot
-// A1 = bottom pot
-// A2 = middle pot
+// A1 = middle pot
+// A2 = bottom pot
 
 //Pins
 const uint16_t CHIP_SELECT_PIN = 8;
 const uint16_t SPEED_POT_PIN = A0;
-const uint16_t TEXTURE_POT_PIN = A2;
-const uint16_t ATTENUATION_POT_PIN = A3;
+const uint16_t TEXTURE_POT_PIN = A1;
+const uint16_t ATTENUATION_POT_PIN = A2;
 const uint16_t SPEED_CV_PIN = A4;
 const uint16_t TEXTURE_CV_PIN = A3;
 
@@ -67,8 +67,8 @@ void setup() {
     pinMode(SPEED_POT_PIN, INPUT);
     pinMode(TEXTURE_POT_PIN, INPUT);
     pinMode(ATTENUATION_POT_PIN, INPUT);
-    pinMode(SPEED_CV_PIN, INPUT);
-    pinMode(TEXTURE_CV_PIN, INPUT);
+    pinMode(SPEED_CV_PIN, INPUT_PULLUP);
+    pinMode(TEXTURE_CV_PIN, INPUT_PULLUP);
     digitalWrite(CHIP_SELECT_PIN, HIGH);
 
     SPI.begin();

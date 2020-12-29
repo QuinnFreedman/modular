@@ -45,9 +45,9 @@ There are two output channels. Both channels will have the same speed and textur
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
 * Resistors
-  * 9x 1kohm
-  * 2x 1Mohm
-  * 2x 220ohm
+  * 5x 10kohm (all 1k will work fine too)
+  * 4x 1kohm (controls input & output impedance)
+  * 2x &ge;220ohm (controls LED brightness -- I would actually recommend 1k-5k)
 * 4 Jacks
 * 2 LEDs
 * 2 PNP transistors
@@ -62,9 +62,9 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
 
 The capacitors are intended to remove noise from the power supply. But, with my power supply, I was not able to even measure a difference. You can just leave them out if you want, or put in multiple capacitors of different values in parallel if you want to experement.
 
-The long jumper wire in the PCB design is to connect the signal to the left LED. If you want the 2 LEDs to be identical, connect it with a wire as shown below. If you want to use a bipolar LED for the left channel (so it will be a different color when the output is negative), instead connect the bottom jumper wire terminal with the top of the 1k resistor right next to it. You will probably also want to replace the adjacent 220k resistor with something larger (like 880 or 1k).
+The long jumper wire in the PCB design is to connect the signal to the left LED. If you want the 2 LEDs to be identical, connect it with a wire as shown in the Fritzing PCB view, from J1 to J3. If you want to use a bipolar LED for the left channel (so it will be a different color when the output is negative), instead connect the bottom jumper wire terminal with the top of the 1k resistor right next to it (J2 to J3). You will probably also want to replace the adjacent 220Ohm resistor with something approx 2x larger since the voltage will be [-10v,+10v] instead of [0,+5v].
 
-![PCB](./images/Simplex_PCB_middle.jpg)
+The stacking headers that hold the 3 layers together are not evenly spaced. You may want to additionally use some standoffs in provided the holes to keep the panels from coming apart when you push on them. Make sure the standoffs aren't too tall or they could separate the headers so the don't make a good contact.
 
 ## Requirements
 
