@@ -16,7 +16,7 @@ const uint16_t AMPLITUDE_POT_PIN = A4;
 #if VERSION < 3
 const uint16_t ENCODER_BUTTON_PIN = A6;
 const uint16_t THRESHOLD_POT_PIN = A5;
-#elif
+#else
 const uint16_t ENCODER_BUTTON_PIN = A5;
 const uint16_t THRESHOLD_POT_PIN = A6;
 #endif
