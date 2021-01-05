@@ -4,6 +4,8 @@
 
 #define RECORD_ENABLED false
 
+#define VERSION 3
+
 /*
  * Pins
  */
@@ -11,8 +13,13 @@ const uint16_t GATE_TRIG_SWITCH_PIN = A0;
 const uint16_t RANDOMNESS_CV_PIN = A2;
 const uint16_t THRESHOLD_CV_PIN = A3;
 const uint16_t AMPLITUDE_POT_PIN = A4;
+#if VERSION < 3
+const uint16_t ENCODER_BUTTON_PIN = A6;
+const uint16_t THRESHOLD_POT_PIN = A5;
+#elif
 const uint16_t ENCODER_BUTTON_PIN = A5;
 const uint16_t THRESHOLD_POT_PIN = A6;
+#endif
 const uint16_t RANDOMNESS_POT_PIN = A7;
 const uint16_t CLOCK_IN_PIN = 2;
 //D3: LED Driver
@@ -76,9 +83,9 @@ const bool LED_GRAYSCALE = true;
 
 // The voltage coming through the input transistors when the base is grounded
 // on a scale of 0 = 0v, MAX_READ_VALUE = 5v
-const uint16_t TRANSISTOR_ZERO_VALUE = 110;
+const uint16_t TRANSISTOR_ZERO_VALUE = 170;
 // The voltage coming through the input transistors when the base connected to 5v
-const uint16_t TRANSISTOR_5V_VALUE = 1017;
+const uint16_t TRANSISTOR_5V_VALUE = 980;
 
 // The potentiometers can't go all the way to to 0 or 100%. These offsets adjust
 // the input values from pots. Min input value from pots:
@@ -111,7 +118,7 @@ uint16_t lastRecordedInputValue = 0;
 #endif
 
 void setup() {
-    Serial.begin(9600);
+    // Serial.begin(9600);
     // setup pins
     pinMode(RANDOMNESS_POT_PIN, INPUT);
     pinMode(THRESHOLD_POT_PIN, INPUT);
@@ -182,8 +189,8 @@ void loop() {
         }
     }
     randomness = MAX_VALUE * clamp(randomness_value, 0, 1);
-    threshold = MAX_VALUE * clamp(analogReadPot(THRESHOLD_POT_PIN) + analogReadCV(THRESHOLD_POT_PIN), 0, 1);
-    scale = analogReadPot(AMPLITUDE_POT_PIN);
+    threshold = MAX_VALUE * clamp(analogReadPot(THRESHOLD_POT_PIN) + analogReadCV(THRESHOLD_CV_PIN), 0, 1);
+    scale = analogReadPot(analogReadCV(THRESHOLD_CV_PIN));
     //TODO use interrupts for these boolean reads
     bool gatesAreTriggers = digitalRead(GATE_TRIG_SWITCH_PIN);
     if (ENCODER_BUTTON_PIN == A6 || ENCODER_BUTTON_PIN == A7) {
