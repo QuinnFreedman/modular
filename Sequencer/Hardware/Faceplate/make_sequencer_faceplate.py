@@ -9,15 +9,28 @@ import math
 
 HP = 26
 
-module = Module(HP, (inches(.45), 12), title="Sequencer", filename="sequencer_faceplate.svg", debug=True, outline=1)
+module = Module(HP, (inches(.45), 12), title="Sequencer", filename="sequencer_faceplate.svg")
 
 
 def get_center(circle):
     return (circle.offset[0] + circle.position[0],
             circle.offset[1] + circle.position[1])
 
+"""
+pad_x = .5
+pad_y = 6
+height = out_jack_max_y - out_jack_min_y + 2 * pad_y
+width = out_jack_right_x - out_jack_left_x + 2 * pad_x
+box_x = out_jack_left_x - pad_x
+box_y = out_jack_min_y - pad_y
+"""
+height, width, box_x, box_y = 85.66, 18.78, 98.56, -3.46
+module.draw(lambda context: context.rect((box_x, box_y), (width, height), rx=3) )
+
 out_jack_min_y =  float("Infinity")
 out_jack_max_y = -float("Infinity")
+
+row_spacing = inches(.9)
 
 y = 0
 
@@ -50,7 +63,7 @@ for i in range(4):
     out_jack_min_y = min(out_jack_min_y, out_jack_left_y)
     out_jack_max_y = max(out_jack_max_y, out_jack_right_y)
         
-    y += inches(.9)
+    y += row_spacing
 
 
 mode_select = Potentiometer(-inches(.1), y + inches(0.5), color="black")
@@ -127,15 +140,31 @@ for j in range(4):
 
 
 x += inches(.9)
-module.add(JackSocket(x, y, "Random", False))
-module.add(Switch(x, y + inches(.65)))
+random_jack = JackSocket(x, y, "", False)
+module.add(random_jack)
 
-pad_x = .5
-pad_y = 6
-height = out_jack_max_y - out_jack_min_y + 2 * pad_y
-width = out_jack_right_x - out_jack_left_x + 2 * pad_x
-box_x = out_jack_left_x - pad_x
-box_y = out_jack_min_y - pad_y
-module.draw(lambda context: context.rect((box_x, box_y), (width, height), rx=3) )
+center = get_center(random_jack)
+module.draw(lambda ctx: ctx.text("Rand.",
+                insert=(center[0] - 6, center[1] + 1),
+                text_anchor="end"))
+
+
+module.add(Switch(x, y + inches(.65), label="CV / Q. / P."))
+
+
+center_y = out_jack_min_y + row_spacing * 1.5 + inches(.1)
+center_x = out_jack_left_x + random_jack.radius + 1.5
+module.draw(lambda ctx: ctx.text("- outs -",
+                insert=(-center_y, center_x),
+                text_anchor="middle",
+                transform=f"rotate(-90)",
+                fill="white"))
+center_y += inches(.1)
+center_x = out_jack_right_x - random_jack.radius - 0.5
+module.draw(lambda ctx: ctx.text("- triggers -",
+                insert=(-center_y, center_x),
+                text_anchor="middle",
+                transform=f"rotate(-90)",
+                fill="white"))
 
 module.save()
