@@ -48,11 +48,19 @@ const uint16_t ANALOG_READ_MAX_VALUE = 1023;
 
 //Pins
 const uint16_t CHIP_SELECT_PIN = 8;
-const uint16_t SPEED_POT_PIN = A0;
-const uint16_t TEXTURE_POT_PIN = A1;
-const uint16_t ATTENUATION_POT_PIN = A2;
-const uint16_t SPEED_CV_PIN = A4;
-const uint16_t TEXTURE_CV_PIN = A3;
+const uint16_t POT_PIN_1 = A0; // SPEED
+const uint16_t POT_PIN_2 = A1; // TEXTURE
+const uint16_t POT_PIN_3 = A2; // ATTEN
+const uint16_t CV_PIN_1 = A4;  // SPEED
+const uint16_t CV_PIN_2 = A3;  // TEXTURE
+
+const uint16_t ANALOG_READ_RANGES[5][3] = {
+    {MIN_SPEED, MAX_SPEED, 8},
+    {MIN_TEXTURE, MAX_TEXTURE, 0},
+    {0, 1, 0},
+    {MIN_SPEED, MAX_SPEED, 0},
+    {MIN_TEXTURE, MAX_TEXTURE, 0},
+};
 
 /*
  * End config
@@ -64,11 +72,11 @@ uint8_t SEEDS[NUM_CHANNELS][NUM_OCTAVES];
 
 void setup() {
     pinMode(CHIP_SELECT_PIN, OUTPUT);
-    pinMode(SPEED_POT_PIN, INPUT);
-    pinMode(TEXTURE_POT_PIN, INPUT);
-    pinMode(ATTENUATION_POT_PIN, INPUT);
-    pinMode(SPEED_CV_PIN, INPUT_PULLUP);
-    pinMode(TEXTURE_CV_PIN, INPUT_PULLUP);
+    pinMode(POT_PIN_1, INPUT);
+    pinMode(POT_PIN_2, INPUT);
+    pinMode(POT_PIN_3, INPUT);
+    pinMode(CV_PIN_1, INPUT_PULLUP);
+    pinMode(CV_PIN_2, INPUT_PULLUP);
     digitalWrite(CHIP_SELECT_PIN, HIGH);
 
     SPI.begin();
@@ -95,18 +103,8 @@ void setup() {
     }
 }
 
-void loop() {
-    static double texturePotValue = 0;
-    static double speedPotValue = 0;
-    static double textureCvValue = 0;
-    static double speedCvValue = 0;
-    static double texture = 0;
-    static double speed = 0;
-    static double amplitude = 0;
-    static uint16_t channel = 0;
-
+float simplexLoop(uint16_t channel, double speed, double texture, double amplitude) {
     static double perlinTime = 0;
-    static uint32_t loopCount = 0;
     static uint32_t lastTime = micros();
     uint32_t now = micros();
     uint32_t dt = now - lastTime;
@@ -131,8 +129,23 @@ void loop() {
         if (channel == 0) {
             noise *= amplitude;
         }
-        MCP4922_write(CHIP_SELECT_PIN, channel, (noise + 1) / 2);
-    }
+        return noise;
+    }    
+}
+
+void loop() {
+    static double potValue1 = 0; // speed
+    static double potValue2 = 0; // texture
+    static double cvValue1 = 0;  // speed
+    static double cvValue2 = 0;  // texture
+    static double inputChannel1 = 0; // speed
+    static double inputChannel2 = 0; // texture
+    static double inputChannel3 = 0; // amplitude
+    static uint16_t channel = 0;
+    static uint32_t loopCount = 0;
+
+    double value = simplexLoop(channel, inputChannel1, inputChannel2, inputChannel3);
+    MCP4922_write(CHIP_SELECT_PIN, channel, (value + 1) / 2);
         
     channel = (channel + 1) % NUM_CHANNELS;
 
@@ -140,23 +153,38 @@ void loop() {
 
     switch (loopCount % (CV_SAMPLING_FREQUENCY * NUM_CV_CHANNELS)) {
         case 0 * CV_SAMPLING_FREQUENCY: {
-            speedPotValue = analogReadRange(SPEED_POT_PIN, MIN_SPEED, MAX_SPEED, 8);
-            speed = clamp(speedCvValue + speedPotValue, MIN_SPEED, MAX_SPEED);
+            const uint16_t MIN = ANALOG_READ_RANGES[0][0];
+            const uint16_t MAX = ANALOG_READ_RANGES[0][1];
+            const uint16_t EXP = ANALOG_READ_RANGES[0][2];
+            potValue2 = analogReadRange(POT_PIN_1, MIN, MAX, EXP);
+            inputChannel1 = clamp(cvValue1 + potValue2, MIN, MAX);
         } break;
         case 1 * CV_SAMPLING_FREQUENCY: {
-            texturePotValue = analogReadRange(TEXTURE_POT_PIN, MIN_TEXTURE, MAX_TEXTURE, 0);
-            texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
+            const uint16_t MIN = ANALOG_READ_RANGES[1][0];
+            const uint16_t MAX = ANALOG_READ_RANGES[1][1];
+            const uint16_t EXP = ANALOG_READ_RANGES[1][2];
+            potValue1 = analogReadRange(POT_PIN_2, MIN, MAX, EXP);
+            inputChannel2 = clamp(cvValue2 + potValue1, MIN, MAX);
         } break;
         case 2 * CV_SAMPLING_FREQUENCY: {
-            amplitude = analogReadRange(ATTENUATION_POT_PIN, 0, 1, 0);
+            const uint16_t MIN = ANALOG_READ_RANGES[2][0];
+            const uint16_t MAX = ANALOG_READ_RANGES[2][1];
+            const uint16_t EXP = ANALOG_READ_RANGES[2][2];
+            inputChannel3 = analogReadRange(POT_PIN_3, MIN, MAX, EXP);
         } break;
         case 3 * CV_SAMPLING_FREQUENCY: {
-            speedCvValue = analogReadRange(SPEED_CV_PIN, MIN_SPEED, MAX_SPEED, 0, true);
-            speed = clamp(speedCvValue + speedPotValue, MIN_SPEED, MAX_SPEED);
+            const uint16_t MIN = ANALOG_READ_RANGES[3][0];
+            const uint16_t MAX = ANALOG_READ_RANGES[3][1];
+            const uint16_t EXP = ANALOG_READ_RANGES[3][2];
+            cvValue1 = analogReadRange(CV_PIN_1, MIN, MAX, EXP, true);
+            inputChannel1 = clamp(cvValue1 + potValue2, MIN, MAX);
         } break;
         case 4 * CV_SAMPLING_FREQUENCY: {
-            textureCvValue = analogReadRange(TEXTURE_CV_PIN, MIN_TEXTURE, MAX_TEXTURE, 0, true);
-            texture = clamp(textureCvValue + texturePotValue, MIN_TEXTURE, MAX_TEXTURE);
+            const uint16_t MIN = ANALOG_READ_RANGES[4][0];
+            const uint16_t MAX = ANALOG_READ_RANGES[4][1];
+            const uint16_t EXP = ANALOG_READ_RANGES[4][2];
+            cvValue2 = analogReadRange(CV_PIN_2, MIN, MAX, EXP, true);
+            inputChannel2 = clamp(cvValue2 + potValue1, MIN, MAX);
         } break;
     }
 
