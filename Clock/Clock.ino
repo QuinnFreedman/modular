@@ -229,8 +229,10 @@ void loop() {
             C_OUT |= bitRead(outputAllPins, 4) << 1;
             C_OUT |= bitRead(outputAllPins, 2) << 2;
             C_OUT |= bitRead(outputAllPins, 0) << 3;
-            PORTB = (PORTB & PORTB_MASK) | B_OUT; 
-            PORTC = (PORTC & PORTC_MASK) | C_OUT; 
+            cli();
+            PORTB = (PORTB & PORTB_MASK) | B_OUT;
+            PORTC = (PORTC & PORTC_MASK) | C_OUT;
+            sei();
         }
         #endif
     } else {
