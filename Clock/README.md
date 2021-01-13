@@ -2,6 +2,8 @@
 
 A clock module sends rythmic voltage pulses at different subdevisions or multiples of a given tempo. If you want to have any kind a syncronous tempo to your music, use a clock to drive all your other modules and keep them in sync. You can use a clock output to step a sequencer or plug it directly into gate and trigger inputs.
 
+This clock module is loosly inspired by ALM's [Pamela's NEW Workout](https://busycircuits.com/alm017/) but it is much simpler (and thus super easy to build). It has 8 channels of clocked gates, with per-channel control of clock division, pulse width, phase shift, and swing. The outputs can only be gates (high or low) -- there are no other LFO shapes or patterns available, which cuts down on parts. There are no CV inputs by default, but they could easily be added by an expander.
+
 ## Manual
 <img src="images/clock_faceplate.svg" style="float:left;"/>
 
@@ -45,18 +47,18 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
 
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
-* 16 Resistors
+* 16 Resistors (see below for values)
 * 8 Jacks
 * 8 LEDs
-* 1 I2C 128x64 OLED display
+* 1 I2C 128x64 OLED display ([Available here](https://www.amazon.com/IZOKEE-Display-SSD1306-Raspberry-White-IIC/dp/B076PDVFQD/))
 * 1 Rotary encoder
 * 1 Arduino Nano
 
 ### Orientation
 
-Insert the LEDs with the short legs (cathodes) facing downward when the module is in the case (on the flat side of the circles in the PCB silkscreen).
-
 Position the Arduino with the USB port facing downward (match the square solder pads on the Arduino to the square pad on the PCB).
+
+Insert the LEDs with the short legs (cathodes) facing the flat side of the circles in the PCB silkscreen (aka downward when the module is mounted in the rack).
 
 Put in the screen "upside down" with the pins at the bottom.
 
@@ -64,13 +66,21 @@ Put all the components on the side of each PCB with the sikscreen markings. The 
 
 ### Resistor values
 
-The resistors in this module can be basically any value you want. The vertical resitors (the ones that connect directly to the LEDs) control the brightness of the LEDs. They can be as low as 220 Ohms for a very bright LED to 10k for a very dim one. The best value might depend on the LEDs you have. I used a value of 470Ohm in my prototype which was pretty retina melting with the 3mm LEDs I had but good for some generic 5mm LEDs I tried.
+The resistors in this module can be basically any value you want. The vertical resitors (R9-R16) control the brightness of the LEDs. They can be as low as 220 Ohms for a very bright LED to 10k for a very dim one. The best value might depend on the LEDs you have.
 
-The horizontal LEDs control the output imedance. This just makes it so that if the output ever gets shorted to ground (by another module or when plugging in a cable), the Arduino doesn't get fried. Again, I used 470Ohm in my prototype, which worked fine. I think 200Ohms would be absolutely maxing the Arduino's current if all 8 outputs were similtaneously on and grounded, and you could probably go as high as 10k at least without issue. Here, a low value would just waste power while a very high value might give a slightly less precise output or eventually might not be detected by some modules, depending on their design. I would probably recommend a slightly higher value, maybe 1k or 10k.
+The horizontal resistors (R1-R8) control the output imedance. This essentially slows down the flow of electricity out of the Arduino to protect it from getting overloaded if the outputs are ever connected to ground. From what I understand, `1k` is the closest to a "standard" output impedance for Eurorack, but especially for gate signals it really doesn't matter. Feel free to use whatever resistors you used for the LEDs.
+
+### The screen
+
+There are many OLED displays that could work with this module. Just make sure the one you get connects via I²C instead of Serial (4 wires instead of many). The one I got ([here](https://www.amazon.com/IZOKEE-Display-SSD1306-Raspberry-White-IIC/dp/B076PDVFQD/)) is .96" but you could easily fit a larger one if you re-design the faceplate slightly.
+
+Make sure that the pins of your screen are in the same order as the labels printed on the PCB. If not, you may need to attach it with wires instead of a header so you can twist them around to make the right connections.
+
+The screen will need to sit up above the PCB. If you are using a header, it may be easiest to bolt it to the faceplate first and then solder it on to the PCB at the right height.
 
 ## Extra features
 
-There are a lot of configurable options at the top of `Clock.ino`. Edit it with Arduino IDE. They should be self-explanitory based on their comments.
+There are a lot of configurable options defined in `config.h`. Edit it with Arduino IDE (or any other text editor). They should be self-explanitory based on their comments.
 
 In addition there are a couple features that the hardware and software supports that I couln't find room for in the PCB or faceplate. You could put them in an expander module or put them instead of something else.
 
