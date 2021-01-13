@@ -78,6 +78,8 @@ Make sure that the pins of your screen are in the same order as the labels print
 
 The screen will need to sit up above the PCB. If you are using a header, it may be easiest to bolt it to the faceplate first and then solder it on to the PCB at the right height.
 
+The screen you buy will also have an I²C address that lets the Arduino communicate with the screen. Mine was `0x3C`. Check the manufacturer info to find your address. Enter it in at the very bottom of the `config.h` file.
+
 ## Extra features
 
 There are a lot of configurable options defined in `config.h`. Edit it with Arduino IDE (or any other text editor). They should be self-explanitory based on their comments.
