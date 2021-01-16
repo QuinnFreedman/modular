@@ -38,6 +38,36 @@ There are two output channels. Both channels will have the same speed and textur
 * **A**: Channel A. -10v - +10v, attenuated by **Amplitude (C)**
 * **B**: Channel B. 0-5v
 
+## LFO Mode
+
+This same hardware can be loaded with different firmware to function as a dual LFO. To do so, just open `config.h` and replace the line `#define FIRMWARE_MODE FIRMWARE_MODE_SIMPLEX` with `#define FIRMWARE_MODE FIRMWARE_MODE_LFO`. In LFO mode, the module has two very simple independently rate-controlled triangle LFOs. They DO NOT tract V/Oct and don't have many fancy features like tempo sync, etc. If there is a demand, I might add some of those features. For now, it's a great way to get some extra functionality out of this PCB if you had to buy multiples.
+
+In LFO mode, the controls are as follows:
+
+### (A) Speed A
+
+Control of the speed of the left channel (channel A)
+
+### (B) Speed B
+
+Control of the speed of the right channel (channel B)
+
+### (C) Amplitude
+
+By default, this attenuates the range of output channel A. (Channel B is fixed). If you prefer, this can be configured to control the waveform of channel A instead. See `config.h` for configuration options.
+
+### (D) & (E) Speed CV [input]
+
+CV control for speed for both channels. 0-5v. Input is added to the respective speed potentiomeer value, capped at 5v. These are linear and do not track v/oct.
+
+### (F) & (G) Outputs
+
+There are two triangle LFO output channels, **A**, and **B**. 
+
+* **A**: Channel A. -10v - +10v, attenuated by **Amplitude (C)**
+* **B**: Channel B. 0-5v
+
+
 ## Assembly
 
 ### Components
