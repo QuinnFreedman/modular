@@ -1,74 +1,52 @@
 #include <stdint.h>
 #include <SPI.h>
 
-extern "C" {
-    #include "perlin.h"
-}
-
-/*
- * Configuration
- */
-
-// The range of the speed or "frequency" of the noise.
-// Measured in terms of steps per microseccond.
-// 0.000001 (1e-6) is something like 1Hz.
-const double MAX_SPEED = 0.000008;
-const double MIN_SPEED = 0;
-
-// The range of the texture. Texture is just the coefficient applied to each
-// successive octave. So a texture of 1 would stack all octaves with the same
-// weight. A texture of 0 would only play the root octave.
-const double MIN_TEXTURE = 0;
-const double MAX_TEXTURE = 0.8;
-
-// The number of "octaves" in the noise algorithm -- how many layers of perlin
-// noise are stacked to get the result.
-const uint16_t NUM_OCTAVES = 4; 
-// The distance between the octaves. I.e. the number of times faster octive 2 is
-// than octave 1.
-const uint16_t OCTAVE_STEP = 4;
-
-// How long between when the CV & pots are sampled. A lower value means 
-// more responsive controls but possibly a less smooth output.
-const uint16_t CV_SAMPLING_FREQUENCY = 5;
-
-// The voltage coming through the input transistors when the base is grounded
-// on a scale of 0 = 0v, ANALOG_READ_MAX_VALUE = 5v
-const uint16_t TRANSISTOR_ZERO_VALUE = 110;
-// The voltage coming through the input transistors when the base connected to 5v
-const uint16_t TRANSISTOR_5V_VALUE = 1017;
-
-// The maximum value of the Arduino's internal DAC
-// see: https://www.arduino.cc/reference/en/language/functions/analog-io/analogread/
-const uint16_t ANALOG_READ_MAX_VALUE = 1023;
-
-// A0 = top pot
-// A1 = middle pot
-// A2 = bottom pot
-
-//Pins
-const uint16_t CHIP_SELECT_PIN = 8;
-const uint16_t POT_PIN_1 = A0; // SPEED
-const uint16_t POT_PIN_2 = A1; // TEXTURE
-const uint16_t POT_PIN_3 = A2; // ATTEN
-const uint16_t CV_PIN_1 = A4;  // SPEED
-const uint16_t CV_PIN_2 = A3;  // TEXTURE
-
-const uint16_t ANALOG_READ_RANGES[5][3] = {
-    {MIN_SPEED, MAX_SPEED, 8},
-    {MIN_TEXTURE, MAX_TEXTURE, 0},
-    {0, 1, 0},
-    {MIN_SPEED, MAX_SPEED, 0},
-    {MIN_TEXTURE, MAX_TEXTURE, 0},
-};
-
-/*
- * End config
- */
+#include "config.h"
 
 const uint8_t NUM_CHANNELS = 2;
 
+static_assert(FIRMWARE_MODE == FIRMWARE_MODE_SIMPLEX || FIRMWARE_MODE == FIRMWARE_MODE_LFO,
+              "FIRMWARE_MODE must be one of FIRMWARE_MODE_SIMPLEX or FIRMWARE_MODE_LFO");
+
+#if FIRMWARE_MODE == FIRMWARE_MODE_SIMPLEX
+
+extern "C" {
+    #include "perlin.h"
+}
 uint8_t SEEDS[NUM_CHANNELS][NUM_OCTAVES];
+
+#else
+    
+#include "lfo.hpp"
+
+#if AUX_MODE == AUX_MODE_SKEW
+
+float_t skew = 0.5;
+float_t skewWave(float_t x) {
+    if (x < 0 || x > 1) return 0;
+    if (skew < 0 || skew > 1) return 0;
+    if (x < skew) {
+        return (1 / skew) * x;
+    }
+    return 1 - (1 / (1 - skew)) * (x - skew);
+}
+
+LFO<float_t> lfos[NUM_CHANNELS] = {
+    LFO<float_t>(skewWave),
+    LFO<float_t>(Waveforms::tri<float_t>)
+};
+
+#else
+
+LFO<float_t> lfos[NUM_CHANNELS] = {
+    LFO<float_t>(Waveforms::tri<float_t>),
+    LFO<float_t>(Waveforms::tri<float_t>)
+};
+
+#endif
+
+#endif
+
 
 void setup() {
     pinMode(CHIP_SELECT_PIN, OUTPUT);
@@ -96,32 +74,34 @@ void setup() {
     }
     */
 
+    #if FIRMWARE_MODE == FIRMWARE_MODE_SIMPLEX
     for (int i = 0; i < NUM_CHANNELS; i++) {
         for (int j = 0; j < NUM_OCTAVES; j++) {
             SEEDS[i][j] = random(0, 256);
         }
     }
+    #endif
 }
 
-float simplexLoop(uint16_t channel, double speed, double texture, double amplitude) {
-    static double perlinTime = 0;
+#if FIRMWARE_MODE == FIRMWARE_MODE_SIMPLEX
+float simplexLoop(uint16_t channel, float_t speed, float_t texture, float_t amplitude, uint32_t time) {
+    static float_t perlinTime = 0;
     static uint32_t lastTime = micros();
-    uint32_t now = micros();
-    uint32_t dt = now - lastTime;
-    lastTime = now;
+    uint32_t dt = time - lastTime;
+    lastTime = time;
     perlinTime += dt * speed;
     while (perlinTime > 256) {
         perlinTime -= 256;
     }
 
     {
-        double noise = 0;
-        double maxValue = 0;
+        float_t noise = 0;
+        float_t maxValue = 0;
         for (uint8_t i = 0; i < NUM_OCTAVES; i++) {
             uint8_t oct = i * OCTAVE_STEP;
-            double decayValue = pow(texture, oct);
-            double x = SEEDS[channel][i] + perlinTime * (oct + 1);
-            double randomValue = noise1d(x);
+            float_t decayValue = pow(texture, oct);
+            float_t x = SEEDS[channel][i] + perlinTime * (oct + 1);
+            float_t randomValue = noise1d(x);
             noise += randomValue * decayValue;
             maxValue += decayValue;
         }
@@ -129,23 +109,75 @@ float simplexLoop(uint16_t channel, double speed, double texture, double amplitu
         if (channel == 0) {
             noise *= amplitude;
         }
-        return noise;
+        return (noise + 1) / 2;
     }    
 }
+#else
+float lfoLoop(uint16_t channel, float_t hertzA, float_t hertzB, float_t aux, uint32_t time) {
+    static float_t oldHertz[NUM_CHANNELS] = {0, 0};
+    float_t hertz = channel == 0 ? hertzA : hertzB;
+    if (hertz != oldHertz[channel]) {
+        lfos[channel].setHertz(hertz);
+        oldHertz[channel] = hertz;
+    }
+
+    #if AUX_MODE == AUX_MODE_SKEW
+    skew = aux;
+    #endif
+
+    #if AUX_MODE == AUX_MODE_WAVEFORM
+    if (channel == 0) {
+        static uint8_t oldWave = WAVEFORM_TRI;
+        const uint8_t wave = (aux - 0.001) * NUM_WAVEFORMS;
+        if (wave != oldWave) {
+            oldWave = wave;
+            const uint8_t index = WAVEFORMS[wave];
+            const waveform_t<float_t> waveFunctions[NUM_WAVEFORMS] = {
+                Waveforms::saw,
+                Waveforms::inverseSaw,
+                Waveforms::tri,
+                Waveforms::sin,
+                Waveforms::square,
+                Waveforms::bounce,
+            };
+            lfos[channel].setWaveform(waveFunctions[index]);
+        }
+    }
+    #endif
+
+    float_t value = lfos[channel].update(time);
+    #if AUX_MODE == AUX_MODE_APLITUDE
+    if (channel == 0) {
+        value *= aux;
+    }
+    #endif
+    return value;
+}
+#endif
 
 void loop() {
-    static double potValue1 = 0; // speed
-    static double potValue2 = 0; // texture
-    static double cvValue1 = 0;  // speed
-    static double cvValue2 = 0;  // texture
-    static double inputChannel1 = 0; // speed
-    static double inputChannel2 = 0; // texture
-    static double inputChannel3 = 0; // amplitude
+    static float_t potValue1 = 0; // speed
+    static float_t potValue2 = 0; // texture
+    static float_t cvValue1 = 0;  // speed
+    static float_t cvValue2 = 0;  // texture
+    static float_t inputChannel1 = 0; // speed
+    static float_t inputChannel2 = 0; // texture
+    static float_t inputChannel3 = 0; // amplitude
     static uint16_t channel = 0;
     static uint32_t loopCount = 0;
 
-    double value = simplexLoop(channel, inputChannel1, inputChannel2, inputChannel3);
-    MCP4922_write(CHIP_SELECT_PIN, channel, (value + 1) / 2);
+    uint32_t time = micros();
+    #if FIRMWARE_MODE == FIRMWARE_MODE_SIMPLEX
+    float_t value = simplexLoop(channel, inputChannel1, inputChannel2, inputChannel3, time);
+    #else
+    float_t value = lfoLoop(channel, inputChannel1, inputChannel2, inputChannel3, time);
+    #endif
+    /*
+    if (channel == 0) {
+        Serial.println(value);
+    }
+    */
+    MCP4922_write(CHIP_SELECT_PIN, channel, value);
         
     channel = (channel + 1) % NUM_CHANNELS;
 
@@ -153,56 +185,56 @@ void loop() {
 
     switch (loopCount % (CV_SAMPLING_FREQUENCY * NUM_CV_CHANNELS)) {
         case 0 * CV_SAMPLING_FREQUENCY: {
-            const uint16_t MIN = ANALOG_READ_RANGES[0][0];
-            const uint16_t MAX = ANALOG_READ_RANGES[0][1];
-            const uint16_t EXP = ANALOG_READ_RANGES[0][2];
-            potValue2 = analogReadRange(POT_PIN_1, MIN, MAX, EXP);
-            inputChannel1 = clamp(cvValue1 + potValue2, MIN, MAX);
+            const float_t MIN = ANALOG_READ_RANGES[0][0];
+            const float_t MAX = ANALOG_READ_RANGES[0][1];
+            const float_t EXP = ANALOG_READ_RANGES[0][2];
+            potValue1 = analogReadRange(POT_PIN_1, MIN, MAX, EXP);
+            inputChannel1 = clamp(cvValue1 + potValue1, MIN, MAX);
         } break;
         case 1 * CV_SAMPLING_FREQUENCY: {
-            const uint16_t MIN = ANALOG_READ_RANGES[1][0];
-            const uint16_t MAX = ANALOG_READ_RANGES[1][1];
-            const uint16_t EXP = ANALOG_READ_RANGES[1][2];
-            potValue1 = analogReadRange(POT_PIN_2, MIN, MAX, EXP);
-            inputChannel2 = clamp(cvValue2 + potValue1, MIN, MAX);
+            const float_t MIN = ANALOG_READ_RANGES[1][0];
+            const float_t MAX = ANALOG_READ_RANGES[1][1];
+            const float_t EXP = ANALOG_READ_RANGES[1][2];
+            potValue2 = analogReadRange(POT_PIN_2, MIN, MAX, EXP);
+            inputChannel2 = clamp(cvValue2 + potValue2, MIN, MAX);
         } break;
         case 2 * CV_SAMPLING_FREQUENCY: {
-            const uint16_t MIN = ANALOG_READ_RANGES[2][0];
-            const uint16_t MAX = ANALOG_READ_RANGES[2][1];
-            const uint16_t EXP = ANALOG_READ_RANGES[2][2];
+            const float_t MIN = ANALOG_READ_RANGES[2][0];
+            const float_t MAX = ANALOG_READ_RANGES[2][1];
+            const float_t EXP = ANALOG_READ_RANGES[2][2];
             inputChannel3 = analogReadRange(POT_PIN_3, MIN, MAX, EXP);
         } break;
         case 3 * CV_SAMPLING_FREQUENCY: {
-            const uint16_t MIN = ANALOG_READ_RANGES[3][0];
-            const uint16_t MAX = ANALOG_READ_RANGES[3][1];
-            const uint16_t EXP = ANALOG_READ_RANGES[3][2];
+            const float_t MIN = ANALOG_READ_RANGES[3][0];
+            const float_t MAX = ANALOG_READ_RANGES[3][1];
+            const float_t EXP = ANALOG_READ_RANGES[3][2];
             cvValue1 = analogReadRange(CV_PIN_1, MIN, MAX, EXP, true);
-            inputChannel1 = clamp(cvValue1 + potValue2, MIN, MAX);
+            inputChannel1 = clamp(cvValue1 + potValue1, MIN, MAX);
         } break;
         case 4 * CV_SAMPLING_FREQUENCY: {
-            const uint16_t MIN = ANALOG_READ_RANGES[4][0];
-            const uint16_t MAX = ANALOG_READ_RANGES[4][1];
-            const uint16_t EXP = ANALOG_READ_RANGES[4][2];
+            const float_t MIN = ANALOG_READ_RANGES[4][0];
+            const float_t MAX = ANALOG_READ_RANGES[4][1];
+            const float_t EXP = ANALOG_READ_RANGES[4][2];
             cvValue2 = analogReadRange(CV_PIN_2, MIN, MAX, EXP, true);
-            inputChannel2 = clamp(cvValue2 + potValue1, MIN, MAX);
+            inputChannel2 = clamp(cvValue2 + potValue2, MIN, MAX);
         } break;
     }
 
     loopCount += 1;
 }
 
-inline double analogReadRange(const uint8_t pin, const double min, const double max, const double exp) {
+inline float_t analogReadRange(const uint8_t pin, const float_t min, const float_t max, const float_t exp) {
     return analogReadRange(pin, min, max, exp, false);
 }
     
-double analogReadRange(const uint8_t pin, const double min, const double max, const double exp, const bool transistorAdjust) {
+float_t analogReadRange(const uint8_t pin, const float_t min, const float_t max, const float_t exp, const bool transistorAdjust) {
     uint16_t rawValue = analogRead(pin);
-    double x; 
+    float_t x; 
     if (transistorAdjust) {
-        x = ((double) rawValue - TRANSISTOR_ZERO_VALUE) / (TRANSISTOR_5V_VALUE - TRANSISTOR_ZERO_VALUE);
+        x = ((float_t) rawValue - TRANSISTOR_ZERO_VALUE) / (TRANSISTOR_5V_VALUE - TRANSISTOR_ZERO_VALUE);
         x = clamp(x, 0, 1);
     } else {
-        x = ((double) rawValue) / ANALOG_READ_MAX_VALUE;
+        x = ((float_t) rawValue) / ANALOG_READ_MAX_VALUE;
     }
     
     // f(x) = 2^ax
@@ -214,7 +246,7 @@ double analogReadRange(const uint8_t pin, const double min, const double max, co
     return (1 - x) * min + x * max;
 }
 
-inline double clamp(const double x, const double min, const double max) {
+inline float_t clamp(const float_t x, const float_t min, const float_t max) {
     return x < min ? min : x > max ? max : x;
 }
 
