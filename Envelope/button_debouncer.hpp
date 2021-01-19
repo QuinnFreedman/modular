@@ -1,6 +1,8 @@
 #ifndef button_debouncer_hpp_INCLUDED
 #define button_debouncer_hpp_INCLUDED
 
+#include <Arduino.h>
+
 #define STATE_WAIT_KEY  0
 #define STATE_CHECK_KEY 1
 #define STATE_WAIT_KEY_RELEASE 2

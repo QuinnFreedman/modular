@@ -88,6 +88,10 @@ float_t tri(float_t t) {
         : 1 - 2 * (t - 0.5);
 }
 
+#ifndef PI
+#define PI 3.14159265359
+#endif
+
 template <typename float_t>
 float_t sin(float_t x) {
     return (1 - cos(x * 2 * PI)) / 2;
