@@ -50,7 +50,7 @@ for i in range(4):
     for j in range(4):
         x += inches(.9)
         module.add(Potentiometer(x, y + inches(0.5)))
-        module.add(SmallLED(x + inches(.4), y + inches(0.5), rotation=1))
+        module.add(SmallLED(x + inches(.4), y + inches(0.5), rotation=3))
 
     out_jack_left_x = x + inches(.6)
     out_jack_left_y = y + inches(.1)
