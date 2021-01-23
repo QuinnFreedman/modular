@@ -1,20 +1,24 @@
 #include <stdint.h>
 #include "src/lib/MCP23S17.h"
+#include "src/led_driver.hpp"
 
 // const uint16_t COL_GROUND_PINS[] = {5, 6, 7, 8};
 // const uint16_t ROW_LED_PINS[] = {A2, A3, A4, A5};
 
 const uint16_t INTERRUPT_PIN_A = 2;
 const uint16_t INTERRUPT_PIN_B = 3;
-const uint16_t POT_ADDR_PINS[] = {6, 5, 4};
-const uint16_t POT_ANALOG_PINS[]  = {A6, A7};
-const uint16_t POT_ADDRESSES[2][8] = {{5, 7, 6, 4, 0, 0, 0, 0},
-                                      {4, 4, 4, 4, 0, 0, 0, 0}};
+const uint16_t POT_ADDR_PINS[] = {4, 5, 6};//{6, 5, 4};
+const uint16_t POT_ANALOG_PINS[]  = {A7, A6};
+const uint16_t POT_ADDRESSES[16] = {2, 5, 8|2, 8|5,
+                                    1, 7, 8|1, 8|7,
+                                    0, 6, 8|0, 8|6,
+                                    3, 4, 8|3, 8|4};
 
-// volatile bool ledValues[4][4] = {{HIGH, HIGH, HIGH, HIGH}, {HIGH, HIGH, HIGH, HIGH}};
+const uint16_t TRIGGER_BANK_CS_PIN = 7;
+const uint16_t LED_DRIVER_CS_PIN = 8;
 
-MCP triggerBank(0, A0);
-MCP ledDriver(1, A1);
+MCP triggerBank(0, TRIGGER_BANK_CS_PIN);
+LedDriver ledDriver(1, LED_DRIVER_CS_PIN);
 
 void setup() {
     pinMode(10, OUTPUT);
@@ -27,11 +31,10 @@ void setup() {
     }
 
     Serial.begin(9600);
-    triggerBank.begin();
-    ledDriver.begin();
 
-    ledDriver.pinMode(0xFFFF);
-    
+    triggerBank.begin();
+    ledDriver.setup();
+
     /*
     for (int i = 1; i <= 16; i++) {
        triggerBank.pinMode(i, INPUT);
@@ -40,7 +43,6 @@ void setup() {
     }
     */
 
-    /*
     const uint8_t INTPOL = 0b00000010;
     const uint8_t ORD    = 0b00000100;
     const uint8_t HAEN   = 0b00001000;
@@ -51,7 +53,6 @@ void setup() {
     const uint8_t config = HAEN; //MIRROR;// | INTPOL;
     triggerBank.byteWrite(0x0A, config);
     triggerBank.byteWrite(0x0B, config);
-    */
     
     triggerBank.pinMode(0xFFFF);
     triggerBank.pullupMode(0xFFFF);
@@ -80,9 +81,9 @@ void setup() {
 #define getBit(byte, addr) ( (byte >> addr) & 1 )
 
 float readPotValue(uint8_t pot) {
-    uint8_t bank = getBit(pot, 3);
+    uint8_t addr = POT_ADDRESSES[pot];
+    uint8_t bank = getBit(addr, 3);
     pot &= 0b00000111;
-    uint8_t addr = POT_ADDRESSES[bank][pot];
     for (uint8_t i = 0; i < 3; i++) {
         digitalWrite(POT_ADDR_PINS[i], getBit(addr, i));
     }
@@ -91,74 +92,48 @@ float readPotValue(uint8_t pot) {
 }
 
 void onIOExpanderInterruptA() {
-    static uint16_t lastValue = 0xFFFF;
-    uint16_t value = triggerBank.digitalRead();
+    static uint8_t lastValue = 0xFF;
+    uint8_t value = (triggerBank.digitalRead() >> 8);
     if (value == lastValue) return; 
     
     lastValue = value;
 
     Serial.print("A: ");
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 8; i++) {
         Serial.print(getBit(value, i));
-        Serial.print(i == 7 ? "  " : " ");
+        Serial.print(" ");
     }
     Serial.println();
 }
 
 void onIOExpanderInterruptB() {
-    static uint16_t lastValue = 0xFFFF;
-    uint16_t value = triggerBank.digitalRead();
+    static uint8_t lastValue = 0xFF;
+    uint8_t value = triggerBank.digitalRead();
     if (value == lastValue) return; 
     
     lastValue = value;
 
     Serial.print("B: ");
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 8; i++) {
         Serial.print(getBit(value, i));
-        Serial.print(i == 7 ? "  " : " ");
+        Serial.print(" ");
     }
     Serial.println();
 }
 
-void loop() {
-    ledDriver.pinMode(0x0000); // Output
-    ledDriver.digitalWrite(0x0000);
-    delay(400);
-    ledDriver.pinMode(0xFFFF); // high-impedence
-    delay(400);
-    digitalWrite(10, HIGH);
-    ledDriver.pinMode(0x0000); // Output
-    ledDriver.digitalWrite(0x0000);
-    delay(400);
-    ledDriver.pinMode(0xFFFF); // high-impedence
-    delay(400);
-    digitalWrite(10, LOW);
-    /*
-    Serial.print(readPotValue(0));
-    Serial.print(" ");
-    Serial.print(readPotValue(1));
-    Serial.print(" ");
-    Serial.print(readPotValue(2));
-    Serial.print(" ");
-    Serial.print(readPotValue(3));
-    Serial.print(" ");
-    Serial.print(readPotValue(8));
-    Serial.println();
-    */
 
-    /*
-    for (int col = 0; col < 4; col++) {
-        pinMode(COL_GROUND_PINS[col], OUTPUT);
-        digitalWrite(COL_GROUND_PINS[col], LOW);
-        for (int row = 0; row < 4; row++) {
-            digitalWrite(ROW_LED_PINS[row], ledValues[col][row]);
-            delay(1);
-            digitalWrite(ROW_LED_PINS[row], LOW);
-        }
-        pinMode(COL_GROUND_PINS[col], INPUT);
+void loop() {
+    static uint8_t led = 0;
+    static uint32_t lastChange = 0;
+
+    ledDriver.setLED(0);
+    ledDriver.setLED(led, HIGH);
+    ledDriver.loop();
+    
+    uint32_t now = millis();
+    if (now - lastChange > 1000) {
+        lastChange += 1000;
+        led++;
+        if (led >= 8) { led = 0; }
     }
-    */
-    // for (int i = 9; i <=16; i++) {
-    //     triggerBank.digitalWrite(i, value);
-    // }
 }
