@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 float update(uint32_t currentTime);
+void updateLEDs();
 void gate(bool on);
 void ping();
 void cycleModes();

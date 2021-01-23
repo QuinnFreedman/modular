@@ -26,6 +26,7 @@ float inverseExpFunction(float t, float k);
 bool isLooping();
 bool shouldLoop();
 void sampleCV(Mode mode, Phase phase);
+void setLed(uint8_t led);
 
 volatile float cvValues[4] = {0.2, 0.2, 0.8, 0.2};
 #define CV_ATTACK  (cvValues[0])
@@ -83,12 +84,7 @@ float update(uint32_t _currentTime) {
 
     //switch LED mode if needed
     if (currentTime - lastButtonPressTime >= LED_SHOW_MODE_TIME_MICROS) {
-        digitalWrite(LED_PINS[currentMode], LOW);
-        digitalWrite(LED_PINS[currentPhase], HIGH);
         ledMode = SHOW_PHASE;
-        #if LED_MODE_INDICATOR_ENABLED
-        digitalWrite(LED_MODE_INDICATOR_PIN, LOW);
-        #endif
     }
 
     //calculate envelope value
@@ -150,12 +146,6 @@ void cycleModes() {
 
     //set leds
     ledMode = SHOW_MODE;
-    for (int i = 0; i < 4; i++) {
-        digitalWrite(LED_PINS[i], i == currentMode ? HIGH : LOW);
-    }
-    #if LED_MODE_INDICATOR_ENABLED
-    digitalWrite(LED_MODE_INDICATOR_PIN, HIGH);
-    #endif
 
     /*
     //sample CV
@@ -377,16 +367,6 @@ void goToPhase(Phase phase, bool hardReset) {
         digitalWrite(EOF_TRIGGER_PIN, HIGH);
     }
     #endif
-
-    // set LEDs
-    if (ledMode == SHOW_PHASE) {
-        if (currentPhase < 4) {
-            digitalWrite(LED_PINS[oldPhase], LOW);
-        }
-        if (phase < 4) {
-            digitalWrite(LED_PINS[phase], HIGH);
-        }
-    }    
 }
 
 #define clamp(x) (x < 0 ? 0 : x > 1 ? 1 : x)
@@ -527,6 +507,31 @@ float getPhaseDuration(Phase phase, Mode mode) {
         }
         break;
     }
+}
+
+void setLed(uint8_t led) {
+    static bool state[4] = {false, false, false, false};
+    for (uint8_t i = 0; i < 4; i++) {
+        const bool desired = i == led;
+        const bool actual = state[i];
+        if (desired != actual) {
+            state[i] = desired;
+            digitalWrite(LED_PINS[i], desired);
+        }
+    }
+}
+
+void updateLEDs() {
+    if (ledMode == SHOW_MODE) {
+        setLed(currentMode);
+    } else {
+        setLed(currentPhase);
+    }
+    #if LED_MODE_INDICATOR_ENABLED
+    //TODO for performance this should be cached but I don't think this
+    //is a feature anyone will really use
+    digitalWrite(LED_MODE_INDICATOR_PIN, currentMode == SHOW_MODE);
+    #endif
 }
 
 inline bool isLooping() {

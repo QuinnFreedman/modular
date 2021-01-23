@@ -52,7 +52,7 @@ void setup() {
     }
     digitalWrite(LED_PINS[DEFAULT_MODE], HIGH);
 
-    Serial.begin(9600);
+    //Serial.begin(9600);
 }
 
 uint32_t currentTimeMicros = 0;
@@ -60,9 +60,10 @@ void loop() {
     currentTimeMicros = micros();
     
     float value = update(currentTimeMicros);
-    Serial.println(value);
+    //Serial.println(value);
     MCP4922_write(DAC_CS_PIN, 0, value);
     MCP4922_write(DAC_CS_PIN, 1, 1 - value);
+    updateLEDs();
     
     debouncer.loop(currentTimeMicros);
 }
