@@ -1,6 +1,8 @@
 #include <stdint.h>
+#include <SPI.h>
 #include "src/lib/MCP23S17.h"
 #include "src/led_driver.hpp"
+#include "src/sequencer.hpp"
 
 // const uint16_t COL_GROUND_PINS[] = {5, 6, 7, 8};
 // const uint16_t ROW_LED_PINS[] = {A2, A3, A4, A5};
@@ -16,12 +18,17 @@ const uint16_t POT_ADDRESSES[16] = {2, 5, 8|2, 8|5,
 
 const uint16_t TRIGGER_BANK_CS_PIN = 7;
 const uint16_t LED_DRIVER_CS_PIN = 8;
+const uint16_t DAC_CS_PIN_A = 10;
+const uint16_t DAC_CS_PIN_B = 9;
 
 MCP triggerBank(0, TRIGGER_BANK_CS_PIN);
 LedDriver ledDriver(1, LED_DRIVER_CS_PIN);
+Sequencer sequencer;
 
 void setup() {
-    pinMode(10, OUTPUT);
+    pinMode(DAC_CS_PIN_A, OUTPUT);
+    pinMode(DAC_CS_PIN_B, OUTPUT);
+    
     for (int i = 0; i < 3; i++) {
         pinMode(POT_ADDR_PINS[i], OUTPUT);
     }
@@ -121,19 +128,67 @@ void onIOExpanderInterruptB() {
     Serial.println();
 }
 
+/*
+
+A7: RANDOM
+B7: JUMP 4
+B6: JUMP 3
+B5: JUMP 2
+B4: JUMP 1
+B3: STEP 1
+B2: STEP 2
+B1: STEP 3
+B0: STEP 4
+
+ */
+
 
 void loop() {
     static uint8_t led = 0;
     static uint32_t lastChange = 0;
 
-    ledDriver.setLED(0);
+    ledDriver.setLEDs(0);
     ledDriver.setLED(led, HIGH);
     ledDriver.loop();
     
     uint32_t now = millis();
     if (now - lastChange > 1000) {
         lastChange += 1000;
+        //led = random(0, 16);
         led++;
-        if (led >= 8) { led = 0; }
+        if (led >= 16) { led = 0; }
     }
+    return;
+    MCP4922_write(DAC_CS_PIN_A, 0, 1);
+    MCP4922_write(DAC_CS_PIN_A, 1, 1);
+    MCP4922_write(DAC_CS_PIN_B, 0, 1);
+    MCP4922_write(DAC_CS_PIN_B, 1, 1);
+    delay(1000);
+    MCP4922_write(DAC_CS_PIN_A, 0, 0);
+    MCP4922_write(DAC_CS_PIN_A, 1, 0);
+    MCP4922_write(DAC_CS_PIN_B, 0, 0);
+    MCP4922_write(DAC_CS_PIN_B, 1, 0);
+    delay(1000);
+}
+
+/*
+ * Writes a given value to a MCP4922 DAC chip to be output as
+ * a voltage.
+ *
+ * cs_pin - which Arduino pin to use as the CHIP SELECT pin
+ *     (should be connected to the CS pin of the DAC)
+ * dac - 0 or 1 - Which of the MCP4922's internal DAC channels
+ *     to output to (see MCP4922 datasheet for pinout diagram)
+ * value - {0..1} - The value to output as a fraction of the
+ *     DAC's max/reference voltage. Converted to a 12-bit int.
+ */
+void MCP4922_write(int cs_pin, byte dac, float value) {
+    uint16_t value12 = (uint16_t) (value * 4095);
+    byte low = value12 & 0xff;
+    byte high = (value12 >> 8) & 0x0f;
+    dac = (dac & 1) << 7;
+    digitalWrite(cs_pin, LOW);
+    SPI.transfer(dac | 0x30 | high);
+    SPI.transfer(low);
+    digitalWrite(cs_pin, HIGH);
 }

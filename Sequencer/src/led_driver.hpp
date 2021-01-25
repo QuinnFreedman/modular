@@ -8,7 +8,7 @@
 class LedDriver {
     public:
         LedDriver(uint8_t id, uint8_t pin);
-        void setLED(uint16_t leds);
+        void setLEDs(uint16_t leds);
         void setLED(uint8_t led, bool state);
         void setup();
         void loop();
@@ -24,7 +24,7 @@ LedDriver::LedDriver(uint8_t id, uint8_t pin) : device(id, pin) {
     this->ledsOn = 0;
 }
 
-void LedDriver::setLED(uint16_t leds) {
+void LedDriver::setLEDs(uint16_t leds) {
     this->ledsOn = leds;
 }
 
@@ -49,6 +49,12 @@ void LedDriver::loop() {
     turnOffAllLEDs();
 }
 
+void printByte(uint8_t b) {
+    for (int i = 7; i >= 0; i--) {
+        Serial.print(bitRead(b, i));
+    }
+}
+
 void LedDriver::flashSingleLED(uint8_t i) {
     //col = 0-3 (gray - ground)
     //row = 4-7 (green - 5v)
@@ -65,6 +71,24 @@ void LedDriver::flashSingleLED(uint8_t i) {
     this->device.pinMode(pinModes);
     this->device.digitalWrite(rowMask);
     this->ledIsOn = true;
+
+    static int lastNumber = -1;
+    if (i != lastNumber) {
+        lastNumber = i;
+        Serial.print("flashLED(");
+        if (i < 10) {
+            Serial.print(" ");
+        }
+        Serial.print(i);
+        Serial.print("): ");
+        if (bitRead(pinModes >> 8, 7) == 0) {
+            Serial.print("0");
+        }
+        printByte(pinModes >> 8);
+        Serial.print(", ");
+        printByte(rowMask >> 8);
+        Serial.println();
+    }
 }
 
 inline void LedDriver::turnOffAllLEDs() {
