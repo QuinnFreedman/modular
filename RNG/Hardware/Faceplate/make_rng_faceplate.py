@@ -10,7 +10,7 @@ from svgwrite.path import Path
 if __name__ == "__main__":
     module = Module(10, (0, 20), title="RNG", filename="rng_faceplate.svg")
 
-    y = 0
+    y = inches(-.1)
     
     NUM_LEDS = 7
     CENTER_X = inches(10 * .2 / 2)
@@ -18,7 +18,7 @@ if __name__ == "__main__":
         x = inches(.3 * (i - NUM_LEDS // 2)) + CENTER_X
         module.add(LED(x, y))
 
-    y += inches(1)
+    y += inches(1.1)
     module.add(Potentiometer(CENTER_X - inches(.5), y - inches(.1), label="Chaos", cosmetic_radius=inches(3/8), text_offset=14.75))
     module.add(Potentiometer(CENTER_X + inches(.4), y, label="Time"))
 
