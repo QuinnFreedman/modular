@@ -7,8 +7,8 @@
 // const uint16_t COL_GROUND_PINS[] = {5, 6, 7, 8};
 // const uint16_t ROW_LED_PINS[] = {A2, A3, A4, A5};
 
-const uint16_t INTERRUPT_PIN_A = 2;
-const uint16_t INTERRUPT_PIN_B = 3;
+const uint16_t INTERRUPT_PIN_A = 3;
+const uint16_t INTERRUPT_PIN_B = 2;
 const uint16_t POT_ADDR_PINS[] = {4, 5, 6};//{6, 5, 4};
 const uint16_t POT_ANALOG_PINS[]  = {A7, A6};
 const uint16_t POT_ADDRESSES[16] = {2, 5, 8|2, 8|5,
@@ -98,24 +98,9 @@ float readPotValue(uint8_t pot) {
     return analogRead(POT_ANALOG_PINS[bank]) / 1024.0;
 }
 
-void onIOExpanderInterruptA() {
-    static uint8_t lastValue = 0xFF;
-    uint8_t value = (triggerBank.digitalRead() >> 8);
-    if (value == lastValue) return; 
-    
-    lastValue = value;
-
-    Serial.print("A: ");
-    for (int i = 0; i < 8; i++) {
-        Serial.print(getBit(value, i));
-        Serial.print(" ");
-    }
-    Serial.println();
-}
-
 void onIOExpanderInterruptB() {
     static uint8_t lastValue = 0xFF;
-    uint8_t value = triggerBank.digitalRead();
+    uint8_t value = (triggerBank.digitalRead() >> 8);
     if (value == lastValue) return; 
     
     lastValue = value;
@@ -128,17 +113,41 @@ void onIOExpanderInterruptB() {
     Serial.println();
 }
 
+void onIOExpanderInterruptA() {
+    static uint8_t lastValue = 0;
+    uint8_t value = ~triggerBank.digitalRead();
+    if (value == lastValue) return; 
+
+    uint8_t diff = lastValue ^ value;
+    uint8_t newRising = diff & value;
+    
+    lastValue = value;
+
+    if (newRising == 0) return;
+
+    Serial.print("A: ");
+    for (int i = 0; i < 8; i++) {
+        Serial.print(getBit(newRising, i));
+        Serial.print(" ");
+    }
+    Serial.println();
+
+    if (newRising >> 4) {
+        Serial.println("step");
+    }
+}
+
 /*
 
-A7: RANDOM
-B7: JUMP 4
-B6: JUMP 3
-B5: JUMP 2
-B4: JUMP 1
-B3: STEP 1
-B2: STEP 2
-B1: STEP 3
-B0: STEP 4
+B7: RANDOM
+A7: STEP 4
+A6: STEP 3
+A5: STEP 2
+A4: STEP 1
+A3: JUMP 1
+A2: JUMP 2
+A1: JUMP 3
+A0: JUMP 4
 
  */
 
