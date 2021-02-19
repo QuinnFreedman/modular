@@ -101,7 +101,7 @@ void Sequencer::jump(uint8_t step) {
     this->update(allChannels);
 }
 
-void Sequencer::advance(bool channels[4]) {
+void Sequencer::advance(bool channelsToAdvance[4]) {
     switch(this->mode) {
         case MODE_4x4: 
         case MODE_2x8: 
@@ -109,13 +109,13 @@ void Sequencer::advance(bool channels[4]) {
             uint8_t numChannels = getNumChannels(this->mode);
             uint8_t channelSteps = getChannelLength(this->mode);
             for (uint8_t i = 0; i < numChannels; i++) {
-                if (channels[i]) {
+                if (channelsToAdvance[i]) {
                     cursors[i] = (cursors[i] + 1) % channelSteps;
                 }
             }
         } break;
     }
-    this->update(channels);
+    this->update(channelsToAdvance);
 }
 
 void Sequencer::update(bool channels[4]) {

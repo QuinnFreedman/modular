@@ -109,12 +109,14 @@ void onIOExpanderInterruptB() {
     
     if (changed == 0) return;
 
+    /*
     Serial.print("B: ");
     for (int i = 0; i < 8; i++) {
         Serial.print(getBit(value, i));
         Serial.print(" ");
     }
     Serial.println();
+    */
 
     if (changed >> 6) {
         uint8_t switchState = value >> 6;
@@ -155,12 +157,25 @@ void onIOExpanderInterruptA() {
 
     if (newRising == 0) return;
 
+    /*
     Serial.print("A: ");
     for (int i = 0; i < 8; i++) {
         Serial.print(getBit(newRising, i));
         Serial.print(" ");
     }
     Serial.println();
+    */
+
+    uint8_t channelBits = newRising >> 4;
+    if (channelBits) {
+        bool channels[4] = {
+            (channelBits >> 0) & 1,
+            (channelBits >> 1) & 1,
+            (channelBits >> 2) & 1,
+            (channelBits >> 3) & 1,
+        };
+        sequencer.advance(channels);
+    }
 
     if (getBit(newRising, 3)) {
         // Serial.println("Jump 1");
