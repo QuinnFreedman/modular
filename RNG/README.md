@@ -56,17 +56,18 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 
 * Resistors
   * 8x 1kohm
-  * 1x 2khm
+  * 1x 2khm (Controls LED brightness for the buffer display. Higher values = dimmer leds)
   * 2x 10khm
-  * 9x 220ohm (Controls LED brightness. I have used as high as 10k depending on the LEDs)
+  * 2x &ge;220ohm (Controls the gate/trigger LED brightness. Probably 1k-10k depending on the LEDs)
 * 6 Jacks
 * 9 LEDs (7x 5mm and 2x 3mm -- or just drill the faceplate holes to fit what you have)
 * 3 PNP transistors
-* 2 100nf fixed capacitors (optional -- noise reduction)
+* 2 100nf capacitors (optional -- noise reduction)
 * 1 Arduino Nano
 * 1 MCP4922
 * 1 TL072
 * 1 TLC5940NT
+* Stacking headers, 2x8 shrouded connector
 
 ## Requirements
 
