@@ -99,11 +99,15 @@ float readPotValue(uint8_t pot) {
 }
 
 void onIOExpanderInterruptB() {
-    static uint8_t lastValue = 0xFF;
-    uint8_t value = (triggerBank.digitalRead() >> 8);
+    static uint8_t lastValue = 0;
+    uint8_t value = ~(triggerBank.digitalRead() >> 8);
     if (value == lastValue) return; 
     
+    uint8_t changed = lastValue ^ value;
+    
     lastValue = value;
+    
+    if (changed == 0) return;
 
     Serial.print("B: ");
     for (int i = 0; i < 8; i++) {
@@ -111,6 +115,32 @@ void onIOExpanderInterruptB() {
         Serial.print(" ");
     }
     Serial.println();
+
+    if (changed >> 6) {
+        uint8_t switchState = value >> 6;
+        switch (switchState) {
+            case 0: {
+                Serial.println("middle");
+            } break;
+            case 1: {
+                Serial.println("right");
+            } break;
+            case 2: {
+                Serial.println("left");
+            } break;
+        }
+    }
+    
+    if ((changed >> 1) & 0b11111) {
+        uint8_t modeSelectState = (value >> 1) & 0b11111;
+        uint8_t modeSelectNumber = 0;
+        for (uint8_t i = 0; i < 5; i++) {
+            modeSelectNumber += ((modeSelectState >> i) & 1) * (i + 1);
+        }
+        modeSelectNumber = 5 - modeSelectNumber;
+        Serial.print("Mode select: ");
+        Serial.println(modeSelectNumber);
+    }
 }
 
 void onIOExpanderInterruptA() {
@@ -132,8 +162,18 @@ void onIOExpanderInterruptA() {
     }
     Serial.println();
 
-    if (newRising >> 4) {
-        Serial.println("step");
+    if (getBit(newRising, 3)) {
+        // Serial.println("Jump 1");
+        sequencer.jump(0);
+    } else if (getBit(newRising, 2)) {
+        // Serial.println("Jump 2");
+        sequencer.jump(1);
+    } else if (getBit(newRising, 1)) {
+        // Serial.println("Jump 3");
+        sequencer.jump(2);
+    } else if (getBit(newRising, 0)) {
+        // Serial.println("Jump 4");
+        sequencer.jump(3);
     }
 }
 
@@ -151,8 +191,21 @@ A0: JUMP 4
 
  */
 
+inline uint16_t arrayToUint16(bool * data) {
+    uint16_t result = 0;
+    for (uint8_t i = 0; i < 16; i++) {
+        result = result | (data[i] << i);
+    }
+    return result;
+}
 
 void loop() {
+    uint16_t leds = arrayToUint16(sequencer.getLedState());
+    ledDriver.setLEDs(leds);
+    noInterrupts();
+    ledDriver.loop();
+    interrupts();
+    /*
     static uint8_t led = 0;
     static uint32_t lastChange = 0;
 
@@ -178,6 +231,7 @@ void loop() {
     MCP4922_write(DAC_CS_PIN_B, 0, 0);
     MCP4922_write(DAC_CS_PIN_B, 1, 0);
     delay(1000);
+    */
 }
 
 /*
