@@ -140,8 +140,17 @@ void onIOExpanderInterruptB() {
             modeSelectNumber += ((modeSelectState >> i) & 1) * (i + 1);
         }
         modeSelectNumber = 5 - modeSelectNumber;
-        Serial.print("Mode select: ");
-        Serial.println(modeSelectNumber);
+        // Serial.print("Mode select: ");
+        // Serial.println(modeSelectNumber);
+        const Mode modes[6] = {
+            MODE_4x4,
+            MODE_2x8,
+            MODE_1x16,
+            MODE_OFF,
+            MODE_OFF,
+            MODE_OFF,
+        };
+        sequencer.setMode(modes[modeSelectNumber]);
     }
 }
 

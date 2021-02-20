@@ -7,6 +7,7 @@ enum Mode {
     MODE_4x4,
     MODE_2x8,
     MODE_1x16,
+    MODE_OFF,
 };
 
 enum OutputMode {
@@ -20,20 +21,17 @@ class Sequencer {
         Sequencer();
         void advance(bool channels[4]);
         void jump(uint8_t column);
-        const float * getOutputState() { return this->outputValues; }
         const bool * getLedState() { return this->leds; }
         void setValue(uint8_t i, float value) { this->values[i] = value; }
         void setMode(Mode mode);
-        void setOutputMode(OutputMode outputMode) { this->outputMode = outputMode; }
+        void setOutputMode(OutputMode outputMode) { this->outputMode = outputMode; };
+        void getOutput(float*);
     private:
-        float outputValues[4];
-        bool leds[16];
-        float values[16];
         Mode mode;
         OutputMode outputMode;
+        bool leds[16];
+        float values[16];
         uint8_t cursors[4];
-        void update(bool[4]);
-        void setOutput(uint8_t channels, float value);
         void updateLEDs();
 };
 
@@ -41,6 +39,12 @@ uint8_t getNumChannels(Mode mode) {
     switch(mode) {
         case MODE_4x4: {
             return 4;
+        } break;
+        case MODE_2x8: {
+            return 2;
+        } break;
+        case MODE_1x16: {
+            return 1;
         } break;
     }
 }
@@ -51,7 +55,6 @@ uint8_t getChannelLength(Mode mode) {
 
 Sequencer::Sequencer() {
     for (uint8_t i = 0; i < 4; i++) {
-        outputValues[i] = 0;
         cursors[i] = 0;
     }
     for (uint8_t i = 0; i < 16; i++) {
@@ -65,23 +68,39 @@ Sequencer::Sequencer() {
 
 void Sequencer::setMode(Mode mode) {
     this->mode = mode;
-    for (uint8_t i = 0; i < 4; i++) {
-        cursors[i] = 0;
+    switch(this->mode) {
+        case MODE_4x4: {
+            cursors[0] = 0; 
+            cursors[1] = 4; 
+            cursors[2] = 8; 
+            cursors[3] = 12; 
+        } break;
+        case MODE_2x8: {
+            cursors[0] = 0; 
+            cursors[1] = 0; 
+            cursors[2] = 8; 
+            cursors[3] = 8; 
+        } break;
+        case MODE_1x16: {
+            cursors[0] = 0; 
+            cursors[1] = 0; 
+            cursors[2] = 0; 
+            cursors[3] = 0;
+        } break;
     }
-    bool allChannels[4] = {true, true, true, true};
-    this->update(allChannels);
+    this->updateLEDs();
 }
 
 void Sequencer::updateLEDs() {
     for (uint8_t i = 0; i < 16; i++) {
         leds[i] = 0;
     }
-    uint8_t numChannels = getNumChannels(this->mode);
-    uint8_t channelSteps = getChannelLength(this->mode);
-    for (uint8_t i = 0; i < numChannels; i++) {
+    
+    if (this->mode == MODE_OFF) return;
+    
+    for (uint8_t i = 0; i < 4; i++) {
         uint8_t cursor = this->cursors[i];
-        uint8_t ledIndex = cursor + (channelSteps * i);
-        this->leds[ledIndex] = true;
+        this->leds[cursor] = 1;
     }
 }
 
@@ -93,61 +112,46 @@ void Sequencer::jump(uint8_t step) {
             uint8_t numChannels = getNumChannels(this->mode);
             uint8_t channelSteps = getChannelLength(this->mode);
             for (uint8_t i = 0; i < numChannels; i++) {
-                this->cursors[i] = step * (channelSteps / 4);
-            }
-        } break;
-    }
-    bool allChannels[4] = {true, true, true, true};
-    this->update(allChannels);
-}
-
-void Sequencer::advance(bool channelsToAdvance[4]) {
-    switch(this->mode) {
-        case MODE_4x4: 
-        case MODE_2x8: 
-        case MODE_1x16: {
-            uint8_t numChannels = getNumChannels(this->mode);
-            uint8_t channelSteps = getChannelLength(this->mode);
-            for (uint8_t i = 0; i < numChannels; i++) {
-                if (channelsToAdvance[i]) {
-                    cursors[i] = (cursors[i] + 1) % channelSteps;
-                }
-            }
-        } break;
-    }
-    this->update(channelsToAdvance);
-}
-
-void Sequencer::update(bool channels[4]) {
-    switch(this->mode) {
-        case MODE_4x4: {
-            for (uint8_t i = 0; i < 4; i++) {
-                if (channels[i]) {
-                    uint8_t channelMask = 1 << i;
-                    uint8_t index = (i * 4) + channels[i];
-                    setOutput(channelMask, values[index]);
-                }
+                this->cursors[i] = step * (channelSteps / 4) + i * channelSteps;
             }
         } break;
     }
     this->updateLEDs();
 }
 
-void Sequencer::setOutput(uint8_t channels, float value) {
-    switch(this->outputMode) {
-        case OUTPUT_ANALOG: {
-            for (uint8_t i = 0; i < 4; i++) {
-                if (bitRead(channels, i)) {
-                    outputValues[i] = value;
-                }
+#define offsetMod(x, modulus, offset) (((x - offset) % modulus) + offset)
+
+void Sequencer::advance(bool channelsToAdvance[4]) {
+    switch(this->mode) {
+        case MODE_4x4: {
+            if (channelsToAdvance[0]) cursors[0] = offsetMod(cursors[0] + 1, 4, 0);
+            else if (channelsToAdvance[1]) cursors[1] = offsetMod(cursors[1] + 1, 4, 4);
+            else if (channelsToAdvance[2]) cursors[2] = offsetMod(cursors[2] + 1, 4, 8);
+            else if (channelsToAdvance[3]) cursors[3] = offsetMod(cursors[3] + 1, 4, 12);
+        } break;
+        case MODE_2x8: {
+            if (channelsToAdvance[0] || channelsToAdvance[1]) {
+                cursors[0] = offsetMod(cursors[0] + 1, 8, 0);
+                cursors[1] = cursors[0];
+            }
+            else if (channelsToAdvance[2] || channelsToAdvance[3]) {
+                cursors[2] = offsetMod(cursors[2] + 1, 8, 8);
+                cursors[3] = cursors[2];
             }
         } break;
-        case OUTPUT_QUANTIZED: {
-            //TODO
+        case MODE_1x16: {
+            cursors[0] = offsetMod(cursors[0] + 1, 16, 0);
+            cursors[1] = cursors[0];
+            cursors[2] = cursors[0];
+            cursors[3] = cursors[0];
         } break;
-        case OUTPUT_PROBABILITY: {
-            //TODO
-        } break;
+    }
+    this->updateLEDs();
+}
+
+void Sequencer::getOutput(float* output) {
+    for (uint8_t i = 0; i < 4; i++) {
+        output[i] = this->values[this->cursors[i]];
     }
 }
 
