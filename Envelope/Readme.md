@@ -19,11 +19,7 @@ While selecting modes, the LEDs will show the active mode:
 3. **(red)** AARR Loop mode
 4. **(green)** TRAP mode
 
-Once a mode is selected, the LEDs will show which phase the envelope is in:
-1. **(yellow)** Attack
-2. **(blue)** Decay
-3. **(red)** Sustain
-4. **(green)** Relase
+Once a mode is selected, the LEDs will show which phase the envelope is in. At any given time, the LEDs are illuminated corrosponding to the knobs/inputs that control the current phase in the current mode.
 
 ### (C) Knobs & CV input
 
@@ -75,6 +71,10 @@ ADSR is a "standard" linear envelope mode with attack, decay, sustain, and relea
 AARR (or A,A',D,D') mode gives up control of the decay and sustain. Instead, knobs (2) and (4) are used to control the exponential rate of the attack & decay. These controls can go through zero, so both attack and decay can be either exponential or logarithmic.
 
 ## AARR Loop mode
+
+<p align="center" width="100%">
+    <img alt="AARR graph" src="images/AARR_loop.svg" width=500 />
+</p>
 
 AARR Loop is exactly like AARR mode except that it loops continuously. It goes back and forth between Attack and Release (no sustain), so it is always rising or falling.
 
