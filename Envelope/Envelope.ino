@@ -7,7 +7,6 @@ extern "C" {
     #include "envelope.h"
 }
 
-
 ButtonDebouncer debouncer(BUTTON_PIN, cycleModes);
 
 void setup() {
@@ -38,9 +37,9 @@ void setup() {
     pinMode(EOF_TRIGGER_PIN, OUTPUT);
     #endif
 
-    enableInterrupt(GATE_IN_PIN);
-    enableInterrupt(RETRIG_IN_PIN);
-    enableInterrupt(BUTTON_PIN);
+    // enableInterrupt(GATE_IN_PIN);
+    // enableInterrupt(RETRIG_IN_PIN);
+    // enableInterrupt(BUTTON_PIN);
 
     pinMode(CV_PIN_A, INPUT);
     pinMode(CV_PIN_D, INPUT);
@@ -52,22 +51,49 @@ void setup() {
     }
     digitalWrite(LED_PINS[DEFAULT_MODE], HIGH);
 
-    //Serial.begin(9600);
+    // Serial.begin(9600);
 }
 
 uint32_t currentTimeMicros = 0;
 void loop() {
     currentTimeMicros = micros();
-    
     float value = update(currentTimeMicros);
-    //Serial.println(value);
+    // Serial.println(value);
     MCP4922_write(DAC_CS_PIN, 0, value);
     MCP4922_write(DAC_CS_PIN, 1, 1 - value);
     updateLEDs();
     
     debouncer.loop(currentTimeMicros);
+
+    {
+        static bool oldGate = false;
+        const bool newGate = !digitalRead(GATE_IN_PIN);
+        if (newGate != oldGate) {
+            gate(newGate);
+        }
+        oldGate = newGate; 
+    }
+
+    {
+        static bool oldTrig = false;
+        const bool newTrig = !digitalRead(RETRIG_IN_PIN);
+        if (newTrig && !oldTrig) {
+            ping();
+        }
+        oldTrig = newTrig;
+    }
+    
+    {
+        static bool oldButton = false;
+        const bool newButton = digitalRead(BUTTON_PIN);
+        if (newButton != oldButton) {
+            debouncer.pinChanged(currentTimeMicros, newButton);
+        }
+        oldButton = newButton; 
+    }
 }
 
+/*
 inline int8_t changeInPin(uint16_t pin, byte oldValues, byte newValues) {
     const uint8_t bitMask = digitalPinToBitMask(pin); // bit(pin)
     const uint8_t wasHigh = oldValues & bitMask;
@@ -111,6 +137,7 @@ ISR(PCINT2_vect) {
     
     oldValues = currentValues;
 }
+*/
 
 
 inline void handleGateChange(int8_t change) {

@@ -45,7 +45,7 @@ volatile Phase currentPhase = OFF;
 volatile LEDMode ledMode = SHOW_MODE;
 volatile float currentValue = 0;
 volatile float phaseStartTime = 0;
-volatile float currentPhaseDuration = 0;
+volatile float currentPhaseDuration = INFINITY;
 volatile uint32_t currentTime = 0;
 volatile uint32_t lastButtonPressTime = 0;
 volatile bool gateOpen = false;
@@ -58,6 +58,8 @@ volatile bool EORTriggerOn = false;
 volatile uint32_t lastEOFTriggerTime = 0;
 volatile bool EOFTriggerOn = false;
 #endif
+
+float debug_data[4];
 
 float update(uint32_t _currentTime) {
     currentTime = _currentTime;
@@ -89,7 +91,7 @@ float update(uint32_t _currentTime) {
 
     //calculate envelope value
     float elapsedTimeInPhase = currentTime - phaseStartTime;
-    float t = elapsedTimeInPhase / (float) currentPhaseDuration;
+    float t = elapsedTimeInPhase / currentPhaseDuration;
     Phase newPhase = currentPhase;
     currentValue = getValue(currentMode, currentPhase, t, &newPhase);
     if (newPhase != currentPhase) {
@@ -116,7 +118,7 @@ void gate(bool on) {
             goToPhase(RELEASE, false);
         }
     }
-}
+ }
 
 /**
  * Call to notify that a ping input has been recieved 
@@ -133,7 +135,7 @@ void ping() {
  * Go to the next operating mode (i.e. the button has just been pressed)
  */
 void cycleModes() {
-    /*
+    /* 
     //debounce
     if (currentTime - lastButtonPressTime <= MIN_TIME_BETWEEN_BUTTON_PRESSES_MICROS) {
         return;
@@ -315,14 +317,14 @@ float expFunction(float t, float k) {
 
     return ( exp(k * t) - exp(-2 * k) ) / ( exp(2 * k) - exp(-2 * k) );
     */
-    if (abs(k) < EXP_FUNCTION_ZERO_THRESH) {
+    if (fabsf(k) < EXP_FUNCTION_ZERO_THRESH) {
         return t;
     }
     return ( exp(2 * EXP_RATE_SCALE * k * t * 2) - 1 ) / ( exp(4 * EXP_RATE_SCALE * k) - 1 );
 }
 
 float inverseExpFunction(float t, float k) {
-    if (abs(k) < EXP_FUNCTION_ZERO_THRESH) {
+    if (fabsf(k) < EXP_FUNCTION_ZERO_THRESH) {
         return t;
     }
     return log( (exp(4 * EXP_RATE_SCALE * k) - 1) * t + 1 ) / ( 4 * EXP_RATE_SCALE * k );
@@ -349,8 +351,12 @@ void goToPhase(Phase phase, bool hardReset) {
         // try the next phase if this phase has 0 duration
         phase = (phase + 1) % 5;
     } while (currentPhaseDuration == 0);
-    float amountIntoPhase = hardReset ? 0 : calculateAmountIntoPhase(currentPhase, currentMode);
-    phaseStartTime = currentTime - currentPhaseDuration * amountIntoPhase;
+    if (currentPhaseDuration == INFINITY) {
+        phaseStartTime = currentTime;
+    } else {
+        float amountIntoPhase = hardReset ? 0 : calculateAmountIntoPhase(currentPhase, currentMode);
+        phaseStartTime = currentTime - currentPhaseDuration * amountIntoPhase;
+    }
 
     // Handle EOR/EOF triggers
     #if EOR_TRIGGER_ENABLED
@@ -454,7 +460,7 @@ float calculateAmountIntoPhase(Phase phase, Mode mode) {
         case AARR_LOOP:
         switch(phase) {
             case ATTACK: return inverseExpFunction(currentValue, CV_ATTACK_EXP);
-            case DECAY: 0;
+            case DECAY: return 0;
             case SUSTAIN: return 0;
             case RELEASE: return inverseExpFunction(1 - currentValue, CV_RELEASE_EXP);
             case OFF: return 0;
@@ -474,18 +480,18 @@ float getPhaseDuration(Phase phase, Mode mode) {
         switch(phase) {
             case ATTACK:  return lerp(CV_ATTACK,  ATTACK_MIN_DURATION_MICROS,  ATTACK_MAX_DURATION_MICROS);
             case DECAY:   return lerp(CV_DECAY,   DECAY_MIN_DURATION_MICROS,   DECAY_MAX_DURATION_MICROS);
-            case SUSTAIN: return 1;
+            case SUSTAIN: return INFINITY;
             case RELEASE: return lerp(CV_RELEASE, RELEASE_MIN_DURATION_MICROS, RELEASE_MAX_DURATION_MICROS * CV_SUSTAIN);
-            case OFF:     return 1;
+            case OFF:     return INFINITY;
         }
         break;
         case AARR:
         switch(phase) {
             case ATTACK:  return lerp(CV_ATTACK,  ATTACK_MIN_DURATION_MICROS,  ATTACK_MAX_DURATION_MICROS);
             case DECAY:   return 0;
-            case SUSTAIN: return 1;
+            case SUSTAIN: return INFINITY;
             case RELEASE: return lerp(CV_SUSTAIN, RELEASE_MIN_DURATION_MICROS, RELEASE_MAX_DURATION_MICROS);
-            case OFF:     return 1;
+            case OFF:     return INFINITY;
         }
         break;
         case AARR_LOOP:
@@ -509,6 +515,7 @@ float getPhaseDuration(Phase phase, Mode mode) {
     }
 }
 
+/*
 void setLed(uint8_t led) {
     static bool state[4] = {false, false, false, false};
     for (uint8_t i = 0; i < 4; i++) {
@@ -520,12 +527,60 @@ void setLed(uint8_t led) {
         }
     }
 }
+*/
+
+void setLeds(bool leds[4]) {
+    static bool cache[4] = {false, false, false, false};
+    for (uint8_t i = 0; i < 4; i++) {
+        if (leds[i] != cache[i]) {
+            cache[i] = leds[i];
+            digitalWrite(LED_PINS[i], leds[i]);
+        }
+    }
+}
+
+const bool LED_LOOKUP[4][5][4] = {
+    {
+        {1, 0, 0, 0},
+        {0, 2, 0, 0},
+        {0, 0, 3, 0},
+        {0, 0, 0, 4},
+        {0, 0, 0, 0},
+    },
+    {
+        {1, 1, 0, 0},
+        {0, 0, 0, 0},
+        {1, 1, 1, 1},
+        {0, 0, 1, 1},
+        {0, 0, 0, 0},
+    },
+    {
+        {1, 1, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 0, 1, 1},
+        {0, 0, 0, 0},
+    },
+    {
+        {1, 0, 0, 0},
+        {0, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1},
+    },
+};
 
 void updateLEDs() {
     if (ledMode == SHOW_MODE) {
-        setLed(currentMode);
+        //setLed(currentMode);
+        bool leds[] = {false, false, false, false};
+        leds[currentMode] = true;
+        setLeds(leds);
     } else {
-        setLed(currentPhase);
+        //setLed(currentPhase);
+        for (uint8_t i = 0; i < 4; i++) {
+            setLeds(LED_LOOKUP[currentMode][currentPhase]);
+        }
     }
     #if LED_MODE_INDICATOR_ENABLED
     //TODO for performance this should be cached but I don't think this
