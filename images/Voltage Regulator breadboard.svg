@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="Voltage Regulator breadboard.svg"
+   id="svg20"
+   viewBox="0 0 16.527 24.08"
+   height="0.3344in"
+   width="0.22954in"
+   y="0"
+   x="0"
+   version="1.1">
+  <metadata
+     id="metadata26">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs24" />
+  <sodipodi:namedview
+     inkscape:current-layer="breadboard"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:cy="19.660771"
+     inkscape:cx="0.19717089"
+     inkscape:zoom="19.11909"
+     showgrid="false"
+     id="namedview22"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0"
+     guidetolerance="10"
+     gridtolerance="10"
+     objecttolerance="10"
+     borderopacity="1"
+     bordercolor="#666666"
+     pagecolor="#ffffff" />
+  <g
+     id="breadboard">
+    <rect
+       height="1"
+       width="2.16"
+       fill="none"
+       y="23"
+       x="0"
+       id="connector0pin" />
+    <rect
+       height="1"
+       width="2.16"
+       fill="none"
+       y="23"
+       x="7.181"
+       id="connector1pin" />
+    <rect
+       height="1"
+       width="2.16"
+       fill="none"
+       y="23"
+       x="14.367"
+       id="connector2pin" />
+    <line
+       stroke-width="2.16"
+       fill="none"
+       stroke="#8C8C8C"
+       y2="31.259"
+       x2="1.08"
+       y1="24.08"
+       x1="1.08"
+       stroke-linecap="round"
+       id="connector0leg" />
+    <line
+       stroke-width="2.16"
+       fill="none"
+       stroke="#8C8C8C"
+       y2="31.259"
+       x2="8.261"
+       y1="24.08"
+       x1="8.261"
+       stroke-linecap="round"
+       id="connector1leg" />
+    <line
+       stroke-width="2.16"
+       fill="none"
+       stroke="#8C8C8C"
+       y2="31.259"
+       x2="15.447"
+       y1="24.08"
+       x1="15.447"
+       stroke-linecap="round"
+       id="connector2leg" />
+    <rect
+       height="9.35"
+       width="2.154"
+       fill="#8C8C8C"
+       y="14.731"
+       x="7.178"
+       id="rect9506" />
+    <path
+       d="M3.287,14.731v3.316c0,0.424-0.782,1.059-1.198,1.425c-1.025,0.891-2.088,1.82-2.088,2.992   v1.619h2.154c0,0,0-1,0-1.209c0-0.518,0.904-1.389,1.35-1.77c0.997-0.869,1.945-1.689,1.945-2.748v-3.625H3.287L3.287,14.731z"
+       fill="#8C8C8C"
+       id="path9510" />
+    <path
+       d="M13.221,14.731v3.316c0,0.424,0.781,1.059,1.199,1.425c1.027,0.891,2.089,1.82,2.089,2.992   v1.619h-2.154c0,0,0-1,0-1.209c0-0.518-0.904-1.389-1.35-1.77c-0.998-0.869-1.945-1.689-1.945-2.748v-3.625H13.221L13.221,14.731z"
+       fill="#8C8C8C"
+       id="path9514" />
+    <rect
+       height="10.07"
+       width="13.278"
+       fill="#1A1A1A"
+       y="4.659"
+       x="1.615"
+       id="rect9553" />
+    <path
+       d="M13.889,4.659v2.453v8.228v1.843c0.632-0.713,1.004-1.554,1.004-2.453l0,0V4.659H13.889z"
+       fill="#141414"
+       id="path9555" />
+    <path
+       d="M2.621,4.659H1.616v10.07l0,0c0,0.899,0.373,1.74,1.005,2.453V15.34V7.112V4.659z"
+       fill="#242424"
+       id="path9557" />
+    <path
+       d="M1.615,4.659L1.615,4.659c0,0.899,0.373,1.74,1.005,2.453h11.276   c0.632-0.713,1.005-1.554,1.005-2.453l0,0H1.615z"
+       fill="#1F1F1F"
+       id="path9559" />
+    <path
+       d="M8.255,0C4.587,0,1.615,2.086,1.615,4.661h13.278C14.893,2.086,11.923,0,8.255,0z"
+       fill="#141414"
+       id="path9561" />
+    <rect
+       height="10.07"
+       width="11.276"
+       y="7.112"
+       x="2.621"
+       id="rect9563" />
+    <path
+       inkscape:transform-center-y="0.19717277"
+       inkscape:transform-center-x="-0.21779277"
+       d="M 10.198224,11.253414 5.9015819,13.729025 5.905961,8.7702186 Z"
+       inkscape:randomized="0"
+       inkscape:rounded="0"
+       inkscape:flatsided="true"
+       sodipodi:arg2="1.0480807"
+       sodipodi:arg1="0.00088310075"
+       sodipodi:r2="2.169421"
+       sodipodi:r1="2.8629694"
+       sodipodi:cy="11.250886"
+       sodipodi:cx="7.3352558"
+       sodipodi:sides="3"
+       id="path851"
+       style="fill:#999999;fill-opacity:1;stroke:none;stroke-width:2.83502;stroke-linecap:round"
+       sodipodi:type="star" />
+    <path
+       sodipodi:nodetypes="cccc"
+       id="path855"
+       d="M 11.441062,8.5046567 10.382921,9.1155748 V 13.359494 L 9.282909,13.994587"
+       style="fill:none;stroke:#999999;stroke-width:0.7501px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       id="path857"
+       d="M 4.5055793,11.249622 H 11.940417"
+       style="fill:none;stroke:#999999;stroke-width:0.37505;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>
