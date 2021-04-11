@@ -78,17 +78,25 @@ void writeOutputVoltage(uint8_t csPin, uint8_t dacChannel, float voltage) {
     MCP4922_write(csPin, dacChannel, dacOutput);
 }
 
+bool allSame(int8_t* buffer, uint8_t bufferSize, int8_t* value) {
+    int8_t first = buffer[0];
+    for (uint8_t i = 1; i < bufferSize; i++) {
+        if (buffer[i] != first) return false;
+    }
+    *value = first;
+    return true;
+}
+
 inline void handleButtons() {
-    const uint32_t debounceTimeMilis = 10;
-    static int8_t lastButtonDown = -1;
-    static bool unstable = false;
+    const uint32_t debounceTimeMilis = 3;
+    const uint8_t SHIFT_REGISTER_SIZE = 4;
+    static int8_t lastStableButton = -1;
+    static bool stable = true;
     static uint32_t stabilizingStartTime = 0;
-    static int8_t stabilizingValue = -1;
-    static float oldButtonValue = 0;
+    static uint8_t shiftRegisterPtr = 0;
+    static int8_t shiftRegister[SHIFT_REGISTER_SIZE] = {-1, -1, -1, -1};
     
     float buttonValue = analogRead(BUTTON_LADDER_PIN) / 1023.0;
-    oldButtonValue = (oldButtonValue + 2 * buttonValue) / 3;
-    buttonValue = oldButtonValue;
     int8_t buttonDown = -1;
     for (uint8_t i = 0; i < 12; i++) {
         if (buttonValue > BUTTON_LADDER_CUTOFFS[i]) {
@@ -96,36 +104,48 @@ inline void handleButtons() {
             break;
         }
     }
+    
+    /*
     Serial.print(buttonValue * 12);
     Serial.print(",");
     Serial.print(buttonDown);
+    Serial.print(",");
+    Serial.print(lastStableButton);
     for (uint8_t i = 0; i < 12; i++) {
         Serial.print(",");
         Serial.print(BUTTON_LADDER_CUTOFFS[i] * 12);
     }
     Serial.println();
+    */
 
     uint32_t now = millis();
-    
-    if (buttonDown != lastButtonDown) {
+
+    if (stable && buttonDown != lastStableButton) {
+        // we might be pressing a new button -- start to stabalize
+        shiftRegister[shiftRegisterPtr] = buttonDown;
+        shiftRegisterPtr = (shiftRegisterPtr + 1) % SHIFT_REGISTER_SIZE;
+        stable = false;
         stabilizingStartTime = now;
-        unstable = true;
-        stabilizingValue = buttonDown;
     }
 
-    else if (unstable && now - stabilizingStartTime > debounceTimeMilis) {
-        unstable = false;
-        if (stabilizingValue == buttonDown && buttonDown != -1) {
-            // Serial.print("Button pressed:");
-            // Serial.println(buttonDown);
-            if (MENU_ON) {
-                // TODO
-            } else {
-                onButtonPressedNormal(buttonDown);
+    else if (!stable && now - stabilizingStartTime > debounceTimeMilis) {
+        shiftRegister[shiftRegisterPtr] = buttonDown;
+        shiftRegisterPtr = (shiftRegisterPtr + 1) % SHIFT_REGISTER_SIZE;
+        stabilizingStartTime = now;
+        if (allSame(shiftRegister, SHIFT_REGISTER_SIZE, &buttonDown)) {
+            stable = true;
+            if (buttonDown != lastStableButton) {
+                // Serial.print("Button pressed:");
+                // Serial.println(buttonDown);
+                if (MENU_ON) {
+                    // TODO
+                } else {
+                    onButtonPressedNormal(buttonDown);
+                }
             }
+            lastStableButton = buttonDown;
         }
     }
-    lastButtonDown = buttonDown;
 }
 
 void handleMenuButton() {
