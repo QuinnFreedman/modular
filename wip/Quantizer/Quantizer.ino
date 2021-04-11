@@ -23,7 +23,7 @@ float BUTTON_LADDER_CUTOFFS[12];
 
 bool MENU_ON = true;
 bool SHOULD_UPDATE_UI = false;
-bool NOTES[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+bool NOTES[12] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
 void initButtonCutoffs() {
     for (uint8_t i = 0; i < 12; i++) {
@@ -53,7 +53,18 @@ void setup() {
     Serial.begin(9600);
 
     initButtonCutoffs();
+    Serial.println("voltage,quantized");
 }
+
+inline int16_t modulo(int16_t x, int16_t m) {
+    int16_t mod = x % m;
+    if (mod < 0) {
+        mod += m;
+    }
+    return mod;
+}
+
+int16_t mod12(int16_t x) { return modulo(x, 12); }
 
 float readInputVoltage(uint8_t pin) {
     uint16_t rawValue = analogRead(pin);
@@ -88,6 +99,10 @@ inline void handleButtons() {
     Serial.print(buttonValue * 12);
     Serial.print(",");
     Serial.print(buttonDown);
+    for (uint8_t i = 0; i < 12; i++) {
+        Serial.print(",");
+        Serial.print(BUTTON_LADDER_CUTOFFS[i] * 12);
+    }
     Serial.println();
 
     uint32_t now = millis();
@@ -123,29 +138,26 @@ void onButtonPressedNormal(uint8_t button) {
     SHOULD_UPDATE_UI = true;
 }
 
-inline void quantizeVoltage(uint8_t inputPin, uint8_t dacCSPin, uint8_t dacChannel) {
-    float inputVoltageA = readInputVoltage(ANALOG_INPUT_PIN_A);
-    Serial.print("Input voltage: ");
-    Serial.println(inputVoltageA);
-    float a4_semitones = 33;
-    float semitones = inputVoltageA * 12.0f - a4_semitones;
-    int8_t semitonesInt = round(semitones);
-    int8_t nearestNote = -999;
-    if (NOTES[semitonesInt % 12]) {
+inline float quantize(float inputVoltage) {
+    const float a4_semitones = 33;
+    const float semitones = inputVoltage * 12.0f - a4_semitones;
+    const int16_t semitonesInt = round(semitones);
+    int16_t nearestNote = -127;
+    if (NOTES[mod12(semitonesInt)]) {
         nearestNote = semitonesInt;
     } else {
-        for (int8_t i = 0; i < 12; i++) {
-            if (NOTES[(semitonesInt + i) % 12]) {
+        for (int16_t i = 0; i < 12; i++) {
+            if (NOTES[mod12(semitonesInt + i)]) {
                 nearestNote = semitonesInt + i;
-                continue;
-            } else if (NOTES[(semitonesInt - i) % 12]) {
+                break;
+            }
+            if (NOTES[mod12(semitonesInt - i)]) {
                 nearestNote = semitonesInt - i;
-                continue;
+                break;
             }
         }
     }
-    float outputVoltage = (nearestNote + a4_semitones) / 12.0f;
-    writeOutputVoltage(dacCSPin, dacChannel, outputVoltage);
+    return (nearestNote + a4_semitones) / 12.0f;
 }
 
 void loop() {
@@ -156,35 +168,18 @@ void loop() {
     }
     handleButtons();
 
-    //float voltInA = readInputVoltage(ANALOG_INPUT_PIN_A);
-    //float voltInB = readInputVoltage(ANALOG_INPUT_PIN_B);
     /*
-    Serial.print(voltInA);
-    Serial.print(" ");
-    Serial.print(voltInB);
-    Serial.println();
+    {
+        static float output[2] = {0, 0};
+        const uint8_t INPUT_PINS[2] = {ANALOG_INPUT_PIN_A, ANALOG_INPUT_PIN_B};
+        for (uint8_t i = 0; i < 2; i++) {
+            float inputVoltage = readInputVoltage(INPUT_PINS[i]);
+            float outputVoltage =  quantize(inputVoltage);
+            writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
+        }
+    }
     */
 
-    /*
-    static int i = 0;
-    i++;
-    if (i > 100) { i = 0; }
-    MCP4922_write(DAC_CS_PIN, 0, i / 100.0);
-    MCP4922_write(DAC_CS_PIN, 1, i / 100.0);
-    Serial.println(i / 100.0);
-    delay(10);
-    */
-
-    /*
-    bool gateA = digitalRead(TRIG_PIN_A);
-    bool gateB = digitalRead(TRIG_PIN_B);
-    MCP4922_write(DAC_CS_PIN, 0, gateA);
-    MCP4922_write(DAC_CS_PIN, 1, gateB);
-    Serial.print(gateA);
-    Serial.print(",");
-    Serial.println(gateB);
-    */
-    
     if (SHOULD_UPDATE_UI) {
         SHOULD_UPDATE_UI = false;
         if (MENU_ON) {
@@ -199,19 +194,6 @@ void loop() {
             Tlc.update();
         }
     }
-    /*
-    delay(300);
-    for (int i = 0; i <= 12; i++) {
-        Tlc.set(i, LED_DIM);
-    }
-    Tlc.update();
-    delay(300);
-    for (int i = 0; i <= 12; i++) {
-        Tlc.set(i, LED_OFF);
-    }
-    Tlc.update();
-    delay(300);
-    */
 }
 
 /*
