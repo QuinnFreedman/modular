@@ -516,7 +516,7 @@ def draw_button_cosmetic(self, context):
     return elements
     
 
-Button = BasicCircle(0, 0, 3.5)
+Button = BasicCircle(0, 0, 4)
 setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
 
 

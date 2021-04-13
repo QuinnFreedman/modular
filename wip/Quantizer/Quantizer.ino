@@ -26,6 +26,7 @@ const uint16_t LED_DIM = LED_BRIGHT / 4;
 const uint16_t LED_OFF = 0;
 
 const uint32_t LONG_PRESS_TIME_MILLIS = 500;
+const float HYSTERESIS_THRESHOLD = 0.4;
 
 const uint8_t BUTTON_LADDER_PIN = A0;
 const uint8_t ANALOG_INPUT_PIN_A = A6;
@@ -273,8 +274,11 @@ void transpose(int8_t delta) {
 }
 
 const int8_t A4_SEMITONES = 33;
-int8_t quantizeNote(float inputVoltage) {
+int8_t quantizeNote(float inputVoltage, int8_t lastNote) {
     const float semitones = inputVoltage * 12.0f - A4_SEMITONES;
+    if (abs(semitones - lastNote) < 0.5 + HYSTERESIS_THRESHOLD / 2) {
+        return lastNote;
+    }
     const int8_t semitonesInt = round(semitones);
     if (state.notes[mod12(semitonesInt)]) {
         return semitonesInt;

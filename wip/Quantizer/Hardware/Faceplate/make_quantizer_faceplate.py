@@ -1,7 +1,13 @@
 import sys
-sys.path.append("..")
-sys.path.append("../..")
-sys.path.append("../../..")
+import os
+
+path = ".."
+while "faceplate_maker.py" not in os.listdir(path):
+    path += "/.."
+    if not os.path.isdir(path):
+        print("Unable to find faceplate maker library")
+        sys.exit(1)
+sys.path.append(path)
 
 from faceplate_maker import *
 from svgwrite.path import Path
@@ -22,10 +28,7 @@ for y in [0, inches(2.3)]:
 
 module.add(Button(inches(1.2), inches(1.95)))
 
-class LEDButton(Button):
-    def __init__(self, x, y):
-        super(LEDButton, self).__init__(x, y)
-        self.radius = inches(2.5/16)
+LEDButton = Button
 
 column = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0]
 y = inches(.2)
