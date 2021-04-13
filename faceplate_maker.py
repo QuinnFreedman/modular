@@ -481,22 +481,38 @@ setattr(LED, 'draw_cosmetics', draw_led_cosmetic)
 
 
 def draw_button_cosmetic(self, context):
-    gradient = context.radialGradient((.5, .5), .5)
-    gradient.add_stop_color(0, "#999")
-    gradient.add_stop_color(1, "#111")
-    context.defs.add(gradient)
     elements = []
+    washer_gradient = context.linearGradient(
+        (1, 0),
+        (0, 1),
+    )
+    washer_gradient.add_stop_color(0, "#eee")
+    washer_gradient.add_stop_color(1, "#aaa")
+    context.defs.add(washer_gradient)
+    elements.append(context.circle(center=self.offset,
+            r=self.radius * 1.2,
+            fill=washer_gradient.get_paint_server()))
+    gradient = context.linearGradient(
+        (1, 0),
+        (0, 1),
+    )
+    gradient.add_stop_color(0, "#aaa")
+    gradient.add_stop_color(1, "#000")
+    context.defs.add(gradient)
     elements.append(context.circle(center=self.offset,
             r=self.radius,
             fill=gradient.get_paint_server()))
-    highlight_center = (self.offset[0] + self.radius / 3, self.offset[1] - self.radius / 2)
-    highlight = context.ellipse(
-            center=highlight_center,
-            r=(self.radius / 3, self.radius / 5),
-            fill="white",
-            opacity=0.3)
-    highlight.rotate(30, center=highlight_center)
-    elements.append(highlight)
+    gradient2 = context.linearGradient(
+        (1, 0),
+        (0, 1),
+    )
+    gradient2.add_stop_color(0, "#111")
+    gradient2.add_stop_color(1, "#888")
+    context.defs.add(gradient2)
+    elements.append(context.circle(center=self.offset,
+            r=self.radius * .8,
+            fill=gradient2.get_paint_server()))
+            
     return elements
     
 
