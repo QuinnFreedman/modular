@@ -1,7 +1,24 @@
 #include <stdint.h>
+#include <EEPROM.h>
 #include <SPI.h>
 #include <Tlc5940.h>
 #include "lib/digitalWriteFast.h"
+
+// TODO: Input/output triggers. When triggerMode is TRIGGER_OUTPUT, a short trigger
+//       should be sent to each trigger pin every time the note changes. If it is
+//       TRIGGER_INPUT, the main loop should wait to look at the input until it recieves
+//       a trigger on the trigger pins, effectively like a sample-and-hold. pinMode()
+//       will need to be changed accordingly.
+// TODO: When the input voltage is on the edge between two notes, it will buzz back and
+//       forth between them, which sounds bad. A quick patch would be to apply a low-pass
+//       filter to the input to reduce noise in the signal. A better solution would be to
+//       implement hysteresis thresholding on the input signal so it will only change
+//       notes if it goes significantly closer to the next note.
+// TODO: The LED buttons corrosponding to the notes being actively played should be
+//       set to LED_BRIGHT
+// TODO: Currently, I save the whole state to EEPROM every time it is updated. This is
+//       very slow and uses up limited EEPROM writes. It would be pretty easy to only
+//       update the part that is acutally changing each time.
 
 const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
 const uint16_t LED_DIM = LED_BRIGHT / 4;
@@ -28,21 +45,30 @@ const bool SCALES[4][12] = {
     {1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0}, // pentatonic
 };
 
-bool USER_PROFILES[4][12] = {
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-};
-
-enum TriggerMode {TRIGGER_INPUT = false, TRIGGER_OUTPUT = true};
+enum TriggerMode {TRIGGER_OUTPUT = false, TRIGGER_INPUT = true };
 
 float BUTTON_LADDER_CUTOFFS[12];
 
-bool MENU_ON = false;
+bool showMenu = false;
+
+typedef struct {
+    bool notes[12];
+    TriggerMode triggers[2];
+    bool userProfiles[4][12];
+} State;
+
+State state = {
+    notes: {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    triggers: {TRIGGER_OUTPUT, TRIGGER_OUTPUT},
+    userProfiles: {
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    },
+};
+
 bool SHOULD_UPDATE_UI = true;
-bool NOTES[12] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-TriggerMode TRIGGERS[2] = {TRIGGER_OUTPUT, TRIGGER_OUTPUT};
 
 void initButtonCutoffs() {
     for (uint8_t i = 0; i < 12; i++) {
@@ -72,6 +98,11 @@ void setup() {
     Serial.begin(9600);
 
     initButtonCutoffs();
+
+    if (EEPROM.read(0) != 255) {
+        Serial.println("Reading state from EEPROM");
+        EEPROM.get(0, state);
+    }
 }
 
 inline int16_t modulo(int16_t x, int16_t m) {
@@ -145,13 +176,13 @@ inline void handleButtons() {
             stable = true;
             if (buttonDown != lastStableButton) {
                 if (buttonDown == -1) {
-                    if (MENU_ON) {
+                    if (showMenu) {
                         onButtonReleasedMenu(lastStableButton, now - buttonPressStartTime);
                     } else {
                         onButtonReleasedNormal(lastStableButton, now - buttonPressStartTime);
                     }
                 } else {
-                    if (MENU_ON) {
+                    if (showMenu) {
                         onButtonPressedMenu(buttonDown);
                     } else {
                         onButtonPressedNormal(buttonDown);
@@ -166,8 +197,9 @@ inline void handleButtons() {
 void onButtonPressedNormal(int8_t button) {
     Serial.print("buttonPressed normal ");
     Serial.println(button);
-    NOTES[button] = !NOTES[button];
+    state.notes[button] = !state.notes[button];
     SHOULD_UPDATE_UI = true;
+    EEPROM.put(offset, state.notes);
 }
 
 void onButtonReleasedNormal(int8_t button, uint32_t time) {
@@ -183,7 +215,8 @@ void onButtonPressedMenu(int8_t button) {
     switch (button) {
     case 0:
     case 1: 
-        TRIGGERS[button] = (TriggerMode) !TRIGGERS[button];
+        state.triggers[button] = (TriggerMode) !state.triggers[button];
+        EEPROM.put(offset, state.notes);
         break;
     case 2:
         transpose(1);
@@ -212,25 +245,28 @@ void onButtonReleasedMenu(int8_t button, uint32_t time) {
     button -= 8;
     if (button >= 0 && button < 4) {
         if (time < LONG_PRESS_TIME_MILLIS) {
-            loadScale(USER_PROFILES[button]);
+            loadScale(state.userProfiles[button]);
         } else {
             for (int8_t i = 0; i < 12; i++) {
-                USER_PROFILES[button][i] = NOTES[i];
+                state.userProfiles[button][i] = state.notes[i];
             }
+            // const size_t offset = (size_t) &(state.userProfiles[button]) - (size_t) &state;
+            EEPROM.put(offset, state.notes);
         }
     }
 }
 
 void loadScale(const bool * from) {
     for (int8_t i = 0; i < 12; i++) {
-        NOTES[i] = from[i];
+        state.notes[i] = from[i];
     }
+    EEPROM.put(0, state);
 }
 
 void transpose(int8_t delta) {
     bool notes[12];
     for (int8_t i = 0; i < 12; i++) {
-        notes[i] = NOTES[mod12(i + delta)];
+        notes[i] = state.notes[mod12(i + delta)];
     }
     loadScale(notes);
 }
@@ -239,15 +275,15 @@ const int8_t A4_SEMITONES = 33;
 int8_t quantizeNote(float inputVoltage) {
     const float semitones = inputVoltage * 12.0f - A4_SEMITONES;
     const int8_t semitonesInt = round(semitones);
-    if (NOTES[mod12(semitonesInt)]) {
+    if (state.notes[mod12(semitonesInt)]) {
         return semitonesInt;
     }
     
     for (int8_t i = 0; i < 12; i++) {
-        if (NOTES[mod12(semitonesInt + i)]) {
+        if (state.notes[mod12(semitonesInt + i)]) {
             return semitonesInt + i;
         }
-        if (NOTES[mod12(semitonesInt - i)]) {
+        if (state.notes[mod12(semitonesInt - i)]) {
             return semitonesInt - i;
         }
     }
@@ -262,8 +298,8 @@ float semitonesToVoltage(int8_t semitones) {
 void loop() {
     {
         const bool menuButton = !digitalReadFast(MENU_BUTTON_PIN);
-        SHOULD_UPDATE_UI |= menuButton != MENU_ON;
-        MENU_ON = menuButton;
+        SHOULD_UPDATE_UI |= menuButton != showMenu;
+        showMenu = menuButton;
     }
     handleButtons();
 
@@ -277,8 +313,8 @@ void loop() {
             if (semitones != outputNotes[i]) {
                 outputNotes[i] = semitones;
                 writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
-                // ping output trigger
-                // set bright led
+                // TODO ping output trigger
+                // TODO set bright led
                 SHOULD_UPDATE_UI = true;
             }
         }
@@ -287,14 +323,14 @@ void loop() {
     if (SHOULD_UPDATE_UI) {
         delay(1);
         SHOULD_UPDATE_UI = false;
-        if (MENU_ON) {
+        if (showMenu) {
             for (int i = 0; i <= 12; i++) {
                 Tlc.set(LED_INDEX[i], LED_OFF);
             }
             Tlc.update();
         } else {
             for (int i = 0; i <= 12; i++) {
-                Tlc.set(LED_INDEX[i], NOTES[i] ? LED_DIM : LED_OFF);
+                Tlc.set(LED_INDEX[i], state.notes[i] ? LED_DIM : LED_OFF);
             }
             Tlc.update();
         }
