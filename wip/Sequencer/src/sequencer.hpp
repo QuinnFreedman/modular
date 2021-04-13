@@ -18,7 +18,7 @@ enum OutputMode {
 
 class Sequencer {
     public:
-        Sequencer();
+        Sequencer(uint32_t seed);
         void advance(bool channels[4]);
         void jump(uint8_t column);
         const bool * getLedState() { return this->leds; }
@@ -33,7 +33,23 @@ class Sequencer {
         float values[16];
         uint8_t cursors[4];
         void updateLEDs();
+        uint32_t randomSeed;
+        uint32_t getNextRandom();
+        updateRandom();
 };
+
+void Sequencer::updateRandom() {
+    for (uint8_t i = 0; i < 4; i++) {
+        this->randomSeed = this->getNextRandom();
+    }
+}
+
+uint32_t Sequencer::getNextRandom() {
+    constexpr uint32_t m = 1U << 24;
+    constexpr uint32_t a = 0x43FD43FD;
+    constexpr uint32_t c = 0xC39EC3;
+    return (a * this->randomSeed + c) % m;
+}
 
 uint8_t getNumChannels(Mode mode) {
     switch(mode) {
@@ -53,7 +69,8 @@ uint8_t getChannelLength(Mode mode) {
     return 16 / getNumChannels(mode); //TODO temp hack
 }
 
-Sequencer::Sequencer() {
+Sequencer::Sequencer(uint32_t seed) {
+    randomSeed = seed;
     for (uint8_t i = 0; i < 4; i++) {
         cursors[i] = 0;
     }
@@ -117,6 +134,7 @@ void Sequencer::jump(uint8_t step) {
         } break;
     }
     this->updateLEDs();
+    this->updateRandom();
 }
 
 #define offsetMod(x, modulus, offset) (((x - offset) % modulus) + offset)
@@ -147,11 +165,20 @@ void Sequencer::advance(bool channelsToAdvance[4]) {
         } break;
     }
     this->updateLEDs();
+    this->updateRandom();
 }
 
 void Sequencer::getOutput(float* output) {
-    for (uint8_t i = 0; i < 4; i++) {
-        output[i] = this->values[this->cursors[i]];
+    if (this->outputMode == OUTPUT_PROBABILITY) {
+        for (uint8_t i = 0; i < 4; i++) {
+            float value = this->values[this->cursors[i]];
+            float random = getNextRandom() / (1 << 24);
+            output[i] = value > random;
+        }
+    } else {
+        for (uint8_t i = 0; i < 4; i++) {
+            output[i] = this->values[this->cursors[i]];
+        }
     }
 }
 
