@@ -3,6 +3,12 @@
 #include <Tlc5940.h>
 #include "lib/digitalWriteFast.h"
 
+const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
+const uint16_t LED_DIM = LED_BRIGHT / 4;
+const uint16_t LED_OFF = 0;
+
+const uint32_t LONG_PRESS_TIME_MILLIS = 500;
+
 const uint8_t BUTTON_LADDER_PIN = A0;
 const uint8_t ANALOG_INPUT_PIN_A = A6;
 const uint8_t ANALOG_INPUT_PIN_B = A7;
@@ -12,18 +18,31 @@ const uint8_t DAC_CS_PIN = 8;
 const uint8_t TRIG_PIN_A = 4;
 const uint8_t TRIG_PIN_B = 5;
 
-const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
-const uint16_t LED_DIM = LED_BRIGHT / 4;
-const uint16_t LED_OFF = 0;
-
 const uint16_t ANALOG_READ_MAX_VALUE = 1023;
 
 const uint8_t LED_INDEX[12] = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+const bool SCALES[4][12] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // chromatic
+    {1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, // major
+    {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0}, // minor
+    {1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0}, // pentatonic
+};
+
+bool USER_PROFILES[4][12] = {
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+};
+
+enum TriggerMode {TRIGGER_INPUT = false, TRIGGER_OUTPUT = true};
+
 float BUTTON_LADDER_CUTOFFS[12];
 
-bool MENU_ON = true;
-bool SHOULD_UPDATE_UI = false;
+bool MENU_ON = false;
+bool SHOULD_UPDATE_UI = true;
 bool NOTES[12] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+TriggerMode TRIGGERS[2] = {TRIGGER_OUTPUT, TRIGGER_OUTPUT};
 
 void initButtonCutoffs() {
     for (uint8_t i = 0; i < 12; i++) {
@@ -53,7 +72,6 @@ void setup() {
     Serial.begin(9600);
 
     initButtonCutoffs();
-    Serial.println("voltage,quantized");
 }
 
 inline int16_t modulo(int16_t x, int16_t m) {
@@ -93,10 +111,11 @@ inline void handleButtons() {
     static int8_t lastStableButton = -1;
     static bool stable = true;
     static uint32_t stabilizingStartTime = 0;
+    static uint32_t buttonPressStartTime = 0;
     static uint8_t shiftRegisterPtr = 0;
     static int8_t shiftRegister[SHIFT_REGISTER_SIZE] = {-1, -1, -1, -1};
     
-    float buttonValue = analogRead(BUTTON_LADDER_PIN) / 1023.0;
+    const float buttonValue = analogRead(BUTTON_LADDER_PIN) / 1023.0;
     int8_t buttonDown = -1;
     for (uint8_t i = 0; i < 12; i++) {
         if (buttonValue > BUTTON_LADDER_CUTOFFS[i]) {
@@ -104,21 +123,8 @@ inline void handleButtons() {
             break;
         }
     }
-    
-    /*
-    Serial.print(buttonValue * 12);
-    Serial.print(",");
-    Serial.print(buttonDown);
-    Serial.print(",");
-    Serial.print(lastStableButton);
-    for (uint8_t i = 0; i < 12; i++) {
-        Serial.print(",");
-        Serial.print(BUTTON_LADDER_CUTOFFS[i] * 12);
-    }
-    Serial.println();
-    */
 
-    uint32_t now = millis();
+    const uint32_t now = millis();
 
     if (stable && buttonDown != lastStableButton) {
         // we might be pressing a new button -- start to stabalize
@@ -126,6 +132,9 @@ inline void handleButtons() {
         shiftRegisterPtr = (shiftRegisterPtr + 1) % SHIFT_REGISTER_SIZE;
         stable = false;
         stabilizingStartTime = now;
+        if (buttonDown != -1) {
+            buttonPressStartTime = now;
+        }
     }
 
     else if (!stable && now - stabilizingStartTime > debounceTimeMilis) {
@@ -135,12 +144,18 @@ inline void handleButtons() {
         if (allSame(shiftRegister, SHIFT_REGISTER_SIZE, &buttonDown)) {
             stable = true;
             if (buttonDown != lastStableButton) {
-                // Serial.print("Button pressed:");
-                // Serial.println(buttonDown);
-                if (MENU_ON) {
-                    // TODO
+                if (buttonDown == -1) {
+                    if (MENU_ON) {
+                        onButtonReleasedMenu(lastStableButton, now - buttonPressStartTime);
+                    } else {
+                        onButtonReleasedNormal(lastStableButton, now - buttonPressStartTime);
+                    }
                 } else {
-                    onButtonPressedNormal(buttonDown);
+                    if (MENU_ON) {
+                        onButtonPressedMenu(buttonDown);
+                    } else {
+                        onButtonPressedNormal(buttonDown);
+                    }
                 }
             }
             lastStableButton = buttonDown;
@@ -148,63 +163,133 @@ inline void handleButtons() {
     }
 }
 
-void handleMenuButton() {
-    MENU_ON = !digitalRead(MENU_BUTTON_PIN);
-    SHOULD_UPDATE_UI = true;
-}
-
-void onButtonPressedNormal(uint8_t button) {
+void onButtonPressedNormal(int8_t button) {
+    Serial.print("buttonPressed normal ");
+    Serial.println(button);
     NOTES[button] = !NOTES[button];
     SHOULD_UPDATE_UI = true;
 }
 
-inline float quantize(float inputVoltage) {
-    const float a4_semitones = 33;
-    const float semitones = inputVoltage * 12.0f - a4_semitones;
-    const int16_t semitonesInt = round(semitones);
-    int16_t nearestNote = -127;
-    if (NOTES[mod12(semitonesInt)]) {
-        nearestNote = semitonesInt;
-    } else {
-        for (int16_t i = 0; i < 12; i++) {
-            if (NOTES[mod12(semitonesInt + i)]) {
-                nearestNote = semitonesInt + i;
-                break;
-            }
-            if (NOTES[mod12(semitonesInt - i)]) {
-                nearestNote = semitonesInt - i;
-                break;
+void onButtonReleasedNormal(int8_t button, uint32_t time) {
+    Serial.print("buttonReleased normal ");
+    Serial.print(button);
+    Serial.print(" ");
+    Serial.println(time);
+}
+
+void onButtonPressedMenu(int8_t button) {
+    Serial.print("buttonPressed menu ");
+    Serial.println(button);
+    switch (button) {
+    case 0:
+    case 1: 
+        TRIGGERS[button] = (TriggerMode) !TRIGGERS[button];
+        break;
+    case 2:
+        transpose(1);
+        break;
+    case 3:
+        transpose(-1);
+        break;
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+        loadScale(SCALES[button - 4]);
+        break;
+    
+    default:
+        break;
+    }
+    SHOULD_UPDATE_UI = true;
+}
+
+void onButtonReleasedMenu(int8_t button, uint32_t time) {
+    Serial.print("buttonReleased menu ");
+    Serial.print(button);
+    Serial.print(" ");
+    Serial.println(time);
+    button -= 8;
+    if (button >= 0 && button < 4) {
+        if (time < LONG_PRESS_TIME_MILLIS) {
+            loadScale(USER_PROFILES[button]);
+        } else {
+            for (int8_t i = 0; i < 12; i++) {
+                USER_PROFILES[button][i] = NOTES[i];
             }
         }
     }
-    return (nearestNote + a4_semitones) / 12.0f;
+}
+
+void loadScale(const bool * from) {
+    for (int8_t i = 0; i < 12; i++) {
+        NOTES[i] = from[i];
+    }
+}
+
+void transpose(int8_t delta) {
+    bool notes[12];
+    for (int8_t i = 0; i < 12; i++) {
+        notes[i] = NOTES[mod12(i + delta)];
+    }
+    loadScale(notes);
+}
+
+const int8_t A4_SEMITONES = 33;
+int8_t quantizeNote(float inputVoltage) {
+    const float semitones = inputVoltage * 12.0f - A4_SEMITONES;
+    const int8_t semitonesInt = round(semitones);
+    if (NOTES[mod12(semitonesInt)]) {
+        return semitonesInt;
+    }
+    
+    for (int8_t i = 0; i < 12; i++) {
+        if (NOTES[mod12(semitonesInt + i)]) {
+            return semitonesInt + i;
+        }
+        if (NOTES[mod12(semitonesInt - i)]) {
+            return semitonesInt - i;
+        }
+    }
+
+    return -127;
+}
+
+float semitonesToVoltage(int8_t semitones) {
+    return (semitones + A4_SEMITONES) / 12.0f;
 }
 
 void loop() {
     {
         const bool menuButton = !digitalReadFast(MENU_BUTTON_PIN);
-        SHOULD_UPDATE_UI = menuButton != MENU_ON;
+        SHOULD_UPDATE_UI |= menuButton != MENU_ON;
         MENU_ON = menuButton;
     }
     handleButtons();
 
-    /*
     {
-        static float output[2] = {0, 0};
+        static int8_t outputNotes[2] = {0, 0};
         const uint8_t INPUT_PINS[2] = {ANALOG_INPUT_PIN_A, ANALOG_INPUT_PIN_B};
         for (uint8_t i = 0; i < 2; i++) {
             float inputVoltage = readInputVoltage(INPUT_PINS[i]);
-            float outputVoltage =  quantize(inputVoltage);
-            writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
+            int8_t semitones = quantizeNote(inputVoltage);
+            float outputVoltage = semitonesToVoltage(semitones);
+            if (semitones != outputNotes[i]) {
+                outputNotes[i] = semitones;
+                writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
+                // ping output trigger
+                // set bright led
+                SHOULD_UPDATE_UI = true;
+            }
         }
     }
-    */
 
     if (SHOULD_UPDATE_UI) {
+        delay(1);
         SHOULD_UPDATE_UI = false;
         if (MENU_ON) {
             for (int i = 0; i <= 12; i++) {
-                Tlc.set(LED_INDEX[i], LED_DIM);
+                Tlc.set(LED_INDEX[i], LED_OFF);
             }
             Tlc.update();
         } else {
@@ -213,6 +298,7 @@ void loop() {
             }
             Tlc.update();
         }
+        delay(1);
     }
 }
 
