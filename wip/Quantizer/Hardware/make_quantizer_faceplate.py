@@ -8,7 +8,7 @@ from svgwrite.path import Path
 
 HP = 8
 
-module = Module(HP, (0, 12), title="Quantizer", filename="quantizer_faceplate.svg", cosmetics=True)
+module = Module(HP, (0, 12), title="Quant", filename="quantizer_faceplate.svg")
 
 
 def get_center(circle):
@@ -22,7 +22,10 @@ for y in [0, inches(2.3)]:
 
 module.add(Button(inches(1.2), inches(1.95)))
 
-LEDButton = BasicCircle(0, 0, inches(3/16))
+class LEDButton(Button):
+    def __init__(self, x, y):
+        super(LEDButton, self).__init__(x, y)
+        self.radius = inches(2.5/16)
 
 column = [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0]
 y = inches(.2)

@@ -19,6 +19,7 @@
 // TODO: Currently, I save the whole state to EEPROM every time it is updated. This is
 //       very slow and uses up limited EEPROM writes. It would be pretty easy to only
 //       update the part that is acutally changing each time.
+// TODO: Show selected options when in menu mode.
 
 const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
 const uint16_t LED_DIM = LED_BRIGHT / 4;
