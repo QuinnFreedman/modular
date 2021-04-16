@@ -9,24 +9,21 @@
 //       TRIGGER_INPUT, the main loop should wait to look at the input until it recieves
 //       a trigger on the trigger pins, effectively like a sample-and-hold. pinMode()
 //       will need to be changed accordingly.
-// TODO: When the input voltage is on the edge between two notes, it will buzz back and
-//       forth between them, which sounds bad. A quick patch would be to apply a low-pass
-//       filter to the input to reduce noise in the signal. A better solution would be to
-//       implement hysteresis thresholding on the input signal so it will only change
-//       notes if it goes significantly closer to the next note.
-// TODO: The LED buttons corrosponding to the notes being actively played should be
-//       set to LED_BRIGHT
 // TODO: Currently, I save the whole state to EEPROM every time it is updated. This is
 //       very slow and uses up limited EEPROM writes. It would be pretty easy to only
 //       update the part that is acutally changing each time.
 // TODO: Show selected options when in menu mode.
 
+#define SHOW_BOTH_CHANNELS true
+
 const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
-const uint16_t LED_DIM = LED_BRIGHT / 4;
+const uint16_t LED_DIM = LED_BRIGHT / 10;
 const uint16_t LED_OFF = 0;
 
 const uint32_t LONG_PRESS_TIME_MILLIS = 500;
-const float HYSTERESIS_THRESHOLD = 0.4;
+const float HYSTERESIS_THRESHOLD = 0.7;
+
+const uint32_t TRIGGER_TIME_MS = 50;
 
 const uint8_t BUTTON_LADDER_PIN = A0;
 const uint8_t ANALOG_INPUT_PIN_A = A6;
@@ -86,7 +83,6 @@ void setup() {
     pinMode(TRIG_PIN_A, OUTPUT);
     pinMode(TRIG_PIN_B, OUTPUT);
     pinMode(MENU_BUTTON_PIN, INPUT_PULLUP);
-    // attachInterrupt(digitalPinToInterrupt(MENU_BUTTON_PIN), handleMenuButton, CHANGE);
 
     Tlc.init();
     Tlc.clear();
@@ -201,7 +197,7 @@ void onButtonPressedNormal(int8_t button) {
     Serial.println(button);
     state.notes[button] = !state.notes[button];
     SHOULD_UPDATE_UI = true;
-    EEPROM.put(offset, state.notes);
+    EEPROM.put(0, state);
 }
 
 void onButtonReleasedNormal(int8_t button, uint32_t time) {
@@ -218,7 +214,7 @@ void onButtonPressedMenu(int8_t button) {
     case 0:
     case 1: 
         state.triggers[button] = (TriggerMode) !state.triggers[button];
-        EEPROM.put(offset, state.notes);
+        EEPROM.put(0, state);
         break;
     case 2:
         transpose(1);
@@ -253,7 +249,7 @@ void onButtonReleasedMenu(int8_t button, uint32_t time) {
                 state.userProfiles[button][i] = state.notes[i];
             }
             // const size_t offset = (size_t) &(state.userProfiles[button]) - (size_t) &state;
-            EEPROM.put(offset, state.notes);
+            EEPROM.put(0, state);
         }
     }
 }
@@ -273,12 +269,7 @@ void transpose(int8_t delta) {
     loadScale(notes);
 }
 
-const int8_t A4_SEMITONES = 33;
-int8_t quantizeNote(float inputVoltage, int8_t lastNote) {
-    const float semitones = inputVoltage * 12.0f - A4_SEMITONES;
-    if (abs(semitones - lastNote) < 0.5 + HYSTERESIS_THRESHOLD / 2) {
-        return lastNote;
-    }
+inline int8_t quantizeHelper(float semitones) {
     const int8_t semitonesInt = round(semitones);
     if (state.notes[mod12(semitonesInt)]) {
         return semitonesInt;
@@ -295,6 +286,18 @@ int8_t quantizeNote(float inputVoltage, int8_t lastNote) {
 
     return -127;
 }
+ 
+const int8_t A4_SEMITONES = 33;
+int8_t quantizeNote(float inputVoltage, int8_t lastNote) {
+    const float semitones = inputVoltage * 12.0f - A4_SEMITONES;
+    const int8_t target = quantizeHelper(semitones);
+    const float deltaCutoff = abs((target - lastNote) / 2.0);
+    const float delta = abs(semitones - lastNote);
+    if (delta > deltaCutoff + HYSTERESIS_THRESHOLD) {
+        return target;
+    }
+    return lastNote;
+}
 
 float semitonesToVoltage(int8_t semitones) {
     return (semitones + A4_SEMITONES) / 12.0f;
@@ -308,22 +311,44 @@ void loop() {
     }
     handleButtons();
 
+    bool activeNotes[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
     {
+        static float inputVoltageBuffer[2] = {0, 0};
         static int8_t outputNotes[2] = {0, 0};
+        static uint32_t lastTriggerTime[2] = {0, 0};
         const uint8_t INPUT_PINS[2] = {ANALOG_INPUT_PIN_A, ANALOG_INPUT_PIN_B};
+        const uint8_t TRIGGER_PINS[2] = {TRIG_PIN_A, TRIG_PIN_B};
+        const uint32_t now = millis();
+        
         for (uint8_t i = 0; i < 2; i++) {
             float inputVoltage = readInputVoltage(INPUT_PINS[i]);
-            int8_t semitones = quantizeNote(inputVoltage);
+            inputVoltageBuffer[i] = (inputVoltageBuffer[i] + inputVoltage) / 2.0;
+            inputVoltage = inputVoltageBuffer[i];
+            int8_t semitones = quantizeNote(inputVoltage, outputNotes[i]);
             float outputVoltage = semitonesToVoltage(semitones);
             if (semitones != outputNotes[i]) {
                 outputNotes[i] = semitones;
                 writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
-                // TODO ping output trigger
-                // TODO set bright led
+                lastTriggerTime[i] = now;
+                digitalWrite(TRIGGER_PINS[i], HIGH);
+                #if !SHOW_BOTH_CHANNELS
+                if (i == 0)
+                #endif
+                    activeNotes[mod12(semitones)] = true;
+                
                 SHOULD_UPDATE_UI = true;
+            }
+            if (i == 1) {
+                Serial.print(outputNotes[1]);
+                Serial.print(",");
+                Serial.print(inputVoltage * 12.0f - A4_SEMITONES);
+                Serial.println();
             }
         }
     }
+
+    //TODO turn of trigger
 
     if (SHOULD_UPDATE_UI) {
         delay(1);
@@ -335,7 +360,10 @@ void loop() {
             Tlc.update();
         } else {
             for (int i = 0; i <= 12; i++) {
-                Tlc.set(LED_INDEX[i], state.notes[i] ? LED_DIM : LED_OFF);
+                Tlc.set(LED_INDEX[i],
+                    activeNotes[i] ? LED_BRIGHT :
+                    state.notes[i] ? LED_DIM :
+                    LED_OFF);
             }
             Tlc.update();
         }
