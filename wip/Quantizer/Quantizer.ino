@@ -16,6 +16,8 @@
 
 #define SHOW_BOTH_CHANNELS true
 
+const uint32_t TRIGGER_TIME = 100;
+
 const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
 const uint16_t LED_DIM = LED_BRIGHT / 10;
 const uint16_t LED_OFF = 0;
@@ -338,12 +340,9 @@ void loop() {
                     activeNotes[mod12(semitones)] = true;
                 
                 SHOULD_UPDATE_UI = true;
-            }
-            if (i == 1) {
-                Serial.print(outputNotes[1]);
-                Serial.print(",");
-                Serial.print(inputVoltage * 12.0f - A4_SEMITONES);
-                Serial.println();
+            } else if (triggerOut[i] && now - lastTriggerTime[i] > TRIGGER_TIME) {
+                triggerOut[i] = false;
+                digitalWrite(TRIGGER_PINS[i], LOW);
             }
         }
     }
