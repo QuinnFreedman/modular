@@ -36,16 +36,18 @@ Switch between input and output mode for the triggers of channels 1 and 2 respec
 
 ### (3), (4)
 
-Transpose up, down. Move the whole scale one note up or down.
+Transpose up, down. Move the whole scale one note up **(3)** or down **(4)**.
 
 ### 5-8
 
 Preset scales. Pressing these buttons while holding the Menu button will load the given scale.
 
 * **5**: Chromatic
-* **6**: Major
-* **7**: Minor
-* **8**: Pentatonic Major
+* **6**: Major/Minor
+* **7**: Pentatonic Major/Minor
+* **8**: Major triad
+
+**Why are major and minor the same button?** The only difference between a major scale and its relative minor is the root note. The scales include the same notes. The idea of a root note doesn't really make sense for a quantizer. The quantizer only cares about which notes are let through. There aren't enough buttons to be able to select any individual major or minor scale, so you just need to pick the overall type of scale with buttons 5-8 and then transpose it up/down with buttons 3-4 to get the exact scale you want.
  
 ### 8-12
 
