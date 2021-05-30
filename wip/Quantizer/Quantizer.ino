@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include <Tlc5940.h>
 #include "lib/digitalWriteFast.h"
+#include "src/bitVector12.hpp"
 
 // TODO: Input/output triggers. When triggerMode is TRIGGER_OUTPUT, a short trigger
 //       should be sent to each trigger pin every time the note changes. If it is
@@ -12,9 +13,8 @@
 // TODO: Currently, I save the whole state to EEPROM every time it is updated. This is
 //       very slow and uses up limited EEPROM writes. It would be pretty easy to only
 //       update the part that is acutally changing each time.
-// TODO: Show selected options when in menu mode.
 
-#define SHOW_BOTH_CHANNELS true
+#define SHOW_BOTH_CHANNELS false
 
 const uint32_t TRIGGER_TIME = 100;
 
@@ -38,12 +38,20 @@ const uint8_t TRIG_PIN_B = 5;
 
 const uint16_t ANALOG_READ_MAX_VALUE = 1023;
 
+uint16_t reverse12(uint16_t x) {
+    uint16_t result = 0;
+    for (uint8_t i = 0; i < 12; i++) {
+        bitWrite(result, 11 - i, bitRead(x, i));
+    }
+    return result;
+}
+
 const uint8_t LED_INDEX[12] = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-const bool SCALES[4][12] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, // chromatic
-    {1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, // major
-    {1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0}, // minor
-    {1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0}, // pentatonic
+const BitVector12 SCALES[4] = {
+    BitVector12(reverse12(0b111111111111)), // chromatic
+    BitVector12(reverse12(0b101011010101)), // major/minor
+    BitVector12(reverse12(0b101010010100)), // pentatonic
+    BitVector12(reverse12(0b100010010000)), // triad
 };
 
 enum TriggerMode {TRIGGER_OUTPUT = false, TRIGGER_INPUT = true };
@@ -53,19 +61,19 @@ float BUTTON_LADDER_CUTOFFS[12];
 bool showMenu = false;
 
 typedef struct {
-    bool notes[12];
+    BitVector12 notes;
     TriggerMode triggers[2];
-    bool userProfiles[4][12];
+    BitVector12 userProfiles[4];
 } State;
 
 State state = {
-    notes: {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    notes: BitVector12(0xFFF),
     triggers: {TRIGGER_OUTPUT, TRIGGER_OUTPUT},
     userProfiles: {
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        BitVector12(0),
+        BitVector12(0),
+        BitVector12(0),
+        BitVector12(0),
     },
 };
 
@@ -105,7 +113,7 @@ void setup() {
     }
 }
 
-inline int16_t modulo(int16_t x, int16_t m) {
+inline int16_t modulo(const int16_t x, const int16_t m) {
     int16_t mod = x % m;
     if (mod < 0) {
         mod += m;
@@ -113,21 +121,21 @@ inline int16_t modulo(int16_t x, int16_t m) {
     return mod;
 }
 
-int16_t mod12(int16_t x) { return modulo(x, 12); }
+int16_t mod12(const int16_t x) { return modulo(x, 12); }
 
-float readInputVoltage(uint8_t pin) {
+float readInputVoltage(const uint8_t pin) {
     uint16_t rawValue = analogRead(pin);
     return (rawValue / (float) ANALOG_READ_MAX_VALUE) * 20.0 - 10.0;
 }
 
-void writeOutputVoltage(uint8_t csPin, uint8_t dacChannel, float voltage) {
+void writeOutputVoltage(const uint8_t csPin, const int8_t dacChannel, const float voltage) {
     const float minVoltage = -10;
     const float maxVoltage = 10;
     float dacOutput = (voltage - minVoltage) / (maxVoltage - minVoltage);
     MCP4922_write(csPin, dacChannel, dacOutput);
 }
 
-bool allSame(int8_t* buffer, uint8_t bufferSize, int8_t* value) {
+bool allSame(const int8_t* buffer, const int8_t bufferSize, int8_t* value) {
     int8_t first = buffer[0];
     for (uint8_t i = 1; i < bufferSize; i++) {
         if (buffer[i] != first) return false;
@@ -197,7 +205,7 @@ inline void handleButtons() {
 void onButtonPressedNormal(int8_t button) {
     Serial.print("buttonPressed normal ");
     Serial.println(button);
-    state.notes[button] = !state.notes[button];
+    state.notes.toggle(button);
     SHOULD_UPDATE_UI = true;
     EEPROM.put(0, state);
 }
@@ -219,16 +227,19 @@ void onButtonPressedMenu(int8_t button) {
         EEPROM.put(0, state);
         break;
     case 2:
-        transpose(1);
+        state.notes.shiftUp();
+        EEPROM.put(0, state);
         break;
     case 3:
-        transpose(-1);
+        state.notes.shiftDown();
+        EEPROM.put(0, state);
         break;
     case 4:
     case 5:
     case 6:
     case 7:
-        loadScale(SCALES[button - 4]);
+        state.notes = SCALES[button - 4];
+        EEPROM.put(0, state);
         break;
     
     default:
@@ -245,30 +256,20 @@ void onButtonReleasedMenu(int8_t button, uint32_t time) {
     button -= 8;
     if (button >= 0 && button < 4) {
         if (time < LONG_PRESS_TIME_MILLIS) {
-            loadScale(state.userProfiles[button]);
+            state.notes = state.userProfiles[button];
+            EEPROM.put(0, state);
         } else {
-            for (int8_t i = 0; i < 12; i++) {
-                state.userProfiles[button][i] = state.notes[i];
-            }
+            state.userProfiles[button] = state.notes;
             // const size_t offset = (size_t) &(state.userProfiles[button]) - (size_t) &state;
             EEPROM.put(0, state);
         }
     }
 }
 
-void loadScale(const bool * from) {
+void transpose(bool * data, int8_t delta) {
     for (int8_t i = 0; i < 12; i++) {
-        state.notes[i] = from[i];
+        data[i] = data[mod12(i + delta)];
     }
-    EEPROM.put(0, state);
-}
-
-void transpose(int8_t delta) {
-    bool notes[12];
-    for (int8_t i = 0; i < 12; i++) {
-        notes[i] = state.notes[mod12(i + delta)];
-    }
-    loadScale(notes);
 }
 
 inline int8_t quantizeHelper(float semitones) {
@@ -305,6 +306,37 @@ float semitonesToVoltage(int8_t semitones) {
     return (semitones + A4_SEMITONES) / 12.0f;
 }
 
+bool scalesEqualWithTranspositions(const BitVector12 a, const BitVector12 b) {
+    if (a == b) return true;
+    BitVector12 transposed = a;
+    for (uint8_t i = 1; i < 12; i++) {
+        transposed.shiftUp();
+        if (transposed == b) return true;
+    }
+    return false;
+}
+
+uint16_t generateMenuUI() {
+    uint16_t result = 0;
+    bitWrite(result, 0, state.triggers[0]);
+    bitWrite(result, 1, state.triggers[1]);
+    const BitVector12 scales[8] = {
+        SCALES[0],
+        SCALES[1],
+        SCALES[2],
+        SCALES[3],
+        state.userProfiles[0],
+        state.userProfiles[1],
+        state.userProfiles[2],
+        state.userProfiles[3],
+    };
+    for (uint8_t i = 0; i < 8; i++) {
+        bool equal = scalesEqualWithTranspositions(state.notes, scales[i]);
+        bitWrite(result, i + 4, equal);
+    }
+    return result;
+}
+
 void loop() {
     {
         const bool menuButton = !digitalReadFast(MENU_BUTTON_PIN);
@@ -318,6 +350,7 @@ void loop() {
     {
         static float inputVoltageBuffer[2] = {0, 0};
         static int8_t outputNotes[2] = {0, 0};
+        static bool triggerOut[2] = {0, 0};
         static uint32_t lastTriggerTime[2] = {0, 0};
         const uint8_t INPUT_PINS[2] = {ANALOG_INPUT_PIN_A, ANALOG_INPUT_PIN_B};
         const uint8_t TRIGGER_PINS[2] = {TRIG_PIN_A, TRIG_PIN_B};
@@ -329,10 +362,17 @@ void loop() {
             inputVoltage = inputVoltageBuffer[i];
             int8_t semitones = quantizeNote(inputVoltage, outputNotes[i]);
             float outputVoltage = semitonesToVoltage(semitones);
+            if (i == 0) {
+                Serial.print(inputVoltage);
+                Serial.print(",");
+                Serial.print(outputVoltage);
+                Serial.println();
+            }
             if (semitones != outputNotes[i]) {
                 outputNotes[i] = semitones;
                 writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
                 lastTriggerTime[i] = now;
+                triggerOut[i] = true;
                 digitalWrite(TRIGGER_PINS[i], HIGH);
                 #if !SHOW_BOTH_CHANNELS
                 if (i == 0)
@@ -347,14 +387,13 @@ void loop() {
         }
     }
 
-    //TODO turn of trigger
-
     if (SHOULD_UPDATE_UI) {
         delay(1);
         SHOULD_UPDATE_UI = false;
         if (showMenu) {
+            const uint16_t ui = generateMenuUI();
             for (int i = 0; i <= 12; i++) {
-                Tlc.set(LED_INDEX[i], LED_OFF);
+                Tlc.set(LED_INDEX[i], bitRead(ui, i) ? LED_DIM : LED_OFF);
             }
             Tlc.update();
         } else {
