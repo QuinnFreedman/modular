@@ -5,33 +5,14 @@
 #include "lib/digitalWriteFast.h"
 #include "src/bitVector12.hpp"
 
+#include "config.h"
+
 // TODO: Currently, I save the whole state to EEPROM every time it is updated. This is
 //       very slow and uses up limited EEPROM writes. It would be pretty easy to only
 //       update the part that is acutally changing each time.
 
 #define DEBUG false
 #define DEBUG2 false
-#define SHOW_BOTH_CHANNELS false
-
-const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
-const uint16_t LED_DIM = LED_BRIGHT / 10;
-const uint16_t LED_OFF = 0;
-
-const uint32_t TRIGGER_TIME_MS = 100;
-
-const uint32_t LONG_PRESS_TIME_MILLIS = 500;
-const float HYSTERESIS_THRESHOLD = 0.7;
-
-const uint8_t BUTTON_LADDER_PIN = A0;
-const uint8_t ANALOG_INPUT_PIN_A = A6;
-const uint8_t ANALOG_INPUT_PIN_B = A7;
-const uint8_t MENU_BUTTON_PIN = 2;
-const uint8_t DAC_CS_PIN = 8;
-
-const uint8_t TRIG_PIN_A = 4;
-const uint8_t TRIG_PIN_B = 5;
-
-const uint16_t ANALOG_READ_MAX_VALUE = 1023;
 
 uint16_t reverse12(uint16_t x) {
     uint16_t result = 0;
