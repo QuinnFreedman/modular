@@ -5,27 +5,22 @@
 #include "lib/digitalWriteFast.h"
 #include "src/bitVector12.hpp"
 
-// TODO: Input/output triggers. When triggerMode is TRIGGER_OUTPUT, a short trigger
-//       should be sent to each trigger pin every time the note changes. If it is
-//       TRIGGER_INPUT, the main loop should wait to look at the input until it recieves
-//       a trigger on the trigger pins, effectively like a sample-and-hold. pinMode()
-//       will need to be changed accordingly.
 // TODO: Currently, I save the whole state to EEPROM every time it is updated. This is
 //       very slow and uses up limited EEPROM writes. It would be pretty easy to only
 //       update the part that is acutally changing each time.
 
+#define DEBUG false
+#define DEBUG2 false
 #define SHOW_BOTH_CHANNELS false
-
-const uint32_t TRIGGER_TIME = 100;
 
 const uint16_t LED_BRIGHT = (pow(2, 12) - 1) / 10;
 const uint16_t LED_DIM = LED_BRIGHT / 10;
 const uint16_t LED_OFF = 0;
 
+const uint32_t TRIGGER_TIME_MS = 100;
+
 const uint32_t LONG_PRESS_TIME_MILLIS = 500;
 const float HYSTERESIS_THRESHOLD = 0.7;
-
-const uint32_t TRIGGER_TIME_MS = 50;
 
 const uint8_t BUTTON_LADDER_PIN = A0;
 const uint8_t ANALOG_INPUT_PIN_A = A6;
@@ -78,6 +73,8 @@ State state = {
 };
 
 bool SHOULD_UPDATE_UI = true;
+bool INVALIDATE_HYSTERESIS_CACHE = false;
+uint8_t activeNotes[] = {0, 0};
 
 void initButtonCutoffs() {
     for (uint8_t i = 0; i < 12; i++) {
@@ -90,8 +87,6 @@ void setup() {
     pinMode(DAC_CS_PIN, OUTPUT);
     pinMode(ANALOG_INPUT_PIN_A, INPUT);
     pinMode(ANALOG_INPUT_PIN_B, INPUT);
-    pinMode(TRIG_PIN_A, OUTPUT);
-    pinMode(TRIG_PIN_B, OUTPUT);
     pinMode(MENU_BUTTON_PIN, INPUT_PULLUP);
 
     Tlc.init();
@@ -108,9 +103,49 @@ void setup() {
     initButtonCutoffs();
 
     if (EEPROM.read(0) != 255) {
+        #if DEBUG
         Serial.println("Reading state from EEPROM");
+        #endif
         EEPROM.get(0, state);
     }
+
+    delay(100);
+    
+    pinMode(TRIG_PIN_A, state.triggers[0] == TRIGGER_OUTPUT ? OUTPUT : INPUT);
+    pinMode(TRIG_PIN_B, state.triggers[1] == TRIGGER_OUTPUT ? OUTPUT : INPUT);
+    enableInterrupt(TRIG_PIN_A);
+    enableInterrupt(TRIG_PIN_B);
+}
+
+inline bool pinIsRising(uint16_t pin, byte oldValues, byte newValues) {
+    const uint8_t bitMask = digitalPinToBitMask(pin);
+    const uint8_t wasHigh = oldValues & bitMask;
+    const uint8_t isHigh  = newValues & bitMask;
+    return isHigh && !wasHigh;
+}
+
+ISR(PCINT2_vect) {
+    #ifndef __AVR__
+    static_assert(false, "Interrupts are programmed assuming that all interrupt pins are in PORTD. This may not be true on non-AVR boards.");
+    #endif
+    volatile static byte oldValues = 0;
+    const byte newValues = PIND;
+    if (state.triggers[0] == TRIGGER_INPUT &&
+            pinIsRising(TRIG_PIN_A, oldValues, newValues)) {
+        doQuantizeChannel(0, false);
+    }
+    if (state.triggers[1] == TRIGGER_INPUT &&
+            pinIsRising(TRIG_PIN_B, oldValues, newValues)) {
+        doQuantizeChannel(1, false);
+    }
+        
+    oldValues = newValues;
+}
+
+inline void enableInterrupt(byte pin) {
+    *digitalPinToPCMSK(pin) |= bit (digitalPinToPCMSKbit(pin));  // enable pin
+    PCIFR  |= bit (digitalPinToPCICRbit(pin)); // clear any outstanding interrupt
+    PCICR  |= bit (digitalPinToPCICRbit(pin)); // enable interrupt for the group
 }
 
 inline int16_t modulo(const int16_t x, const int16_t m) {
@@ -203,27 +238,43 @@ inline void handleButtons() {
 }
 
 void onButtonPressedNormal(int8_t button) {
+    #if DEBUG
     Serial.print("buttonPressed normal ");
     Serial.println(button);
+    #endif
     state.notes.toggle(button);
+    if (state.notes == BitVector12(0)) {
+        state.notes.toggle(button);
+    }
     SHOULD_UPDATE_UI = true;
+    INVALIDATE_HYSTERESIS_CACHE = true;
+    for (uint8_t channel = 0; channel < 2; channel++) {
+        if (state.triggers[channel] == TRIGGER_INPUT) {
+            doQuantizeChannel(channel, false);
+        }
+    }
     EEPROM.put(0, state);
 }
 
 void onButtonReleasedNormal(int8_t button, uint32_t time) {
+    #if DEBUG
     Serial.print("buttonReleased normal ");
     Serial.print(button);
     Serial.print(" ");
     Serial.println(time);
+    #endif
 }
 
 void onButtonPressedMenu(int8_t button) {
+    #if DEBUG
     Serial.print("buttonPressed menu ");
     Serial.println(button);
+    #endif
     switch (button) {
     case 0:
     case 1: 
         state.triggers[button] = (TriggerMode) !state.triggers[button];
+        pinMode(button ? TRIG_PIN_A : TRIG_PIN_B, state.triggers[button] == TRIGGER_OUTPUT ? OUTPUT : INPUT);
         EEPROM.put(0, state);
         break;
     case 2:
@@ -249,10 +300,12 @@ void onButtonPressedMenu(int8_t button) {
 }
 
 void onButtonReleasedMenu(int8_t button, uint32_t time) {
+    #if DEBUG
     Serial.print("buttonReleased menu ");
     Serial.print(button);
     Serial.print(" ");
     Serial.println(time);
+    #endif
     button -= 8;
     if (button >= 0 && button < 4) {
         if (time < LONG_PRESS_TIME_MILLIS) {
@@ -337,6 +390,50 @@ uint16_t generateMenuUI() {
     return result;
 }
 
+void doQuantizeChannel(const uint8_t channel, const bool shouldUpdateTrigger) {
+    static float inputVoltageBuffer[2] = {0, 0};
+    static int8_t outputNotes[2] = {0, 0};
+    static bool triggerOut[2] = {0, 0};
+    static uint32_t lastTriggerTime[2] = {0, 0};
+
+    if (INVALIDATE_HYSTERESIS_CACHE) {
+        outputNotes[0] = -1;
+        outputNotes[1] = -1;
+    }
+    
+    const uint8_t INPUT_PINS[2] = {ANALOG_INPUT_PIN_A, ANALOG_INPUT_PIN_B};
+    const uint8_t TRIGGER_PINS[2] = {TRIG_PIN_A, TRIG_PIN_B};
+    const uint32_t now = millis();
+    const uint8_t i = channel;
+    
+    float inputVoltage = readInputVoltage(INPUT_PINS[i]);
+    inputVoltageBuffer[i] = (inputVoltageBuffer[i] + inputVoltage) / 2.0;
+    inputVoltage = inputVoltageBuffer[i];
+    const int8_t semitones = quantizeNote(inputVoltage, outputNotes[i]);
+    const float outputVoltage = semitonesToVoltage(semitones);
+    if (DEBUG2 && i == 0) {
+        Serial.print(inputVoltage);
+        Serial.print(",");
+        Serial.print(outputVoltage);
+        Serial.println();
+    }
+    if (semitones != outputNotes[i]) {
+        outputNotes[i] = semitones;
+        writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
+        lastTriggerTime[i] = now;
+        if (shouldUpdateTrigger) {
+            triggerOut[i] = true;
+            digitalWrite(TRIGGER_PINS[i], HIGH);
+        }
+        activeNotes[i] = mod12(semitones);
+        
+        SHOULD_UPDATE_UI = true;
+    } else if (shouldUpdateTrigger && triggerOut[i] && now - lastTriggerTime[i] > TRIGGER_TIME_MS) {
+        triggerOut[i] = false;
+        digitalWrite(TRIGGER_PINS[i], LOW);
+    }
+}
+
 void loop() {
     {
         const bool menuButton = !digitalReadFast(MENU_BUTTON_PIN);
@@ -345,45 +442,9 @@ void loop() {
     }
     handleButtons();
 
-    bool activeNotes[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    {
-        static float inputVoltageBuffer[2] = {0, 0};
-        static int8_t outputNotes[2] = {0, 0};
-        static bool triggerOut[2] = {0, 0};
-        static uint32_t lastTriggerTime[2] = {0, 0};
-        const uint8_t INPUT_PINS[2] = {ANALOG_INPUT_PIN_A, ANALOG_INPUT_PIN_B};
-        const uint8_t TRIGGER_PINS[2] = {TRIG_PIN_A, TRIG_PIN_B};
-        const uint32_t now = millis();
-        
-        for (uint8_t i = 0; i < 2; i++) {
-            float inputVoltage = readInputVoltage(INPUT_PINS[i]);
-            inputVoltageBuffer[i] = (inputVoltageBuffer[i] + inputVoltage) / 2.0;
-            inputVoltage = inputVoltageBuffer[i];
-            int8_t semitones = quantizeNote(inputVoltage, outputNotes[i]);
-            float outputVoltage = semitonesToVoltage(semitones);
-            if (i == 0) {
-                Serial.print(inputVoltage);
-                Serial.print(",");
-                Serial.print(outputVoltage);
-                Serial.println();
-            }
-            if (semitones != outputNotes[i]) {
-                outputNotes[i] = semitones;
-                writeOutputVoltage(DAC_CS_PIN, i, outputVoltage);
-                lastTriggerTime[i] = now;
-                triggerOut[i] = true;
-                digitalWrite(TRIGGER_PINS[i], HIGH);
-                #if !SHOW_BOTH_CHANNELS
-                if (i == 0)
-                #endif
-                    activeNotes[mod12(semitones)] = true;
-                
-                SHOULD_UPDATE_UI = true;
-            } else if (triggerOut[i] && now - lastTriggerTime[i] > TRIGGER_TIME) {
-                triggerOut[i] = false;
-                digitalWrite(TRIGGER_PINS[i], LOW);
-            }
+    for (uint8_t i = 0; i < 2; i++) {
+        if (state.triggers[i] == TRIGGER_OUTPUT) {
+            doQuantizeChannel(i, true);
         }
     }
 
@@ -398,8 +459,14 @@ void loop() {
             Tlc.update();
         } else {
             for (int i = 0; i <= 12; i++) {
+                const bool isActive = (i == activeNotes[0]
+                #if SHOW_BOTH_CHANNELS
+                    || i == activeNotes[1]
+                #endif
+                );
+                
                 Tlc.set(LED_INDEX[i],
-                    activeNotes[i] ? LED_BRIGHT :
+                    isActive ? LED_BRIGHT :
                     state.notes[i] ? LED_DIM :
                     LED_OFF);
             }

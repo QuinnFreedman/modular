@@ -3,6 +3,7 @@
 
 class BitVector12 {
     public:
+    BitVector12() : data(0) {};
     BitVector12(const uint16_t value) : data(value) {};
     BitVector12(const BitVector12 &other) : data(other.data) {};
     bool operator [] (const uint8_t i) const { return bitRead(data, i); }
