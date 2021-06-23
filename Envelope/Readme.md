@@ -68,7 +68,7 @@ ADSR is a "standard" linear envelope mode with attack, decay, sustain, and relea
     <img alt="AARR graph" src="images/AARR.svg" width=500 />
 </p>
 
-AARR (or A,A',D,D') mode gives up control of the decay and sustain. Instead, knobs (2) and (4) are used to control the exponential rate of the attack & decay. These controls can go through zero, so both attack and decay can be either exponential or logarithmic.
+AARR (or A,A',R,R') mode gives up control of the decay and sustain. Instead, knobs (2) and (4) are used to control the exponential rate of the attack & release. These controls can go through zero, so both attack and decay can be either exponential or logarithmic.
 
 ## AARR Loop mode
 
