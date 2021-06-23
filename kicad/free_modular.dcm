@@ -1,0 +1,17 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP D6RLWHF1_LFS
+D Pushbutton Switches Top actuated Keyswitch illuminated, SPST, THT, 1.30N, 12*11.4*12.8,
+$ENDCMP
+#
+$CMP THONKICONN
+D 2-pin audio jack receptable (mono/TS connector) with switching contact
+K audio jack receptable mono headphones phone TS connector
+F ~
+$ENDCMP
+#
+$CMP TL1265
+D Pushbutton Switches Top actuated Keyswitch illuminated, SPST, THT, 1.30N, 12*11.4*12.8,
+$ENDCMP
+#
+#End Doc Library

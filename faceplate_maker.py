@@ -230,20 +230,20 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
        self.label = label
        self.is_output = is_output
        self.font_size = font_size
-       self.hole_radius = self.radius
-       self.hole_center = self.offset
        self.label_above = label_above
        
     def draw_holes(self, context):
-        return [context.circle(center=self.hole_center, r=self.hole_radius)]
+        return [context.circle(center=self.offset, r=self.radius)]
 
     def draw_stencil(self, context):
+        hole_center = self.offset
+        hole_radius = self.radius
         text_offset = 8
         if self.label_above:
             text_offset = -5.5
             
         text_props = {
-            "insert": (self.hole_center[0], self.hole_center[1] + text_offset),
+            "insert": (hole_center[0], hole_center[1] + text_offset),
             "text_anchor": "middle",
         }
 
@@ -256,14 +256,14 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         elements = []
         if self.is_output:
             padding = 1
-            width = 2 * (self.hole_radius + padding)
+            width = 2 * (hole_radius + padding)
             height = 15 if self.label else width
             elements.append(context.rect(
-                insert=(self.hole_center[0] - width/2, self.hole_center[1] - self.hole_radius - padding),
+                insert=(hole_center[0] - width/2, hole_center[1] - hole_radius - padding),
                 size=(width, height),
                 fill="#000000",
                 rx=1.5))
-            elements.append(context.circle(center=self.hole_center, r=self.hole_radius+.3, fill="#ffffff"))
+            elements.append(context.circle(center=hole_center, r=hole_radius+.3, fill="#ffffff"))
 
         elements.append(context.text(self.label, **text_props))
 
@@ -312,6 +312,11 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
             fill=gradient.get_paint_server()
         ))
         return elements
+        
+class JackSocketCentered(JackSocket):
+    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
+        super(JackSocketCentered, self).__init__(x, y, label, is_output, rotation, font_size, label_above)
+        self.offset = (0, 0)
 
 
 def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
@@ -518,6 +523,10 @@ def draw_button_cosmetic(self, context):
 
 Button = BasicCircle(0, 0, 4)
 setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
+
+TL1265 = BasicCircle(3.0, 4.5/2, 2.5)
+setattr(TL1265, 'draw_cosmetics', draw_button_cosmetic)
+    
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
