@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="TL1265 pinout.svg"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 326.57138 265.33929"
+   height="265.33929mm"
+   width="326.57138mm">
+  <defs
+     id="defs2">
+    <inkscape:path-effect
+       split_items="false"
+       oposite_fuse="false"
+       fuse_paths="false"
+       discard_orig_path="false"
+       mode="free"
+       lpeversion="1"
+       is_visible="true"
+       id="path-effect851"
+       center_point="124.46291,135.91242"
+       end_point="114.73002,135.88243"
+       start_point="134.1958,135.94241"
+       effect="mirror_symmetry" />
+    <inkscape:path-effect
+       split_items="false"
+       oposite_fuse="false"
+       fuse_paths="false"
+       discard_orig_path="false"
+       mode="free"
+       lpeversion="1"
+       is_visible="true"
+       id="path-effect849"
+       center_point="113.77083,66.004092"
+       end_point="113.77083,71.437499"
+       start_point="113.77083,60.570685"
+       effect="mirror_symmetry" />
+  </defs>
+  <sodipodi:namedview
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="-8"
+     inkscape:window-height="1017"
+     inkscape:window-width="1920"
+     showgrid="false"
+     inkscape:document-rotation="0"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="600.77239"
+     inkscape:cx="-186.75905"
+     inkscape:zoom="0.35"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-6.3574371,5.8298359)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       y="-5.8298359"
+       x="6.3574371"
+       height="265.33929"
+       width="326.57138"
+       id="rect1016"
+       style="opacity:0.995;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <path
+       inkscape:path-effect="#path-effect849;#path-effect851"
+       inkscape:original-d="m 26.080057,135.63078 c -0.02331,-12.54701 2.231865,-23.74296 6.808811,-32.43846 M 36.947173,72.368212 V 60.192708 h 33.31824 C 82.670708,52.299949 97.683284,48.440923 113.78508,48.440923"
+       sodipodi:nodetypes="cccccc"
+       id="path847"
+       d="m 26.080057,135.63078 c -0.02331,-12.54701 2.231865,-23.74296 6.808811,-32.43846 M 36.947173,72.368212 V 60.192708 h 33.31824 C 82.670708,52.299949 97.683284,48.440923 113.78508,48.440923 m 87.67652,87.189857 c 0.0233,-12.54701 -2.23186,-23.74296 -6.80881,-32.43846 m -4.0583,-30.824108 V 60.192708 H 157.27625 C 144.87095,52.299949 129.85838,48.440923 113.75658,48.440923 M 26.08019,135.58777 c -0.100632,12.54662 2.085505,23.75626 6.608778,32.4798 m 3.868272,30.84853 -0.07503,12.17527 33.317608,0.20533 c 12.356419,7.96906 27.344929,11.92053 43.446424,12.01975 m 88.21217,-86.64789 c -0.054,12.54692 -2.37814,23.72876 -7.00859,32.39589 m -4.24818,30.79851 -0.075,12.17527 -33.3176,-0.20532 c -12.4537,7.81616 -27.48977,11.5826 -43.59126,11.48337"
+       style="fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="13"
+       cy="88.162941"
+       cx="49.2314"
+       id="path857"
+       style="opacity:0.996;fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       style="opacity:0.996;fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path857-0"
+       cx="178.40475"
+       cy="88.162941"
+       r="13" />
+    <circle
+       r="13"
+       cy="184.54688"
+       cx="178.40475"
+       id="path857-0-9"
+       style="opacity:0.995;fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="13"
+       cy="184.54688"
+       cx="49.2314"
+       id="path857-0-8"
+       style="opacity:0.995;fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <circle
+       r="8"
+       style="opacity:0.996;fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path857-08"
+       cx="113.67634"
+       cy="203.72916" />
+    <circle
+       cy="67.46875"
+       cx="113.01488"
+       id="path857-08-6"
+       style="opacity:0.996;fill:none;stroke:#000000;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       r="8" />
+    <circle
+       r="6"
+       cy="36.616444"
+       cx="113.91257"
+       id="path934"
+       style="opacity:0.995;fill:#000000;fill-opacity:1;stroke:none;stroke-width:4.665;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       id="text938"
+       y="251.72511"
+       x="90.381508"
+       style="font-style:normal;font-weight:normal;font-size:28.7975px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.299974"
+       xml:space="preserve"><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:28.7975px;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke-width:0.299974"
+         y="251.72511"
+         x="90.381508"
+         id="tspan936">+5v</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:28.7975px;line-height:0;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.299974"
+       x="113.99253"
+       y="25.170925"
+       id="text938-5"><tspan
+         id="tspan976"
+         x="113.99253"
+         y="25.170925"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:28.7975px;line-height:1;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;text-align:center;text-anchor:middle;stroke-width:0.299974"
+         sodipodi:role="line">LED GND</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:28.7975px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.299974"
+       x="202.01401"
+       y="96.318909"
+       id="text938-8"><tspan
+         id="tspan936-8"
+         x="202.01401"
+         y="96.318909"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:28.7975px;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke-width:0.299974"
+         sodipodi:role="line">+5v</tspan></text>
+    <text
+       id="text938-8-5"
+       y="193.45879"
+       x="201.06369"
+       style="font-style:normal;font-weight:normal;font-size:28.7975px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.299974"
+       xml:space="preserve"><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:28.7975px;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke-width:0.299974"
+         y="193.45879"
+         x="201.06369"
+         id="tspan936-8-5">BTN GND</tspan></text>
+  </g>
+</svg>
