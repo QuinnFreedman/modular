@@ -75,16 +75,53 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
 * Arduino Nano v3
 * Stacking headers and 2x8 shrouded header
 
-See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly) for
-### Resistor values
-
-The accuracy of the output voltage depends on the value of the resistors used. In most cases, exact resistor values don't really matter, but in this case it might be worth measuring and hand-picking matching resistors, especially the 10x 10kohm resistors around the TL074. Matching the 12 1k resistors on the front panel might also help register the buttons more accurately.
-
-### LED Buttons
-
-For the LED buttons, I am using ones like this: ["PB11 Momentary 8mm Push Button"](https://www.ebay.com/itm/5Pcs-Round-PB11-Momentary-8mm-Push-Button-Switch-With-Led-Light-SPST/184339359243). But, these are a little awkward because they mount from the front so you either have to solder them in place or work out something creative with the faceplate. But, you could easily make a small daughter bord and use board-mounted buttons instead.
-
-Each button has three holes on the front PCB to connect to. The LED should connect the top  hope (5v) to the middle hole (LED ground) and the button should bridge the 5V to the bottom pin (button ground).
+<table>
+ <tr>
+  <th>Refference</th>
+  <th>Value</th>
+  <th>Comment</th>
+ </tr>
+ <tr>
+  <td>R1-R12 (front)</td>
+  <td>1kΩ</td>
+  <td>Can be any value as long as they all match each other</td>
+ </tr>
+ <tr>
+  <td>R1-R4 (back)</td>
+  <td>10kΩ</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>R5, R6 (back)</td>
+  <td>10kΩ</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>R7, R8, R10, R11 (back)</td>
+  <td>100kΩ</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>R9, R12 (back)</td>
+  <td>1kΩ</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>R14-R23</td>
+  <td>10kΩ</td>
+  <td>Can be any value, as long as they match each other. These control the output signal amplification so you will get a more accurate tuning if you match these resistors exactly.</td>
+ </tr>
+ <tr>
+  <td>S1-S12</td>
+  <td>TL1265 LED illuminated push button</td>
+  <td>These are surprisingly expensive and hard to find. If you can't find any LED buttons that will fit in the PCB, you could use panel mount buttons and solder a 3-wire connector here instead. These buttons need to bridge +5v to the button ground and the LEDs should connect 5v to the led ground (see image). <br /><img src="../../images/TL1265_pinout.svg" width=100px /></td>
+ </tr>
+ <tr>
+  <td>S13</td>
+  <td>Button</td>
+  <td>You can use any panel-mount OFF-(ON) style push button here as long as it fits. There is an 8mm hole in the PCB for the back side of the button to extend through. The two pins of the button will need to be soldered two the two holes marked "S13" via a bit on insulated wire. It does not matter which lead of the button connects to which hole as long as the button will connect the two points together when pressed.</td>
+ </tr>
+</table>
 
 ### Jack sockets
 
