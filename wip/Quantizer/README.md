@@ -55,74 +55,123 @@ User defined scales. Short-pressing these buttons while holding the Menu button 
 
 ## Assembly
 
+See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly) for more info.
+
 ### Components
-
-See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
-
-* Resistors
-    * 14 1kohm
-    * 12 10kohm
-    * 4 20kohm
-    * 4 100kohm
-    * 1 2kohm (controlls LED current -- 1k or 10k is fine)
-* 1 small button
-* 12 LED light-up buttons (or 12 buttons and 12 separate LEDs)
-* 2 PNP transistors
-* 1 TL072
-* 1 TL074
-* 1 MCP4922
-* 1 TLC5940NT
-* Arduino Nano v3
-* Stacking headers and 2x8 shrouded header
 
 <table>
  <tr>
   <th>Refference</th>
+  <th>Part</th>
   <th>Value</th>
   <th>Comment</th>
  </tr>
  <tr>
   <td>R1-R12 (front)</td>
+  <td>Resistor</td>
   <td>1kΩ</td>
   <td>Can be any value as long as they all match each other</td>
  </tr>
  <tr>
   <td>R1-R4 (back)</td>
+  <td>Resistor</td>
   <td>10kΩ</td>
   <td></td>
  </tr>
  <tr>
   <td>R5, R6 (back)</td>
+  <td>Resistor</td>
   <td>10kΩ</td>
   <td></td>
  </tr>
  <tr>
   <td>R7, R8, R10, R11 (back)</td>
+  <td>Resistor</td>
   <td>100kΩ</td>
   <td></td>
  </tr>
  <tr>
   <td>R9, R12 (back)</td>
+  <td>Resistor</td>
   <td>1kΩ</td>
   <td></td>
  </tr>
  <tr>
   <td>R14-R23</td>
+  <td>Resistor</td>
   <td>10kΩ</td>
   <td>Can be any value, as long as they match each other. These control the output signal amplification so you will get a more accurate tuning if you match these resistors exactly.</td>
  </tr>
  <tr>
   <td>S1-S12</td>
-  <td>TL1265 LED illuminated push button</td>
+  <td>LED Button</td>
+  <td>TL1265</td>
   <td>These are surprisingly expensive and hard to find. If you can't find any LED buttons that will fit in the PCB, you could use panel mount buttons and solder a 3-wire connector here instead. These buttons need to bridge +5v to the button ground and the LEDs should connect 5v to the led ground (see image). <br /><img src="../../images/TL1265_pinout.svg" width=100px /></td>
  </tr>
  <tr>
   <td>S13</td>
   <td>Button</td>
+  <td></td>
   <td>You can use any panel-mount OFF-(ON) style push button here as long as it fits. There is an 8mm hole in the PCB for the back side of the button to extend through. The two pins of the button will need to be soldered two the two holes marked "S13" via a bit on insulated wire. It does not matter which lead of the button connects to which hole as long as the button will connect the two points together when pressed.</td>
  </tr>
+ <tr>
+  <td>J1-J6</td>
+  <td>Jack socket</td>
+  <td>PJ301M-12</td>
+  <td>In order to keep the PCB under 10cm tall (which is cheeper to print), the bottom most jack socket hangs slightly off the PCB. You can just connect the hanging leg to the hole labelled "GND" with a wire, or make the PCB slightly larger if you don't mind paying a higher rate.</td>
+ </tr>
+ <tr>
+  <td>Q1, Q2</td>
+  <td>PNP Transistor</td>
+  <td>2N3906</td>
+  <td>These limit the voltage coming in on the trigger inputs. They are probably not actually necesary. The Arduino should have its own voltage limiting circuitry so a single current limiting resistor on the trigger inputs should be enough. But, it will pull a lot more current when the input goes outside of 0-5v and I don't want to totally rely on the Arduino's internal circutrty to protect iteself.</td>
+ </tr>
+ <tr>
+  <td>U1</td>
+  <td>Op-Amp</td>
+  <td>TL072</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>U2</td>
+  <td>Op-Amp</td>
+  <td>TL074</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>U3</td>
+  <td>DAC</td>
+  <td>MCP4922</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>U4</td>
+  <td>LED Driver</td>
+  <td>TLC5940NT</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>A1</td>
+  <td>Arduino</td>
+  <td>Nano v3</td>
+  <td></td>
+ </tr>
+ <tr>
+  <td>C1-C5</td>
+  <td>Capacitor</td>
+  <td>100nf</td>
+  <td>These are bypass capacitors to reduce noise in the power supply. They are optional and you can just leave them out. You can also add more capacitors in higher values if you are still having issues with undtable power.</td>
+ </tr>
+ <tr>
+  <td>J13=J16</td>
+  <td>Pin headers</td>
+  <td></td>
+  <td>Male/Female stacking headers to connect the front and back PCB boards.</td>
+ </tr>
+ <tr>
+  <td>J1 (back)</td>
+  <td>Power connector</td>
+  <td></td>
+  <td>2x8 shrouded header or two rows of 1x8 male pin headers</td>
+ </tr>
 </table>
-
-### Jack sockets
-
-The bottom most jack socket hangs slightly off the PCB. You can just connect the hanging leg to the hole labelled "GND" with a wire, or make the PCB slightly larger if you don't mind paying a higher rate.
