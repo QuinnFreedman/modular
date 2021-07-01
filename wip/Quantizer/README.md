@@ -75,7 +75,7 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
  <tr>
   <td>R1-R4 (back)</td>
   <td>Resistor</td>
-  <td>10kΩ</td>
+  <td>20kΩ</td>
   <td></td>
  </tr>
  <tr>
