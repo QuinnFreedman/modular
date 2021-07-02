@@ -276,8 +276,12 @@ void loop() {
         const float elapsed = getFractionElapsedInPeriod(4, numBeats, elapsedFraction);
         #elif SCREEN_SAVER == SS_PULSE
         const float elapsed = getFractionElapsedInPeriod(1, numBeats, elapsedFraction);
+        #elif SCREEN_SAVER == SS_BLACK
+        const float elapsed = 0;
         #endif
+        #if SCREEN_SAVER != SS_NONE && SCREEN_SAVER != SS_BPM
         drawScreenSaver(display, elapsed, forceRedrawScreen);
+        #endif
     } else if (newInput) {
         if (state.mode == NAVIGATE || state.mode == EDIT_FAST) {
             drawMainMenu(display, state);
