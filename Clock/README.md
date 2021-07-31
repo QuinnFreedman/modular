@@ -41,6 +41,12 @@ Hold the button down for .5 secconds to get an extended menu for any channel. Th
 
 ## Assembly
 
+Here is a video walking you through the assembly process:
+
+| [![YouTube video](http://img.youtube.com/vi/Xvwd0_08juQ/0.jpg)](http://www.youtube.com/watch?v=Xvwd0_08juQ "Video Title") |
+|:----------------:|
+|**Clock module assembly guide**|
+
 See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly).
 
 ### Components
