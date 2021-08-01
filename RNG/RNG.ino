@@ -93,6 +93,8 @@ const uint16_t POT_ZERO_VALUE = 5;
 // max input value from pots
 const uint16_t POT_MAX_VALUE = MAX_READ_VALUE - 7;
 
+#define DEBUG_ENABLED false
+#define DEBUG_AUTOSTEP false
 
 /*
  * Global variables
@@ -116,12 +118,16 @@ bool encoderButtonDown = false;
 bool recording = false;
 uint16_t lastRecordedInputValue = 0;
 #endif
+uint16_t ptr = 0;
 
 void setup() {
-    // Serial.begin(9600);
+    #if DEBUG_ENABLED
+    Serial.begin(9600);
+    #endif
     // setup pins
     pinMode(RANDOMNESS_POT_PIN, INPUT);
     pinMode(THRESHOLD_POT_PIN, INPUT);
+    pinMode(AMPLITUDE_POT_PIN, INPUT);
     pinMode(DAC_CS_PIN, OUTPUT);
     pinMode(GATE_PIN_A, OUTPUT);
     pinMode(GATE_PIN_B, OUTPUT);
@@ -129,10 +135,10 @@ void setup() {
     pinMode(RANDOMNESS_CV_PIN, INPUT_PULLUP);
     pinMode(THRESHOLD_CV_PIN, INPUT_PULLUP);
     pinMode(CLOCK_IN_PIN, INPUT_PULLUP);
-	pinMode(ENCODER_PIN_A, INPUT_PULLUP);
-	pinMode(ENCODER_PIN_B, INPUT_PULLUP);
-	pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
-	#if RECORD_ENABLED
+	  pinMode(ENCODER_PIN_A, INPUT_PULLUP);
+	  pinMode(ENCODER_PIN_B, INPUT_PULLUP);
+	  pinMode(ENCODER_BUTTON_PIN, INPUT_PULLUP);
+	  #if RECORD_ENABLED
     pinMode(RECORD_SWITCH_PIN, INPUT_PULLUP);
     pinMode(RECORD_INPUT_PIN, INPUT);
     #endif
@@ -190,7 +196,7 @@ void loop() {
     }
     randomness = MAX_VALUE * clamp(randomness_value, 0, 1);
     threshold = MAX_VALUE * clamp(analogReadPot(THRESHOLD_POT_PIN) + analogReadCV(THRESHOLD_CV_PIN), 0, 1);
-    scale = analogReadPot(analogReadCV(THRESHOLD_CV_PIN));
+    scale = analogReadPot(AMPLITUDE_POT_PIN);
     //TODO use interrupts for these boolean reads
     bool gatesAreTriggers = digitalRead(GATE_TRIG_SWITCH_PIN);
     if (ENCODER_BUTTON_PIN == A6 || ENCODER_BUTTON_PIN == A7) {
@@ -221,13 +227,20 @@ void loop() {
         updateLeds();
     }
 
-    /*
+    #if DEBUG_AUTOSTEP
     static uint32_t lastStepTime = 0;
     if (lastRecordedTime - lastStepTime > 500) {
         lastStepTime += 500;
         step();
     }
-    */
+    #endif
+    
+    #if DEBUG_ENABLED
+    Serial.print(buffer[ptr] / (float) MAX_VALUE);
+    Serial.print(',');
+    Serial.print(scale);
+    Serial.println();
+    #endif
 }
 
 /**
@@ -245,15 +258,12 @@ void stepInterruptWrapper() {
     lastValue = value;
 }
 
-uint16_t ptr = 0;
 /**
  * This function is called via an interrupt whenever the module gets a clock pulse.
  * It does all the core work of stepping through the ringbuffer, doing the random
  * stuff, and setting the LEDs.
  */
 void step() {
-    //int bufferSize = bufferSize;
-
     // maybe randomize the value at the cursor (ptr)
     // or read input voltages if recording
     if (random(MAX_READ_VALUE) < randomness) {
