@@ -4,10 +4,10 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
-Rev ""
-Comp ""
+Title "Quantizer Back"
+Date "2021-06-22"
+Rev "0.3"
+Comp "Free Modular"
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -694,17 +694,6 @@ F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 6400 3400 50  0001 C CNN
 $EndComp
 $Comp
 L Amplifier_Operational:TL074 U2
-U 2 1 60DC560B
-P 7700 3200
-F 0 "U2" H 7700 3567 50  0000 C CNN
-F 1 "TL074" H 7700 3476 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 7650 3300 50  0001 C CNN
-F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 7750 3400 50  0001 C CNN
-	2    7700 3200
-	1    0    0    -1  
-$EndComp
-$Comp
-L Amplifier_Operational:TL074 U2
 U 3 1 60DC6B0B
 P 7750 4500
 F 0 "U2" H 7750 4867 50  0000 C CNN
@@ -792,13 +781,6 @@ Wire Wire Line
 	6650 3650 6650 3200
 Wire Wire Line
 	7400 3300 7400 3650
-Wire Wire Line
-	8000 3200 8000 3650
-Text GLabel 8100 3200 2    50   Input ~ 0
-OUTPUT_A
-Wire Wire Line
-	8100 3200 8000 3200
-Connection ~ 8000 3200
 Wire Wire Line
 	7150 3100 7150 3200
 Text GLabel 6100 4400 0    50   Input ~ 0
@@ -1376,4 +1358,24 @@ Wire Wire Line
 	6500 6850 6350 6850
 Wire Wire Line
 	6350 6850 6350 7050
+Text GLabel 10500 4150 2    50   Input ~ 0
+BUTTON_LADDER
+Connection ~ 8000 3200
+Wire Wire Line
+	8100 3200 8000 3200
+Text GLabel 8100 3200 2    50   Input ~ 0
+OUTPUT_A
+Wire Wire Line
+	8000 3200 8000 3650
+$Comp
+L Amplifier_Operational:TL074 U2
+U 2 1 60DC560B
+P 7700 3200
+F 0 "U2" H 7700 3567 50  0000 C CNN
+F 1 "TL074" H 7700 3476 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 7650 3300 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 7750 3400 50  0001 C CNN
+	2    7700 3200
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
