@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "Quantizer Back"
 Date "2021-06-22"
-Rev "0.3"
+Rev "0.4"
 Comp "Free Modular"
 Comment1 ""
 Comment2 ""
@@ -45,28 +45,6 @@ F 2 "Package_DIP:DIP-8_W7.62mm" H 6000 6200 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 6000 6200 50  0001 C CNN
 	3    6000 6200
 	1    0    0    -1  
-$EndComp
-$Comp
-L power:+12V #PWR09
-U 1 1 60D1940C
-P 5900 5900
-F 0 "#PWR09" H 5900 5750 50  0001 C CNN
-F 1 "+12V" H 5915 6073 50  0000 C CNN
-F 2 "" H 5900 5900 50  0001 C CNN
-F 3 "" H 5900 5900 50  0001 C CNN
-	1    5900 5900
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:-12V #PWR012
-U 1 1 60D19416
-P 5900 6500
-F 0 "#PWR012" H 5900 6600 50  0001 C CNN
-F 1 "-12V" H 5915 6673 50  0000 C CNN
-F 2 "" H 5900 6500 50  0001 C CNN
-F 3 "" H 5900 6500 50  0001 C CNN
-	1    5900 6500
-	-1   0    0    1   
 $EndComp
 $Comp
 L power:GND #PWR010
@@ -668,8 +646,6 @@ Text GLabel 9500 4850 0    50   Input ~ 0
 SPI_SCK
 Text GLabel 9500 4650 0    50   Input ~ 0
 SPI_MOSI
-Text GLabel 9500 4350 0    50   Input ~ 0
-DAC_CS
 $Comp
 L power:GND #PWR027
 U 1 1 60DC2B4E
@@ -1086,8 +1062,6 @@ Text GLabel 9500 3850 0    50   Input ~ 0
 TLC_GSCLK
 Text GLabel 9500 4550 0    50   Input ~ 0
 TLC_BLANK
-Text GLabel 9500 4150 0    50   Input ~ 0
-TLC_XLAT
 Text GLabel 1900 6050 0    50   Input ~ 0
 TLC_XLAT
 NoConn ~ 1900 6350
@@ -1380,4 +1354,51 @@ F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 7750 3400 50  0001 C CNN
 $EndComp
 Text GLabel 9500 3750 0    50   Input ~ 0
 MENU_BUTTON
+Text GLabel 9500 4450 0    50   Input ~ 0
+TLC_XLAT
+Text GLabel 9500 4350 0    50   Input ~ 0
+DAC_CS
+$Comp
+L Connector:Conn_01x05_Female J2
+U 1 1 61141E30
+P 10800 4450
+F 0 "J2" H 10828 4476 50  0000 L CNN
+F 1 "Conn_01x05_Female" H 10828 4385 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 10800 4450 50  0001 C CNN
+F 3 "~" H 10800 4450 50  0001 C CNN
+	1    10800 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10500 4250 10600 4250
+Wire Wire Line
+	10600 4350 10500 4350
+Wire Wire Line
+	10500 4450 10600 4450
+Wire Wire Line
+	10600 4550 10500 4550
+Wire Wire Line
+	10500 4650 10600 4650
+$Comp
+L power:+5V #PWR?
+U 1 1 611CF423
+P 5900 5900
+F 0 "#PWR?" H 5900 5750 50  0001 C CNN
+F 1 "+5V" H 5915 6073 50  0000 C CNN
+F 2 "" H 5900 5900 50  0001 C CNN
+F 3 "" H 5900 5900 50  0001 C CNN
+	1    5900 5900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 611DB8AE
+P 5900 6500
+F 0 "#PWR?" H 5900 6250 50  0001 C CNN
+F 1 "GND" H 5905 6327 50  0000 C CNN
+F 2 "" H 5900 6500 50  0001 C CNN
+F 3 "" H 5900 6500 50  0001 C CNN
+	1    5900 6500
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

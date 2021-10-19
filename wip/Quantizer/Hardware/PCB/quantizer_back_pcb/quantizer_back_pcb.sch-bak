@@ -6,7 +6,7 @@ encoding utf-8
 Sheet 1 1
 Title "Quantizer Back"
 Date "2021-06-22"
-Rev "0.3"
+Rev "0.4"
 Comp "Free Modular"
 Comment1 ""
 Comment2 ""
@@ -668,8 +668,6 @@ Text GLabel 9500 4850 0    50   Input ~ 0
 SPI_SCK
 Text GLabel 9500 4650 0    50   Input ~ 0
 SPI_MOSI
-Text GLabel 9500 4350 0    50   Input ~ 0
-DAC_CS
 $Comp
 L power:GND #PWR027
 U 1 1 60DC2B4E
@@ -1086,8 +1084,6 @@ Text GLabel 9500 3850 0    50   Input ~ 0
 TLC_GSCLK
 Text GLabel 9500 4550 0    50   Input ~ 0
 TLC_BLANK
-Text GLabel 9500 4150 0    50   Input ~ 0
-TLC_XLAT
 Text GLabel 1900 6050 0    50   Input ~ 0
 TLC_XLAT
 NoConn ~ 1900 6350
@@ -1378,4 +1374,31 @@ F 3 "http://www.ti.com/lit/ds/symlink/tl071.pdf" H 7750 3400 50  0001 C CNN
 	2    7700 3200
 	1    0    0    -1  
 $EndComp
+Text GLabel 9500 3750 0    50   Input ~ 0
+MENU_BUTTON
+Text GLabel 9500 4450 0    50   Input ~ 0
+TLC_XLAT
+Text GLabel 9500 4350 0    50   Input ~ 0
+DAC_CS
+$Comp
+L Connector:Conn_01x05_Female J2
+U 1 1 61141E30
+P 10800 4450
+F 0 "J2" H 10828 4476 50  0000 L CNN
+F 1 "Conn_01x05_Female" H 10828 4385 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 10800 4450 50  0001 C CNN
+F 3 "~" H 10800 4450 50  0001 C CNN
+	1    10800 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10500 4250 10600 4250
+Wire Wire Line
+	10600 4350 10500 4350
+Wire Wire Line
+	10500 4450 10600 4450
+Wire Wire Line
+	10600 4550 10500 4550
+Wire Wire Line
+	10500 4650 10600 4650
 $EndSCHEMATC

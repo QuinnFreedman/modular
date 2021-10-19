@@ -23,8 +23,8 @@ const float HYSTERESIS_THRESHOLD = 0.7;
 // PINS
 
 const uint8_t BUTTON_LADDER_PIN = A0;
-const uint8_t ANALOG_INPUT_PIN_A = A6;
-const uint8_t ANALOG_INPUT_PIN_B = A7;
+const uint8_t ANALOG_INPUT_PIN_A = A7;
+const uint8_t ANALOG_INPUT_PIN_B = A6;
 const uint8_t MENU_BUTTON_PIN = 2;
 const uint8_t DAC_CS_PIN = 8;
 

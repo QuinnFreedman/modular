@@ -103,6 +103,12 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
   <td>Can be any value, as long as they match each other. These control the output signal amplification so you will get a more accurate tuning if you match these resistors exactly.</td>
  </tr>
  <tr>
+  <td>R18,R23</td>
+  <td>Trim pot</td>
+  <td>20kΩ</td>
+  <td><b>Optional:</b> if you find that the output isn't tracking well across the whole range, you could replace R18 and R23 with variable resistors (i.e. half a trim pot) to adjust the scale of the output.</td>
+ </tr>
+ <tr>
   <td>S1-S12</td>
   <td>LED Button</td>
   <td>TL1265</td>

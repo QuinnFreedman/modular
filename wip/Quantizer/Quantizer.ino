@@ -69,6 +69,7 @@ void setup() {
     pinMode(ANALOG_INPUT_PIN_A, INPUT);
     pinMode(ANALOG_INPUT_PIN_B, INPUT);
     pinMode(MENU_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(6, INPUT); // TODO bufix
 
     Tlc.init();
     Tlc.clear();
@@ -80,6 +81,7 @@ void setup() {
     SPI.setDataMode(SPI_MODE0);
     
     Serial.begin(9600);
+    Serial.println("init");
 
     initButtonCutoffs();
 
@@ -141,7 +143,8 @@ int16_t mod12(const int16_t x) { return modulo(x, 12); }
 
 float readInputVoltage(const uint8_t pin) {
     uint16_t rawValue = analogRead(pin);
-    return (rawValue / (float) ANALOG_READ_MAX_VALUE) * 20.0 - 10.0;
+    const float value = (rawValue / (float) ANALOG_READ_MAX_VALUE) * 20.0 - 10.0;
+    return value;
 }
 
 void writeOutputVoltage(const uint8_t csPin, const int8_t dacChannel, const float voltage) {
@@ -434,7 +437,7 @@ void loop() {
         SHOULD_UPDATE_UI = false;
         if (showMenu) {
             const uint16_t ui = generateMenuUI();
-            for (int i = 0; i <= 12; i++) {
+            for (int i = 0; i < 12; i++) {
                 Tlc.set(LED_INDEX[i], bitRead(ui, i) ? LED_DIM : LED_OFF);
             }
             Tlc.update();
@@ -445,7 +448,6 @@ void loop() {
                     || i == activeNotes[1]
                 #endif
                 );
-                
                 Tlc.set(LED_INDEX[i],
                     isActive ? LED_BRIGHT :
                     state.notes[i] ? LED_DIM :
