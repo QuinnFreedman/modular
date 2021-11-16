@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Envelope Back"
-Date "2021-07-04"
-Rev "0.5"
+Date "2021-11-15"
+Rev "0.6"
 Comp "Free Modular"
 Comment1 ""
 Comment2 ""
@@ -156,19 +156,19 @@ Text GLabel 10000 4450 0    50   Input ~ 0
 TRIG_IN
 Wire Wire Line
 	10000 4450 10200 4450
-Text GLabel 10000 4350 0    50   Input ~ 0
+Text GLabel 10000 4050 0    50   Input ~ 0
 CV_1
 Wire Wire Line
 	10000 4350 10200 4350
-Text GLabel 10000 4250 0    50   Input ~ 0
+Text GLabel 10000 4150 0    50   Input ~ 0
 CV_2
 Wire Wire Line
 	10000 4250 10200 4250
-Text GLabel 10000 4150 0    50   Input ~ 0
+Text GLabel 10000 4250 0    50   Input ~ 0
 CV_3
 Wire Wire Line
 	10000 4150 10200 4150
-Text GLabel 10000 4050 0    50   Input ~ 0
+Text GLabel 10000 4350 0    50   Input ~ 0
 CV_4
 Wire Wire Line
 	10000 4050 10200 4050
@@ -439,19 +439,19 @@ Wire Wire Line
 	7950 2800 8000 2800
 Wire Wire Line
 	8000 2800 8000 2850
-Text GLabel 8450 1800 2    50   Input ~ 0
+Text GLabel 8450 2000 2    50   Input ~ 0
 CV_2_5v
 Wire Wire Line
 	8350 1800 8450 1800
-Text GLabel 8450 2000 2    50   Input ~ 0
+Text GLabel 8450 2100 2    50   Input ~ 0
 CV_1_5v
 Wire Wire Line
 	8350 2000 8450 2000
-Text GLabel 8450 1900 2    50   Input ~ 0
+Text GLabel 8450 1800 2    50   Input ~ 0
 CV_3_5v
 Wire Wire Line
 	8350 1900 8450 1900
-Text GLabel 8450 2100 2    50   Input ~ 0
+Text GLabel 8450 1900 2    50   Input ~ 0
 CV_4_5v
 Wire Wire Line
 	8350 2100 8450 2100
@@ -507,10 +507,10 @@ BUTTON
 Wire Wire Line
 	7250 1600 7350 1600
 $Comp
-L Device:R R5
+L Device:R R15
 U 1 1 60F58722
 P 7100 1700
-F 0 "R5" V 7100 1700 50  0000 C CNN
+F 0 "R15" V 7100 1700 50  0000 C CNN
 F 1 "5.1kΩ" V 7050 1500 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 7030 1700 50  0001 C CNN
 F 3 "~" H 7100 1700 50  0001 C CNN
@@ -518,10 +518,10 @@ F 3 "~" H 7100 1700 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Device:R R6
+L Device:R R16
 U 1 1 60F60980
 P 7100 1800
-F 0 "R6" V 7100 1800 50  0000 C CNN
+F 0 "R16" V 7100 1800 50  0000 C CNN
 F 1 "5.1kΩ" V 7050 1600 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 7030 1800 50  0001 C CNN
 F 3 "~" H 7100 1800 50  0001 C CNN
@@ -529,10 +529,10 @@ F 3 "~" H 7100 1800 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Device:R R8
+L Device:R R18
 U 1 1 60F645EF
 P 7100 2000
-F 0 "R8" V 7100 2000 50  0000 C CNN
+F 0 "R18" V 7100 2000 50  0000 C CNN
 F 1 "5.1kΩ" V 7050 1800 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 7030 2000 50  0001 C CNN
 F 3 "~" H 7100 2000 50  0001 C CNN
@@ -643,12 +643,10 @@ F 3 "" H 4200 4400 50  0001 C CNN
 	1    4200 4400
 	1    0    0    -1  
 $EndComp
-Connection ~ 2200 3300
 Wire Wire Line
 	2350 3300 2200 3300
 Text GLabel 2350 3300 2    50   Input ~ 0
 CV_2_5v
-Connection ~ 1600 3200
 Wire Wire Line
 	2200 3300 2200 2800
 Wire Wire Line
@@ -689,24 +687,13 @@ Text GLabel 1150 3200 0    50   Input ~ 0
 CV_2
 $Comp
 L Amplifier_Operational:MCP6004 U1
-U 1 1 60E46CEF
+U 3 1 60E49228
 P 1900 3300
 F 0 "U1" H 1900 2933 50  0000 C CNN
 F 1 "MCP6004" H 1900 3024 50  0000 C CNN
 F 2 "Package_DIP:DIP-14_W7.62mm" H 1850 3400 50  0001 C CNN
 F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 1950 3500 50  0001 C CNN
-	1    1900 3300
-	1    0    0    1   
-$EndComp
-$Comp
-L Amplifier_Operational:MCP6004 U1
-U 3 1 60E49228
-P 1900 6300
-F 0 "U1" H 1900 5933 50  0000 C CNN
-F 1 "MCP6004" H 1900 6024 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 1850 6400 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 1950 6500 50  0001 C CNN
-	3    1900 6300
+	3    1900 3300
 	1    0    0    1   
 $EndComp
 $Comp
@@ -741,12 +728,10 @@ Wire Wire Line
 	1600 6200 1600 5800
 Wire Wire Line
 	2200 6300 2200 5800
-Connection ~ 1600 6200
 Text GLabel 2350 6300 2    50   Input ~ 0
 CV_4_5v
 Wire Wire Line
 	2350 6300 2200 6300
-Connection ~ 2200 6300
 $Comp
 L power:GND #PWR016
 U 1 1 60EE31A3
@@ -768,17 +753,6 @@ F 2 "" H 6800 5150 50  0001 C CNN
 F 3 "" H 6800 5150 50  0001 C CNN
 	1    6800 5150
 	1    0    0    -1  
-$EndComp
-$Comp
-L Amplifier_Operational:MCP6004 U1
-U 2 1 60E48181
-P 1900 4800
-F 0 "U1" H 1900 4433 50  0000 C CNN
-F 1 "MCP6004" H 1900 4524 50  0000 C CNN
-F 2 "Package_DIP:DIP-14_W7.62mm" H 1850 4900 50  0001 C CNN
-F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 1950 5000 50  0001 C CNN
-	2    1900 4800
-	1    0    0    1   
 $EndComp
 Text GLabel 1150 4700 0    50   Input ~ 0
 CV_3
@@ -818,12 +792,10 @@ Wire Wire Line
 	2200 4800 2200 4300
 Wire Wire Line
 	2200 4300 2050 4300
-Connection ~ 1600 4700
 Text GLabel 2350 4800 2    50   Input ~ 0
 CV_3_5v
 Wire Wire Line
 	2350 4800 2200 4800
-Connection ~ 2200 4800
 $Comp
 L Device:C C3
 U 1 1 61032A2A
@@ -930,17 +902,6 @@ F 3 "~" H 5050 6700 50  0001 C CNN
 	1    5050 6700
 	1    0    0    -1  
 $EndComp
-$Comp
-L Device:R R18
-U 1 1 6119295A
-P 1300 5900
-F 0 "R18" V 1093 5900 50  0000 C CNN
-F 1 "100kΩ" V 1184 5900 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 1230 5900 50  0001 C CNN
-F 3 "~" H 1300 5900 50  0001 C CNN
-	1    1300 5900
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	1500 6200 1600 6200
 Wire Wire Line
@@ -953,10 +914,10 @@ Connection ~ 1500 6200
 Text GLabel 1150 5900 0    50   Input ~ 0
 -5v_REF
 $Comp
-L Device:R R17
+L Device:R R7
 U 1 1 611DC931
 P 1300 4400
-F 0 "R17" V 1093 4400 50  0000 C CNN
+F 0 "R7" V 1093 4400 50  0000 C CNN
 F 1 "100kΩ" V 1184 4400 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 1230 4400 50  0001 C CNN
 F 3 "~" H 1300 4400 50  0001 C CNN
@@ -973,10 +934,10 @@ Connection ~ 1500 4700
 Wire Wire Line
 	1500 4700 1600 4700
 $Comp
-L Device:R R16
+L Device:R R6
 U 1 1 611EAA88
 P 1300 2900
-F 0 "R16" V 1093 2900 50  0000 C CNN
+F 0 "R6" V 1093 2900 50  0000 C CNN
 F 1 "100kΩ" V 1184 2900 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 1230 2900 50  0001 C CNN
 F 3 "~" H 1300 2900 50  0001 C CNN
@@ -993,10 +954,10 @@ Connection ~ 1500 3200
 Wire Wire Line
 	1500 3200 1600 3200
 $Comp
-L Device:R R15
+L Device:R R5
 U 1 1 611F96C3
 P 1300 1400
-F 0 "R15" V 1093 1400 50  0000 C CNN
+F 0 "R5" V 1093 1400 50  0000 C CNN
 F 1 "100kΩ" V 1184 1400 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 1230 1400 50  0001 C CNN
 F 3 "~" H 1300 1400 50  0001 C CNN
@@ -1230,14 +1191,53 @@ F 3 "~" H 4750 6100 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L Device:R R7
+L Device:R R17
 U 1 1 60F645E5
 P 7100 1900
-F 0 "R7" V 7100 1900 50  0000 C CNN
+F 0 "R17" V 7100 1900 50  0000 C CNN
 F 1 "5.1kΩ" V 7050 1700 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 7030 1900 50  0001 C CNN
 F 3 "~" H 7100 1900 50  0001 C CNN
 	1    7100 1900
+	0    1    1    0   
+$EndComp
+Connection ~ 1600 4700
+Connection ~ 2200 4800
+Connection ~ 1600 3200
+Connection ~ 2200 3300
+Connection ~ 1600 6200
+Connection ~ 2200 6300
+$Comp
+L Amplifier_Operational:MCP6004 U1
+U 1 1 60E46CEF
+P 1900 4800
+F 0 "U1" H 1900 4433 50  0000 C CNN
+F 1 "MCP6004" H 1900 4524 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 1850 4900 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 1950 5000 50  0001 C CNN
+	1    1900 4800
+	1    0    0    1   
+$EndComp
+$Comp
+L Amplifier_Operational:MCP6004 U1
+U 2 1 60E48181
+P 1900 6300
+F 0 "U1" H 1900 5933 50  0000 C CNN
+F 1 "MCP6004" H 1900 6024 50  0000 C CNN
+F 2 "Package_DIP:DIP-14_W7.62mm" H 1850 6400 50  0001 C CNN
+F 3 "http://ww1.microchip.com/downloads/en/DeviceDoc/21733j.pdf" H 1950 6500 50  0001 C CNN
+	2    1900 6300
+	1    0    0    1   
+$EndComp
+$Comp
+L Device:R R8
+U 1 1 6119295A
+P 1300 5900
+F 0 "R8" V 1093 5900 50  0000 C CNN
+F 1 "100kΩ" V 1184 5900 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" V 1230 5900 50  0001 C CNN
+F 3 "~" H 1300 5900 50  0001 C CNN
+	1    1300 5900
 	0    1    1    0   
 $EndComp
 $EndSCHEMATC

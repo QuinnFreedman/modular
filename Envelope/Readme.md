@@ -92,45 +92,39 @@ This mode could be called ASRD for Attack/Sustain/Release/Delay, but I call it T
 
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
-* Resistors
-  * 2x 100kohm
-  * 2x 200kohm
-  * 4x 66.5ohm
-  * 4x 10kohm
-  * 2x 2kohm (should match potentiometers -- so if you are using B50k potentiometers use 10k resistors here)
-  * 2x 1kohm (controls output impedance)
-  * 4x 220ohm (controls LED brightness -- I would actually reccomend something more like 680 for dimmer LEDs)
-* 4 Potentiometers (B10k)
-* 8 Jacks
-* 4 LEDs
-* 1 Button (momentary switch -- SPST)
-* 2 NPN transistors
-* 1 MCP4922 (DAC)
-* 1 MCP6004 (Op-Amp)
-* 2 10uF capacitors (optional)
-* 1 100nf capacitor (optional)
-* m/f stacking headers and 1 2x8 shrouded header.
-* a few inches of insulated wire
+#### Front PCB
+
+| Reference | Part | Value | Comment |
+| --------- | ---- | ----- | ------- |
+| R1-R8 | Resistor | 100kΩ | |
+| RV1-RV4 | Potentiometer | B10kΩ | Other values would probably be fine here. |
+| D1-D4 | LED | | |
+| J1-J8 | Jack socket | PJ301M-12 | |
+| S1 | Button | | You can use any panel-mount OFF-(ON) style push button here as long as it fits. There is breakaway section of the PCB to make room for the button. The two pins of the button will need to be soldered two the two holes marked "S1" via a bit of insulated wire. It does not matter which lead of the button connects to which hole as long as the button will connect the two points together when pressed. |
+| J9-J10 | Pin headers | | Male/female pin headers to connect the front and back PCB boards |
+
+#### Back PCB
+
+| Reference | Part | Value | Comment |
+| --------- | ---- | ----- | ------- |
+| R1-R8 | Resistor | 100kΩ | |
+| R9,R10 | Resistor | 1kΩ | Controls output impedance |
+| R11-R14 | Resistor | 10kΩ | |
+| R15 | Resistor | 470Ω | Goes with the voltage reference shunt. A different value might be more optimal and/or power efficient |
+| Q1,Q2 | NPN Transistor | 2N3904 | |
+| U1 | Op-amp | MCP6004 | |
+| U2 | DAC | MCP4922 | |
+| U3 | Shunt voltage ref | LM4040LP-5 | |
+| C1-C4 | Capacitor | 10nF | **(Optional)** Help potentially reduce noise & feedback in input CV circuitry |
+| C5 | Capacitor | 100nF | Goes with the voltage reference shunt |
+| C6 | Capacitor | 100nF | **(Optional)** Bypass capacitor to reduce noise in the power supply |
+| C7 | Capacitor | 10nF | **(Optional)** Bypass capacitor to reduce noise in the power supply |
+| J9-J10 | Pin headers | | Male/female pin headers to connect the front and back PCB boards |
+| J1 | Pin headers | | 2x8 shrouded male Eurorack power connector |
 
 ### Instructions
 
 See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly).
-
-#### Mounting the button
-
-Most of the buttons I have found are not pcb-mounted so I have left a hole in the front PCB for the button to poke through.
-
-Mount the button in the faceplate and then solder wires from the two terminals of the button into the two holes labelled "Switch" in the front PCB.  In my experience, this button can be the most unreliable part of the module, so make sure the solder joints are insulated and try to ground the housing of the button if it is metal.
-
-When I had my PCBs printed from pcbway.com, they didn't actually cut out the button hole. If this happens to you, you will need to drill or cut out a hole big enough for the button to fit through (or just find a very short button or mount it higher). You can cut up to the solder protection but not into it -- there are traces right up to the edge of the hole.
-
-#### Soldering the bottom jacks
-
-I keep all my PCBs to be less than 10cm tall. This makes them much cheeper to print, but it means that this design doesn't quite fit on the board. The bottom row of jacks hang off the edge a little bit. If you don't mind paying extra, you can just extend the PCB 5mm in Fritzing. Otherwise, you will need to solder a wire to the bottom pin of these 4 jacks.
-
-The wire is a ground so it can be a bare wire. Solder it to the bottom-most (shank) pins of all for jacks and then to the hole marked GND. If your PCB manufacturer has left solder pads for the middle (switch) pins, you can solder those to the board for stability. Otherwise, leave them hanging. They are not used in this module.
-
-As always, I reccomend screwing the jacks into the faceplate before soldering to hold them in place.
 
 ### Customization & Hidden Features
 

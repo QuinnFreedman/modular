@@ -5,8 +5,8 @@ $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
 Title "Envelope Front"
-Date "2021-07-04"
-Rev "0.05"
+Date "2021-11-15"
+Rev "0.6"
 Comp "Free Modular"
 Comment1 ""
 Comment2 ""

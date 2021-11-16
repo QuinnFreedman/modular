@@ -43,17 +43,17 @@ const uint16_t GATE_IN_PIN = 3;
 const uint16_t RETRIG_IN_PIN = 2;
 const uint16_t LED_PINS[4] = {5, 6, 7, 8};
 const uint16_t DAC_CS_PIN = 9;
-#define PCB_VERSION 5
+#define PCB_VERSION 6
 #if PCB_VERSION < 6
 #define CV_PIN_A A3
 #define CV_PIN_D A1
 #define CV_PIN_S A0
 #define CV_PIN_R A2
 #else
-#define CV_PIN_A A2
-#define CV_PIN_D A0
-#define CV_PIN_S A1
-#define CV_PIN_R A3
+#define CV_PIN_A A3
+#define CV_PIN_D A2
+#define CV_PIN_S A0
+#define CV_PIN_R A1
 #endif
 #define AUX_PIN_1 A4 
 #define AUX_PIN_2 A5 
