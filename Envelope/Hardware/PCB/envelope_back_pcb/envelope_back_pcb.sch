@@ -1240,4 +1240,15 @@ F 3 "~" H 1300 5900 50  0001 C CNN
 	1    1300 5900
 	0    1    1    0   
 $EndComp
+$Comp
+L Connector:Conn_01x04_Female J2
+U 1 1 61961AD6
+P 8550 2300
+F 0 "J2" H 8578 2276 50  0000 L CNN
+F 1 "Conn_01x04_Female" H 8578 2185 50  0000 L CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8550 2300 50  0001 C CNN
+F 3 "~" H 8550 2300 50  0001 C CNN
+	1    8550 2300
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

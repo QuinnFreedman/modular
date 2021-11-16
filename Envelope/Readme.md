@@ -121,6 +121,7 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 | C7 | Capacitor | 10nF | **(Optional)** Bypass capacitor to reduce noise in the power supply |
 | J9-J10 | Pin headers | | Male/female pin headers to connect the front and back PCB boards |
 | J1 | Pin headers | | 2x8 shrouded male Eurorack power connector |
+| J2 | Solder points | | Optional points to solder on connections for extra features |
 
 ### Instructions
 
