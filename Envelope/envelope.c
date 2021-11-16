@@ -69,7 +69,7 @@ float update(uint32_t _currentTime) {
     if (EORTriggerOn) {
         uint32_t timeTriggerHasBeenOn = currentTime - lastEORTriggerTime;
         if (timeTriggerHasBeenOn >= TRIGGER_TIME_MICROS) {
-            EORTriggerOn = true;
+            EORTriggerOn = false;
             digitalWrite(EOR_TRIGGER_PIN, LOW);
         }
     }
@@ -78,7 +78,7 @@ float update(uint32_t _currentTime) {
     if (EOFTriggerOn) {
         uint32_t timeTriggerHasBeenOn = currentTime - lastEOFTriggerTime;
         if (timeTriggerHasBeenOn >= TRIGGER_TIME_MICROS) {
-            EOFTriggerOn = true;
+            EOFTriggerOn = false;
             digitalWrite(EOF_TRIGGER_PIN, LOW);
         }
     }
@@ -331,6 +331,8 @@ float inverseExpFunction(float t, float k) {
 }
 
 void goToPhase(Phase phase, bool hardReset) {
+    // Serial.print("goToPhase: ");
+    // Serial.println(phase);
     #if EOR_TRIGGER_ENABLED
     bool shouldTriggerEOR = false;
     #endif
@@ -341,6 +343,8 @@ void goToPhase(Phase phase, bool hardReset) {
     do {
         sampleCV(currentMode, phase);
         currentPhaseDuration = getPhaseDuration(phase, currentMode);
+        // Serial.print("current phase duration: ");
+        // Serial.println(currentPhaseDuration / 1000);
         currentPhase = phase;
         #if EOR_TRIGGER_ENABLED
         if (phase == ATTACK) shouldTriggerEOR = true;
@@ -376,11 +380,18 @@ void goToPhase(Phase phase, bool hardReset) {
 }
 
 #define clamp(x) (x < 0 ? 0 : x > 1 ? 1 : x)
-#define readCV(i, pin) (cvValues[i] = clamp( \
+#define readCV(i, pin) (cvValues[i] = 1 - clamp( \
             ((float) analogRead(pin) - (float) ANALOG_READ_ZERO_VALUE) \
             / (float) (ANALOG_READ_MAX_VALUE - ANALOG_READ_ZERO_VALUE) ))
 
 void sampleCV(Mode mode, Phase phase) {
+    // readCV(0, CV_PIN_A);
+    // readCV(1, CV_PIN_D);
+    // readCV(2, CV_PIN_S);
+    // readCV(3, CV_PIN_R);
+    // Serial.print("sampling cv: ");
+    // Serial.println(cvValues[0]);
+    // return;
     switch(mode) {
         case ADSR:
         switch(phase) {

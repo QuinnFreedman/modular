@@ -9,6 +9,8 @@ extern "C" {
 
 ButtonDebouncer debouncer(BUTTON_PIN, cycleModes);
 
+#define DEBUG false
+
 void setup() {
     pinMode(GATE_IN_PIN, INPUT);
     pinMode(RETRIG_IN_PIN, INPUT);
@@ -37,10 +39,6 @@ void setup() {
     pinMode(EOF_TRIGGER_PIN, OUTPUT);
     #endif
 
-    // enableInterrupt(GATE_IN_PIN);
-    // enableInterrupt(RETRIG_IN_PIN);
-    // enableInterrupt(BUTTON_PIN);
-
     pinMode(CV_PIN_A, INPUT);
     pinMode(CV_PIN_D, INPUT);
     pinMode(CV_PIN_S, INPUT);
@@ -51,14 +49,18 @@ void setup() {
     }
     digitalWrite(LED_PINS[DEFAULT_MODE], HIGH);
 
-    // Serial.begin(9600);
+    #if DEBUG
+    Serial.begin(9600);
+    #endif
 }
 
 uint32_t currentTimeMicros = 0;
 void loop() {
     currentTimeMicros = micros();
     float value = update(currentTimeMicros);
-    // Serial.println(value);
+    #if DEBUG
+    Serial.println(value);
+    #endif
     MCP4922_write(DAC_CS_PIN, 0, value);
     MCP4922_write(DAC_CS_PIN, 1, 1 - value);
     updateLEDs();
@@ -92,53 +94,6 @@ void loop() {
         oldButton = newButton; 
     }
 }
-
-/*
-inline int8_t changeInPin(uint16_t pin, byte oldValues, byte newValues) {
-    const uint8_t bitMask = digitalPinToBitMask(pin); // bit(pin)
-    const uint8_t wasHigh = oldValues & bitMask;
-    const uint8_t isHigh  = newValues & bitMask;
-    return (isHigh && !wasHigh) ? 1 :
-           (!isHigh && wasHigh) ? -1 : 0;
-}
-
-ISR(PCINT2_vect) {
-    #ifndef __AVR__
-    static_assert(false, "Interrupts are programmed assuming that all interrupt pins are in PORTD. This may not be true on non-AVR boards.");
-    #endif
-    static_assert(BUTTON_PIN >= 2 && BUTTON_PIN <= 7, "This interrupt method assumes all interrupt pins are D2-D7.");
-    static_assert(GATE_IN_PIN >= 2 && GATE_IN_PIN <= 7, "This interrupt method assumes all interrupt pins are D2-D7.");
-    static_assert(RETRIG_IN_PIN >= 2 && RETRIG_IN_PIN <= 7, "This interrupt method assumes all interrupt pins are D2-D7.");
-    
-    volatile static byte oldValues = 0;
-
-    const byte currentValues = PIND;
-
-    {
-        const int8_t delta = changeInPin(BUTTON_PIN, oldValues, currentValues);
-    
-        if (delta != 0) {
-            debouncer.pinChanged(currentTimeMicros, delta > 0);
-        }
-    }
-    {
-        const int8_t delta = changeInPin(GATE_IN_PIN, oldValues, currentValues);
-        if (delta != 0) {
-            handleGateChange(delta);
-        }
-    }
-    {
-        const int8_t delta = changeInPin(RETRIG_IN_PIN, oldValues, currentValues);
-    
-        if (delta < 0) {
-            ping();
-        }
-    }
-    
-    oldValues = currentValues;
-}
-*/
-
 
 inline void handleGateChange(int8_t change) {
     const bool gateValue = change < 0;

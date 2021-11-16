@@ -24,8 +24,8 @@ const bool LOOP_WHEN_GATE_OFF = true;
 
 const uint32_t LED_SHOW_MODE_TIME_MICROS = 2 * MILLION;
 
-const uint16_t ANALOG_READ_MAX_VALUE = 1024;
-const uint16_t ANALOG_READ_ZERO_VALUE = 15;
+const uint16_t ANALOG_READ_MAX_VALUE = 1022;
+const uint16_t ANALOG_READ_ZERO_VALUE = 5;
 
 #define DEFAULT_MODE 0
 
@@ -43,10 +43,18 @@ const uint16_t GATE_IN_PIN = 3;
 const uint16_t RETRIG_IN_PIN = 2;
 const uint16_t LED_PINS[4] = {5, 6, 7, 8};
 const uint16_t DAC_CS_PIN = 9;
+#define PCB_VERSION 5
+#if PCB_VERSION < 6
+#define CV_PIN_A A3
+#define CV_PIN_D A1
+#define CV_PIN_S A0
+#define CV_PIN_R A2
+#else
 #define CV_PIN_A A2
 #define CV_PIN_D A0
 #define CV_PIN_S A1
 #define CV_PIN_R A3
+#endif
 #define AUX_PIN_1 A4 
 #define AUX_PIN_2 A5 
 
