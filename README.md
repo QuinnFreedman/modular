@@ -1,3 +1,6 @@
+Note: this project is **not** abandoned, although I have not been able to work on it in a little while. The Clock, Envelope, Mixer, O/A, RNG, and Simplex modules **should** all be working bug-free (I have working versions in my own case), but I haven't double-tested and polished some of those designs so build at your own risk for now. The Quantizer is very close but has a few bugs right now. A round of polish and a few new modules will be comming as soon as I have some time off work.
+
+---
 <a href="https://github.com/QuinnFreedman/modular/wiki"><img align="right" src="images/logo_with_text.svg" width=300px></a>
 
 This project is an attempt to make Eurorack modular syntehsis affordable and accessable to everyone.
