@@ -1,9 +1,11 @@
 # Diode Distortion
-Super simple analog voltage-conmtrolled distortion.
+Super simple analog voltage-controlled distortion.
 
 ![](images/dd_faceplate.svg)
 
 ## Manual
+
+This module distorts audio by soft-clipping it using a pair of diodes. It can also be used to smoothly clip control voltages if you build it without AC-coupling.
 
 * **A** - Distortion amount
 * **B** - CV input. Summed with Distortion knob position but may be non-linear.
