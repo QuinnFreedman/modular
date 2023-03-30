@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "FreeModular")(type "KiCad")(uri "/home/quinn/workspace/modular/kicad/free_modular.pretty")(options "")(descr ""))
+)

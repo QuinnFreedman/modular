@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "FreeModular")(type "KiCad")(uri "/home/quinn/workspace/modular/kicad/FreeModular.kicad_sym")(options "")(descr "Synth components for Free Modular"))
+)
