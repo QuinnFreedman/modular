@@ -9,6 +9,15 @@ except ImportError:
     import sys
     sys.exit(1)
 
+try:
+    import lxml.etree as ET
+except ImportError:
+    print("This tool uses lxml but it is not installed.")
+    print("Install it with:")
+    print("    python3 -m pip install --user lxml")
+    print("Falling back to using etree. This may work but the output might be unreadable to some programs.")
+    import xml.etree.ElementTree as ET
+
 LOGO_PATH = "M 23.273995,0 C 10.46956,0 0,10.46956 0,23.273995 0,36.078431 10.46956,46.54799 23.273995,46.54799 c 6.2817,0 11.379649,-2.548635 15.730632,-6.245496 1.538657,-1.307338 3.076198,-2.787732 4.658303,-4.38762 l -0.0086,-5.869298 -5.989355,0.0026 c -1.483874,1.505733 -2.846746,2.828266 -4.080397,3.876451 -3.512556,2.984484 -6.049447,4.254142 -10.310608,4.254142 -8.281306,0 -14.9047822,-6.623476 -14.9047822,-14.904783 0,-8.281306 6.6234762,-14.9047823 14.9047822,-14.9047823 4.261161,0 6.798052,1.2696585 10.310608,4.2541413 1.233651,1.048185 2.596523,2.370718 4.080397,3.876452 l 5.989355,0.0026 0.0086,-5.869304 C 42.080825,9.0332294 40.543284,7.5528356 39.004627,6.2454977 34.653644,2.5486366 29.555695,0 23.273995,0 Z M 76.724807,0 C 70.443279,1.0197146e-4 65.345444,2.5487105 60.99455,6.2454977 59.387003,7.6113677 57.781031,9.1642634 56.123352,10.847502 H 68.695628 C 71.17209,9.1299217 73.43594,8.3692721 76.724807,8.369213 h 3.82e-4 c 6.200192,0 11.470469,3.712943 13.728089,9.054499 l -6.041554,-0.07531 -8.585089,-3.079684 -28.740996,3.81e-4 v 5.645584 H 24.399983 v 6.718636 h 22.685649 v 5.645592 l 28.740995,3.82e-4 8.58509,-3.079684 6.041553,-0.07531 c -2.25762,5.341544 -7.527894,9.054489 -13.728089,9.054489 h -3.82e-4 c -3.288867,-5.9e-5 -5.552715,-0.760709 -8.029179,-2.47829 H 56.123352 c 1.657679,1.68324 3.263651,3.236135 4.871198,4.602006 4.350894,3.696786 9.448729,6.245395 15.730257,6.245496 h 3.82e-4 C 89.52963,46.548 99.999184,36.07844 99.999184,23.274005 99.999176,10.46956 89.52962,0 76.725181,0 Z m -59.711596,19.295384 -2.890653,3.978611 2.890653,3.978612 4.677319,-1.51971 v -4.917803 z"
 
 HOLE_ALLOWANCE = .4  # mm 
@@ -49,7 +58,8 @@ class Module:
         self.outline = self.d.add(self.d.g(id="outline", fill="none", stroke="black"))
         self.stencil = self.d.add(self.d.g(id="stencil", font_family="Ubuntu", font_size=3))
         self.holes = self.d.add(self.d.g(id="throughholes", fill="black", stroke="none"))
-        self.paths_to_diff = []
+        self.inkscape_actions = []
+        self.post_process = []
         
         self.debug = None
         if debug:
@@ -178,23 +188,30 @@ class Module:
             for x in component.draw_cosmetics(self.d):
                 group.add(x)
 
-        self.paths_to_diff.extend(component.paths_to_diff)
+        self.inkscape_actions.extend(component.inkscape_actions)
+        self.post_process.extend(component.post_process)
 
     def draw(self, function):
         self.stencil.add(function(self.d))
 
     def save(self):
         self.d.save()
-        cmd = ""
-        for a, b in self.paths_to_diff:
-            cmd += f"select-by-id:{a},{b};SelectionDiff;EditDeselect;"
+        cmd = "".join(self.inkscape_actions)
 
         run_inkscape(
             "--with-gui",
-            "--export-text-to-path",
-            f"--actions={cmd}select-by-id:throughholes_offset;SelectionUnGroup;select-by-id:stencil_offset;SelectionUnGroup;FileSave;export-filename:{self.d.filename};export-do;FileQuit",
+            f"--actions={cmd};select-by-element:text;ObjectToPath;select-by-id:throughholes_offset;SelectionUnGroup;select-by-id:stencil_offset;SelectionUnGroup;FileSave;FileQuit",
             self.d.filename,
         )
+
+        if self.post_process:
+            tree = ET.parse(self.d.filename)
+            for process in self.post_process:
+                process(tree)
+            font_style = tree.findall(f".//*[@id='font-style']")[0]
+            parent = font_style.find("..")
+            parent.remove(font_style)
+            tree.write(self.d.filename)
 
 
 def run_inkscape(*args):
@@ -234,7 +251,8 @@ def print_inkscape_stdout_ignoring_font_face_warnings(output):
 class Component:
     def __init__(self, position_x, position_y):
         self.position = (position_x, position_y)
-        self.paths_to_diff = []
+        self.inkscape_actions = []
+        self.post_process = []
 
     def draw_holes(self, context):
         return []
@@ -334,7 +352,15 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
                 id=path_id,
             ))
 
-            self.paths_to_diff.append((path_id, text_id))
+            cmd = f"select-by-id:{path_id},{text_id};SelectionDiff;EditDeselect;select-by-id:{path_id};EditDeselect;"
+
+            self.inkscape_actions.append(cmd)
+
+            def remove_style(tree):
+                element = tree.findall(f".//*[@id='{path_id}']")[0]
+                element.set("style", "")
+
+            self.post_process.append(remove_style)
 
         elements.append(context.text(self.label, id=text_id, **text_props))
 
