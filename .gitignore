@@ -11,6 +11,7 @@ output.svg
 *.kicad_pcb-bak
 *.kicad_sch-bak
 *.kicad_prl
+*-rescue.kicad_sym
 *.sch-bak
 *~
 _autosave-*

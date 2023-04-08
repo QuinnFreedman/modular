@@ -9,8 +9,7 @@ except ImportError:
     import sys
     sys.exit(1)
 
-LOGO_DATAURL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='523.843' height='243.844' viewBox='0 0 138.6 64.517' xmlns:v='https://vecta.io/nano' style='background-color:white'%3E%3Cdefs%3E%3CclipPath id='A'%3E%3Cpath d='M115.46-14.165h44.634v93.277H115.46z' opacity='.997' fill='%23fff' fill-opacity='1' stroke='none' stroke-width='6' stroke-miterlimit='4' stroke-dasharray='none' stroke-opacity='1'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M106.34 5.8c14.613 0 26.458 11.846 26.458 26.458s-11.846 26.458-26.458 26.458S85.175 48.133 69.3 32.258C85.175 16.383 91.73 5.8 106.34 5.8zm-74.083 0C17.645 5.8 5.8 17.645 5.8 32.258s11.846 26.458 26.458 26.458S53.425 48.133 69.3 32.258C53.425 16.383 46.87 5.8 32.258 5.8z' opacity='.996' fill='none' stroke='%23000' stroke-width='11.6'/%3E%3Cpath d='M61.07 16.1l-.012 7.31c-11.285-.015-22.57-.01-33.854.006-.252.113-1.024-.295-1.474-.392-1.062-.302-2.1-.79-3.214-.86-1.52.167-2.033 1.836-2.898 2.847l-5.24 7.26 7.64 10.43c2.34-.75 4.652-1.587 7.014-2.266 1.784 1.165 4 .55 5.98.68l26.06.005-.008 6.875c.335.967 1.505 1.018 2.31.908l42.5.014 11.63-4.5 14.182.158-.04-4.734 5.328-2.46.182-9.926-5.623-2.756-.04-4.62c-4.87-.323-9.83.16-14.6-.518-4.037-1.365-7.967-3.124-12.156-3.982h-43.68v.53z' opacity='.997' fill='%23fff'/%3E%3Cpath d='M65.26 19.777v7.825H31.763v9.312H65.26v7.825h39.835l11.64-4.527 10.735.13-.03-3.922 7.45-.4.134-7.253-7.65-.668-.03-3.922-10.347-.13-11.9-4.268zm-41.71 6.96l-4 5.535 4.03 5.505 6.482-2.133-.026-6.824z' opacity='.997'/%3E%3Cpath clip-path='url(%23A)' d='M105.833 5.292c14.613 0 26.458 11.846 26.458 26.458s-11.846 26.458-26.458 26.458S84.667 47.625 68.792 31.75C84.667 15.875 91.22 5.292 105.833 5.292zm-74.083 0c-14.613 0-26.458 11.846-26.458 26.458S17.137 58.208 31.75 58.208 52.917 47.625 68.792 31.75C52.917 15.875 46.363 5.292 31.75 5.292z' opacity='.996' fill='none' stroke='%23000' stroke-width='11.6' transform='translate(.508 .508)'/%3E%3Cpath d='M31.92 22.98h.275v18.014h-.275z' opacity='.997' stroke='%23fff' stroke-width='3.217'/%3E%3C/svg%3E"
-LOGO_DATAURL = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MjMuODQzIiBoZWlnaHQ9IjI0My44NDQiIHZpZXdCb3g9IjAgMCAxMzguNiA2NC41MTciIHhtbG5zOnY9Imh0dHBzOi8vdmVjdGEuaW8vbmFubyI+PGRlZnM+PGNsaXBQYXRoIGlkPSJBIj48cGF0aCBkPSJNMTE1LjQ2LTE0LjE2NWg0NC42MzR2OTMuMjc3SDExNS40NnoiIG9wYWNpdHk9Ii45OTciIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1taXRlcmxpbWl0PSI0IiBzdHJva2UtZGFzaGFycmF5PSJub25lIiBzdHJva2Utb3BhY2l0eT0iMSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxyZWN0IHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0xMDYuMzQgNS44YzE0LjYxMyAwIDI2LjQ1OCAxMS44NDYgMjYuNDU4IDI2LjQ1OHMtMTEuODQ2IDI2LjQ1OC0yNi40NTggMjYuNDU4Uzg1LjE3NSA0OC4xMzMgNjkuMyAzMi4yNThDODUuMTc1IDE2LjM4MyA5MS43MyA1LjggMTA2LjM0IDUuOHptLTc0LjA4MyAwQzE3LjY0NSA1LjggNS44IDE3LjY0NSA1LjggMzIuMjU4czExLjg0NiAyNi40NTggMjYuNDU4IDI2LjQ1OFM1My40MjUgNDguMTMzIDY5LjMgMzIuMjU4QzUzLjQyNSAxNi4zODMgNDYuODcgNS44IDMyLjI1OCA1Ljh6IiBvcGFjaXR5PSIuOTk2IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMTEuNiIvPjxwYXRoIGQ9Ik02MS4wNyAxNi4xbC0uMDEyIDcuMzFjLTExLjI4NS0uMDE1LTIyLjU3LS4wMS0zMy44NTQuMDA2LS4yNTIuMTEzLTEuMDI0LS4yOTUtMS40NzQtLjM5Mi0xLjA2Mi0uMzAyLTIuMS0uNzktMy4yMTQtLjg2LTEuNTIuMTY3LTIuMDMzIDEuODM2LTIuODk4IDIuODQ3bC01LjI0IDcuMjYgNy42NCAxMC40M2MyLjM0LS43NSA0LjY1Mi0xLjU4NyA3LjAxNC0yLjI2NiAxLjc4NCAxLjE2NSA0IC41NSA1Ljk4LjY4bDI2LjA2LjAwNS0uMDA4IDYuODc1Yy4zMzUuOTY3IDEuNTA1IDEuMDE4IDIuMzEuOTA4bDQyLjUuMDE0IDExLjYzLTQuNSAxNC4xODIuMTU4LS4wNC00LjczNCA1LjMyOC0yLjQ2LjE4Mi05LjkyNi01LjYyMy0yLjc1Ni0uMDQtNC42MmMtNC44Ny0uMzIzLTkuODMuMTYtMTQuNi0uNTE4LTQuMDM3LTEuMzY1LTcuOTY3LTMuMTI0LTEyLjE1Ni0zLjk4MmgtNDMuNjh2LjUzeiIgb3BhY2l0eT0iLjk5NyIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik02NS4yNiAxOS43Nzd2Ny44MjVIMzEuNzYzdjkuMzEySDY1LjI2djcuODI1aDM5LjgzNWwxMS42NC00LjUyNyAxMC43MzUuMTMtLjAzLTMuOTIyIDcuNDUtLjQuMTM0LTcuMjUzLTcuNjUtLjY2OC0uMDMtMy45MjItMTAuMzQ3LS4xMy0xMS45LTQuMjY4em0tNDEuNzEgNi45NmwtNCA1LjUzNSA0LjAzIDUuNTA1IDYuNDgyLTIuMTMzLS4wMjYtNi44MjR6IiBvcGFjaXR5PSIuOTk3Ii8+PHBhdGggY2xpcC1wYXRoPSJ1cmwoI0EpIiBkPSJNMTA1LjgzMyA1LjI5MmMxNC42MTMgMCAyNi40NTggMTEuODQ2IDI2LjQ1OCAyNi40NThzLTExLjg0NiAyNi40NTgtMjYuNDU4IDI2LjQ1OFM4NC42NjcgNDcuNjI1IDY4Ljc5MiAzMS43NUM4NC42NjcgMTUuODc1IDkxLjIyIDUuMjkyIDEwNS44MzMgNS4yOTJ6bS03NC4wODMgMGMtMTQuNjEzIDAtMjYuNDU4IDExLjg0Ni0yNi40NTggMjYuNDU4UzE3LjEzNyA1OC4yMDggMzEuNzUgNTguMjA4IDUyLjkxNyA0Ny42MjUgNjguNzkyIDMxLjc1QzUyLjkxNyAxNS44NzUgNDYuMzYzIDUuMjkyIDMxLjc1IDUuMjkyeiIgb3BhY2l0eT0iLjk5NiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjExLjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC41MDggLjUwOCkiLz48cGF0aCBkPSJNMzEuOTIgMjIuOThoLjI3NXYxOC4wMTRoLS4yNzV6IiBvcGFjaXR5PSIuOTk3IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMy4yMTciLz48L3N2Zz4="
+LOGO_PATH = "M 23.273995,0 C 10.46956,0 0,10.46956 0,23.273995 0,36.078431 10.46956,46.54799 23.273995,46.54799 c 6.2817,0 11.379649,-2.548635 15.730632,-6.245496 1.538657,-1.307338 3.076198,-2.787732 4.658303,-4.38762 l -0.0086,-5.869298 -5.989355,0.0026 c -1.483874,1.505733 -2.846746,2.828266 -4.080397,3.876451 -3.512556,2.984484 -6.049447,4.254142 -10.310608,4.254142 -8.281306,0 -14.9047822,-6.623476 -14.9047822,-14.904783 0,-8.281306 6.6234762,-14.9047823 14.9047822,-14.9047823 4.261161,0 6.798052,1.2696585 10.310608,4.2541413 1.233651,1.048185 2.596523,2.370718 4.080397,3.876452 l 5.989355,0.0026 0.0086,-5.869304 C 42.080825,9.0332294 40.543284,7.5528356 39.004627,6.2454977 34.653644,2.5486366 29.555695,0 23.273995,0 Z M 76.724807,0 C 70.443279,1.0197146e-4 65.345444,2.5487105 60.99455,6.2454977 59.387003,7.6113677 57.781031,9.1642634 56.123352,10.847502 H 68.695628 C 71.17209,9.1299217 73.43594,8.3692721 76.724807,8.369213 h 3.82e-4 c 6.200192,0 11.470469,3.712943 13.728089,9.054499 l -6.041554,-0.07531 -8.585089,-3.079684 -28.740996,3.81e-4 v 5.645584 H 24.399983 v 6.718636 h 22.685649 v 5.645592 l 28.740995,3.82e-4 8.58509,-3.079684 6.041553,-0.07531 c -2.25762,5.341544 -7.527894,9.054489 -13.728089,9.054489 h -3.82e-4 c -3.288867,-5.9e-5 -5.552715,-0.760709 -8.029179,-2.47829 H 56.123352 c 1.657679,1.68324 3.263651,3.236135 4.871198,4.602006 4.350894,3.696786 9.448729,6.245395 15.730257,6.245496 h 3.82e-4 C 89.52963,46.548 99.999184,36.07844 99.999184,23.274005 99.999176,10.46956 89.52962,0 76.725181,0 Z m -59.711596,19.295384 -2.890653,3.978611 2.890653,3.978612 4.677319,-1.51971 v -4.917803 z"
 
 HOLE_ALLOWANCE = .4  # mm 
 
@@ -26,6 +25,9 @@ except Exception as e:
     font_string = "local('Ubuntu Medium'), local('Ubuntu-Medium')"
 
 import math
+import subprocess
+import random
+import string
 
 def inches(n):
     """Returns n inches in mm"""
@@ -37,16 +39,17 @@ class Module:
         self.height = 128.5
         self.width = hp * HP - .5
 
-        self.d = svgwrite.Drawing(filename=filename, size=(self.width * mm, self.height * mm))
+        self.d = svgwrite.Drawing(filename=filename.replace(" ", "_"), size=(self.width * mm, self.height * mm))
 
         self.d.add(
             self.d.rect(size=(self.width, self.height), fill="white", id="background"))
         
-        self.d.defs.add(self.d.style(content="@font-face {{ font-family: 'Ubuntu'; font-style: normal; font-weight: 500; src: {}; }}".format(font_string)))
+        self.d.defs.add(self.d.style(id="font-style", content="@font-face {{ font-family: 'Ubuntu'; font-style: normal; font-weight: 500; src: {}; }}".format(font_string)))
         self.d.viewbox(width=self.width, height=self.height)
         self.outline = self.d.add(self.d.g(id="outline", fill="none", stroke="black"))
         self.stencil = self.d.add(self.d.g(id="stencil", font_family="Ubuntu", font_size=3))
         self.holes = self.d.add(self.d.g(id="throughholes", fill="black", stroke="none"))
+        self.paths_to_diff = []
         
         self.debug = None
         if debug:
@@ -92,9 +95,11 @@ class Module:
             logo_y = self.height - 12
         logo_width = min(self.width, 15)
             
-        image = self.d.image(LOGO_DATAURL, insert=(self.width / 2 - logo_width / 2, logo_y), size=(logo_width, 8))
-        image.fit("center", "middle", "meet")
-        self.stencil.add(image)
+        logo = self.d.path(
+            LOGO_PATH,
+            transform=f"translate({self.width / 2 - logo_width / 2}, {logo_y}) scale({logo_width / 100})",
+        )
+        self.stencil.add(logo)
 
         # Draw outline
         if outline is None:
@@ -115,14 +120,14 @@ class Module:
         elif outline == 1:
             length = 3
             lines = [
-                ((0, 0), (0, length)),
-                ((0, 0), (length, 0)),
-                ((self.width, 0), (self.width - length, 0)),
-                ((self.width, 0), (self.width, length)),
-                ((0, self.height), (0, self.height - length)),
-                ((0, self.height), (length, self.height)),
-                ((self.width, self.height), (self.width, self.height - length)),
-                ((self.width, self.height), (self.width - length, self.height)),
+                ((0, -length), (0, length)),
+                ((-length, 0), (length, 0)),
+                ((self.width + length, 0), (self.width - length, 0)),
+                ((self.width, -length), (self.width, length)),
+                ((0, self.height + length), (0, self.height - length)),
+                ((-length, self.height), (length, self.height)),
+                ((self.width, self.height + length), (self.width, self.height - length)),
+                ((self.width + length, self.height), (self.width - length, self.height)),
                 ]
             for start, end in lines:
                 self.outline.add(self.d.line(start, end, stroke_width=1, stroke="black"))
@@ -173,16 +178,63 @@ class Module:
             for x in component.draw_cosmetics(self.d):
                 group.add(x)
 
+        self.paths_to_diff.extend(component.paths_to_diff)
+
     def draw(self, function):
         self.stencil.add(function(self.d))
 
     def save(self):
         self.d.save()
+        cmd = ""
+        for a, b in self.paths_to_diff:
+            cmd += f"select-by-id:{a},{b};SelectionDiff;EditDeselect;"
+
+        run_inkscape(
+            "--with-gui",
+            "--export-text-to-path",
+            f"--actions={cmd}select-by-id:throughholes_offset;SelectionUnGroup;select-by-id:stencil_offset;SelectionUnGroup;FileSave;export-filename:{self.d.filename};export-do;FileQuit",
+            self.d.filename,
+        )
+
+
+def run_inkscape(*args):
+    cmd = ["inkscape"] + list(args)
+    try:
+        result = subprocess.run(cmd, capture_output=True)
+    except Exception as e:
+        print("Error running inkscape. Make sure inkscape is installed and in your $PATH")
+        return
+
+    if result.returncode != 0:
+        print("Error running inkscape:")
+    print_inkscape_stdout_ignoring_font_face_warnings(result.stdout)
+
+
+def print_inkscape_stdout_ignoring_font_face_warnings(output):
+    lines = output.decode("utf-8").split("\n")
+    i = 0
+    while i < len(lines):
+        if lines[i].startswith("end_font_face_cb"):
+            del lines[i]
+            if lines[i].startswith("  font-family"):
+                del lines[i]
+            if lines[i].startswith("  font-style"):
+                del lines[i]
+            if lines[i].startswith("  font-weight"):
+                del lines[i]
+            if lines[i].startswith("  src"):
+                del lines[i]
+        else:
+            i += 1
+    result = "\n".join(lines)
+    if result:
+        print(result)
 
 
 class Component:
     def __init__(self, position_x, position_y):
         self.position = (position_x, position_y)
+        self.paths_to_diff = []
 
     def draw_holes(self, context):
         return []
@@ -253,19 +305,38 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         if self.is_output:
             text_props["fill"] = "#ffffff"
             
+        id = random_str()
+        path_id = f"path_{id}"
+        text_id = f"text_{id}"
         elements = []
         if self.is_output:
             padding = 1
             width = 2 * (hole_radius + padding)
             height = 15 if self.label else width
-            elements.append(context.rect(
-                insert=(hole_center[0] - width/2, hole_center[1] - hole_radius - padding),
-                size=(width, height),
-                fill="#000000",
-                rx=1.5))
-            elements.append(context.circle(center=hole_center, r=hole_radius+.3, fill="#ffffff"))
+            outer_path = round_rect_as_path(
+                hole_center[0] - width/2,
+                hole_center[1] - hole_radius - padding,
+                width,
+                height,
+                1.5
+            )
+            inner_r = hole_radius+.3
+            inner_path = " ".join([
+                f"M {hole_center[0]} {hole_center[1] - inner_r}",
+                f"a {inner_r} {inner_r} 0 1 0 0 {inner_r * 2}",
+                f"a {inner_r} {inner_r} 0 1 0 0 {-inner_r * 2}",
+                f"z",
+            ])
 
-        elements.append(context.text(self.label, **text_props))
+            elements.append(context.path(
+                outer_path + inner_path,
+                fill="#000000",
+                id=path_id,
+            ))
+
+            self.paths_to_diff.append((path_id, text_id))
+
+        elements.append(context.text(self.label, id=text_id, **text_props))
 
         return elements
         
@@ -317,6 +388,26 @@ class JackSocketCentered(JackSocket):
     def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
         super(JackSocketCentered, self).__init__(x, y, label, is_output, rotation, font_size, label_above)
         self.offset = (0, 0)
+
+
+def random_str(n = 10):
+    return "".join(random.choices(string.ascii_lowercase, k=n))
+
+
+def round_rect_as_path(x, y, w, h, r):
+    h_edge = w - (2 * r)
+    v_edge = h - (2 * r)
+    return " ".join([
+        f"M {x} {y + r}",
+        f"a {r} {r} 0 0 1 {r} {-r}",
+        f"h {h_edge}",
+        f"a {r} {r} 0 0 1 {r} {r}",
+        f"v {v_edge}",
+        f"a {r} {r} 0 0 1 {-r} {r}",
+        f"h {-h_edge}",
+        f"a {r} {r} 0 0 1 {-r} {-r}",
+        f"z",
+    ])
 
 
 def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
