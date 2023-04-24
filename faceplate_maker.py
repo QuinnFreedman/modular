@@ -43,10 +43,11 @@ def inches(n):
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_offset, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5):
+    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5):
         HP = inches(0.2)
+        self.tolerance = 0.5
         self.height = 128.5
-        self.width = hp * HP - .5
+        self.width = hp * HP - self.tolerance
 
         self.d = svgwrite.Drawing(filename=filename.replace(" ", "_"), size=(self.width * mm, self.height * mm))
 
@@ -143,27 +144,29 @@ class Module:
                 self.outline.add(self.d.line(start, end, stroke_width=1, stroke="black"))
 
         if self.debug:
-            self.debug.add(self.d.line((self.width / 2, 0), (self.width / 2, self.height), stroke="green", stroke_dasharray="4,3", stroke_width=.5))
-                        
-        if global_offset:
-            self.holes = self.holes.add(self.d.g(id="throughholes_offset"))
-            self.holes.translate(global_offset)
-            self.stencil = self.stencil.add(self.d.g(id="stencil_offset"))
-            self.stencil.translate(global_offset)
-            if self.debug:
-                self.debug = self.debug.add(self.d.g(id="debug_offset"))
-                self.debug.translate(global_offset)
-            if self.cosmetics:
-                self.cosmetics = self.cosmetics.add(self.d.g(id="cosmetics_offset"))
-                self.cosmetics.translate(global_offset)
+            center = self.width / 2
+            self.debug.add(self.d.line((center, 0), (center, self.height), stroke="green", stroke_dasharray="4,3", stroke_width=.5))
 
-        if self.debug:
             for x in range(hp * 2):
-                _x = x * inches(0.1)
-                self.debug.add(self.d.line((_x, 0), (_x, inches(5)), stroke_width=0.1))
-            for y in range(50):
-                _y = y * inches(0.1)
+                _x = x * inches(0.1) - self.tolerance / 2
+                self.debug.add(self.d.line((_x, global_y_offset), (_x, global_y_offset + 100), stroke_width=0.1))
+            for y in range(int(100 / inches(0.1)) + 1):
+                _y = y * inches(0.1) + global_y_offset
                 self.debug.add(self.d.line((0, _y), (inches(hp * .2), _y), stroke_width=0.1))
+                        
+
+        global_offset = (self.width / 2, global_y_offset)
+        self.holes = self.holes.add(self.d.g(id="throughholes_offset"))
+        self.holes.translate(global_offset)
+        self.stencil = self.stencil.add(self.d.g(id="stencil_offset"))
+        self.stencil.translate(global_offset)
+        if self.debug:
+            self.debug = self.debug.add(self.d.g(id="debug_offset"))
+            self.debug.translate(global_offset)
+        if self.cosmetics:
+            self.cosmetics = self.cosmetics.add(self.d.g(id="cosmetics_offset"))
+            self.cosmetics.translate(global_offset)
+
 
     def add(self, component):
         group = self.holes.add(self.d.g())
@@ -198,20 +201,21 @@ class Module:
         self.d.save()
         cmd = "".join(self.inkscape_actions)
 
-        run_inkscape(
-            "--with-gui",
-            f"--actions={cmd};select-by-element:text;ObjectToPath;select-by-id:throughholes_offset;SelectionUnGroup;select-by-id:stencil_offset;SelectionUnGroup;FileSave;FileQuit",
-            self.d.filename,
-        )
+        if not self.debug:
+            run_inkscape(
+                "--with-gui",
+                f"--actions={cmd};select-by-element:text;ObjectToPath;select-by-id:throughholes_offset;SelectionUnGroup;select-by-id:stencil_offset;SelectionUnGroup;FileSave;FileQuit",
+                self.d.filename,
+            )
 
-        if self.post_process:
-            tree = ET.parse(self.d.filename)
-            for process in self.post_process:
-                process(tree)
-            font_style = tree.findall(f".//*[@id='font-style']")[0]
-            parent = font_style.find("..")
-            parent.remove(font_style)
-            tree.write(self.d.filename)
+            if self.post_process:
+                tree = ET.parse(self.d.filename)
+                for process in self.post_process:
+                    process(tree)
+                font_style = tree.findall(f".//*[@id='font-style']")[0]
+                parent = font_style.find("..")
+                parent.remove(font_style)
+                tree.write(self.d.filename)
 
 
 def run_inkscape(*args):
