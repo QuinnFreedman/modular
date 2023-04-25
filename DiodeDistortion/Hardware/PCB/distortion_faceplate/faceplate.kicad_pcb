@@ -71,9 +71,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory "")
+      (outputdirectory "../distortion_faceplate_gerber")
     )
   )
 
@@ -5162,7 +5162,6 @@
       4c5a6d05-24bb-4c72-9ce1-7c07409e11e9
       4f557a39-c16e-4aca-97cb-830e4fffbe7f
       5445a4af-d2dd-419e-b88d-630cdfb74242
-      5bb84694-df1f-4870-a29d-2cd4a802642d
       68906a08-cbb6-4647-903e-51126234b5bc
       69afaebd-d6be-4f89-ae04-9699666bca0c
       750905b8-eeb1-4f44-b0b7-9abb103f17d0
