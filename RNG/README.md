@@ -54,20 +54,31 @@ See [general assembly instructions](https://github.com/QuinnFreedman/modular/wik
 
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
-* Resistors
-  * 8x 1kohm
-  * 1x 2khm (Controls LED brightness for the buffer display. Higher values = dimmer leds)
-  * 2x 10khm
-  * 2x &ge;220ohm (Controls the gate/trigger LED brightness. Probably 1k-10k depending on the LEDs)
-* 6 Jacks
-* 9 LEDs (7x 5mm and 2x 3mm -- or just drill the faceplate holes to fit what you have)
-* 3 PNP transistors
-* 2 100nf capacitors (optional -- noise reduction)
-* 1 Arduino Nano
-* 1 MCP4922
-* 1 TL072
-* 1 TLC5940NT
-* Stacking headers, 2x8 shrouded connector
+| Reference | PCB   | Part           | Value      | Comment |
+|-----------|-------|----------------|------------|--|
+| R1,R2     | Front | Resistor       | 100kΩ      |  |
+| R3,R4     | Front | Resistor       | 1kΩ        |  |
+| R5-R8     | Front | Resistor       | 1kΩ        | These resistors control the brightness of the four bottom LEDs. Their value might depend on which LEDs you use. Increasing their value will decrease the brightness. |
+| R3,R4     | Front | Resistor       | 1kΩ        |  |
+| R9-R13    | Back  | Resistor       | 100kΩ      |  |
+| R9-R13,R16| Back  | Resistor       | 100kΩ      |  |
+| R14,R15   | Back  | Resistor       | 50kΩ       |  |
+| R17       | Back  | Resistor       | 470Ω       |  |
+| RV1-RV3   | Front | Potentiometer  | 50kΩ Linear| The value of these potentiometers doesn't really matter. `R14` and `R2` just need to be scaled to match `RV2`. So, for example, if `RV2` is 100kΩ, then `R2` should be 200kΩ and `R14` should be 100kΩ. |
+| SW1       | Front | Rotary Encoder | CTY1100 or similar |  |
+| SW2,SW3   | Front | Switch         | TAIWAY 200CWMSP1T3B4M2 | Any SPDT switch would work here. I use [TAIWAY 200-series](https://www.taiway.com/resource/annexes/product_items/74/856052d1ea82867d7e77babb534d1633.pdf) "sub-miniature" switches because they fit behind the faceplate. The pin pitch on the PCB is 0.1in.|
+| D1-D11    | Front | LED            | 3mm        |  |
+| J1-J6     | Front | Jack           | PJ301M-12  |  |
+| J7-J10    | Both  | Stacking pin headers | 1x6, 1x7, 1x8, 2x3 | Cut headers to size. You can just use two rows of headers for the 2x3. You can get matching male/female pairs for a detachable connection (reccomended) or just use male headers for a soldered connection. |
+| J11       | Back  | Power connector| IDC male 2x8 shrouded | Or, use two rows of male pin headers |
+| C1-C4     | Back  | Capacitor      | 100nF      | C2-C4 are optional noise-reducing bypass capacitors |
+| C5-C7     | Back  | Capacitor      | 10uF       | Optional noise-reduction |
+| U1        | Back  | LED controller | TLC5940NT  |  |
+| U2        | Back  | DAC            | MCP4922    |  |
+| U3        | Back  | Op-amp         | MCP6002    |  |
+| U4        | Back  | Op-amp         | TL074      |  |
+| U5        | Back  | Voltage regulator | LM4040BCZ-5 (5v) |  |
+| A1        | Back  | Arduino nano   | v3.0       |  |
 
 ## Requirements
 
