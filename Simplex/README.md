@@ -74,17 +74,28 @@ There are two triangle LFO output channels, **A**, and **B**.
 
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
-* Resistors
-  * 5x 10kohm (all 1k will work fine too)
-  * 4x 1kohm (controls input & output impedance)
-  * 2x &ge;220ohm (controls LED brightness -- I would actually recommend 1k-5k)
-* 4 Jacks
-* 2 LEDs
-* 2 PNP transistors
-* 2 100nf fixed capacitors (very optional)
-* 1 Arduino Nano
-* 1 MCP4922
-* 1 TL072
+
+#### Front PCB
+
+| Reference | Part           | Value      | Comment |
+|-----------|----------------|------------|--|
+| R1,R2     | Resistor       | 1kΩ        |  |
+| R3,R4     | Resistor       | 5.1kΩ      | Control LED brightness. Higher values makes the lights dimmer |
+| RV1-RV3   | Potentiometer  | 50kΩ linear| Value does not matter. Any value is fine here |
+| D1,D2     | LED            | 3mm        |  |
+| J1-J4     | Jack           | PJ301M-12  |  |
+| J5-J6     | Stacking pin headers | 1x7, 1x3 |  |
+
+#### Front PCB
+
+| Reference | Part           | Value      | Comment |
+|-----------|----------------|------------|--|
+| R1-R5     | Resistor       | 10kΩ       | The value doesn't relaly matter as long as they are all the same |
+| U1        | Op-amp         | TL072      |  |
+| U2        | Op-amp         | MCP6002    |  |
+| U3        | DAC            | MCP4922    |  |
+| A1        | Arduino Nano   | v3.0       |  |
+
 
 ### Instructions
 
