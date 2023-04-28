@@ -44,6 +44,8 @@ def inches(n):
 
 class Module:
     def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5):
+        assert isinstance(global_y_offset, int)
+        assert isinstance(hp, int)
         HP = inches(0.2)
         self.tolerance = 0.5
         self.height = 128.5
