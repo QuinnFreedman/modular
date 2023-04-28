@@ -95,6 +95,10 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 | U2        | Op-amp         | MCP6002    |  |
 | U3        | DAC            | MCP4922    |  |
 | A1        | Arduino Nano   | v3.0       |  |
+| J5-J6     | Stacking pin headers | 1x7, 1x3 |  |
+| J1        | Power connector| IDC male 2x8 shrouded | Or, use two rows of male pin headers |
+| C1,C2     | Capacitor      | 100nF      | **Optional** noise-reducing power-filtering capacitors |
+| C3-C5     | Capacitor      | 10uF       | **Optional** noise-reducing power-filtering capacitors |
 
 
 ### Instructions
