@@ -23,6 +23,7 @@ See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) 
 | R1-R3     | Resistor      | 100kΩ     |  |
 | R4-R7     | Resistor      | 10kΩ      |  |
 | R8,R9     | Resistor      | 1kΩ       |  |
+| RV1       | Potentiometer | 100kΩ     | If you don't have a 100k pot, just scale R2, R4, and R5 proportionally. |
 | C1        | 1uF           | Capacitor | Part of the AC-coupling. A lower value is also fine if that's all you have. |
 | C2,C3     | 100pF         | Capacitor | Stabilizing capacitor for amps. **Optional** |
 | C4,C5     | 10uF          | Capacitor | Power filtering capacitors. **Optional** |
