@@ -123,7 +123,7 @@ class Module:
             else:
                 outline = 1
         elif outline not in [0, 1, 2]:
-                raise ValueError("rotation must be 0, 1, 2, or None (default)")
+                raise ValueError("outline must be 0, 1, 2, or None (default)")
             
         if outline == 0:
             pass
@@ -458,14 +458,17 @@ def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
     return path
 
 class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None):
-       super(Switch, self).__init__(x, y, 0)
-       self.label = label
-       self.font_size = font_size
-       self.left_text = left_text
-       self.right_text = right_text
-       self.hole_radius = self.radius
-       self.hole_center = self.offset
+    def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
+        super(Switch, self).__init__(x, y, 0)
+        self.label = label
+        self.font_size = font_size
+        self.left_text = left_text
+        self.right_text = right_text
+        self.hole_radius = self.radius
+        self.hole_center = self.offset
+        self.rotation = rotation
+        if rotation not in [0, 1, 2, 3]:
+            raise ValueError("rotation must be 0...3")
 
     def draw_stencil(self, context):
         text_props = {
@@ -530,14 +533,23 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
             fill="#111"
         ))
 
-        angle = 0#-.2
+        angle = self.rotation * math.pi / 2
         length = 4
         width = 2.2
         spread = .1
         rounding = 2.5
         wide_width = width + 2 * length * math.sin(spread)
 
-        gradient = context.radialGradient((.8, .5), .6)
+        if not self.rotation:
+            grad_offset = (.8, .35)
+        elif self.rotation == 1:
+            grad_offset = (.65, .6)
+        elif self.rotation == 2:
+            grad_offset = (.2, .35)
+        elif self.rotation == 3:
+            grad_offset = (.65, .2)
+
+        gradient = context.radialGradient(grad_offset, .6)
         gradient.add_stop_color(0, "#eee")
         gradient.add_stop_color(1, "#111")
         context.defs.add(gradient)
@@ -570,6 +582,14 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
         elements.append(path)
         
         return elements
+
+
+class SmallSwitch(Switch):
+    def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
+       super(SmallSwitch, self).__init__(x, y, label=label, left_text=left_text, right_text=right_text, font_size=font_size, rotation=rotation)
+       self.radius = 2.25 + HOLE_ALLOWANCE
+       self.hole_radius = self.radius
+
 
 class SmallLED(BasicCircle(0, inches(.05), 1.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
