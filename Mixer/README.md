@@ -24,26 +24,21 @@ Any number of mixer modules can be daisy chained together using the "chain in" a
 
 See [components page](https://github.com/QuinnFreedman/modular/wiki/Components) for more info.
 
-* Resistors
-  * 9x 100kohm
-  * 1x 1kohm
-  * 1x 470ohm (controls LED brightness)
-* 6 Jacks
-* 5 SPST switches
-* 1 LED (bi-directional if you want to be able to see negative outputs)
-* 2 Potentiometers (B100k but any value is probably fine)
-* 1 TL072
-* 2 100nf capacitors (optional)
-* 2 10uf capacitors (optional)
+| Reference | Part           | Value        | Comment |
+|-----------|----------------|--------------|--|
+| R1-R9     | Resitor        | 100kΩ        | Any value is fine for these, as long as they are all the same. *Technically* R6 should be 99kΩ, but the difference wouldn't be noticable. |
+| R10       | Resitor        | 1kΩ          | Output Impedence |
+| R11       | Resitor        | 470Ω         | This controlls the LED brightness. Higher resistance value will make the LED dimmer. You might want to experement with a wide range of values up to 10k to dial in the right brightness for your LEDs. |
+| RV1-RV4   | Potentiometer  | B100kΩ       | Any value should work for these |
+| J1-J6     | Jack Socket    | PJ301M-12    |  |
+| J7        | Power header   | IDC male 2x8 |  |
+| J8, J9    | Jumper headers |              | **(Optional)** Chain multiple modules together by connecting OUT to IN. |
+| U1        | Op-amp         | TL072        |  |
+| D1        | LED            | 3mm          | Optionally, you could use a bi-directional LED here. Using a normal LED as shown in the design, with anode on top, will only illuminate when the mixer is outputting a positive voltage. |
+| C1, C2    | Capacitor      | 100nf        | **(Optional)** Power filtering |
+| C3, C4    | Capacitor      | 100nf        | **(Optional)** Amp stabilization |
+| C5, C6    | Capacitor      | 10uf         | **(Optional)** Power filtering |
 
 ### Instructions
 
 See [general assembly instructions](https://github.com/QuinnFreedman/modular/wiki/Assembly).
-
-The capacitors are intended to remove noise from the power supply, but they're not that important. You can just leave them out if you want.
-
-The 470ohm resistor controls the brightness of the LED. That will probably be quite bright. You can use a higher value if you want a less bright LED (maybe &ge;1k).
-
-The LED should be 3mm. The voltage across the LED will be the same as the output voltage, so it will sometimes be negative. If you mostly plan on mixing audio, a normal LED will be fine because it will flash so quickly that it will look like it is measuring volume. But, if you plan on mixing CV values, a bi-directional LED might be better. Or, just leave it out if you don't want an LED at all.
-
-If your switches only have two legs, connect the top two holes for each switch (marked with a line). If you don't want switches, you can just bridge those holes with a wire.
