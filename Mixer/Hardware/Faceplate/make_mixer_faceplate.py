@@ -8,7 +8,7 @@ from svgwrite.path import Path
 
 HP = 8
 
-module = Module(HP, 16, title="Mixer", filename="mixer_faceplate.svg", debug=False)
+module = Module.from_cli(HP, global_y_offset=16, title="Mixer")
 
 
 def get_center(circle):

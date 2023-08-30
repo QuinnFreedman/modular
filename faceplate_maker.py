@@ -219,6 +219,23 @@ class Module:
                 parent.remove(font_style)
                 tree.write(self.d.filename)
 
+    @classmethod
+    def from_cli(self, hp, global_y_offset=0, title=None, title_size=5):
+        import argparse
+        parser = argparse.ArgumentParser(description="Script to make faceplate SVGs for FM modules")
+        parser.add_argument("--mode", choices=["stencil", "display", "debug"], default="stencil", help="which features should be included in the image")
+        parser.add_argument("-o", "--output", metavar="FILE", help="path to svg file to output")
+        args = parser.parse_args()
+        return Module(
+            hp,
+            global_y_offset=global_y_offset,
+            title=title,
+            title_size=title_size,
+            filename=args.output or f"{title}.svg",
+            debug=args.mode == "debug",
+            cosmetics=args.mode == "display",
+        )
+
 
 def run_inkscape(*args):
     cmd = ["inkscape"] + list(args)
