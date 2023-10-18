@@ -1,3 +1,6 @@
+
+build/
+
 __pycache__/
 .vscode/
 output.svg

@@ -1,0 +1,140 @@
+use core::sync::atomic::Ordering;
+
+use arduino_hal::port::PinOps;
+
+use crate::{
+    button_debouncer::{ButtonWithLongPress, LongPressButtonState},
+    clock::ClockConfig,
+    rotary_encoder::RotaryEncoderHandler,
+};
+
+use super::{
+    menu_state::*,
+    utils::{step_clock_division, AddWithoutOverflow},
+};
+
+pub fn update_menu<BtnPin, const BTN_DEBOUNCE: u32, const BTN_LONG_PRESS: u32>(
+    menu_state: &mut MenuState,
+    clock_state: &mut ClockConfig,
+    button: &mut ButtonWithLongPress<BtnPin, BTN_DEBOUNCE, BTN_LONG_PRESS>,
+    rotary_encoder: &RotaryEncoderHandler,
+    current_time_ms: u32,
+) -> MenuUpdate
+where
+    BtnPin: PinOps,
+{
+    let button_state = button.sample(current_time_ms);
+    match button_state {
+        LongPressButtonState::ButtonJustDown => {
+            return handle_short_press(menu_state, clock_state);
+        }
+        LongPressButtonState::ButtonJustClickedLong => {
+            // return handle_long_press(menu_state, clock_state);
+        }
+        _ => {}
+    }
+
+    // if rotary_encoder.rotation.load(Ordering::SeqCst) != 0 {
+    //     let rotary_encoder_delta = avr_device::interrupt::free(|_cs| {
+    //         let current_value = rotary_encoder.rotation.load(Ordering::SeqCst);
+    //         rotary_encoder.rotation.store(0, Ordering::SeqCst);
+    //         current_value
+    //     });
+    //     if rotary_encoder_delta != 0 {
+    //         return handle_rotary_knob_change(menu_state, clock_state, rotary_encoder_delta);
+    //     }
+    // }
+    let rotary_encoder_delta = rotary_encoder.sample_and_reset();
+    if rotary_encoder_delta != 0 {
+        return handle_rotary_knob_change(menu_state, clock_state, rotary_encoder_delta);
+    }
+
+    MenuUpdate::NoUpdate
+}
+
+fn handle_long_press(menu_state: &mut MenuState, clock_state: &mut ClockConfig) -> MenuUpdate {
+    match menu_state.page {
+        MenuPage::Bpm => {
+            menu_state.editing = menu_state.editing.toggle();
+            MenuUpdate::ToggleEditingAtCursor
+        }
+        MenuPage::Main { cursor } => todo!(),
+        MenuPage::SubMenu {
+            channel,
+            cursor,
+            scroll,
+        } => todo!(),
+    }
+}
+
+fn handle_short_press(menu_state: &mut MenuState, clock_state: &mut ClockConfig) -> MenuUpdate {
+    match menu_state.page {
+        MenuPage::Bpm => {
+            menu_state.editing = menu_state.editing.toggle();
+            MenuUpdate::ToggleEditingAtCursor
+        }
+        MenuPage::Main { cursor: _ } => {
+            menu_state.editing = menu_state.editing.toggle();
+            MenuUpdate::ToggleEditingAtCursor
+        }
+        MenuPage::SubMenu {
+            channel,
+            cursor,
+            scroll,
+        } => todo!(),
+    }
+}
+
+fn handle_rotary_knob_change(
+    menu_state: &mut MenuState,
+    clock_state: &mut ClockConfig,
+    rotary_encoder_delta: i8,
+) -> MenuUpdate {
+    match menu_state.page {
+        MenuPage::Bpm => match menu_state.editing {
+            EditingState::Editing => {
+                clock_state.bpm = clock_state
+                    .bpm
+                    .add_without_overflow(rotary_encoder_delta)
+                    .clamp(30, 250);
+                MenuUpdate::UpdateValueAtCursor
+            }
+            EditingState::Navigating => {
+                if rotary_encoder_delta > 0 {
+                    menu_state.page = MenuPage::Main {
+                        cursor: (rotary_encoder_delta as u8 - 1).min(7),
+                    };
+                    MenuUpdate::SwitchScreens
+                } else {
+                    MenuUpdate::NoUpdate
+                }
+            }
+        },
+        MenuPage::Main { ref mut cursor } => match menu_state.editing {
+            EditingState::Navigating => {
+                let old_cursor = *cursor;
+                let new_cursor = (old_cursor as i8) + rotary_encoder_delta;
+
+                if new_cursor < 0 {
+                    menu_state.page = MenuPage::Bpm;
+                    MenuUpdate::SwitchScreens
+                } else {
+                    *cursor = (new_cursor as u8).min(7);
+                    MenuUpdate::MoveCursorFrom(old_cursor)
+                }
+            }
+            EditingState::Editing => {
+                clock_state.channels[(*cursor) as usize].division = step_clock_division(
+                    clock_state.channels[(*cursor) as usize].division,
+                    rotary_encoder_delta,
+                );
+                MenuUpdate::UpdateValueAtCursor
+            }
+        },
+        MenuPage::SubMenu {
+            channel,
+            cursor,
+            scroll,
+        } => todo!(),
+    }
+}

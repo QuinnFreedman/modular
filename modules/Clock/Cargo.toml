@@ -1,0 +1,51 @@
+[package]
+name = "fm-clock"
+version = "0.1.0"
+authors = ["Quinn Freedman <quinnfreedman@gmail.com>"]
+edition = "2021"
+
+[[bin]]
+name = "fm-clock"
+test = false
+bench = false
+
+[dependencies]
+# panic-halt = "0.2.0"
+# ufmt = "0.1.0"
+nb = "0.1.2"
+embedded-hal = "0.2.3"
+embedded-graphics = "0.8.1"
+ssd1306 = "0.8.1"
+display-interface = "0.4.1"
+display-interface-spi = "0.4.1"
+avr-progmem = "0.3.3"
+avr-device = "0.5.2"
+num = { version = "0.4.1", default-features = false }
+
+[dependencies.arduino-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
+features = ["arduino-nano"]
+
+# Configure the build for minimal size - AVRs have very little program memory
+[profile.dev]
+panic = "abort"
+lto = true
+codegen-units = 1
+opt-level = 3
+debug = false
+strip = "symbols"
+overflow-checks = true
+debug-assertions = true
+rpath = false
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = 3
+debug = false
+strip = "symbols"
+overflow-checks = false
+debug-assertions = false
+rpath = false
