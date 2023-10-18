@@ -1,7 +1,14 @@
+# Rust intermediate files
+target/
 
-build/
-
+# Python temp files
 __pycache__/
+.ipynb_checkpoints/
+
+# Un-converted font files
+*.pcf
+
+# misc
 .vscode/
 output.svg
 *.xcf

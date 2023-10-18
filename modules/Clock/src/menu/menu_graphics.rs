@@ -22,30 +22,7 @@ pub fn render_menu<DI, SIZE>(
     SIZE: ssd1306::size::DisplaySize,
 {
     match menu_state.page {
-        MenuPage::Bpm => {
-            let mut buffer: [u8; 3] = [0u8; 3];
-            let text = u8_to_str_b10(&mut buffer, clock_state.bpm);
-            let mut mini_buffer = MiniBuffer::<64, 32>::new();
-
-            if menu_state.editing == EditingState::Editing {
-                mini_buffer.fast_fill(0, 0, 64, 32, BinaryColor::On);
-            }
-
-            mini_buffer.fast_draw_ascii_text(
-                Justify::Center(32),
-                Justify::Center(16),
-                text,
-                &PRO_FONT_22,
-                match menu_state.editing {
-                    EditingState::Editing => &TextColor::BinaryOffTransparent,
-                    EditingState::Navigating => &TextColor::BinaryOn,
-                },
-            );
-            if *menu_update == MenuUpdate::SwitchScreens {
-                display.clear().unwrap();
-            }
-            mini_buffer.blit(display, 32, 16).unwrap();
-        }
+        MenuPage::Bpm => render_bpm_page(menu_state, clock_state, menu_update, display),
         MenuPage::Main { cursor } => match menu_update {
             MenuUpdate::NoUpdate => (),
             MenuUpdate::UpdateValueAtCursor | MenuUpdate::ToggleEditingAtCursor => {
@@ -75,54 +52,55 @@ pub fn render_menu<DI, SIZE>(
                         )
                     }
                 } else {
-                    for i in 0..4 {
-                        let channel_idx = new_page + i;
-                        let style = if channel_idx == cursor {
-                            match menu_state.editing {
-                                EditingState::Editing => ChannelStyle::Editing,
-                                EditingState::Navigating => ChannelStyle::Selected,
-                            }
-                        } else {
-                            ChannelStyle::Deselected
-                        };
-                        draw_top_level_menu_item(
-                            channel_idx,
-                            clock_state.channels[channel_idx as usize].division,
-                            style,
-                            display,
-                        )
-                    }
+                    full_render_main_page(menu_state, clock_state, cursor, display);
                 }
             }
             MenuUpdate::SwitchScreens | MenuUpdate::Scroll(_) => {
-                // TODO remove clear
-                display.clear().unwrap();
-                let page_offset = (cursor / 4) * 4;
-                for i in 0..4 {
-                    let channel_idx = page_offset + i;
-                    let style = if channel_idx == cursor {
-                        match menu_state.editing {
-                            EditingState::Editing => ChannelStyle::Editing,
-                            EditingState::Navigating => ChannelStyle::Selected,
-                        }
-                    } else {
-                        ChannelStyle::Deselected
-                    };
-                    draw_top_level_menu_item(
-                        channel_idx,
-                        clock_state.channels[channel_idx as usize].division,
-                        style,
-                        display,
-                    )
-                }
+                full_render_main_page(menu_state, clock_state, cursor, display);
             }
         },
         MenuPage::SubMenu {
             cursor,
             scroll,
             channel,
-        } => todo!(),
+        } => {
+            display.clear().unwrap();
+        }
     }
+}
+
+#[inline(never)]
+fn render_bpm_page<DI, SIZE>(
+    menu_state: &MenuState,
+    clock_state: &ClockConfig,
+    menu_update: &MenuUpdate,
+    display: &mut ssd1306::Ssd1306<DI, SIZE, ssd1306::mode::BasicMode>,
+) where
+    DI: display_interface::WriteOnlyDataCommand,
+    SIZE: ssd1306::size::DisplaySize,
+{
+    let mut buffer: [u8; 3] = [0u8; 3];
+    let text = u8_to_str_b10(&mut buffer, clock_state.bpm);
+    let mut mini_buffer = MiniBuffer::<64, 32>::new();
+
+    if menu_state.editing == EditingState::Editing {
+        mini_buffer.fast_fill(0, 0, 64, 32, BinaryColor::On);
+    }
+
+    mini_buffer.fast_draw_ascii_text(
+        Justify::Center(32),
+        Justify::Center(16),
+        text,
+        &PRO_FONT_22,
+        match menu_state.editing {
+            EditingState::Editing => &TextColor::BinaryOffTransparent,
+            EditingState::Navigating => &TextColor::BinaryOn,
+        },
+    );
+    if *menu_update == MenuUpdate::SwitchScreens {
+        display.clear().unwrap();
+    }
+    mini_buffer.blit(display, 32, 16).unwrap();
 }
 
 #[derive(PartialEq, Eq)]
@@ -132,6 +110,37 @@ enum ChannelStyle {
     Deselected,
 }
 
+#[inline(always)]
+fn full_render_main_page<DI, SIZE>(
+    menu_state: &MenuState,
+    clock_state: &ClockConfig,
+    cursor: u8,
+    display: &mut ssd1306::Ssd1306<DI, SIZE, ssd1306::mode::BasicMode>,
+) where
+    DI: display_interface::WriteOnlyDataCommand,
+    SIZE: ssd1306::size::DisplaySize,
+{
+    let page_offset = (cursor / 4) * 4;
+    for i in 0..4 {
+        let channel_idx = page_offset + i;
+        let style = if channel_idx == cursor {
+            match menu_state.editing {
+                EditingState::Editing => ChannelStyle::Editing,
+                EditingState::Navigating => ChannelStyle::Selected,
+            }
+        } else {
+            ChannelStyle::Deselected
+        };
+        draw_top_level_menu_item(
+            channel_idx,
+            clock_state.channels[channel_idx as usize].division,
+            style,
+            display,
+        )
+    }
+}
+
+#[inline(never)]
 fn draw_top_level_menu_item<DI, SIZE>(
     channel_index: u8,
     value: i8,

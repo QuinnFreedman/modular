@@ -38,7 +38,7 @@ pub fn step_clock_division(mut current_value: i8, mut delta: i8) -> i8 {
         let delta_sign = delta.signum();
         let abs_value = current_value.abs() as u8;
         current_value = if (delta_sign * sign) > 0 {
-            (abs_value + 1).next_power_of_two()
+            (abs_value + 1).next_power_of_two().min(64)
         } else {
             abs_value.lower_power_of_two()
         } as i8

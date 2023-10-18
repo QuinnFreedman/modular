@@ -29,21 +29,11 @@ where
             return handle_short_press(menu_state, clock_state);
         }
         LongPressButtonState::ButtonJustClickedLong => {
-            // return handle_long_press(menu_state, clock_state);
+            return handle_long_press(menu_state, clock_state);
         }
         _ => {}
     }
 
-    // if rotary_encoder.rotation.load(Ordering::SeqCst) != 0 {
-    //     let rotary_encoder_delta = avr_device::interrupt::free(|_cs| {
-    //         let current_value = rotary_encoder.rotation.load(Ordering::SeqCst);
-    //         rotary_encoder.rotation.store(0, Ordering::SeqCst);
-    //         current_value
-    //     });
-    //     if rotary_encoder_delta != 0 {
-    //         return handle_rotary_knob_change(menu_state, clock_state, rotary_encoder_delta);
-    //     }
-    // }
     let rotary_encoder_delta = rotary_encoder.sample_and_reset();
     if rotary_encoder_delta != 0 {
         return handle_rotary_knob_change(menu_state, clock_state, rotary_encoder_delta);
@@ -52,18 +42,27 @@ where
     MenuUpdate::NoUpdate
 }
 
-fn handle_long_press(menu_state: &mut MenuState, clock_state: &mut ClockConfig) -> MenuUpdate {
+fn handle_long_press(menu_state: &mut MenuState, _clock_state: &mut ClockConfig) -> MenuUpdate {
     match menu_state.page {
-        MenuPage::Bpm => {
-            menu_state.editing = menu_state.editing.toggle();
-            MenuUpdate::ToggleEditingAtCursor
+        MenuPage::Bpm => MenuUpdate::NoUpdate,
+        MenuPage::Main { cursor } => {
+            menu_state.page = MenuPage::SubMenu {
+                channel: cursor,
+                cursor: 0,
+                scroll: 0,
+            };
+            menu_state.editing = EditingState::Navigating;
+            MenuUpdate::SwitchScreens
         }
-        MenuPage::Main { cursor } => todo!(),
         MenuPage::SubMenu {
             channel,
-            cursor,
-            scroll,
-        } => todo!(),
+            cursor: _,
+            scroll: _,
+        } => {
+            menu_state.page = MenuPage::Main { cursor: channel };
+            menu_state.editing = EditingState::Navigating;
+            MenuUpdate::SwitchScreens
+        }
     }
 }
 
@@ -81,7 +80,7 @@ fn handle_short_press(menu_state: &mut MenuState, clock_state: &mut ClockConfig)
             channel,
             cursor,
             scroll,
-        } => todo!(),
+        } => MenuUpdate::NoUpdate, // TODO
     }
 }
 
@@ -135,6 +134,6 @@ fn handle_rotary_knob_change(
             channel,
             cursor,
             scroll,
-        } => todo!(),
+        } => MenuUpdate::NoUpdate, // TODO
     }
 }

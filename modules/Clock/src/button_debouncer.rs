@@ -92,6 +92,11 @@ where
     }
 
     pub fn sample(&mut self, current_time_ms: u32) -> LongPressButtonState {
+        // let dp = unsafe { arduino_hal::Peripherals::steal() };
+        // let pins = arduino_hal::pins!(dp);
+        // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+        // serial.write_byte('s' as u8);
+        // serial.write_byte('\n' as u8);
         let button_state = self.base.sample(current_time_ms);
         match button_state {
             ButtonState::ButtonJustPressed => {
@@ -106,7 +111,7 @@ where
             },
             ButtonState::ButtonHeldDown => match self.state {
                 LPBInternalState::WaitingForLongPressSince(start_time) => {
-                    let held_time = current_time_ms - start_time;
+                    let held_time = current_time_ms.saturating_sub(start_time);
                     if held_time > LONG_PRESS_TIME_MS {
                         self.state = LPBInternalState::NotWaiting;
                         LongPressButtonState::ButtonJustClickedLong

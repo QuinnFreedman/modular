@@ -126,13 +126,6 @@ fn main() -> ! {
         .set_addr_mode(ssd1306::command::AddrMode::Vertical)
         .unwrap();
 
-    // let mut mini_buffer = MiniBuffer::<64, 32>::new();
-
-    // let solid_line = PrimitiveStyleBuilder::new()
-    //     .stroke_color(BinaryColor::On)
-    //     .stroke_width(1)
-    //     .build();
-
     let mut menu_state = MenuState::new();
     let mut clock_config = ClockConfig::new();
 
@@ -152,13 +145,9 @@ fn main() -> ! {
             &ROTARY_ENCODER,
             current_time_ms,
         );
+
         if menu_update != MenuUpdate::NoUpdate {
-            render_menu(
-                &menu_state,
-                &clock_config,
-                &MenuUpdate::SwitchScreens,
-                &mut display,
-            );
+            render_menu(&menu_state, &clock_config, &menu_update, &mut display);
         }
     }
 }
