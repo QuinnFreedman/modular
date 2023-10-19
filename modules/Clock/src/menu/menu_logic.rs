@@ -4,7 +4,7 @@ use arduino_hal::port::PinOps;
 
 use crate::{
     button_debouncer::{ButtonWithLongPress, LongPressButtonState},
-    clock::ClockConfig,
+    clock::{ClockChannelConfig, ClockConfig},
     rotary_encoder::RotaryEncoderHandler,
 };
 
@@ -79,8 +79,17 @@ fn handle_short_press(menu_state: &mut MenuState, clock_state: &mut ClockConfig)
         MenuPage::SubMenu {
             channel,
             cursor,
-            scroll,
-        } => MenuUpdate::NoUpdate, // TODO
+            scroll: _,
+        } => match SubMenuItem::from(cursor) {
+            SubMenuItem::Exit => {
+                menu_state.page = MenuPage::Main { cursor: channel };
+                MenuUpdate::SwitchScreens
+            }
+            _ => {
+                menu_state.editing = menu_state.editing.toggle();
+                MenuUpdate::ToggleEditingAtCursor
+            }
+        },
     }
 }
 
@@ -132,8 +141,56 @@ fn handle_rotary_knob_change(
         },
         MenuPage::SubMenu {
             channel,
-            cursor,
-            scroll,
-        } => MenuUpdate::NoUpdate, // TODO
+            ref mut cursor,
+            ref mut scroll,
+        } => match menu_state.editing {
+            EditingState::Editing => {
+                let channel: &mut ClockChannelConfig = &mut clock_state.channels[channel as usize];
+                match SubMenuItem::from(*cursor) {
+                    SubMenuItem::Division => {
+                        channel.division = channel
+                            .division
+                            .saturating_add(rotary_encoder_delta)
+                            .clamp(-64, 64);
+                        MenuUpdate::UpdateValueAtCursor
+                    }
+                    SubMenuItem::PulseWidth => {
+                        channel.pulse_width = channel
+                            .pulse_width
+                            .saturating_add(rotary_encoder_delta)
+                            .clamp(0, 100);
+                        MenuUpdate::UpdateValueAtCursor
+                    }
+                    SubMenuItem::PhaseShift => {
+                        channel.phase_shift = channel
+                            .phase_shift
+                            .saturating_add(rotary_encoder_delta)
+                            .clamp(-50, 50);
+                        MenuUpdate::UpdateValueAtCursor
+                    }
+                    SubMenuItem::Swing => {
+                        channel.swing = channel
+                            .swing
+                            .saturating_add(rotary_encoder_delta)
+                            .clamp(-50, 50);
+                        MenuUpdate::UpdateValueAtCursor
+                    }
+                    SubMenuItem::Exit => MenuUpdate::NoUpdate,
+                }
+            }
+            EditingState::Navigating => {
+                let old_cursor = *cursor;
+                *cursor = cursor.add_without_overflow(rotary_encoder_delta).min(4);
+                if *cursor < *scroll {
+                    *scroll = *cursor;
+                    MenuUpdate::Scroll(ScrollDirection::Up)
+                } else if *cursor > *scroll + 1 {
+                    *scroll = *cursor - 1;
+                    MenuUpdate::Scroll(ScrollDirection::Down)
+                } else {
+                    MenuUpdate::MoveCursorFrom(old_cursor)
+                }
+            }
+        },
     }
 }

@@ -43,8 +43,8 @@ where
             let y = point.y.clamp(0, 255) as usize;
 
             let bit_offset = x * HEIGHT + y;
-            let bytes = bit_offset / (u8::BITS as usize);
-            let bits = bit_offset % (u8::BITS as usize);
+            let bytes = bit_offset / BYTE_SIZE;
+            let bits = bit_offset % BYTE_SIZE;
             if bytes >= self.0.len() {
                 return Ok(());
             };
@@ -154,15 +154,18 @@ where
         [(); get_glyph_size_bytes(GLYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
     {
         let text_width = GLYPH_WIDTH as usize * text.len();
+        // NOTE: if we want to allow negative offset, we could make x and y i16 and
+        // add a boudns check to the loop then cast back, but it's faster to not as
+        // long as it's not used
         let x = match horizontal {
             Justify::Start(offset) => offset,
-            Justify::Center(offset) => offset - text_width / 2,
-            Justify::End(offset) => offset - text_width,
+            Justify::Center(offset) => offset.saturating_sub(text_width / 2),
+            Justify::End(offset) => offset.saturating_sub(text_width),
         };
         let y = match vertical {
             Justify::Start(offset) => offset,
-            Justify::Center(offset) => offset - GLYPH_HEIGHT as usize / 2,
-            Justify::End(offset) => offset - GLYPH_HEIGHT as usize,
+            Justify::Center(offset) => offset.saturating_sub(GLYPH_HEIGHT as usize / 2),
+            Justify::End(offset) => offset.saturating_sub(GLYPH_HEIGHT as usize),
         };
 
         let y_offset_bytes = y / BYTE_SIZE;
@@ -195,7 +198,8 @@ where
                         color,
                     )
                 }
-                if GLYPH_HEIGHT + y_offset_bits > GLYPH_HEIGHT_BYTES {
+                if GLYPH_HEIGHT + y_offset_bits > GLYPH_HEIGHT_BYTES * (u8::BITS as u8) {
+                    debug_assert_ne!(y_offset_bits, 0);
                     self.write_byte_if_in_bounds(
                         col_in_buff,
                         GLYPH_HEIGHT_BYTES as usize + y_offset_bytes,
