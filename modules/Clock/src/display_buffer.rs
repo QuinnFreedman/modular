@@ -136,6 +136,66 @@ where
         return MiniBuffer(buffer);
     }
 
+    #[inline(never)]
+    pub fn fast_draw_image(
+        &mut self,
+        x: usize,
+        y: usize,
+        img_width: u8,
+        img_height: u8,
+        raw_data: &[u8],
+        color: &TextColor,
+    ) {
+        self.fast_draw_image_inline(x, y, img_width, img_height, raw_data, color)
+    }
+
+    #[inline(always)]
+    fn fast_draw_image_inline(
+        &mut self,
+        x: usize,
+        y: usize,
+        img_width: u8,
+        img_height: u8,
+        raw_data: &[u8],
+        color: &TextColor,
+    ) {
+        let y_offset_bytes = y / BYTE_SIZE;
+        let y_offset_bits = (y % BYTE_SIZE) as u8;
+        let img_height_bytes: u8 = img_height.div_ceil(u8::BITS as u8);
+
+        for col_in_glyph in 0..img_width {
+            let col_in_buff = col_in_glyph as usize + x;
+            let mut last_byte_in_glyph = 0u8;
+            for byte_idx_in_glyph in 0..img_height_bytes {
+                let byte_in_glyph = raw_data[col_in_glyph as usize * img_height_bytes as usize
+                    + byte_idx_in_glyph as usize];
+                let byte_to_write = if y_offset_bits == 0 {
+                    byte_in_glyph
+                } else {
+                    (byte_in_glyph << y_offset_bits)
+                        | (last_byte_in_glyph >> (u8::BITS as u8 - y_offset_bits))
+                };
+
+                last_byte_in_glyph = byte_in_glyph;
+                self.write_byte_if_in_bounds(
+                    col_in_buff,
+                    byte_idx_in_glyph as usize + y_offset_bytes,
+                    byte_to_write,
+                    color,
+                )
+            }
+            if img_height + y_offset_bits > img_height_bytes * (u8::BITS as u8) {
+                debug_assert_ne!(y_offset_bits, 0);
+                self.write_byte_if_in_bounds(
+                    col_in_buff,
+                    img_height_bytes as usize + y_offset_bytes,
+                    last_byte_in_glyph >> (u8::BITS as u8 - y_offset_bits),
+                    color,
+                )
+            }
+        }
+    }
+
     /**
     Drawing text with embedded_graphics requires loading the full font into memory,
     which there isn't room for in the atmega. Also, it is relatively slow. This
@@ -168,46 +228,12 @@ where
             Justify::End(offset) => offset.saturating_sub(GLYPH_HEIGHT as usize),
         };
 
-        let y_offset_bytes = y / BYTE_SIZE;
-        let y_offset_bits = (y % BYTE_SIZE) as u8;
-
-        // Should be able to be const, but gives an error
-        #[allow(non_snake_case)]
-        let GLYPH_HEIGHT_BYTES: u8 = GLYPH_HEIGHT.div_ceil(u8::BITS as u8);
         let mut cursor = x;
         for ascii_char in text {
             let glyph = font.get_glyph(*ascii_char);
-            for col_in_glyph in 0..GLYPH_WIDTH {
-                let col_in_buff = col_in_glyph as usize + cursor;
-                let mut last_byte_in_glyph = 0u8;
-                for byte_idx_in_glyph in 0..GLYPH_HEIGHT_BYTES {
-                    let byte_in_glyph = glyph[col_in_glyph as usize * GLYPH_HEIGHT_BYTES as usize
-                        + byte_idx_in_glyph as usize];
-                    let byte_to_write = if y_offset_bits == 0 {
-                        byte_in_glyph
-                    } else {
-                        (byte_in_glyph << y_offset_bits)
-                            | (last_byte_in_glyph >> (u8::BITS as u8 - y_offset_bits))
-                    };
 
-                    last_byte_in_glyph = byte_in_glyph;
-                    self.write_byte_if_in_bounds(
-                        col_in_buff,
-                        byte_idx_in_glyph as usize + y_offset_bytes,
-                        byte_to_write,
-                        color,
-                    )
-                }
-                if GLYPH_HEIGHT + y_offset_bits > GLYPH_HEIGHT_BYTES * (u8::BITS as u8) {
-                    debug_assert_ne!(y_offset_bits, 0);
-                    self.write_byte_if_in_bounds(
-                        col_in_buff,
-                        GLYPH_HEIGHT_BYTES as usize + y_offset_bytes,
-                        last_byte_in_glyph >> (u8::BITS as u8 - y_offset_bits),
-                        color,
-                    )
-                }
-            }
+            self.fast_draw_image_inline(cursor, y, GLYPH_WIDTH, GLYPH_HEIGHT, &glyph, color);
+
             cursor += GLYPH_WIDTH as usize;
         }
     }

@@ -1,15 +1,15 @@
-use avr_progmem::{progmem, progmem_str as F, wrapper::ProgMem};
+use avr_progmem::{progmem, progmem_str as F};
 use embedded_graphics::{pixelcolor::BinaryColor, prelude::DrawTarget};
 
 use crate::{
-    clock::{ClockChannelConfig, ClockConfig},
+    clock::ClockChannelConfig,
     display_buffer::{Justify, MiniBuffer, TextColor},
     font::PRO_FONT_22,
     menu::{
         menu_state::{EditingState, SubMenuItem},
-        MenuState, MenuUpdate,
+        MenuUpdate,
     },
-    render_nubers::{i8_to_str_b10, u8_to_str_b10},
+    render_nubers::i8_to_str_b10,
 };
 
 #[inline(always)]
@@ -24,20 +24,39 @@ pub fn render_submenu_page<DI, SIZE>(
     DI: display_interface::WriteOnlyDataCommand,
     SIZE: ssd1306::size::DisplaySize,
 {
-    display.clear().unwrap();
-    for i in scroll..scroll + 2 {
-        let selected = cursor == i;
-        let editing_item = match editing {
-            EditingState::Editing => {
-                if selected {
-                    EditingState::Editing
-                } else {
-                    EditingState::Navigating
-                }
+    match menu_update {
+        MenuUpdate::UpdateValueAtCursor | MenuUpdate::ToggleEditingAtCursor => {
+            draw_submenu_item(
+                cursor,
+                true,
+                scroll,
+                editing.into(),
+                false,
+                channel,
+                display,
+            );
+        }
+        MenuUpdate::MoveCursorFrom(_) | MenuUpdate::Scroll(_) | MenuUpdate::SwitchScreens => {
+            let at_top = scroll == 0;
+            let at_bottom = scroll >= 3;
+            draw_arrows(true, !at_top, display);
+            draw_arrows(false, !at_bottom, display);
+            for i in scroll..scroll + 2 {
+                let selected = cursor == i;
+                let editing_item = match editing {
+                    EditingState::Editing => {
+                        if selected {
+                            EditingState::Editing
+                        } else {
+                            EditingState::Navigating
+                        }
+                    }
+                    EditingState::Navigating => EditingState::Navigating,
+                };
+                draw_submenu_item(i, selected, scroll, editing_item, true, channel, display);
             }
-            EditingState::Navigating => EditingState::Navigating,
-        };
-        draw_submenu_item(i, selected, scroll, editing_item, channel, display);
+        }
+        MenuUpdate::NoUpdate => {}
     }
 }
 
@@ -47,6 +66,64 @@ progmem! {
     static progmem string PHASESHIFT_TEXT = "PHASE";
     static progmem string SWING_TEXT = "SWING";
     static progmem string EXIT_TEXT = "EXIT";
+    static progmem TRIANGLE_DOWN: [u8; 11] = [
+        0b00000100,
+        0b00001100,
+        0b00011100,
+        0b00111100,
+        0b01111100,
+        0b11111100,
+        0b01111100,
+        0b00111100,
+        0b00011100,
+        0b00001100,
+        0b00000100,
+    ];
+    static progmem TRIANGLE_UP: [u8; 11] = [
+        0b00100000,
+        0b00110000,
+        0b00111000,
+        0b00111100,
+        0b00111110,
+        0b00111111,
+        0b00111110,
+        0b00111100,
+        0b00111000,
+        0b00110000,
+        0b00100000,
+    ];
+}
+
+#[inline(never)]
+fn draw_arrows<DI, SIZE>(
+    top: bool,
+    draw_arrows: bool,
+    display: &mut ssd1306::Ssd1306<DI, SIZE, ssd1306::mode::BasicMode>,
+) where
+    DI: display_interface::WriteOnlyDataCommand,
+    SIZE: ssd1306::size::DisplaySize,
+{
+    let mut buffer = MiniBuffer::<128, 8>::new();
+    let y = if top { 0 } else { 64 - 8 };
+
+    if draw_arrows {
+        let img_progmem = if top { TRIANGLE_UP } else { TRIANGLE_DOWN };
+        let img = &img_progmem.load();
+
+        let img_width: u8 = img.len() as u8;
+        let spacing: u8 = 30;
+
+        let offsets = [
+            128 / 2 - img_width / 2,
+            128 / 2 - spacing - img_width / 2,
+            128 / 2 + spacing - img_width / 2,
+        ];
+        for offset in offsets {
+            buffer.fast_draw_image(offset as usize, 0, img_width, 8, img, &TextColor::BinaryOn);
+        }
+    }
+
+    buffer.blit(display, 0, y).unwrap();
 }
 
 #[inline(always)]
@@ -55,6 +132,7 @@ fn draw_submenu_item<DI, SIZE>(
     selected: bool,
     scroll: u8,
     editing: EditingState,
+    full_update: bool,
     channel: &ClockChannelConfig,
     display: &mut ssd1306::Ssd1306<DI, SIZE, ssd1306::mode::BasicMode>,
 ) where
@@ -63,7 +141,9 @@ fn draw_submenu_item<DI, SIZE>(
 {
     let offset_y = (index.saturating_sub(scroll)) * 24 + 8;
     let menu_item: SubMenuItem = index.into();
-    draw_submenu_item_label(offset_y, selected, menu_item, display);
+    if full_update {
+        draw_submenu_item_label(offset_y, selected, menu_item, display);
+    }
     draw_submenu_item_value(offset_y, selected, editing, menu_item, channel, display);
 }
 
@@ -133,21 +213,21 @@ fn draw_submenu_item_label<DI, SIZE>(
         SubMenuItem::Division => buffer.fast_draw_ascii_text(
             Justify::Start(2),
             Justify::Start(1),
-            F!("Divis").as_bytes(),
+            F!("Tempo").as_bytes(),
             &PRO_FONT_22,
             text_color,
         ),
         SubMenuItem::PulseWidth => buffer.fast_draw_ascii_text(
             Justify::Start(2),
             Justify::Start(1),
-            F!("PWidth").as_bytes(),
+            F!("PulseW").as_bytes(),
             &PRO_FONT_22,
             text_color,
         ),
         SubMenuItem::PhaseShift => buffer.fast_draw_ascii_text(
             Justify::Start(2),
             Justify::Start(1),
-            F!("PShift").as_bytes(),
+            F!("Phase").as_bytes(),
             &PRO_FONT_22,
             text_color,
         ),

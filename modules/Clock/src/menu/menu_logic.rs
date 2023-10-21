@@ -181,7 +181,9 @@ fn handle_rotary_knob_change(
             EditingState::Navigating => {
                 let old_cursor = *cursor;
                 *cursor = cursor.add_without_overflow(rotary_encoder_delta).min(4);
-                if *cursor < *scroll {
+                if old_cursor == *cursor {
+                    MenuUpdate::NoUpdate
+                } else if *cursor < *scroll {
                     *scroll = *cursor;
                     MenuUpdate::Scroll(ScrollDirection::Up)
                 } else if *cursor > *scroll + 1 {
