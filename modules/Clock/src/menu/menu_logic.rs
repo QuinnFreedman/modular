@@ -1,5 +1,3 @@
-use core::sync::atomic::Ordering;
-
 use arduino_hal::port::PinOps;
 
 use crate::{
@@ -10,7 +8,7 @@ use crate::{
 
 use super::{
     menu_state::*,
-    utils::{step_clock_division, AddWithoutOverflow},
+    utils::{single_step_clock_division, step_clock_division, AddWithoutOverflow},
 };
 
 pub fn update_menu<BtnPin, const BTN_DEBOUNCE: u32, const BTN_LONG_PRESS: u32>(
@@ -66,7 +64,7 @@ fn handle_long_press(menu_state: &mut MenuState, _clock_state: &mut ClockConfig)
     }
 }
 
-fn handle_short_press(menu_state: &mut MenuState, clock_state: &mut ClockConfig) -> MenuUpdate {
+fn handle_short_press(menu_state: &mut MenuState, _clock_state: &mut ClockConfig) -> MenuUpdate {
     match menu_state.page {
         MenuPage::Bpm => {
             menu_state.editing = menu_state.editing.toggle();
@@ -148,16 +146,14 @@ fn handle_rotary_knob_change(
                 let channel: &mut ClockChannelConfig = &mut clock_state.channels[channel as usize];
                 match SubMenuItem::from(*cursor) {
                     SubMenuItem::Division => {
-                        channel.division = channel
-                            .division
-                            .saturating_add(rotary_encoder_delta)
-                            .clamp(-64, 64);
+                        channel.division =
+                            single_step_clock_division(channel.division, rotary_encoder_delta);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::PulseWidth => {
                         channel.pulse_width = channel
                             .pulse_width
-                            .saturating_add(rotary_encoder_delta)
+                            .add_without_overflow(rotary_encoder_delta)
                             .clamp(0, 100);
                         MenuUpdate::UpdateValueAtCursor
                     }

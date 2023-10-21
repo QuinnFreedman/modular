@@ -3,7 +3,7 @@
 pub struct ClockChannelConfig {
     pub division: i8,
     pub swing: i8,
-    pub pulse_width: i8,
+    pub pulse_width: u8,
     pub phase_shift: i8,
 }
 

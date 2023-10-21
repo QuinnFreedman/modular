@@ -5,7 +5,7 @@ use crate::{
     display_buffer::{Justify, MiniBuffer, TextColor},
     font::PRO_FONT_22,
     menu::{menu_state::EditingState, MenuUpdate},
-    render_nubers::i8_to_str_b10,
+    render_nubers::tempo_to_str,
 };
 
 #[inline(never)]
@@ -111,7 +111,7 @@ fn draw_top_level_menu_item<DI, SIZE>(
     let screen_y = y * 32;
 
     let mut buffer: [u8; 4] = [0u8; 4];
-    let text = i8_to_str_b10(&mut buffer, value);
+    let text = tempo_to_str(&mut buffer, value);
 
     let mut mini_buffer = MiniBuffer::<64, 32>::new();
 

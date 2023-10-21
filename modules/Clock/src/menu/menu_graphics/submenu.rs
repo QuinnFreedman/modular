@@ -9,7 +9,7 @@ use crate::{
         menu_state::{EditingState, SubMenuItem},
         MenuUpdate,
     },
-    render_nubers::i8_to_str_b10,
+    render_nubers::{i8_to_str_b10, tempo_to_str, u8_to_str_b10},
 };
 
 #[inline(always)]
@@ -166,15 +166,14 @@ fn draw_submenu_item_value<DI, SIZE>(
     } else {
         TextColor::BinaryOn
     };
-    let value: i8 = match item {
-        SubMenuItem::Division => channel.division,
-        SubMenuItem::PulseWidth => channel.pulse_width,
-        SubMenuItem::PhaseShift => channel.phase_shift,
-        SubMenuItem::Swing => channel.swing,
-        SubMenuItem::Exit => 0,
-    };
     let mut text_buffer = [0u8; 4];
-    let text = i8_to_str_b10(&mut text_buffer, value);
+    let text = match item {
+        SubMenuItem::Division => tempo_to_str(&mut text_buffer, channel.division),
+        SubMenuItem::PulseWidth => u8_to_str_b10(&mut text_buffer, channel.pulse_width),
+        SubMenuItem::PhaseShift => i8_to_str_b10(&mut text_buffer, channel.phase_shift),
+        SubMenuItem::Swing => i8_to_str_b10(&mut text_buffer, channel.swing),
+        SubMenuItem::Exit => &text_buffer[0..0],
+    };
     buffer.fast_draw_ascii_text(
         Justify::End(52),
         Justify::Start(1),

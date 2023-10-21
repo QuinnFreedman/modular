@@ -38,13 +38,28 @@ pub fn step_clock_division(mut current_value: i8, mut delta: i8) -> i8 {
         let delta_sign = delta.signum();
         let abs_value = current_value.abs() as u8;
         current_value = if (delta_sign * sign) > 0 {
-            (abs_value + 1).next_power_of_two().min(64)
+            (abs_value + 1)
+                .next_power_of_two()
+                .min(if delta_sign < 0 { 65 } else { 64 })
         } else {
             abs_value.lower_power_of_two()
         } as i8
             * sign;
-        if current_value == 0 {
-            current_value = delta_sign;
+        if current_value == 0 || current_value == -1 {
+            current_value = if delta_sign < 0 { -2 } else { 1 };
+        }
+        delta -= delta_sign;
+    }
+    current_value
+}
+
+pub fn single_step_clock_division(mut current_value: i8, mut delta: i8) -> i8 {
+    while delta != 0 {
+        let delta_sign = delta.signum();
+        current_value += delta_sign;
+        current_value = current_value.clamp(-65, 64);
+        if current_value == 0 || current_value == -1 {
+            current_value = if delta_sign < 0 { -2 } else { 1 };
         }
         delta -= delta_sign;
     }
