@@ -14,13 +14,13 @@ pub struct ClockConfig {
 
 impl ClockConfig {
     pub fn new() -> Self {
-        // Maybe move this to PROGMEM
+        // Maybe move this to PROGMEM if the loop isn't unrolled
         const DEFAULT_DIVISIONS: [i8; 8] = [1, 2, 4, 8, -2, -4, -8, -16];
         ClockConfig {
             bpm: 128,
             channels: DEFAULT_DIVISIONS.map(|i| ClockChannelConfig {
                 division: i,
-                swing: 0,
+                swing: 50,
                 pulse_width: 0,
                 phase_shift: 0,
             }),

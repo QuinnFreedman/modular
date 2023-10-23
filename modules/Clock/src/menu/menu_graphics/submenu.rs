@@ -61,11 +61,6 @@ pub fn render_submenu_page<DI, SIZE>(
 }
 
 progmem! {
-    static progmem string DIVISION_TEXT = "DIVIS";
-    static progmem string PULSEWIDTH_TEXT = "PULSE";
-    static progmem string PHASESHIFT_TEXT = "PHASE";
-    static progmem string SWING_TEXT = "SWING";
-    static progmem string EXIT_TEXT = "EXIT";
     static progmem TRIANGLE_DOWN: [u8; 11] = [
         0b00000100,
         0b00001100,
@@ -169,7 +164,19 @@ fn draw_submenu_item_value<DI, SIZE>(
     let mut text_buffer = [0u8; 4];
     let text = match item {
         SubMenuItem::Division => tempo_to_str(&mut text_buffer, channel.division),
-        SubMenuItem::PulseWidth => u8_to_str_b10(&mut text_buffer, channel.pulse_width),
+        SubMenuItem::PulseWidth => {
+            let text = u8_to_str_b10(&mut text_buffer, channel.pulse_width);
+            let text_ptr = text.as_ptr();
+            let text_len = text.len() as u8;
+            drop(text);
+            for i in 0..text_len {
+                // TODO there is probably a way to do this without using raw pointers
+                // but I couldn't figure it out without unnecessary copying
+                text_buffer[i as usize] = unsafe { *text_ptr.offset(i as isize) };
+            }
+            text_buffer[text_len as usize] = '%' as u8;
+            &text_buffer[..(text_len + 1) as usize]
+        }
         SubMenuItem::PhaseShift => i8_to_str_b10(&mut text_buffer, channel.phase_shift),
         SubMenuItem::Swing => i8_to_str_b10(&mut text_buffer, channel.swing),
         SubMenuItem::Exit => &text_buffer[0..0],
