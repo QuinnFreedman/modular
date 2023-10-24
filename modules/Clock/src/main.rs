@@ -17,9 +17,9 @@ mod render_nubers;
 mod rotary_encoder;
 mod system_clock;
 
-use arduino_hal::{hal::port::PD5, prelude::*};
+use arduino_hal::hal::port::PC0;
 use button_debouncer::ButtonWithLongPress;
-use clock::ClockConfig;
+use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
 use menu::{render_menu, update_menu, MenuState, MenuUpdate};
 use rotary_encoder::RotaryEncoderHandler;
@@ -80,23 +80,26 @@ fn PCINT0() {
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
-    let pins = arduino_hal::pins!(dp);
-    // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-    // serial.write_str(F!("Hello world!\n")).unwrap();
-    // serial.flush();
 
     millis_init(dp.TC0);
 
-    pins.d8.into_pull_up_input();
-    pins.d9.into_pull_up_input();
-    // dp.PORTB.ddrb.write(|w| w.pb0().bit(false).pb1().bit(false));
+    // set pins d0-d7 as output
+    dp.PORTD.ddrd.write(|w| unsafe { w.bits(0xff) });
+
+    // Enable pin-change interrupts on pins d8 and d9
+    dp.PORTB.ddrb.write(|w| w.pb0().bit(false).pb1().bit(false));
+    dp.PORTB.portb.write(|w| w.pb0().bit(true).pb1().bit(true));
     dp.EXINT.pcifr.reset();
     dp.EXINT.pcmsk0.write(|w| w.pcint().bits(0b00000011));
     dp.EXINT.pcicr.write(|w| w.pcie().bits(0b001));
+
+    // turn on interrupts
     unsafe {
         avr_device::interrupt::enable();
     };
 
+    // setup display
+    let pins = arduino_hal::pins!(dp);
     let (spi, _) = arduino_hal::spi::Spi::new(
         dp.SPI,
         pins.d13.into_output(),        // Clock
@@ -116,18 +119,15 @@ fn main() -> ! {
     display
         .reset(&mut pins.a2.into_output(), &mut arduino_hal::Delay::new())
         .unwrap();
-
-    let mut button = ButtonWithLongPress::<PD5, 50, 500>::new(pins.d5.into_pull_up_input());
-
-    display.init().unwrap();
+    display
+        .init_with_addr_mode(ssd1306::command::AddrMode::Vertical)
+        .unwrap();
     display.clear().unwrap();
 
-    display
-        .set_addr_mode(ssd1306::command::AddrMode::Vertical)
-        .unwrap();
-
+    let mut button = ButtonWithLongPress::<PC0, 50, 500>::new(pins.a0.into_pull_up_input());
     let mut menu_state = MenuState::new();
     let mut clock_config = ClockConfig::new();
+    let mut clock_state = ClockState::new();
 
     render_menu(
         &menu_state,
@@ -136,6 +136,7 @@ fn main() -> ! {
         &mut display,
     );
 
+    let unsafe_peripherals = unsafe { arduino_hal::Peripherals::steal() };
     loop {
         let current_time_ms = millis();
         let menu_update = update_menu(
@@ -149,5 +150,11 @@ fn main() -> ! {
         if menu_update != MenuUpdate::NoUpdate {
             render_menu(&menu_state, &clock_config, &menu_update, &mut display);
         }
+
+        let pin_state = clock::sample(&clock_config, &mut clock_state, current_time_ms);
+        unsafe_peripherals
+            .PORTD
+            .portd
+            .write(|w| unsafe { w.bits(pin_state) });
     }
 }
