@@ -165,20 +165,32 @@ fn draw_submenu_item_value<DI, SIZE>(
     let text = match item {
         SubMenuItem::Division => tempo_to_str(&mut text_buffer, channel.division),
         SubMenuItem::PulseWidth => {
-            let text = u8_to_str_b10(&mut text_buffer, channel.pulse_width);
-            let text_ptr = text.as_ptr();
-            let text_len = text.len() as u8;
-            drop(text);
-            for i in 0..text_len {
-                // TODO there is probably a way to do this without using raw pointers
-                // but I couldn't figure it out without unnecessary copying
-                text_buffer[i as usize] = unsafe { *text_ptr.offset(i as isize) };
+            match channel.pulse_width {
+                0 => {
+                    text_buffer.copy_from_slice("TRIG".as_bytes());
+                    &text_buffer
+                }
+                100 => {
+                    text_buffer.copy_from_slice("INVT".as_bytes());
+                    &text_buffer
+                }
+                pulse_width => {
+                    let text = u8_to_str_b10(&mut text_buffer, pulse_width);
+                    let text_ptr = text.as_ptr();
+                    let text_len = text.len() as u8;
+                    drop(text);
+                    for i in 0..text_len {
+                        // TODO there is probably a way to do this without using raw pointers
+                        // but I couldn't figure it out without unnecessary copying
+                        text_buffer[i as usize] = unsafe { *text_ptr.offset(i as isize) };
+                    }
+                    text_buffer[text_len as usize] = '%' as u8;
+                    &text_buffer[..(text_len + 1) as usize]
+                }
             }
-            text_buffer[text_len as usize] = '%' as u8;
-            &text_buffer[..(text_len + 1) as usize]
         }
         SubMenuItem::PhaseShift => i8_to_str_b10(&mut text_buffer, channel.phase_shift),
-        SubMenuItem::Swing => i8_to_str_b10(&mut text_buffer, channel.swing),
+        SubMenuItem::Swing => u8_to_str_b10(&mut text_buffer, channel.swing),
         SubMenuItem::Exit => &text_buffer[0..0],
     };
     buffer.fast_draw_ascii_text(

@@ -167,8 +167,8 @@ fn handle_rotary_knob_change(
                     SubMenuItem::Swing => {
                         channel.swing = channel
                             .swing
-                            .saturating_add(rotary_encoder_delta)
-                            .clamp(-50, 50);
+                            .add_without_overflow(rotary_encoder_delta)
+                            .min(50);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::Exit => MenuUpdate::NoUpdate,

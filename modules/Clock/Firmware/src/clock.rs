@@ -2,7 +2,7 @@
 // changes aren't applied until commit
 pub struct ClockChannelConfig {
     pub division: i8,
-    pub swing: i8,
+    pub swing: u8,
     pub pulse_width: u8,
     pub phase_shift: i8,
 }
@@ -20,8 +20,8 @@ impl ClockConfig {
             bpm: 128,
             channels: DEFAULT_DIVISIONS.map(|i| ClockChannelConfig {
                 division: i,
-                swing: 50,
-                pulse_width: 0,
+                swing: 0,
+                pulse_width: 50,
                 phase_shift: 0,
             }),
         }
@@ -30,7 +30,7 @@ impl ClockConfig {
 
 pub struct ClockState {
     last_cycle_start_time: u32,
-    cycle_count: u8,
+    cycle_count: u32,
 }
 
 impl ClockState {
@@ -71,11 +71,62 @@ pub fn sample(config: &ClockConfig, state: &mut ClockState, current_time_ms: u32
 
 fn channel_is_on(
     channel: &ClockChannelConfig,
-    time_in_current_cycle: u32,
-    ms_per_cycle: u32,
-    cycle_count: u8,
+    ms_into_current_core_cycle: u32,
+    ms_per_core_cycle: u32,
+    core_cycle_count: u32,
 ) -> bool {
-    let percent_complete = (time_in_current_cycle * 100) / ms_per_cycle;
-    // TODO implement channel config options
-    percent_complete > 50
+    let (ms_per_channel_period, mut ms_into_current_channel_period, mut channel_period_count) =
+        if channel.division <= 1 {
+            let core_cycles_per_period = channel.division.abs() as u32;
+            (
+                core_cycles_per_period * ms_per_core_cycle,
+                (core_cycle_count % core_cycles_per_period) * ms_per_core_cycle
+                    + ms_into_current_core_cycle,
+                core_cycle_count / core_cycles_per_period,
+            )
+        } else {
+            // TODO
+            // (ms_into_current_core_cycle * 100) / ms_per_core_cycle < 50
+            return false;
+        };
+
+    // handle phase shift with wrap around
+    // this could be much simpler but we have to keep channel_period_count updated to implement swing
+    let phase_shift_percent = -channel.phase_shift;
+    if phase_shift_percent < 0 {
+        let phase_shift_ms = ms_per_channel_period * (-phase_shift_percent as u32) / 100;
+        if ms_into_current_channel_period >= phase_shift_ms {
+            ms_into_current_channel_period -= phase_shift_ms;
+        } else {
+            channel_period_count = channel_period_count.saturating_sub(1);
+            ms_into_current_channel_period =
+                ms_per_channel_period + ms_into_current_channel_period - phase_shift_ms;
+        }
+    } else if phase_shift_percent > 0 {
+        let phase_shift_ms = ms_per_channel_period * (phase_shift_percent as u32) / 100;
+        ms_into_current_channel_period += phase_shift_ms;
+        if ms_into_current_channel_period > ms_per_channel_period {
+            ms_into_current_channel_period -= ms_per_channel_period;
+            channel_period_count += 1;
+        }
+    }
+
+    const TRIG_WIDTH_MS: u32 = 10;
+    let max_pw_ms = ms_per_channel_period - TRIG_WIDTH_MS;
+    let pulse_width_ms = if channel.pulse_width == 0 {
+        TRIG_WIDTH_MS
+    } else if channel.pulse_width == 100 {
+        max_pw_ms
+    } else {
+        (ms_per_channel_period * channel.pulse_width as u32 / 100).clamp(TRIG_WIDTH_MS, max_pw_ms)
+    };
+
+    if channel_period_count % 2 == 0 {
+        ms_into_current_channel_period < pulse_width_ms
+    } else {
+        let swing_ms = ms_per_channel_period * channel.swing as u32 / 100;
+        ms_into_current_channel_period > swing_ms
+            && ms_into_current_channel_period < swing_ms + pulse_width_ms
+            && ms_into_current_channel_period < max_pw_ms
+    }
 }
