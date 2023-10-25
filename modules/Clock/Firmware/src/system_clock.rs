@@ -11,7 +11,7 @@ use core::cell;
 // ║      1024 ║          125 ║              8 ms ║
 // ║      1024 ║          250 ║             16 ms ║
 // ╚═══════════╩══════════════╩═══════════════════╝
-const PRESCALER: u32 = 1024;
+const PRESCALER: u32 = 256;
 const TIMER_COUNTS: u32 = 125;
 
 const MILLIS_INCREMENT: u32 = PRESCALER * TIMER_COUNTS / 16000;

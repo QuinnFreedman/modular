@@ -57,11 +57,16 @@ pub fn sample(config: &ClockConfig, state: &mut ClockState, current_time_ms: u32
     }
 
     let mut result: u8 = 0;
+    // Artificially upscale both the time in cycle and ms per cycle
+    // (to effectively use microseconds) to avoid aliasing.
+    // TODO maybe use floats instead
+    let time_supersample_factor = 1; //if config.bpm < 50 { 100 } else { 1000 };
     for i in 0..NUM_CHANNELS {
+        let channel = &config.channels[i as usize];
         let is_on = channel_is_on(
-            &config.channels[i as usize],
-            time_in_current_cycle,
-            ms_per_cycle,
+            channel,
+            time_in_current_cycle * time_supersample_factor,
+            ms_per_cycle * time_supersample_factor,
             state.cycle_count,
         );
         result |= (is_on as u8) << i;
@@ -75,30 +80,44 @@ fn channel_is_on(
     ms_per_core_cycle: u32,
     core_cycle_count: u32,
 ) -> bool {
-    let (ms_per_channel_period, mut ms_into_current_channel_period, mut channel_period_count) =
+    // convert from core clock time to chanel period time (calculated differently
+    // depending on if channel is a multiple or division)
+    let (ms_per_channel_period, mut ms_into_current_channel_period, mut is_even_channel_period) =
         if channel.division <= 1 {
             let core_cycles_per_period = channel.division.abs() as u32;
             (
                 core_cycles_per_period * ms_per_core_cycle,
                 (core_cycle_count % core_cycles_per_period) * ms_per_core_cycle
                     + ms_into_current_core_cycle,
-                core_cycle_count / core_cycles_per_period,
+                (core_cycle_count / core_cycles_per_period) % 2 == 0,
             )
         } else {
-            // TODO
-            // (ms_into_current_core_cycle * 100) / ms_per_core_cycle < 50
-            return false;
+            let periods_per_core_cycle = channel.division as u32;
+            let ms_per_channel_period = (ms_per_core_cycle / periods_per_core_cycle).max(1);
+            let is_even_period = {
+                let was_even_last_cycle = (core_cycle_count * periods_per_core_cycle) % 2 == 0;
+                let periods_this_cycle = ms_into_current_core_cycle / ms_per_channel_period;
+                let even_in_current_cycle = periods_this_cycle % 2 == 0;
+                was_even_last_cycle == even_in_current_cycle
+            };
+            let ms_into_current_channel_period = ms_into_current_core_cycle % ms_per_channel_period;
+            (
+                ms_per_channel_period,
+                ms_into_current_channel_period,
+                is_even_period,
+            )
         };
 
     // handle phase shift with wrap around
-    // this could be much simpler but we have to keep channel_period_count updated to implement swing
+    // this could be a simple signed modulus addition, but we have to keep
+    // is_even_channel_period updated to implement swing, which adds complication
     let phase_shift_percent = -channel.phase_shift;
     if phase_shift_percent < 0 {
         let phase_shift_ms = ms_per_channel_period * (-phase_shift_percent as u32) / 100;
         if ms_into_current_channel_period >= phase_shift_ms {
             ms_into_current_channel_period -= phase_shift_ms;
         } else {
-            channel_period_count = channel_period_count.saturating_sub(1);
+            is_even_channel_period = !is_even_channel_period;
             ms_into_current_channel_period =
                 ms_per_channel_period + ms_into_current_channel_period - phase_shift_ms;
         }
@@ -107,13 +126,18 @@ fn channel_is_on(
         ms_into_current_channel_period += phase_shift_ms;
         if ms_into_current_channel_period > ms_per_channel_period {
             ms_into_current_channel_period -= ms_per_channel_period;
-            channel_period_count += 1;
+            is_even_channel_period = !is_even_channel_period;
         }
     }
 
+    // calculate pulse width, taking into account min trigger lengths
     const TRIG_WIDTH_MS: u32 = 10;
-    let max_pw_ms = ms_per_channel_period - TRIG_WIDTH_MS;
-    let pulse_width_ms = if channel.pulse_width == 0 {
+    let max_pw_ms = ms_per_channel_period.saturating_sub(TRIG_WIDTH_MS);
+
+    let pulse_width_ms = if TRIG_WIDTH_MS >= max_pw_ms {
+        // If period gets very small, ignore pulse width
+        ms_per_channel_period / 2
+    } else if channel.pulse_width == 0 {
         TRIG_WIDTH_MS
     } else if channel.pulse_width == 100 {
         max_pw_ms
@@ -121,9 +145,11 @@ fn channel_is_on(
         (ms_per_channel_period * channel.pulse_width as u32 / 100).clamp(TRIG_WIDTH_MS, max_pw_ms)
     };
 
-    if channel_period_count % 2 == 0 {
+    if is_even_channel_period {
+        // normal (even) output
         ms_into_current_channel_period < pulse_width_ms
     } else {
+        // handle swing (odd cycles)
         let swing_ms = ms_per_channel_period * channel.swing as u32 / 100;
         ms_into_current_channel_period > swing_ms
             && ms_into_current_channel_period < swing_ms + pulse_width_ms
