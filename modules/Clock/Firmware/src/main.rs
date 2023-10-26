@@ -81,6 +81,7 @@ fn PCINT0() {
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
 
+    // start system clock
     millis_init(dp.TC0);
 
     // set pins d0-d7 as output
@@ -100,29 +101,35 @@ fn main() -> ! {
 
     // setup display
     let pins = arduino_hal::pins!(dp);
-    let (spi, _) = arduino_hal::spi::Spi::new(
-        dp.SPI,
-        pins.d13.into_output(),        // Clock
-        pins.d11.into_output(),        // MOSI
-        pins.d12.into_pull_up_input(), // MISO
-        pins.d10.into_output(),        // CS
-        arduino_hal::spi::Settings {
-            data_order: arduino_hal::spi::DataOrder::MostSignificantFirst,
-            clock: arduino_hal::spi::SerialClockRate::OscfOver2,
-            mode: embedded_hal::spi::MODE_0,
-        },
-    );
-    let interface =
-        display_interface_spi::SPIInterface::new(spi, pins.a3.into_output(), pins.a4.into_output());
+    let mut display = {
+        let (spi, _) = arduino_hal::spi::Spi::new(
+            dp.SPI,
+            pins.d13.into_output(),        // Clock
+            pins.d11.into_output(),        // MOSI
+            pins.d12.into_pull_up_input(), // MISO
+            pins.d10.into_output(),        // CS
+            arduino_hal::spi::Settings {
+                data_order: arduino_hal::spi::DataOrder::MostSignificantFirst,
+                clock: arduino_hal::spi::SerialClockRate::OscfOver2,
+                mode: embedded_hal::spi::MODE_0,
+            },
+        );
+        let interface = display_interface_spi::SPIInterface::new(
+            spi,
+            pins.a3.into_output(),
+            pins.a4.into_output(),
+        );
 
-    let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
-    display
-        .reset(&mut pins.a2.into_output(), &mut arduino_hal::Delay::new())
-        .unwrap();
-    display
-        .init_with_addr_mode(ssd1306::command::AddrMode::Vertical)
-        .unwrap();
-    display.clear().unwrap();
+        let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
+        display
+            .reset(&mut pins.a2.into_output(), &mut arduino_hal::Delay::new())
+            .unwrap();
+        display
+            .init_with_addr_mode(ssd1306::command::AddrMode::Vertical)
+            .unwrap();
+        display.clear().unwrap();
+        display
+    };
 
     let mut button = ButtonWithLongPress::<PC0, 50, 500>::new(pins.a0.into_pull_up_input());
     let mut menu_state = MenuState::new();
@@ -151,7 +158,8 @@ fn main() -> ! {
             render_menu(&menu_state, &clock_config, &menu_update, &mut display);
         }
 
-        let pin_state = clock::sample(&clock_config, &mut clock_state, current_time_ms);
+        let (pin_state, did_rollover) =
+            clock::sample(&clock_config, &mut clock_state, current_time_ms);
         unsafe_peripherals
             .PORTD
             .portd
