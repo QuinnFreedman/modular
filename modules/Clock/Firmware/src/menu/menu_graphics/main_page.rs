@@ -20,7 +20,6 @@ pub fn render_main_page<DI, SIZE>(
     SIZE: ssd1306::size::DisplaySize,
 {
     match menu_update {
-        MenuUpdate::NoUpdate => (),
         MenuUpdate::UpdateValueAtCursor | MenuUpdate::ToggleEditingAtCursor => {
             draw_top_level_menu_item(
                 cursor,
@@ -54,6 +53,7 @@ pub fn render_main_page<DI, SIZE>(
         MenuUpdate::SwitchScreens | MenuUpdate::Scroll(_) => {
             full_render_main_page(editing, clock_state, cursor, display);
         }
+        MenuUpdate::NoUpdate | MenuUpdate::ScreenSaverStep(_) => (),
     }
 }
 

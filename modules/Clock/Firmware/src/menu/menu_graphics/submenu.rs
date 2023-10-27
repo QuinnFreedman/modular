@@ -56,7 +56,7 @@ pub fn render_submenu_page<DI, SIZE>(
                 draw_submenu_item(i, selected, scroll, editing_item, true, channel, display);
             }
         }
-        MenuUpdate::NoUpdate => {}
+        MenuUpdate::NoUpdate | MenuUpdate::ScreenSaverStep(_) => {}
     }
 }
 

@@ -1,13 +1,49 @@
+use crate::random::Rng;
+
+pub enum MenuOrScreenSaverState {
+    ScreenSaver(ScreenSaverState),
+    Menu(MenuState),
+}
+
+pub struct ScreenSaverState {
+    pub y_offsets: [u8; 16],
+    pub color: bool,
+    pub rng: Rng,
+}
+
 pub struct MenuState {
     pub page: MenuPage,
     pub editing: EditingState,
+    pub last_input_time_ms: u32,
+}
+
+impl MenuOrScreenSaverState {
+    pub fn new() -> Self {
+        MenuOrScreenSaverState::Menu(MenuState::new(0))
+    }
 }
 
 impl MenuState {
-    pub fn new() -> Self {
+    pub fn new(time: u32) -> Self {
         MenuState {
             page: MenuPage::Bpm,
             editing: EditingState::Navigating,
+            last_input_time_ms: time,
+        }
+    }
+}
+
+impl ScreenSaverState {
+    pub fn new(seed: u32) -> Self {
+        let rng = Rng::new(seed);
+        let y_offsets = [0u8; 16];
+        // for i in 0..16 {
+        //     y_offsets[i] = rng.next() % 8;
+        // }
+        Self {
+            y_offsets,
+            color: true,
+            rng,
         }
     }
 }
@@ -50,6 +86,7 @@ pub enum MenuUpdate {
     MoveCursorFrom(u8),
     Scroll(ScrollDirection),
     SwitchScreens,
+    ScreenSaverStep(u8),
 }
 
 #[derive(PartialEq, Eq)]

@@ -13,6 +13,7 @@ mod clock;
 mod display_buffer;
 mod font;
 mod menu;
+mod random;
 mod render_nubers;
 mod rotary_encoder;
 mod system_clock;
@@ -21,7 +22,7 @@ use arduino_hal::hal::port::PC0;
 use button_debouncer::ButtonWithLongPress;
 use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
-use menu::{render_menu, update_menu, MenuState, MenuUpdate};
+use menu::{render_menu, update_menu, MenuOrScreenSaverState, MenuUpdate};
 use rotary_encoder::RotaryEncoderHandler;
 use ssd1306::{prelude::*, Ssd1306};
 use system_clock::{millis, millis_init};
@@ -132,7 +133,7 @@ fn main() -> ! {
     };
 
     let mut button = ButtonWithLongPress::<PC0, 50, 500>::new(pins.a0.into_pull_up_input());
-    let mut menu_state = MenuState::new();
+    let mut menu_state = MenuOrScreenSaverState::new();
     let mut clock_config = ClockConfig::new();
     let mut clock_state = ClockState::new();
 
@@ -146,23 +147,24 @@ fn main() -> ! {
     let unsafe_peripherals = unsafe { arduino_hal::Peripherals::steal() };
     loop {
         let current_time_ms = millis();
-        let menu_update = update_menu(
-            &mut menu_state,
-            &mut clock_config,
-            &mut button,
-            &ROTARY_ENCODER,
-            current_time_ms,
-        );
-
-        if menu_update != MenuUpdate::NoUpdate {
-            render_menu(&menu_state, &clock_config, &menu_update, &mut display);
-        }
-
         let (pin_state, did_rollover) =
             clock::sample(&clock_config, &mut clock_state, current_time_ms);
         unsafe_peripherals
             .PORTD
             .portd
             .write(|w| unsafe { w.bits(pin_state) });
+
+        let menu_update = update_menu(
+            &mut menu_state,
+            &mut clock_config,
+            &mut button,
+            &ROTARY_ENCODER,
+            current_time_ms,
+            did_rollover,
+        );
+
+        if menu_update != MenuUpdate::NoUpdate {
+            render_menu(&menu_state, &clock_config, &menu_update, &mut display);
+        }
     }
 }
