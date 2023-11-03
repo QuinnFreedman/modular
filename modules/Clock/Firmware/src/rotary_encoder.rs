@@ -3,9 +3,10 @@ use core::{
     sync::atomic::{AtomicI8, AtomicU8, Ordering},
 };
 
-use avr_progmem::{progmem, wrapper::ProgMem};
+use avr_progmem::progmem;
 
 #[derive(Clone, Copy)]
+#[repr(transparent)]
 struct NyblPair<A, B>
 where
     A: From<u8>,
@@ -32,10 +33,11 @@ where
     }
     #[inline(always)]
     fn msb(&self) -> A {
-        let value = (self.data & 0xf0) >> 4;
+        let value = self.data >> 4;
         value.into()
     }
     #[inline(always)]
+    #[allow(dead_code)]
     fn as_tuple(&self) -> (A, B) {
         (self.msb(), self.lsb())
     }
@@ -160,6 +162,7 @@ progmem! {
     ];
 }
 
+#[repr(align(1))]
 pub struct RotaryEncoderHandler {
     state: AtomicU8,
     pub rotation: AtomicI8,

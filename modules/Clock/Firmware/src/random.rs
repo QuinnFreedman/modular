@@ -18,6 +18,7 @@ progmem! {
     ];
 }
 
+#[repr(transparent)]
 pub struct Rng(u8);
 
 impl Rng {

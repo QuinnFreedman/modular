@@ -5,12 +5,14 @@ pub enum MenuOrScreenSaverState {
     Menu(MenuState),
 }
 
+#[repr(packed)]
 pub struct ScreenSaverState {
     pub y_offsets: [u8; 16],
     pub color: bool,
     pub rng: Rng,
 }
 
+#[repr(packed)]
 pub struct MenuState {
     pub page: MenuPage,
     pub editing: EditingState,

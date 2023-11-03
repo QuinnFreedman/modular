@@ -3,7 +3,6 @@ use arduino_hal::port::PinOps;
 use crate::{
     button_debouncer::{ButtonWithLongPress, LongPressButtonState},
     clock::{ClockChannelConfig, ClockConfig},
-    random::Rng,
     rotary_encoder::RotaryEncoderHandler,
 };
 

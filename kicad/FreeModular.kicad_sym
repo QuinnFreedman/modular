@@ -718,7 +718,7 @@
     (property "Value" "THONKICONN" (at 1.27 -2.54 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Footprint" "free_modular:THONKICONN" (at 6.35 2.54 0)
+    (property "Footprint" "FreeModualr:THONKICONN" (at 6.35 2.54 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 6.35 2.54 0)

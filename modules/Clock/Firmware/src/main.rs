@@ -1,3 +1,4 @@
+#![allow(incomplete_features)]
 #![no_std]
 #![no_main]
 #![feature(generic_const_exprs)]
@@ -31,25 +32,13 @@ use system_clock::{millis, millis_init};
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     unsafe {
-        #[allow(non_snake_case)]
-        let SPCR: *mut u8 = 0x4C as *mut u8;
+        let spcr: *mut u8 = 0x4C as *mut u8;
         let spe_mask = 1u8 << 6u8;
-        *SPCR = *SPCR & !spe_mask;
+        *spcr = *spcr & !spe_mask;
     }
 
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let pins = arduino_hal::pins!(dp);
-
-    // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-    // serial.write_str(F!("PANIC: ")).unwrap();
-    // serial
-    //     .write_str(
-    //         info.message()
-    //             .and_then(|x| x.as_str())
-    //             .unwrap_or(F!("(no message)")),
-    //     )
-    //     .unwrap();
-    // serial.write_byte('\n' as u8);
 
     let short = 100;
     let long = 500;

@@ -1,5 +1,6 @@
 // TOOD maybe have candidate value in menu state for actively edited field so
 // changes aren't applied until commit
+#[repr(packed)]
 pub struct ClockChannelConfig {
     pub division: i8,
     pub swing: u8,
@@ -7,6 +8,7 @@ pub struct ClockChannelConfig {
     pub phase_shift: i8,
 }
 
+#[repr(packed)]
 pub struct ClockConfig {
     pub channels: [ClockChannelConfig; 8],
     pub bpm: u8,
@@ -28,6 +30,7 @@ impl ClockConfig {
     }
 }
 
+#[repr(packed)]
 pub struct ClockState {
     last_cycle_start_time: u64,
     cycle_count: u32,

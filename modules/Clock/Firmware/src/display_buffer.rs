@@ -22,6 +22,7 @@ As a compromise, the mini buffer is a variable-size buffer that can back just a 
 portion of the screen. It can be drawn to like a display using embedded_graphics, and
 then can be efficiently copied to the display driver using the blit function.
  */
+#[repr(transparent)]
 pub struct MiniBuffer<const WIDTH: usize, const HEIGHT: usize>([u8; WIDTH * HEIGHT / BYTE_SIZE])
 where
     [(); WIDTH * HEIGHT / BYTE_SIZE]: Sized;
