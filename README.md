@@ -1,4 +1,4 @@
-Note: this project is **not** abandoned, although I have not been able to work on it in a little while. The Clock, Envelope, Mixer, O/A, RNG, and Simplex modules **should** all be working bug-free (I have working versions in my own case), but I haven't double-tested and polished some of those designs so build at your own risk for now. The Quantizer is very close but has a few bugs right now. A round of polish and a few new modules will be comming as soon as I have some time off work.
+Note: this project is currently undergoing a refactor. Most of the modules should still work, but they are in varying stages of redesign. Over the next few months, all the designs, documentation, and website should see a big improvement. Feel free to take a look at the desigs if you are interested, but you will probably have a better experience if you wait a few months to start building.
 
 ---
 <a href="https://github.com/QuinnFreedman/modular/wiki"><img align="right" src="images/logo_with_text.svg" width=300px></a>
