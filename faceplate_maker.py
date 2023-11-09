@@ -151,10 +151,16 @@ class Module:
 
             for x in range(hp * 2):
                 _x = x * inches(0.1) - self.tolerance / 2
-                self.debug.add(self.d.line((_x, global_y_offset), (_x, global_y_offset + 100), stroke_width=0.1))
+                self.debug.add(self.d.line((_x, global_y_offset), (_x, global_y_offset + 100), stroke_width=0.2 if x % 5 == 0 else 0.1))
             for y in range(int(100 / inches(0.1)) + 1):
                 _y = y * inches(0.1) + global_y_offset
-                self.debug.add(self.d.line((0, _y), (inches(hp * .2), _y), stroke_width=0.1))
+                self.debug.add(self.d.line((0, _y), (inches(hp * .2), _y), stroke_width=0.2 if y % 5 == 0 else 0.1))
+
+            # self.debug.add(self.d.line((0, global_y_offset + 100), (inches(hp * .2), global_y_offset + 100), stroke_width=0.2))
+
+            self.debug.add(self.d.rect((0, 0), (inches(hp * .2), inches(.4)), fill_opacity=0.5, fill="cyan", stroke_width=0))
+            self.debug.add(self.d.rect((0, self.height - inches(.4)), (inches(hp * .2), inches(.4)), fill_opacity=0.5, fill="cyan", stroke_width=0))
+
                         
 
         global_offset = (self.width / 2, global_y_offset)
@@ -291,17 +297,11 @@ def BasicCircle(offset_x, offset_y, r):
     class BasicCircle(Component):
         def __init__(self, position_x, position_y, rotation=0):
             super(BasicCircle, self).__init__(position_x, position_y)
+            self.rotation = rotation
             if rotation not in [0, 1, 2, 3]:
                 raise ValueError("rotation must be 0...3")
 
-            if rotation == 0:
-                self.offset = (offset_x, offset_y)
-            elif rotation == 1:
-                self.offset = (-offset_y, offset_x)
-            elif rotation == 2:
-                self.offset = (-offset_x, -offset_y)
-            elif rotation == 3:
-                self.offset = (offset_y, -offset_x)
+            self.offset = self.rotated((offset_x, offset_y))
                 
             self.radius = r
             
@@ -309,10 +309,31 @@ def BasicCircle(offset_x, offset_y, r):
             return [context.circle(center=self.offset, r=self.radius)]
             
         def draw_debug(self, context):
-            return [context.circle(center=(0,0), r=.6)]
+            # return [context.circle(center=(0,0), r=.6)]
+            return [draw_x(context, 0, 0),]
+
+        def rotated(self, point):
+            x, y = point
+            if self.rotation == 0:
+                return x, y
+            elif self.rotation == 1:
+                return -y, x
+            elif self.rotation == 2:
+                return -x, -y
+            elif self.rotation == 3:
+                return y, -x
             
     return BasicCircle
 
+
+def draw_x(context, x, y):
+    size = 1
+    return context.path([
+        f"M {x-size} {y-size}",
+        f"L {x+size} {y+size}",
+        f"M {x-size} {y+size}",
+        f"L {x+size} {y-size}",
+    ], stroke_width=.1)
 
 # The datasheet says this should be an offset of 4.92mm for the "Thonkicon" but it
 # the distance between the throughholes is 8.3mm (.33 inches) so I kept the ratio and scaled
@@ -435,8 +456,16 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         
 class JackSocketCentered(JackSocket):
     def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
-        super(JackSocketCentered, self).__init__(x, y, label, is_output, rotation, font_size, label_above)
+        super().__init__(x, y, label, is_output, rotation, font_size, label_above)
         self.offset = (0, 0)
+
+    def draw_debug(self, context):
+        return [
+            *super().draw_debug(context),
+            context.circle(center=self.rotated((0, -4.92)), r=0.25),
+            context.circle(center=self.rotated((0, 3.38)), r=0.25),
+            context.circle(center=self.rotated((0, 6.48)), r=0.25),
+        ]
 
 
 def random_str(n = 10):
@@ -610,14 +639,28 @@ class SmallSwitch(Switch):
 
 class SmallLED(BasicCircle(0, inches(.05), 1.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
-       super(SmallLED, self).__init__(x, y, rotation)
+       super().__init__(x, y, rotation)
        self.color = color
+
+    def draw_debug(self, context):
+        return [
+            *super().draw_debug(context),
+            context.circle(center=self.rotated((0, 0)), r=0.25),
+            context.circle(center=self.rotated((0, inches(.1))), r=0.25),
+        ]
 
 
 class LED(BasicCircle(0, inches(.05), 2.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
        super(LED, self).__init__(x, y, rotation)
        self.color = color
+
+    def draw_debug(self, context):
+        return [
+            *super().draw_debug(context),
+            context.circle(center=self.rotated((0, 0)), r=0.25),
+            context.circle(center=self.rotated((0, inches(.1))), r=0.25),
+        ]
 
 
 def draw_led_cosmetic(self, context):
@@ -645,18 +688,19 @@ setattr(SmallLED, 'draw_cosmetics', draw_led_cosmetic)
 setattr(LED, 'draw_cosmetics', draw_led_cosmetic)
 
 
-def draw_button_cosmetic(self, context):
+def draw_button_cosmetic(self, context, with_washer=True):
     elements = []
-    washer_gradient = context.linearGradient(
-        (1, 0),
-        (0, 1),
-    )
-    washer_gradient.add_stop_color(0, "#eee")
-    washer_gradient.add_stop_color(1, "#aaa")
-    context.defs.add(washer_gradient)
-    elements.append(context.circle(center=self.offset,
-            r=self.radius * 1.2,
-            fill=washer_gradient.get_paint_server()))
+    if with_washer:
+        washer_gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        washer_gradient.add_stop_color(0, "#eee")
+        washer_gradient.add_stop_color(1, "#aaa")
+        context.defs.add(washer_gradient)
+        elements.append(context.circle(center=self.offset,
+                r=self.radius * 1.2,
+                fill=washer_gradient.get_paint_server()))
     gradient = context.linearGradient(
         (1, 0),
         (0, 1),
@@ -684,9 +728,24 @@ def draw_button_cosmetic(self, context):
 Button = BasicCircle(0, 0, 4)
 setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
 
+
 TL1265 = BasicCircle(3.0, 4.5/2, 2.5)
 setattr(TL1265, 'draw_cosmetics', draw_button_cosmetic)
-    
+
+
+class TL1105SP(BasicCircle(0, 0, 5.1/2)):
+    def draw_cosmetics(self, context):
+        return draw_button_cosmetic(self, context, with_washer=False)
+
+    def draw_debug(self, context):
+        w = 6.5
+        h = 4.5
+        return [
+            context.circle(center=self.rotated((-w/2, -h/2)), r=0.25),
+            context.circle(center=self.rotated(( w/2, -h/2)), r=0.25),
+            context.circle(center=self.rotated((-w/2,  h/2)), r=0.25),
+            context.circle(center=self.rotated(( w/2,  h/2)), r=0.25),
+        ]
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
@@ -712,6 +771,14 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             elements.append(context.text(self.label, **text_props))
         
         return elements
+
+    def draw_debug(self, context):
+        return [
+            *super().draw_debug(context),
+            context.circle(center=self.rotated((inches( 0), 0)), r=0.25),
+            context.circle(center=self.rotated((inches(.1), 0)), r=0.25),
+            context.circle(center=self.rotated((inches(.2), 0)), r=0.25),
+        ]
         
     def draw_cosmetics(self, context):
         colors = {
@@ -763,58 +830,106 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         ))
         return elements
 
-
 class OLED(Component):
-    def __init__(self, x, y):
-       super(OLED, self).__init__(x, y)
-       self.screen_height = inches(1/2)
-       self.screen_width = inches(15/16)
-       self.screen_offset = (inches(-(1/4 + 1/16)), inches(-(1/8 + 1/32)) - self.screen_height)
+    def __init__(self, x, y, rotation=0):
+        super().__init__(x, y)
+        self.rotation = rotation
+        self.screen_height = inches(1/2)
+        self.screen_width = inches(15/16)
+        self.center_x = inches(.15)
+        self.screen_bottom_offset = inches(-.1)
+        self.hole_spacing_x = inches(.9)
+        self.hole_spacing_y = inches(.9)
+        self.hole_offset_y = -inches(0.01)
+
+    def rotated(self, point):
+        x, y = point
+        if self.rotation == 0:
+            return x, y
+        elif self.rotation == 1:
+            return -y, x
+        elif self.rotation == 2:
+            return -x, -y
+        elif self.rotation == 3:
+            return y, -x
+
+    @property
+    def screen_offset(self):
+        x, y = (
+            -self.screen_width / 2 + self.center_x,
+            self.screen_bottom_offset - self.screen_height
+        )
+        if self.rotation == 0:
+            return x, y
+        elif self.rotation == 1:
+            return -y - self.screen_height, x
+        elif self.rotation == 2:
+            return -x - self.screen_width, -y - self.screen_height
+        elif self.rotation == 3:
+            return y, -x - self.screen_width
+
+    @property
+    def screen_size(self):
+        if self.rotation == 0 or self.rotation == 2:
+            return self.screen_width, self.screen_height
+        else:
+            return self.screen_height, self.screen_width
 
     def draw_holes(self, context):
-        height = self.screen_height 
-        width = self.screen_width 
-
-        left_hole_offset_x = -inches(1/4)
-        right_hole_offset_x = inches(0.3) - left_hole_offset_x
-        bottom_hole_offset = -inches(1/32)
-        top_hole_offset = bottom_hole_offset - inches(7/8)
-
+        hole_center_y = self.hole_offset_y - self.hole_spacing_y / 2
         screw_hole_d = inches(3/32)
 
         elements = []
 
-        for x in (left_hole_offset_x, right_hole_offset_x):
-            for y in (top_hole_offset, bottom_hole_offset):
-                elements.append(context.circle(center=(x, y), r=screw_hole_d/2))
+        for x in (-1, 1):
+            for y in (-1, 1):
 
-        elements.append(context.rect(insert=self.screen_offset, size=(width, height)))
+                elements.append(context.circle(center=self.rotated((
+                    self.center_x + x * (self.hole_spacing_x / 2),
+                    hole_center_y + y * (self.hole_spacing_y / 2),
+                )), r=screw_hole_d/2))
+
+        elements.append(context.rect(insert=self.screen_offset, size=self.screen_size))
 
 
         return elements
         
     def draw_debug(self, context):
         return [
-            context.circle(center=(0,0), r=.5),
-            context.circle(center=(inches(.1),0), r=.5),
-            context.circle(center=(inches(.2),0), r=.5),
-            context.circle(center=(inches(.3),0), r=.5)
+            draw_x(context, 0, 0),
+            *[context.circle(center=self.rotated((inches(i * .1), 0)), r=.25) for i in range(4)],
         ]
 
     def draw_cosmetics(self, context):
         clip_path = context.defs.add(context.clipPath())
-        clip_path.add(context.rect(insert=self.screen_offset, size=(self.screen_width, self.screen_height)))
+        clip_path.add(context.rect(insert=self.screen_offset, size=self.screen_size))
         
         elements = []
         
-        elements.append(context.rect(insert=self.screen_offset, size=(self.screen_width, self.screen_height), fill="black"))
+        elements.append(context.rect(insert=self.screen_offset, size=self.screen_size, fill="black"))
+        x, y = self.screen_offset
+        w, h = self.screen_size
         elements.append(context.ellipse(
-            (self.screen_offset[0] + self.screen_width, self.screen_offset[1]),
-            r=(self.screen_width / 2, self.screen_height / 2),
+            (x + w, y),
+            r=(w / 2, h / 2),
             fill="white", opacity=.5,
             clip_path=f"url(#{clip_path.get_id()})"))
 
         return elements
+
+
+class OLEDSPI(OLED):
+    def __init__(self, x, y, rotation=1):
+        super().__init__(x, y, rotation)
+        x, y = self.screen_offset
+        self.center_x = inches(.3)
+
+    def draw_debug(self, context):
+        return [
+            draw_x(context, 0, 0),
+            *[context.circle(center=self.rotated((inches(i * .1), 0)), r=.25) for i in range(7)],
+        ]
+
 
 
 if __name__ == "__main__":
