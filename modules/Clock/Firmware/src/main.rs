@@ -8,6 +8,7 @@
 #![feature(inline_const_pat)]
 #![feature(const_trait_impl)]
 #![feature(const_convert)]
+#![feature(adt_const_params)]
 
 mod button_debouncer;
 mod clock;
@@ -17,7 +18,7 @@ mod menu;
 mod random;
 mod render_nubers;
 mod rotary_encoder;
-mod system_clock;
+mod timer;
 
 use arduino_hal::hal::port::PC0;
 use button_debouncer::ButtonWithLongPress;
@@ -26,7 +27,8 @@ use core::panic::PanicInfo;
 use menu::{render_menu, update_menu, MenuOrScreenSaverState, MenuUpdate};
 use rotary_encoder::RotaryEncoderHandler;
 use ssd1306::{prelude::*, Ssd1306};
-use system_clock::{millis, millis_init};
+
+configure_system_clock!(ClockPrecision::MS8);
 
 #[inline(never)]
 #[panic_handler]
@@ -72,7 +74,7 @@ fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
 
     // start system clock
-    millis_init(dp.TC0);
+    let sys_clock = system_clock::init_system_clock(dp.TC0);
 
     // set pins d0-d7 as output
     dp.PORTD.ddrd.write(|w| unsafe { w.bits(0xff) });
@@ -135,7 +137,7 @@ fn main() -> ! {
 
     let unsafe_peripherals = unsafe { arduino_hal::Peripherals::steal() };
     loop {
-        let current_time_ms = millis();
+        let current_time_ms = sys_clock.millis();
         let (pin_state, did_rollover) =
             clock::sample(&clock_config, &mut clock_state, current_time_ms);
         unsafe_peripherals
