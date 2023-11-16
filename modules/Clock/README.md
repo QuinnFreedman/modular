@@ -13,10 +13,9 @@ If you want to do virtually anything with rythm in your modular rack, you will n
 
 ## Resources
  * Manual (WIP)
- * [Assembly instructions](docs/assembly_instructions.md) (WIP)
+ * [Assembly instructions and BOM](docs/assembly_instructions.md)
  * [Interactive BOM front panel](https://raw.githubusercontent.com/QuinnFreedman/fm-artifacts/main/Clock/clock_front_pcb_interactive_bom.html)
  * [Interactive BOM back panel](https://raw.githubusercontent.com/QuinnFreedman/fm-artifacts/main/Clock/clock_back_pcb_interactive_bom.html)
- * CSV BOM (WIP)
  * [Faceplate stencil SVG](https://github.com/QuinnFreedman/fm-artifacts/raw/main/Clock/clock_faceplate.svg)
  * [Faceplate GERBER (JLCPCB)]()
  * [Faceplate GERBER (PCBway)]()
@@ -24,7 +23,7 @@ If you want to do virtually anything with rythm in your modular rack, you will n
  * [Front panel GERBER (PCBway)](https://github.com/QuinnFreedman/fm-artifacts/raw/main/Clock/clock_front_pcb_pcbway.zip)
  * [Back panel GERBER (JLCPCB)](https://github.com/QuinnFreedman/fm-artifacts/raw/main/Clock/clock_back_pcb_jlcpcb.zip)
  * [Back panel GERBER (PCBway)](https://github.com/QuinnFreedman/fm-artifacts/raw/main/Clock/clock_back_pcb_pcbway.zip)
- * [Firmware HEX](ihttps://github.com/QuinnFreedman/fm-artifacts/raw/main/Clock/fm-clock.hex)
+ * [Firmware HEX](https://github.com/QuinnFreedman/fm-artifacts/raw/main/Clock/fm-clock.hex)
  * [Source code](https://github.com/QuinnFreedman/modular/tree/main/modules/Clock)
 </td>
 </tr>

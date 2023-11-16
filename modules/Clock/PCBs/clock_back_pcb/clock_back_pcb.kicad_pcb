@@ -642,7 +642,7 @@
   (footprint "FreeModualr:logo_small" (layer "F.Cu")
     (tstamp 86fda7f1-ad03-484a-a2dd-5786a78658cb)
     (at 44.45 123.825)
-    (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
+    (fp_text reference "G1" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.1)))
       (tstamp 7fa8c379-79a9-4737-a696-2496bf7802fb)
     )
