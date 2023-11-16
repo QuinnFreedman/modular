@@ -57,6 +57,10 @@ macro_rules! configure_system_clock {
                     }
                 }
 
+                const fn ctr_units_to_us(&self, counter_value: u8) -> u32 {
+                    (Into::<u32>::into(self.prescaler()) * counter_value as u32) / 16
+                }
+
                 const fn ctr_units_to_ms(&self, counter_value: u8) -> u32 {
                     (Into::<u32>::into(self.prescaler()) * counter_value as u32) / 16000
                 }
@@ -102,6 +106,14 @@ macro_rules! configure_system_clock {
                 #[allow(dead_code)]
                 pub fn millis_approx(&self) -> u32 {
                     avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get())
+                }
+                #[allow(dead_code)]
+                pub fn micros(&self) -> u64 {
+                    avr_device::interrupt::free(|cs| {
+                        let us_counter = MILLIS_COUNTER.borrow(cs).get() as u64 * 1000;
+                        let timer_register = self.0.tcnt0.read().bits();
+                        us_counter + PRECISION.ctr_units_to_us(timer_register) as u64
+                    })
                 }
             }
 

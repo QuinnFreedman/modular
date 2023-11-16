@@ -2,6 +2,7 @@ try:
     import svgwrite
     from svgwrite import mm
     from svgwrite.mixins import Transform
+    from svgwrite.container import Group
 except ImportError:
     print("This library requires svgwrite but it is not installed.")
     print("Install it with:")
@@ -37,6 +38,8 @@ import math
 import subprocess
 import random
 import string
+from typing import List, Callable, Tuple
+from enum import Enum
 
 def inches(n):
     """Returns n inches in mm"""
@@ -44,7 +47,7 @@ def inches(n):
 
 class Module:
     def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5):
-        assert isinstance(global_y_offset, int)
+        assert isinstance(global_y_offset, (int, float))
         assert isinstance(hp, int)
         HP = inches(0.2)
         self.tolerance = 0.5
@@ -278,24 +281,24 @@ def print_inkscape_stdout_ignoring_font_face_warnings(output):
 
 
 class Component:
-    def __init__(self, position_x, position_y):
+    def __init__(self, position_x: float, position_y: float):
         self.position = (position_x, position_y)
-        self.inkscape_actions = []
-        self.post_process = []
+        self.inkscape_actions: List[str] = []
+        self.post_process: List[Callable] = []
 
-    def draw_holes(self, context):
+    def draw_holes(self, context: Group):
         return []
 
-    def draw_stencil(self, context):
+    def draw_stencil(self, context: Group):
         return []
         
-    def draw_cosmetics(self, context):
+    def draw_cosmetics(self, context: Group):
         return []
 
 
-def BasicCircle(offset_x, offset_y, r):
+def BasicCircle(offset_x: float, offset_y: float, r: float):
     class BasicCircle(Component):
-        def __init__(self, position_x, position_y, rotation=0):
+        def __init__(self, position_x: float, position_y: float, rotation=0):
             super(BasicCircle, self).__init__(position_x, position_y)
             self.rotation = rotation
             if rotation not in [0, 1, 2, 3]:
@@ -312,7 +315,7 @@ def BasicCircle(offset_x, offset_y, r):
             # return [context.circle(center=(0,0), r=.6)]
             return [draw_x(context, 0, 0),]
 
-        def rotated(self, point):
+        def rotated(self, point: Tuple[float, float]) -> Tuple[float, float]:
             x, y = point
             if self.rotation == 0:
                 return x, y
@@ -322,6 +325,7 @@ def BasicCircle(offset_x, offset_y, r):
                 return -x, -y
             elif self.rotation == 3:
                 return y, -x
+            raise ValueError("rotation must be 0...3")
             
     return BasicCircle
 
@@ -747,15 +751,19 @@ class TL1105SP(BasicCircle(0, 0, 5.1/2)):
             context.circle(center=self.rotated(( w/2,  h/2)), r=0.25),
         ]
 
+class PotStyle(Enum):
+    OLD = 1
+    ROGAN_PT_2S = 2
+
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=12, cosmetic_radius=None):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=12, style=PotStyle.OLD):
         super(Potentiometer, self).__init__(x, y, rotation)
         self.label = label
         self.font_size = font_size
         self.color = color
         self.text_offset = text_offset
-        self.cosmetic_radius = cosmetic_radius
+        self.style = style
 
     def draw_stencil(self, context):
         elements = []
@@ -779,8 +787,40 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             context.circle(center=self.rotated((inches(.1), 0)), r=0.25),
             context.circle(center=self.rotated((inches(.2), 0)), r=0.25),
         ]
-        
+
+    
     def draw_cosmetics(self, context):
+        if self.style == PotStyle.OLD:
+            return self.draw_old_cap(context)
+        elif self.style == PotStyle.ROGAN_PT_2S:
+            return self.draw_new_cap(context)
+        
+    def draw_new_cap(self, context):
+        skirt_radius = 15.75 / 2
+        skirt_gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        skirt_gradient.add_stop_color(0, "#666")
+        skirt_gradient.add_stop_color(1, "#333")
+        context.defs.add(skirt_gradient)
+        elements = []
+        elements.append(context.circle(
+            center=self.offset,
+            r=skirt_radius,
+            fill=skirt_gradient.get_paint_server()
+        ))
+        elements.append(draw_bumpy_circle(
+            context,
+            self.offset,
+            skirt_radius - 3,
+            skirt_radius - 1.5,
+            5,
+            fill="black"
+        ))
+        return elements
+
+    def draw_old_cap(self, context):
         colors = {
             "yellow": "#f5d400",
             "blue": "#3b75ff",
@@ -791,10 +831,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         }
         border_width = 2
         marker_width = 2
-        if self.cosmetic_radius:
-            base_radius = self.cosmetic_radius
-        else:
-            base_radius = inches(1/4)
+        base_radius = inches(1/4)
         
         top_radius = base_radius - .5
         gradient = context.linearGradient(
@@ -829,6 +866,66 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             fill="black"
         ))
         return elements
+
+
+def draw_regular_polygon(context: Group, center:Tuple[float, float], n: int, r: float, **kwargs):
+    cx, cy = center
+    points = []
+    for i in range(n):
+        theta = 2 * math.pi * i / n
+        x = math.cos(theta) * r + cx
+        y = math.sin(theta) * r + cy
+        points.append((x, y))
+
+    return context.path([
+        f"M {points[0][0]} {points[0][1]}",
+        *[
+            f"L {p[0]} {p[1]}"
+            for p in points[1:]       
+        ],
+        "z"
+    ], **kwargs)
+
+def draw_m2_bolt_head(context: Group, point: Tuple[float, float]):
+    r = 3.5/2
+    edge_gradient = context.linearGradient(
+        (1, 0),
+        (0, 1),
+    )
+    edge_gradient.add_stop_color(-1, "white")
+    edge_gradient.add_stop_color(2, "black")
+    context.defs.add(edge_gradient)
+    elements = []
+    elements.append(context.circle(
+        point,
+        r,
+        fill=edge_gradient.get_paint_server()
+    ))
+    top_gradient = context.radialGradient(
+        center=(.5, .5),
+        r=.5,
+    )
+    top_gradient.add_stop_color(0, "#666", opacity=1)
+    top_gradient.add_stop_color(.75, "#666", opacity=1)
+    top_gradient.add_stop_color(.85, "#666", opacity=0)
+    top_gradient.add_stop_color(1, "#666", opacity=0)
+    context.defs.add(top_gradient)
+    elements.append(context.circle(
+        point,
+        r,
+        fill=top_gradient.get_paint_server()
+    ))
+    hex_gradient = context.linearGradient(
+        (1, 0),
+        (0, 1),
+    )
+    hex_gradient.add_stop_color(0, "#111")
+    hex_gradient.add_stop_color(1, "#444")
+    context.defs.add(hex_gradient)
+    elements.append(draw_regular_polygon(context, point, 6, 1, fill=hex_gradient.get_paint_server()))
+
+    return elements
+    
 
 class OLED(Component):
     def __init__(self, x, y, rotation=0):
@@ -875,22 +972,25 @@ class OLED(Component):
         else:
             return self.screen_height, self.screen_width
 
-    def draw_holes(self, context):
+    def _get_hole_locations(self):
         hole_center_y = self.hole_offset_y - self.hole_spacing_y / 2
+        holes = []
+        for x in (-1, 1):
+            for y in (-1, 1):
+                holes.append(self.rotated((
+                    self.center_x + x * (self.hole_spacing_x / 2),
+                    hole_center_y + y * (self.hole_spacing_y / 2),
+                )))
+        return holes
+
+    def draw_holes(self, context):
         screw_hole_d = inches(3/32)
 
         elements = []
-
-        for x in (-1, 1):
-            for y in (-1, 1):
-
-                elements.append(context.circle(center=self.rotated((
-                    self.center_x + x * (self.hole_spacing_x / 2),
-                    hole_center_y + y * (self.hole_spacing_y / 2),
-                )), r=screw_hole_d/2))
+        for p in self._get_hole_locations():
+            elements.append(context.circle(center=p, r=screw_hole_d/2))
 
         elements.append(context.rect(insert=self.screen_offset, size=self.screen_size))
-
 
         return elements
         
@@ -914,6 +1014,9 @@ class OLED(Component):
             r=(w / 2, h / 2),
             fill="white", opacity=.5,
             clip_path=f"url(#{clip_path.get_id()})"))
+
+        for p in self._get_hole_locations():
+            elements.extend(draw_m2_bolt_head(context, p))
 
         return elements
 
