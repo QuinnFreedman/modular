@@ -50,9 +50,8 @@ class Module:
         assert isinstance(global_y_offset, (int, float))
         assert isinstance(hp, int)
         HP = inches(0.2)
-        self.tolerance = 0.5
         self.height = 128.5
-        self.width = hp * HP - self.tolerance
+        self.width = math.floor((hp * HP) * 10 - 3) / 10
 
         self.d = svgwrite.Drawing(filename=filename.replace(" ", "_"), size=(self.width * mm, self.height * mm))
 
@@ -76,7 +75,9 @@ class Module:
             self.cosmetics = self.d.add(self.d.g(id="cosmetics"))
 
         screw_hole_y = 3
-        screw_hole_x = 1.5 * HP
+        hole_spacing_x = inches(.2) * (hp - 3)
+        center = self.width / 2
+        screw_hole_x1 = center - hole_spacing_x / 2
         screw_hole_d = 3.4
 
         def screw_hole(x, y):
@@ -85,17 +86,18 @@ class Module:
                               stroke="none"))
             
         # draw left mounting holes
-        screw_hole(screw_hole_x, screw_hole_y)
-        screw_hole(screw_hole_x, self.height - screw_hole_y)
+        screw_hole(screw_hole_x1, screw_hole_y)
+        screw_hole(screw_hole_x1, self.height - screw_hole_y)
 
         # draw right mounting holes
         if hp > 6:
-            screw_hole(self.width - screw_hole_x, screw_hole_y)
-            screw_hole(self.width - screw_hole_x, self.height - screw_hole_y)
+            screw_hole_x2 = screw_hole_x1 + hole_spacing_x
+            screw_hole(screw_hole_x2, screw_hole_y)
+            screw_hole(screw_hole_x2, self.height - screw_hole_y)
 
         # Draw title
         if title:
-            title_offset_y = 5
+            title_offset_y = 6.3
             if hp < 8:
                 title_offset_y = 9
             self.stencil.add(
@@ -152,8 +154,8 @@ class Module:
             center = self.width / 2
             self.debug.add(self.d.line((center, 0), (center, self.height), stroke="green", stroke_dasharray="4,3", stroke_width=.5))
 
-            for x in range(hp * 2):
-                _x = x * inches(0.1) - self.tolerance / 2
+            for x in range(-hp, hp):
+                _x = center + x * inches(0.1)
                 self.debug.add(self.d.line((_x, global_y_offset), (_x, global_y_offset + 100), stroke_width=0.2 if x % 5 == 0 else 0.1))
             for y in range(int(100 / inches(0.1)) + 1):
                 _y = y * inches(0.1) + global_y_offset
@@ -692,7 +694,7 @@ setattr(SmallLED, 'draw_cosmetics', draw_led_cosmetic)
 setattr(LED, 'draw_cosmetics', draw_led_cosmetic)
 
 
-def draw_button_cosmetic(self, context, with_washer=True):
+def draw_button_cosmetic(self, context, with_washer=True, colors=[("#aaa", "#000"), ("#888", "#111")]):
     elements = []
     if with_washer:
         washer_gradient = context.linearGradient(
@@ -709,8 +711,8 @@ def draw_button_cosmetic(self, context, with_washer=True):
         (1, 0),
         (0, 1),
     )
-    gradient.add_stop_color(0, "#aaa")
-    gradient.add_stop_color(1, "#000")
+    gradient.add_stop_color(0, colors[0][0])
+    gradient.add_stop_color(1, colors[0][1])
     context.defs.add(gradient)
     elements.append(context.circle(center=self.offset,
             r=self.radius,
@@ -719,8 +721,8 @@ def draw_button_cosmetic(self, context, with_washer=True):
         (1, 0),
         (0, 1),
     )
-    gradient2.add_stop_color(0, "#111")
-    gradient2.add_stop_color(1, "#888")
+    gradient2.add_stop_color(0, colors[1][1])
+    gradient2.add_stop_color(1, colors[1][0])
     context.defs.add(gradient2)
     elements.append(context.circle(center=self.offset,
             r=self.radius * .8,
@@ -751,9 +753,23 @@ class TL1105SP(BasicCircle(0, 0, 5.1/2)):
             context.circle(center=self.rotated(( w/2,  h/2)), r=0.25),
         ]
 
+class D6R30(BasicCircle(0, 0, 9/2)):
+    def draw_cosmetics(self, context):
+        return draw_button_cosmetic(self, context, with_washer=False, colors=[("#ff0", "#550"), ("#ff9", "#dd0")])
+
+    def draw_debug(self, context):
+        spread = 2.5
+        return [
+            context.circle(center=self.rotated((-spread, -spread)), r=0.25),
+            context.circle(center=self.rotated(( spread, -spread)), r=0.25),
+            context.circle(center=self.rotated((-spread,  spread)), r=0.25),
+            context.circle(center=self.rotated(( spread,  spread)), r=0.25),
+        ]
+
 class PotStyle(Enum):
     OLD = 1
-    ROGAN_PT_2S = 2
+    ROGAN_PT_1S = 2
+    CHROMATIC_WHITE = 3
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
@@ -792,17 +808,29 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
     def draw_cosmetics(self, context):
         if self.style == PotStyle.OLD:
             return self.draw_old_cap(context)
-        elif self.style == PotStyle.ROGAN_PT_2S:
-            return self.draw_new_cap(context)
+        elif self.style == PotStyle.ROGAN_PT_1S:
+            skirt_radius = 14.38 / 2
+            outer_r = 11 / 2
+            inner_r = 10 / 2
+            cap_r = 4
+            radii=[skirt_radius, outer_r, inner_r, cap_r]
+            return self.draw_new_cap(context, radii, cap_color=["#fff", "#bbb"])
+        elif self.style == PotStyle.CHROMATIC_WHITE:
+            skirt_radius = 16 / 2
+            outer_r = 11 / 2
+            inner_r = 10 / 2
+            cap_r = 4
+            radii=[skirt_radius, outer_r, inner_r, cap_r]
+            return self.draw_new_cap(context, radii, cap_color=["#fff", "#bbb"], pointer_color="#eee")
         
-    def draw_new_cap(self, context):
-        skirt_radius = 15.75 / 2
+    def draw_new_cap(self, context, radii, cap_color=None, pointer_color=None):
+        skirt_radius = radii[0]
         skirt_gradient = context.linearGradient(
             (1, 0),
             (0, 1),
         )
-        skirt_gradient.add_stop_color(0, "#666")
-        skirt_gradient.add_stop_color(1, "#333")
+        skirt_gradient.add_stop_color(0, "#555")
+        skirt_gradient.add_stop_color(1, "#111")
         context.defs.add(skirt_gradient)
         elements = []
         elements.append(context.circle(
@@ -810,14 +838,82 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             r=skirt_radius,
             fill=skirt_gradient.get_paint_server()
         ))
-        elements.append(draw_bumpy_circle(
-            context,
-            self.offset,
-            skirt_radius - 3,
-            skirt_radius - 1.5,
-            5,
-            fill="black"
-        ))
+
+        num_lobes = 6
+        outer_r, inner_r = radii[1:3]
+
+        num_steps = num_lobes * 2 if pointer_color is None else num_lobes * 2 - 1
+        lobe_width_ratio = .7
+        lobe_width_rad = 2 * math.pi / num_lobes * lobe_width_ratio
+        cut_width_rad = 2 * math.pi / num_lobes * (1 - lobe_width_ratio)
+
+        cx, cy = self.offset
+
+        def from_polar(theta, r):
+            return cx + math.cos(theta) * r, cy + math.sin(theta) * r
+
+        start_theta = -math.pi * 3/4
+        theta = start_theta + cut_width_rad / 2
+        start_x, start_y = from_polar(theta, outer_r)
+        path_d = f"M {start_x} {start_y}"
+        for step in range(num_steps):
+            if step % 2 == 0:
+                dtheta = lobe_width_rad
+                r = outer_r
+                next_r = inner_r
+            else:
+                dtheta = cut_width_rad
+                r = inner_r
+                next_r = outer_r
+
+            theta += dtheta
+            x1, y1 = from_polar(theta, r)
+            x2, y2 = from_polar(theta, next_r)
+            if step % 2 == 0:
+                path_d += f" A {r} {r} 0 0 1 {x1} {y1}"
+            else:
+                path_d += f" L {x1} {y1}"
+            if step != num_steps - 1:
+                path_d += f" L {x2} {y2}"
+        path_d += " Z"
+
+        knob_gradient = context.linearGradient(
+            (1, 0),
+            (0, 1),
+        )
+        knob_gradient.add_stop_color(0, "#777")
+        knob_gradient.add_stop_color(1, "#222")
+        context.defs.add(knob_gradient)
+        elements.append(context.path(path_d, fill=knob_gradient.get_paint_server()))
+
+        if cap_color is not None:
+            cap_gradient = context.linearGradient(
+                (1, 0),
+                (0, 1),
+            )
+            cap_gradient.add_stop_color(0, cap_color[0])
+            cap_gradient.add_stop_color(1, cap_color[1])
+            context.defs.add(cap_gradient)
+            elements.append(context.circle(
+                center=self.offset,
+                r=radii[3],
+                fill=cap_gradient.get_paint_server()
+            ))
+
+        if pointer_color is not None:
+            offset = 1.6
+            start = from_polar(start_theta, offset)
+            end = from_polar(start_theta, offset + 4.5)
+            pointer = context.line(start, end, stroke_width=1, stroke=pointer_color)
+            shiftx, shifty = -.3, .6
+            start = (start[0] + shiftx, start[1] + shifty)
+            end = (end[0] + shiftx, end[1] + shifty)
+            blur_filter = context.defs.add(context.filter())
+            blur_filter.feGaussianBlur(in_='SourceGraphic', stdDeviation=.3)
+            shadow = context.line(start, end, stroke_width=1, stroke="#000", opacity=.2, filter=blur_filter.get_funciri())
+            elements.append(shadow)
+            elements.append(pointer)
+            
         return elements
 
     def draw_old_cap(self, context):

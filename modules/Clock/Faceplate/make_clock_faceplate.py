@@ -10,8 +10,8 @@ module = Module.from_cli(8, global_y_offset=21.5, title="Clock")
 
 module.add(OLEDSPI(inches(.3), -inches(.4), rotation=2))
 
-module.add(Potentiometer(inches(.1), inches(.85), rotation=1, style=PotStyle.ROGAN_PT_2S))
-module.add(TL1105SP(-inches(.4), inches(.95)))
+module.add(Potentiometer(inches(.1), inches(.85), rotation=1, style=PotStyle.ROGAN_PT_1S))
+module.add(D6R30(-inches(.4), inches(.95)))
 
 jack_offset_y = inches(1.7)
 
@@ -22,7 +22,7 @@ for y in range(4):
         _y = inches(.6 * y) + jack_offset_y
         i += 1
         module.add(JackSocketCentered(_x + inches(0), _y + inches(0), "", False, rotation=2))
-        module.add(SmallLED(_x + inches(.15), _y - inches(.3)))
+        module.add(SmallLED(_x + inches(.15), _y - inches(.3), color="#04f"))
 
 
 module.save()
