@@ -102,7 +102,7 @@ def build_kicad_project(src_dir, output_dir, pcb_name, last_commit):
         shutil.rmtree(tmpdir)
         print(f"      ✅ {path.basename(gerber_zip)}")
 
-    if not pcb_name.endswith("faceplate"):
+    if "faceplate" not in pcb_name:
         print("    📄 Exporting interactive BOM... ")
         output_dir = os.path.realpath(output_dir)
         run_ibom_commad("--no-browser", f"--dest-dir={output_dir}", "--name-format=%f_interactive_bom", "--blacklist=G*", pcb_file)
@@ -183,6 +183,7 @@ def build(name, output_dir):
         f"{name.lower()}_front_pcb",
         f"{name.lower()}_back_pcb",
         f"{name.lower()}_faceplate",
+        f"{name.lower()}_faceplate_pcb",
     ]:
         kicad_proj_dir = path.join(path.abspath(dir), "PCBs", pcb_name)
         if path.isdir(kicad_proj_dir):
