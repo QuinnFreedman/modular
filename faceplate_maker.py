@@ -38,6 +38,7 @@ import math
 import subprocess
 import random
 import string
+import io
 from typing import List, Callable, Tuple
 from enum import Enum
 
@@ -221,14 +222,43 @@ class Module:
                 self.d.filename,
             )
 
-            if self.post_process:
-                tree = ET.parse(self.d.filename)
-                for process in self.post_process:
-                    process(tree)
-                font_style = tree.findall(f".//*[@id='font-style']")[0]
-                parent = font_style.find("..")
-                parent.remove(font_style)
+            tree = ET.parse(self.d.filename)
+            for process in self.post_process:
+                process(tree)
+            font_style = tree.findall(f".//*[@id='font-style']")[0]
+            parent = font_style.find("..")
+            parent.remove(font_style)
+
+            try:
+                from scour import scour
+                string = ET.tostring(tree)
+                with open(self.d.filename, "wb") as output_file:
+                    input_file = io.BytesIO(string)
+                    class ScourOptions:
+                        def __init__(self):
+                            self.digits = 5
+                            self.cdigits = -1
+                            self.simple_colors = True
+                            self.style_to_xml = True
+                            self.group_collapse = False
+                            self.group_create = False
+                            self.keep_editor_data = False
+                            self.keep_defs = False
+                            self.renderer_workaround = True
+                            self.indent_type = "space"
+                            self.indent_depth = 2
+                            self.newlines = True
+                            self.shorten_ids_prefix = ""
+                            self.protect_ids_noninkscape = False
+                            self.quiet = True
+                    scour.start(ScourOptions(), input_file, output_file)
+            except ImportError:
+                print("Warning: This tool uses scour but it is not installed.")
+                print("Install it with:")
+                print("    python3 -m pip install --user scour")
+                print("Skipping scour step")
                 tree.write(self.d.filename)
+
 
     @classmethod
     def from_cli(self, hp, global_y_offset=0, title=None, title_size=5):
