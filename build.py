@@ -31,7 +31,13 @@ def get_last_commit(dir):
 def run_command_or_exit_with_error(command: List[str], error_msg: Optional[str]=None, **kwargs):
     if error_msg is None:
         error_msg = f"⛔ Error running command `{' '.join(command)}`"
-    result = subprocess.run(command, capture_output=True, **kwargs)
+    try:
+        result = subprocess.run(command, capture_output=True, **kwargs)
+    except FileNotFoundError as e:
+        print(error_msg)
+        print(f"      No such file: {command[0]}")
+        sys.exit(1)
+        
     if result.returncode != 0:
         print(error_msg)
         for pipe in [result.stdout, result.stderr]:
@@ -82,6 +88,24 @@ def run_ibom_commad(*command):
         ["flatpak", "run", "--branch=stable", "--arch=x86_64", f"--command={path_to_generate_bom_script}", "org.kicad.KiCad", *command],
         error_msg="\n    ⛔ Error running InteractiveHtmlBom:"
     )
+
+
+def build_manual(name, output_dir, last_commit):
+    manual_svg = path.abspath(path.join("modules", name, "docs", f"{to_snake_case(name)}_manual.svg"))
+    if not path.exists(manual_svg):
+        return
+    if not has_changed_since(manual_svg, last_commit):
+        return
+
+    print(f"  🖨️  Building manual PDF for {name}")
+    output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}.pdf"))
+    print(manual_svg)
+    print(output_file)
+    result = run_command_or_exit_with_error(
+        ["inkscape", f"--actions=export-filename:{output_file};export-do", manual_svg],
+        error_msg="    ⛔ Error running Inkscape:"
+    )
+    print("      ✅ done")
 
 
 def build_kicad_project(src_dir, output_dir, pcb_name, last_commit):
@@ -196,6 +220,8 @@ def build(name, output_dir):
         build_rust_firmware(name, output_dir, last_commit)
 
     #TODO look into automating schematic export https://github.com/productize/kicad-automation-scripts
+
+    build_manual(name, output_dir, last_commit)
 
     rev_file_name = path.join(output_dir, "last_modified.txt")
     with open(rev_file_name, "w") as f:
