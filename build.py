@@ -232,6 +232,6 @@ def build(name, output_dir):
 if __name__ == "__main__":
     output_dir = "../fm-artifacts"
     build("Clock", output_dir)
-    # build("Mixer", output_dir)
+    build("Mixer", output_dir)
     # build("DiodeDistortion", output_dir)
 
