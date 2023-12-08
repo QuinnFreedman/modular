@@ -13,6 +13,10 @@ __pycache__/
 output.svg
 *.xcf
 
+# GitHub pages
+_site/
+.bundle/
+
 # KiCad
 # Temporary files
 *.000
