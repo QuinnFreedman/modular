@@ -77,6 +77,15 @@ def run_kikit_commad(*command):
         error_msg="    ⛔ Error running KiKit:"
     )
 
+def run_kicad_cli_commad(*command):
+    # If you have kicad installed normally, you can just run `kicad-cli` here.
+    # My kicad is installed with flatpak so I have to install and run kikit
+    # inside the flatpak environment
+    run_command_or_exit_with_error(
+        ["flatpak", "run", "--branch=stable", "--arch=x86_64", "--command=kicad-cli", "org.kicad.KiCad", *command],
+        error_msg="    ⛔ Error running KiKit:"
+    )
+
 
 def run_ibom_commad(*command):
     # See instructions for installing and calling generate_interactive_bom.py here: https://github.com/openscopeproject/InteractiveHtmlBom/wiki/Usage
@@ -99,8 +108,6 @@ def build_manual(name, output_dir, last_commit):
 
     print(f"  🖨️  Building manual PDF for {name}")
     output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}.pdf"))
-    print(manual_svg)
-    print(output_file)
     result = run_command_or_exit_with_error(
         ["inkscape", f"--actions=export-filename:{output_file};export-do", manual_svg],
         error_msg="    ⛔ Error running Inkscape:"
@@ -127,9 +134,17 @@ def build_kicad_project(src_dir, output_dir, pcb_name, last_commit):
         print(f"      ✅ {path.basename(gerber_zip)}")
 
     if "faceplate" not in pcb_name:
-        print("    📄 Exporting interactive BOM... ")
-        output_dir = os.path.realpath(output_dir)
-        run_ibom_commad("--no-browser", f"--dest-dir={output_dir}", "--name-format=%f_interactive_bom", "--blacklist=G*", pcb_file)
+        # Export HTML BOM
+        print("    📑 Exporting interactive BOM... ")
+        output_dir_rel = os.path.realpath(output_dir)
+        run_ibom_commad("--no-browser", f"--dest-dir={output_dir_rel}", "--name-format=%f_interactive_bom", "--blacklist=G*", pcb_file)
+        print("      ✅ done")
+
+        # Export schematic PDF
+        schematic_file = path.join(src_dir, f"{pcb_name}.kicad_sch")
+        sch_pdf_output = path.join(output_dir, f"{pcb_name}_schematic.pdf")
+        print(f"    📝 Exporting schematic...")
+        run_kicad_cli_commad("sch", "export", "pdf", "--no-background-color", "--output", sch_pdf_output, schematic_file)
         print("      ✅ done")
 
 
