@@ -28,30 +28,32 @@ def get_last_commit(dir):
     return last_commit
 
 
-def run_command_or_exit_with_error(command: List[str], error_msg: Optional[str]=None, **kwargs):
-    if error_msg is None:
-        error_msg = f"⛔ Error running command `{' '.join(command)}`"
+def run_command_or_exit_with_error(command: List[str], **kwargs):
+    error_msg = f"\n⛔ Error running command:\n\n    {' '.join(command)}\n"
+
     try:
         result = subprocess.run(command, capture_output=True, **kwargs)
     except FileNotFoundError as e:
+        log_error()
         print(error_msg)
         print(f"      No such file: {command[0]}")
         sys.exit(1)
         
     if result.returncode != 0:
+        log_error()
         print(error_msg)
         for pipe in [result.stdout, result.stderr]:
             for line in pipe.decode("utf-8").splitlines():
                 if line.startswith("Gtk-Message:"):
                   continue
-                print(f"      {line}")
+                print(line)
         sys.exit(1)
 
 
 def get_most_recent_commit():
     result = subprocess.run(["git", "log", "-n", "1", "--pretty=format:%H"], capture_output=True)
     if result.returncode != 0:
-        print("Error getting most recent git commit")
+        print("\nError getting most recent git commit")
         sys.exit(1)
 
     return result.stdout.decode("utf-8").strip()
@@ -74,7 +76,6 @@ def run_kikit_commad(*command):
     # inside the flatpak environment
     run_command_or_exit_with_error(
         ["flatpak", "run", "--branch=stable", "--arch=x86_64", "--command=python3", "org.kicad.KiCad", "-c", "from kikit.ui import cli; cli()", *command],
-        error_msg="    ⛔ Error running KiKit:"
     )
 
 def run_kicad_cli_commad(*command):
@@ -83,9 +84,28 @@ def run_kicad_cli_commad(*command):
     # inside the flatpak environment
     run_command_or_exit_with_error(
         ["flatpak", "run", "--branch=stable", "--arch=x86_64", "--command=kicad-cli", "org.kicad.KiCad", *command],
-        error_msg="    ⛔ Error running KiKit:"
     )
 
+
+def log(indent, icon, msg, wait=False):
+    msg = "".join([
+        " " * (indent * 2),
+        icon,
+        " ",
+        f"{msg}...".ljust(45 - indent * 2, ".") if wait else msg,
+        " "
+    ])
+    if wait:
+        print(msg, end="")
+    else:
+        print(msg)
+
+def log_ok():
+    print("✅ done")
+
+def log_error():
+    print("⛔ error")
+ 
 
 def run_ibom_commad(*command):
     # See instructions for installing and calling generate_interactive_bom.py here: https://github.com/openscopeproject/InteractiveHtmlBom/wiki/Usage
@@ -95,7 +115,6 @@ def run_ibom_commad(*command):
     path_to_generate_bom_script = "../InteractiveHtmlBom/InteractiveHtmlBom/generate_interactive_bom.py"
     run_command_or_exit_with_error(
         ["flatpak", "run", "--branch=stable", "--arch=x86_64", f"--command={path_to_generate_bom_script}", "org.kicad.KiCad", *command],
-        error_msg="\n    ⛔ Error running InteractiveHtmlBom:"
     )
 
 
@@ -106,13 +125,12 @@ def build_manual(name, output_dir, last_commit):
     if not has_changed_since(manual_svg, last_commit):
         return
 
-    print(f"  🖨️  Building manual PDF for {name}")
+    log(1, "🖨️ ", f"Building manual PDF for {name}", True)
     output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}.pdf"))
     result = run_command_or_exit_with_error(
         ["inkscape", f"--actions=export-filename:{output_file};export-do", manual_svg],
-        error_msg="    ⛔ Error running Inkscape:"
     )
-    print("      ✅ done")
+    log_ok()
 
 
 def build_kicad_project(src_dir, output_dir, pcb_name, last_commit):
@@ -121,31 +139,32 @@ def build_kicad_project(src_dir, output_dir, pcb_name, last_commit):
         return
     if not has_changed_since(src_dir, last_commit):
         return
-    print(f"  ⚙️  Building KiCad project for {pcb_name}:")
+    log(1, "⚙️ ", f"Building KiCad project for {pcb_name}:")
 
-    print(f"    🛠️  Exporting GERBERs...")
+    log(2, "🛠️ ", "Exporting GERBERs:")
     # should be tempfile.mkdtemp() but kicad doesn't seem to work with /tmp files
     tmpdir = "tmp"
     for fab_flavor in ["jlcpcb", "pcbway"]:
+        log(3, ">>", f"{fab_flavor}", True)
         result = run_kikit_commad("fab", fab_flavor, pcb_file, tmpdir, "--no-drc")
         gerber_zip = path.join(output_dir, f"{pcb_name}_{fab_flavor}.zip")
         os.replace(path.join(tmpdir, "gerbers.zip"), gerber_zip)
         shutil.rmtree(tmpdir)
-        print(f"      ✅ {path.basename(gerber_zip)}")
+        log_ok()
 
     if "faceplate" not in pcb_name:
         # Export HTML BOM
-        print("    📑 Exporting interactive BOM... ")
+        log(2, "📑", "Exporting interactive BOM", True)
         output_dir_rel = os.path.realpath(output_dir)
         run_ibom_commad("--no-browser", f"--dest-dir={output_dir_rel}", "--name-format=%f_interactive_bom", "--blacklist=G*", pcb_file)
-        print("      ✅ done")
+        log_ok()
 
         # Export schematic PDF
         schematic_file = path.join(src_dir, f"{pcb_name}.kicad_sch")
         sch_pdf_output = path.join(output_dir, f"{pcb_name}_schematic.pdf")
-        print(f"    📝 Exporting schematic...")
+        log(2, "📝", "Exporting schematic", True)
         run_kicad_cli_commad("sch", "export", "pdf", "--no-background-color", "--output", sch_pdf_output, schematic_file)
-        print("      ✅ done")
+        log_ok()
 
 
 def to_snake_case(text):
@@ -158,7 +177,7 @@ def build_faceplate(name, output_dir, last_commit):
     build_script = path.join("modules", name, "Faceplate", f"make_{to_snake_case(name)}_faceplate.py")
     if not has_changed_since(build_script, last_commit):
         return
-    print(f"  🤖 Building faceplate SVG... ")
+    log(1, "🤖", "Building faceplate SVG", True)
     faceplate_file = to_snake_case(name)
     run_command_or_exit_with_error(
         [
@@ -169,21 +188,20 @@ def build_faceplate(name, output_dir, last_commit):
         ],
         cwd=path.dirname(build_script)
     )
-    print("    ✅ done")
+    log_ok()
 
 
 def build_rust_firmware(name: str, output_dir: str, last_commit: str):
     firmware_dir = path.join("modules", name, "Firmware")
     if not has_changed_since(firmware_dir, last_commit):
         return
-    print(f"  🦀 Building firmware... ")
+    log(1, "🦀", "Building firmware", True)
     env = os.environ.copy()
     env["RUSTFLAGS"] = "-Zlocation-detail=none"
     run_command_or_exit_with_error(
         ["cargo", "build", "--release"],
         env=env,
         cwd=firmware_dir,
-        error_msg="    ⛔ Error building firmware:"
     )
 
     firmware_name = f"fm-{name.lower().replace('_', '-')}"
@@ -193,9 +211,8 @@ def build_rust_firmware(name: str, output_dir: str, last_commit: str):
     run_command_or_exit_with_error(
         ["avr-objcopy", "-O", "ihex", elf_file, hex_file],
         env={"RUSTFLAGS": "-Zlocation-detail=none"},
-        error_msg="    ⛔ Error converting to HEX file:"
     )
-    print("    ✅ done")
+    log_ok()
 
 
 def build(name, output_dir):
@@ -207,13 +224,13 @@ def build(name, output_dir):
         return
 
     if change == GitDiff.NO_LAST_COMMIT:
-        print(f"📦 Building {name} (no last commit)")
+        log(0, "📦", f"Building {name} (no last commit)")
     else:
-        print(f"📦 Building {name} (last built from #{last_commit[:7]})")
+        log(0, "📦", f"Building {name} (last built from #{last_commit[:7]})")
 
     current_commit = get_most_recent_commit()
     if has_changed_since(dir, current_commit):
-        print("  ⚠️  Warning: building from untracked changes")
+        log(1, "⚠️ ", "Warning: building from untracked changes")
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -233,8 +250,6 @@ def build(name, output_dir):
     cargo_toml = path.join(dir, "Firmware", "Cargo.toml")
     if path.exists(cargo_toml):
         build_rust_firmware(name, output_dir, last_commit)
-
-    #TODO look into automating schematic export https://github.com/productize/kicad-automation-scripts
 
     build_manual(name, output_dir, last_commit)
 
