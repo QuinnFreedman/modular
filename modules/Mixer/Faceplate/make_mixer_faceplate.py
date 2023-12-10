@@ -36,7 +36,7 @@ for i in range(5):
         module.add(JackSocket(inches(0.45), y + inches(0.025), "OUT", True))
         module.add(SmallLED(inches(0.6), y - inches(0.15)))
     else: 
-        module.add(Potentiometer(inches(0.15), y + inches(0.1), rotation=1))
+        module.add(Potentiometer(inches(0.15), y + inches(0.1), rotation=1, style=PotStyle.CHROMATIC_WHITE))
         y += inches(.8)
 
 
