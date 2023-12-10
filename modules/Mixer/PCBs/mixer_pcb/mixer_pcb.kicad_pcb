@@ -3449,7 +3449,7 @@
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 9ad56336-66ce-4696-a28c-ecbe7ae3b4e0)
     )
-    (fp_text value "470Ω" (at 5.08 -2.37 90) (layer "B.Fab")
+    (fp_text value "4k7Ω" (at 5.08 -2.37 90) (layer "B.Fab")
         (effects (font (size 1 1) (thickness 0.15)) (justify mirror))
       (tstamp 385c21d3-c52e-4d51-a173-dd54631585f2)
     )
