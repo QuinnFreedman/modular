@@ -1,0 +1,52 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+.fm-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+}
+
+.fm-module-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 310px;
+  width: 310px;
+  border: 1px solid black;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.fm-module-box img {
+  height: 200px;
+  margin-right: 16px;
+  margin-left: 6px;
+  border: 1px solid black;
+}
+
+.fm-module-box > div {
+  flex-grow: 1;
+}
+
+.fm-module-box h2 {
+  display: block;
+}
+
+.fm-module-box h2 a {
+  display: none;
+}
+
+.fm-module-link:hover {
+  text-decoration: none;
+}
+
+.fm-module-link {
+  color: unset;
+}
