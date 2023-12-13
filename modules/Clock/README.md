@@ -26,7 +26,7 @@
   </li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/fm-clock.hex">Firmware HEX</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Clock">Source code</a></li>
-  <li><a href="#">Schematic</a></li>
+  <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_schematic.pdf">back panel</a></li>
 </ul>
 
 </div>
