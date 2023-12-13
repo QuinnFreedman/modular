@@ -7,10 +7,49 @@ This project is an attempt to make Eurorack modular syntehsis affordable and acc
 
 This repository contains open source software and hardware schematics for Eurorack modules which are designed to be assembled easily and cheaply without any technical knowledge. Every module should be able to be assembled for around $20 in about an hour of work.
 
-To get started, check out some of the modules below.
+To get started, check out some of the links below.
 
 **Happy travels on your modular journey!**
 
-<a href="https://quinnfreedman.github.io/modular" style="display:none">Go to the website to see more</a>
+<a style="display:none" href="https://quinnfreedman.github.io/modular">Go to the website to see more</a>
 
-{% include_relative docs/index.md %}
+<h2 style="display:none">Links</h2>
+<ul class="fm-index-links-container">
+  <li>
+    <a href="https://quinnfreedman.github.io/modular/docs/about-eurorack" class="fm-hidden-link fm-index-link">
+      About Eurorack
+    </a>
+  </li>
+  <li>
+    <a href="https://quinnfreedman.github.io/modular/docs/assembly" class="fm-hidden-link fm-index-link">
+      Assembly Instructions
+    </a>
+  </li>
+  <li>
+    <a href="https://quinnfreedman.github.io/modular/docs/components" class="fm-hidden-link fm-index-link">
+      Get Components
+    </a>
+  </li>
+  <li>
+    <a href="https://quinnfreedman.github.io/modular/docs/peripherals" class="fm-hidden-link fm-index-link">
+      Accessories
+    </a>
+  </li>
+  <li>
+    <a href="https://quinnfreedman.github.io/modular/docs/appendixn" class="fm-hidden-link fm-index-link">
+      Other Resources
+    </a>
+  </li>
+  <li>
+    <a href="https://quinnfreedman.github.io/modular/docs/license" class="fm-hidden-link fm-index-link">
+      License
+    </a>
+  </li>
+</ul>
+
+<h2 style="display:none">Modules</h2>
+<ul style="display:none">
+  <li><a href="https://quinnfreedman.github.io/modular/modules/Clock">Clock</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/Mixer">Mixer</a></li>
+</ul>
+{% include_relative docs/modules.md %}

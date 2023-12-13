@@ -51,7 +51,8 @@
   color: unset;
 }
 
-.fm-index-links-container {
+ul.fm-index-links-container {
+  list-style: none;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -59,11 +60,13 @@
   gap: 23px;
   width: 100%;
   margin: 24px 0;
+  padding: 0;
 
-  .fm-index-link {
+  li .fm-index-link {
     display: block;
     border: 2px solid gray;
     padding: 8px 16px;
+    margin: 0;
   }
 
 }
