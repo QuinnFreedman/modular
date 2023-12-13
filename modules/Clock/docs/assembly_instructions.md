@@ -1,9 +1,12 @@
 # Clock Assembly Instructions
 
+See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
+
 ## Components
 
-Interactive BOM: [front](https://raw.githubusercontent.com/QuinnFreedman/fm-artifacts/main/Clock/clock_front_pcb_interactive_bom.html), [back](https://raw.githubusercontent.com/QuinnFreedman/fm-artifacts/main/Clock/clock_back_pcb_interactive_bom.html)
+See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html)
 
 | Board | Reference | Part             | Value                                   | Source  | Comment |
 | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |

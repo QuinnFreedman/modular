@@ -70,3 +70,24 @@ ul.fm-index-links-container {
   }
 
 }
+
+.fm-readme-container {
+  display:flex;
+  flex-direction:row;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:center;
+
+  .fm-readme-module-image {
+    height: 700px;
+    margin-right:24px;
+    border:2px solid black;
+  }
+
+  .fm-readme-text {
+    flex-grow:1;
+    flex-shrink:1;
+    flex-basis:0;
+    min-width:50%;
+  }
+}

@@ -40,9 +40,9 @@ You can get most of these from [Thonk](https://www.thonk.co.uk/product-category/
 
 ### Pots
 
-I use 15mm-shaft Alpha pots. You can get them [here](https://www.thonk.co.uk/shop/alpha-9mm-pots-dshaft/). Make sure you get a shaft type (D or spline) that matches the knobs you want to use. 
+I use 15mm-shaft Alpha pots. You can get them [here](https://www.thonk.co.uk/shop/alpha-9mm-pots-dshaft/). Make sure you get a shaft type (D, spline, or smooth) that matches the knobs you want to use. The knobs I use are D-shaft only.
 
-Also, pay attention to the difference between **linear** (B type) and **logarithmic** (A type) potentiometers. Most modules want linear pots, unless they are controlling audio gain.
+Also, pay attention to the difference between **linear** (B type) and **logarithmic** (A type) potentiometers. Most modules want linear pots, unless they are controlling audio levels. Confusingly, [some manufacturers use "A" and "B" to mean literally the opposite](https://en.wikipedia.org/wiki/Potentiometer#Resistance%E2%80%93position_relationship:_%22taper%22) of what they usually mean. But, Alpha pots, which I primarily use, seem to stick with "B" = linnear.
 
 If they don't have the potentiometer values you need in stock, most designs are very flexible. You should be able to use any value you have as long as you adjust some corresponding resistors to match. See notes in the module's bill of materials for more info.
 

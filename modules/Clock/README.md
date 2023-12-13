@@ -1,8 +1,8 @@
-<div style="display:flex;flex-direction:row;flex-wrap:wrap;align-items:flex-start;justify-content:center;">
+<div class="fm-readme-container">
 
-<img style="width:260px;margin-right:20px;border:2px solid black;" src="docs/images/clock_faceplate_display.svg" />
+<img class="fm-readme-module-image" src="docs/images/clock_faceplate_display.svg" />
 
-<div style="flex-grow:1;flex-shrink:1;flex-basis:0;min-width:50%;">
+<div class="fm-readme-text">
 
 <h1>Clock</h1>
 
@@ -14,7 +14,7 @@
 
 <ul>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_manual.pdf">Manual</a></li>
-  <li><a href="docs/assembly_instructions.md">Assembly instructions and BOM</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/Clock/docs/assembly_instructions">Assembly instructions and BOM</a></li>
   <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html">back panel</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate.svg">Faceplate stencil SVG</a></li>
   <li>GERBER files:
