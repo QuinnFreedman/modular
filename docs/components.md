@@ -1,6 +1,6 @@
 # Components
 
-*What components to buy and where to find them*
+Each module will list the specific components required to build it in a **bill of materials**, which is in the assembly instructions for that module. To avoid repetion, common componets that are used in many modules are listed here along with advice about where to buy them.
 
 ## Microcontrollers
 

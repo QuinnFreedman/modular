@@ -43,10 +43,27 @@
   display: none;
 }
 
-.fm-module-link:hover {
+.fm-hidden-link:hover {
   text-decoration: none;
 }
 
-.fm-module-link {
+.fm-hidden-link {
   color: unset;
+}
+
+.fm-index-links-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 23px;
+  width: 100%;
+  margin: 24px 0;
+
+  .fm-index-link {
+    display: block;
+    border: 2px solid gray;
+    padding: 8px 16px;
+  }
+
 }
