@@ -1,3 +1,5 @@
+# License
+
 The software in this repo is [GPL3.0](https://www.gnu.org/licenses/gpl-3.0.html)
 
 Everything else (hardware, images, and text) is [cc-by-sa 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
