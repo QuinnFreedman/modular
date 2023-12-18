@@ -126,7 +126,7 @@ def build_manual(name, output_dir, last_commit):
         return
 
     log(1, "🖨️ ", f"Building manual PDF for {name}", True)
-    output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}.pdf"))
+    output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_manual.pdf"))
     result = run_command_or_exit_with_error(
         ["inkscape", f"--actions=export-filename:{output_file};export-do", manual_svg],
     )
