@@ -3,6 +3,33 @@
 
 @import "{{ site.theme }}";
 
+a {
+  color: #0594bb;
+}
+
+.markdown-body>h1:first-child>a {
+  color: black;
+  display: inline-block;
+  /*max-width: min-content;*/
+  width: 180px;
+  text-decoration: none;
+  font-weight: normal;
+  line-height: 1;
+  /* font-family: DejaVu Sans, sans-serif, sans; */
+}
+.markdown-body>h1:first-child>a::after {
+  --width: 24px;
+  --margin: calc(var(--width) / 4);
+  content: " ";
+  display: block;
+  width: var(--width);
+  height: var(--width);
+  margin-top: var(--margin);
+  margin-bottom: var(--margin);
+  background-color: #e14646;
+  box-shadow: calc((var(--width) + var(--margin)) * 1) 0 #fd8b45, calc((var(--width) + var(--margin)) * 2) 0 #f7e51a, calc((var(--width) + var(--margin)) * 3) 0 #0cc081, calc((var(--width) + var(--margin)) * 4) 0 #38d0fa, calc((var(--width) + var(--margin)) * 5) 0 #e962b2;
+}
+
 .fm-container {
   display: flex;
   flex-direction: row;

@@ -1,7 +1,6 @@
 > Note: this project is currently undergoing a refactor. Most of the modules should still work, but they are in varying stages of redesign. Over the next few months, all the designs, documentation, and website should see a big improvement. Feel free to take a look at the desigs if you are interested, but you will probably have a better experience if you wait a few months to start building.
 
 ---
-<a href="https://quinnfreedman.github.io/modular"><img align="right" src="images/logo_with_text.svg" width=300px style="margin-bottom:24px;"></a>
 
 This project is an attempt to make Eurorack modular syntehsis affordable and accessable to everyone.
 
@@ -10,6 +9,8 @@ This repository contains open source software and hardware schematics for Eurora
 To get started, check out some of the links below.
 
 **Happy travels on your modular journey!**
+
+<img src="images/logo_black.svg" width=100 style="width:100px; margin-bottom: 10px;"/>
 
 <a style="display:none" href="https://quinnfreedman.github.io/modular">Go to the website to see more</a>
 

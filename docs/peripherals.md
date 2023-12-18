@@ -1,19 +1,20 @@
-In addition to the modules in this repository, you will need a few extra components to make a working synth. If you are new to Eurorack, you will need a case, powersupply, and cables. Additionally, there aren't enough modules in this project to make a fully working synth **(yet)** so you will probably want to buy a few commercial modules.
+In addition to the modules in this repository, you will need a few extra components to make a working synth. If you are new to Eurorack, you will need a case, powersupply, and cables. Additionally, there aren't enough modules in this project to make a fully working synth **(yet)** so you will probably want to supplement with a few commercial modules.
 
 ## Cases
 
-Modules on their own are just a faceplate with some circuit boards on the back. To make them usable, you will probably want a rack to mount them in.
+Modules on their own are just a faceplate with some circuit boards on the back. To make them usable, you will probably want a case to mount them in.
 
-Cases are one of the most common parts to DIY. A case can really be anything as long as it has mounting rails the right distance apart. You should be able to find a bunch of examples of cool, home-built cases online.
+Cases are one of the most common parts to DIY. A case can really be anything as long as it has mounting rails the right distance apart. You should be able to find a bunch of examples of cool, home-built cases online. If you want to build a case yourself, you can find everything you need (rails, threaded inserts, brackets, screws, etc.) from [Modular Synth Lab](https://modularsynthlab.com/product-category/diy-eurorack-case/).
 
 If you want to buy a case, here are some ideas:
 
-1. [TipTop Happy Ending](http://tiptopaudio.com/happyendingkit/) is pretty much the cheapest "case" in the game. It's what the first case I personally used. For the price (80% of which is just the power supply) you can't really complain, but it's not the nicest thing in the world. Plus you will need to buy separate audio/midi input/output modules anyway so are you really saving any money?
+1. [TipTop Happy Ending](http://tiptopaudio.com/happyendingkit/) is pretty much the cheapest "case" in the game. It's what I personally used when I first started out. For the price (80% of which is just the power supply) you can't really complain, but it's not the nicest looking option. It also doesn't come with any bonus features like a built-in midi input or audio output that some other small cases have.
 2. [TipTop Mantis](http://tiptopaudio.com/mantis) may be the best HP-per-dollar value out there. But, again, I'm not a huge fan of the plastic-y look of this case and the lack of features.
 3. [Intellijel's cases](https://intellijel.com/shop/cases/) are a little pricier but very popular. They have some I/O, power, and other cool features built into the case itself, plus you get to use Intellijel's 1U tiles.
 4. The [Nifty Case](https://www.cre8audio.com/niftycase) is another option that is popular with beginners. Again, there is some stuff built in to the case (power, audio out and midi in). I haven't used it personally, but is probably what I would recommend for someone starting out. When you take into account the price of a power supply, audio interface and midi input, it's the best deal I have found. One thing to keep in mind: all my designs are skiff-friendly, meaning they will fit in this case, but most other DIY projects mount their PCBs sideways and so might not fit in this case.
 5. The [Befaco Jumpskiff](https://shop.befaco.org/en/power-solutions/506-jumpskiff-diy-kit.html) is a pretty cool-looking DIY kit.
-6. [Ikocase](https://www.etsy.com/shop/Ikocase) is a hand manufacturer of wooden cases with built-in power supplies on Etsy at pretty competitive costs.
+6. [4MS Pods](https://4mscompany.com/pods.php) are super tiny cases that can be chained together as your collection grows.
+7. [Ikocase](https://www.etsy.com/shop/Ikocase) is a hand manufacturer of wooden cases with built-in power supplies on Etsy at pretty competitive costs.
 
 ## Power Supplies
 
