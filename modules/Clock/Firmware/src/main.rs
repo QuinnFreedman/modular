@@ -20,7 +20,7 @@ mod render_nubers;
 mod rotary_encoder;
 mod timer;
 
-use arduino_hal::hal::port::PC0;
+use arduino_hal::hal::port::PC4;
 use button_debouncer::ButtonWithLongPress;
 use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
@@ -59,6 +59,9 @@ fn panic(_info: &PanicInfo) -> ! {
 
 static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
 
+/**
+ Pin-change interrupt handler for port B (pins d8-d13)
+*/
 #[avr_device::interrupt(atmega328p)]
 #[allow(non_snake_case)]
 fn PCINT0() {
@@ -108,13 +111,13 @@ fn main() -> ! {
         );
         let interface = display_interface_spi::SPIInterface::new(
             spi,
-            pins.a3.into_output(),
-            pins.a4.into_output(),
+            pins.a1.into_output(),
+            pins.a2.into_output(),
         );
 
         let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
         display
-            .reset(&mut pins.a2.into_output(), &mut arduino_hal::Delay::new())
+            .reset(&mut pins.a0.into_output(), &mut arduino_hal::Delay::new())
             .unwrap();
         display
             .init_with_addr_mode(ssd1306::command::AddrMode::Vertical)
@@ -123,7 +126,8 @@ fn main() -> ! {
         display
     };
 
-    let mut button = ButtonWithLongPress::<PC0, 50, 500>::new(pins.a0.into_pull_up_input());
+    // set up app state
+    let mut button = ButtonWithLongPress::<PC4, 50, 500>::new(pins.a4.into_pull_up_input());
     let mut menu_state = MenuOrScreenSaverState::new();
     let mut clock_config = ClockConfig::new();
     let mut clock_state = ClockState::new();
@@ -135,9 +139,16 @@ fn main() -> ! {
         &mut display,
     );
 
+    // I want to use direct port manipulation for performance but also the
+    // individual pins from the board support library for convenience at the
+    // same time, which isn't allowed by the borrow checker, so I have to use
+    // an unsafe copy of the refferences to the ports here
     let unsafe_peripherals = unsafe { arduino_hal::Peripherals::steal() };
+
+    // Main loop. Will run for the rest of the program
     loop {
         let current_time_ms = sys_clock.millis();
+        // Handle clock logic and write clock state to output pins
         let (pin_state, did_rollover) =
             clock::sample(&clock_config, &mut clock_state, current_time_ms);
         unsafe_peripherals
@@ -145,6 +156,7 @@ fn main() -> ! {
             .portd
             .write(|w| unsafe { w.bits(pin_state) });
 
+        // Handle menu logic
         let menu_update = update_menu(
             &mut menu_state,
             &mut clock_config,
@@ -154,6 +166,7 @@ fn main() -> ! {
             did_rollover,
         );
 
+        // Only re-render the part of the screen that needs to be updated, if any
         if menu_update != MenuUpdate::NoUpdate {
             render_menu(&menu_state, &clock_config, &menu_update, &mut display);
         }

@@ -1,5 +1,23 @@
 use arduino_hal::port::{mode, Pin, PinOps};
 
+/**
+When a mechanical button is pressed, it might quickly flicker on and off a few
+times before it settles to fully on, either because electricity can jump the gap
+as the contact gets close or because the button is litterally bouncing a tiny bit.
+This wouldn't be noticable to a human but it can cause the microcontroller to
+register extra unwanted button presses. To fix this we don't accept the button's
+new value as soon as it changes, but instead wait until it has been constant at
+the same value for a few ms.
+
+This debouncing implementation is very principled -- it does exactly what we
+theoretically would want. Using a trick like a shift register (effectively just
+requiring getting the same value a few times in a row) would be slightly more
+efficient, but the behavior would depend on the sampling frequency which would
+depend on what else is happening in the loop.
+
+Confirming the value with a single delayed resample would also be a little simpler
+but could theoretically give incorrect results with a lot of noise.
+ */
 pub struct ButtonDebouncer<PIN, const DEBOUNCE_TIME_MS: u32>
 where
     PIN: PinOps,
@@ -25,6 +43,11 @@ where
         }
     }
 
+    /**
+    Should be called continuously in the main loop. Checks if the button is
+    currently pressed and if its state has changed. Returns the debounced
+    state of the button.
+    */
     pub fn sample(&mut self, current_time_ms: u32) -> ButtonState {
         let button_value = self.pin.is_low();
         if button_value != self.candidate_button_value {
@@ -56,6 +79,10 @@ pub enum ButtonState {
     ButtonIsUp,
 }
 
+/**
+Builds on top of `ButtonDebouncer` but additionally keeps track of how long the
+button has been held down so it can return more button states
+*/
 pub struct ButtonWithLongPress<PIN, const DEBOUNCE_TIME_MS: u32, const LONG_PRESS_TIME_MS: u32>
 where
     PIN: PinOps,
@@ -66,11 +93,35 @@ where
 
 #[derive(Eq, PartialEq)]
 pub enum LongPressButtonState {
+    /**
+    Button has just been depressed
+    */
     ButtonJustDown,
+    /**
+    Button has just been released before the long press timer ran out
+    */
     ButtonJustClickedShort,
+    /**
+    Button is being held down and the long press timer just ran out
+    */
     ButtonJustClickedLong,
+    /**
+    Button has just been released after the long press timer had run out
+    */
+    ButtonJustReleasedLong,
+    /**
+    Button is being held down. No change since last sample. Long press timer
+    has not yet run out
+    */
     ButtonHeldDownShort,
+    /**
+    Button is being held down. No change since last sample. Long press already
+    ran out out
+    */
     ButtonHeldDownLong,
+    /**
+    Button is not pressed; no change since last sample.
+    */
     ButtonIsUp,
 }
 
@@ -91,12 +142,12 @@ where
         }
     }
 
+    /**
+    Should be called continuously in the main loop. Checks if the button is
+    currently pressed and if its state has changed. Returns the debounced
+    state of the button.
+    */
     pub fn sample(&mut self, current_time_ms: u32) -> LongPressButtonState {
-        // let dp = unsafe { arduino_hal::Peripherals::steal() };
-        // let pins = arduino_hal::pins!(dp);
-        // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-        // serial.write_byte('s' as u8);
-        // serial.write_byte('\n' as u8);
         let button_state = self.base.sample(current_time_ms);
         match button_state {
             ButtonState::ButtonJustPressed => {
@@ -107,7 +158,7 @@ where
                 LPBInternalState::WaitingForLongPressSince(_) => {
                     LongPressButtonState::ButtonJustClickedShort
                 }
-                LPBInternalState::NotWaiting => LongPressButtonState::ButtonIsUp,
+                LPBInternalState::NotWaiting => LongPressButtonState::ButtonJustReleasedLong,
             },
             ButtonState::ButtonHeldDown => match self.state {
                 LPBInternalState::WaitingForLongPressSince(start_time) => {
