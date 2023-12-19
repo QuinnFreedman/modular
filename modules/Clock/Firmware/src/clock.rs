@@ -43,6 +43,11 @@ impl ClockState {
             cycle_count: 0,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.last_cycle_start_time = 0;
+        self.cycle_count = 0;
+    }
 }
 
 const NUM_CHANNELS: u8 = 8;

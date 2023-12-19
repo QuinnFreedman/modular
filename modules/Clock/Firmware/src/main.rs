@@ -20,8 +20,8 @@ mod render_nubers;
 mod rotary_encoder;
 mod timer;
 
-use arduino_hal::hal::port::PC4;
-use button_debouncer::ButtonWithLongPress;
+use arduino_hal::hal::port::{PC3, PC4};
+use button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
 use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
 use menu::{render_menu, update_menu, MenuOrScreenSaverState, MenuUpdate};
@@ -127,10 +127,13 @@ fn main() -> ! {
     };
 
     // set up app state
-    let mut button = ButtonWithLongPress::<PC4, 50, 500>::new(pins.a4.into_pull_up_input());
+    let mut encoder_button = ButtonWithLongPress::<PC4, 32, 500>::new(pins.a4.into_pull_up_input());
+    let mut pause_button = ButtonDebouncer::<PC3, 32>::new(pins.a3.into_pull_up_input());
     let mut menu_state = MenuOrScreenSaverState::new();
     let mut clock_config = ClockConfig::new();
     let mut clock_state = ClockState::new();
+    let mut is_paused = false;
+    let mut start_time: u32 = 0;
 
     render_menu(
         &menu_state,
@@ -148,19 +151,36 @@ fn main() -> ! {
     // Main loop. Will run for the rest of the program
     loop {
         let current_time_ms = sys_clock.millis();
+        // Handle pause button
+        let pause_button_state = pause_button.sample(current_time_ms);
+        if pause_button_state == ButtonState::ButtonJustPressed {
+            is_paused = !is_paused;
+            if is_paused {
+                unsafe_peripherals
+                    .PORTD
+                    .portd
+                    .write(|w| unsafe { w.bits(0x00) });
+            } else {
+                clock_state.reset();
+                start_time = current_time_ms;
+            }
+        }
+
         // Handle clock logic and write clock state to output pins
-        let (pin_state, did_rollover) =
-            clock::sample(&clock_config, &mut clock_state, current_time_ms);
-        unsafe_peripherals
-            .PORTD
-            .portd
-            .write(|w| unsafe { w.bits(pin_state) });
+        let clock_time = current_time_ms.wrapping_sub(start_time);
+        let (pin_state, did_rollover) = clock::sample(&clock_config, &mut clock_state, clock_time);
+        if !is_paused {
+            unsafe_peripherals
+                .PORTD
+                .portd
+                .write(|w| unsafe { w.bits(pin_state) });
+        }
 
         // Handle menu logic
         let menu_update = update_menu(
             &mut menu_state,
             &mut clock_config,
-            &mut button,
+            &mut encoder_button,
             &ROTARY_ENCODER,
             current_time_ms,
             did_rollover,
