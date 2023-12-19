@@ -10,7 +10,8 @@ To get started, check out some of the links below.
 
 **Happy travels on your modular journey!**
 
-<img src="images/logo_black.svg" width=100 style="width:100px; margin-bottom: 10px;"/>
+<img src="images/logo_black.svg#gh-light-mode-only" width=100 style="width:100px;margin-bottom:10px;"/>
+<img src="images/logo_white.svg#gh-dark-mode-only" width=100 style="display:none;"/>
 
 <a style="display:none" href="https://quinnfreedman.github.io/modular">Go to the website to see more</a>
 
