@@ -123,7 +123,16 @@ fn channel_is_on(
     // convert from core clock time to chanel period time (calculated differently
     // depending on if channel is a multiple or division)
     let (ms_per_channel_period, mut ms_into_current_channel_period, mut is_even_channel_period) =
-        if channel.division <= 1 {
+        if channel.division == -65 {
+            // -65 is the "ONCE" speed. It behaves like 1x on the first cycle
+            // and then is always off after that
+            let time = if core_cycle_count == 0 {
+                ms_into_current_core_cycle
+            } else {
+                ms_per_core_cycle
+            };
+            (ms_per_core_cycle, time, false)
+        } else if channel.division <= 1 {
             let core_cycles_per_period = channel.division.abs() as u32;
             (
                 core_cycles_per_period * ms_per_core_cycle,
