@@ -21,7 +21,7 @@ except ImportError:
 
 LOGO_PATH = "M 23.273995,0 C 10.46956,0 0,10.46956 0,23.273995 0,36.078431 10.46956,46.54799 23.273995,46.54799 c 6.2817,0 11.379649,-2.548635 15.730632,-6.245496 1.538657,-1.307338 3.076198,-2.787732 4.658303,-4.38762 l -0.0086,-5.869298 -5.989355,0.0026 c -1.483874,1.505733 -2.846746,2.828266 -4.080397,3.876451 -3.512556,2.984484 -6.049447,4.254142 -10.310608,4.254142 -8.281306,0 -14.9047822,-6.623476 -14.9047822,-14.904783 0,-8.281306 6.6234762,-14.9047823 14.9047822,-14.9047823 4.261161,0 6.798052,1.2696585 10.310608,4.2541413 1.233651,1.048185 2.596523,2.370718 4.080397,3.876452 l 5.989355,0.0026 0.0086,-5.869304 C 42.080825,9.0332294 40.543284,7.5528356 39.004627,6.2454977 34.653644,2.5486366 29.555695,0 23.273995,0 Z M 76.724807,0 C 70.443279,1.0197146e-4 65.345444,2.5487105 60.99455,6.2454977 59.387003,7.6113677 57.781031,9.1642634 56.123352,10.847502 H 68.695628 C 71.17209,9.1299217 73.43594,8.3692721 76.724807,8.369213 h 3.82e-4 c 6.200192,0 11.470469,3.712943 13.728089,9.054499 l -6.041554,-0.07531 -8.585089,-3.079684 -28.740996,3.81e-4 v 5.645584 H 24.399983 v 6.718636 h 22.685649 v 5.645592 l 28.740995,3.82e-4 8.58509,-3.079684 6.041553,-0.07531 c -2.25762,5.341544 -7.527894,9.054489 -13.728089,9.054489 h -3.82e-4 c -3.288867,-5.9e-5 -5.552715,-0.760709 -8.029179,-2.47829 H 56.123352 c 1.657679,1.68324 3.263651,3.236135 4.871198,4.602006 4.350894,3.696786 9.448729,6.245395 15.730257,6.245496 h 3.82e-4 C 89.52963,46.548 99.999184,36.07844 99.999184,23.274005 99.999176,10.46956 89.52962,0 76.725181,0 Z m -59.711596,19.295384 -2.890653,3.978611 2.890653,3.978612 4.677319,-1.51971 v -4.917803 z"
 
-HOLE_ALLOWANCE = .4  # mm 
+HOLE_ALLOWANCE = .15  # mm 
 
 try:
     import urllib.request
@@ -408,7 +408,7 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         text_id = f"text_{id}"
         elements = []
         if self.is_output:
-            padding = 1
+            padding = 1.5
             width = 2 * (hole_radius + padding)
             height = 15 if self.label else width
             outer_path = round_rect_as_path(
@@ -418,7 +418,7 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
                 height,
                 1.5
             )
-            inner_r = hole_radius+.3
+            inner_r = hole_radius+.5
             inner_path = " ".join([
                 f"M {hole_center[0]} {hole_center[1] - inner_r}",
                 f"a {inner_r} {inner_r} 0 1 0 0 {inner_r * 2}",
@@ -447,6 +447,7 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         return elements
         
     def draw_cosmetics(self, context):
+        radius = self.radius
         elements = []
         gradient = context.linearGradient(
             (1, 0),
@@ -458,21 +459,21 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         elements.append(draw_bumpy_circle(
             context,
             self.offset,
-            self.radius + .4,
-            self.radius + .6,
+            radius + .4,
+            radius + .6,
             18,
             fill=gradient.get_paint_server()
         ))
 
         ring_thickness = .8
         gradient = context.radialGradient((.5, .5), .5)
-        gradient.add_stop_color(1 - ring_thickness / self.radius, "black")
-        gradient.add_stop_color(1 - ring_thickness / self.radius / 2, "white")
+        gradient.add_stop_color(1 - ring_thickness / radius, "black")
+        gradient.add_stop_color(1 - ring_thickness / radius / 2, "white")
         gradient.add_stop_color(1, "#444")
         context.defs.add(gradient)
         elements.append(context.circle(
             self.offset,
-            self.radius,
+            radius,
             fill=gradient.get_paint_server()
         ))
         
@@ -485,7 +486,7 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         context.defs.add(gradient)
         elements.append(context.circle(
             self.offset,
-            self.radius - ring_thickness,
+            radius - ring_thickness,
             fill=gradient.get_paint_server()
         ))
         return elements
