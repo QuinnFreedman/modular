@@ -21,25 +21,30 @@ format to make it possible using the following optimiations:
 pub const fn get_glyph_size_bytes(glyph_width: u8, glyph_height: u8) -> usize {
     return usize::div_ceil(glyph_height as usize, u8::BITS as usize) * glyph_width as usize;
 }
-pub const fn get_font_buffer_size(glyph_width: u8, glyph_height: u8) -> usize {
-    return get_glyph_size_bytes(glyph_width, glyph_height) * 96;
+pub const fn get_font_buffer_size(glyph_width: u8, glyph_height: u8, charset: CharSet) -> usize {
+    let num_characters = match charset {
+        CharSet::VisibleAscii => 96,
+        CharSet::NumeralsOnly => 10,
+    };
+    return get_glyph_size_bytes(glyph_width, glyph_height) * num_characters;
 }
 
 progmem! {
-    static progmem PRO_FONT_22_RAW_BYTES:  [u8; get_font_buffer_size(12, 22)] = *include_bytes!("../assets/profont_22.bin");
+    static progmem PRO_FONT_22_RAW_BYTES:  [u8; get_font_buffer_size(12, 22, CharSet::VisibleAscii)] = *include_bytes!("../assets/profont_22.bin");
+    static progmem PRO_FONT_29_RAW_BYTES:  [u8; get_font_buffer_size(16, 29, CharSet::NumeralsOnly)] = *include_bytes!("../assets/profont_29_numeric.bin");
 }
 
 #[derive(PartialEq, Eq)]
 pub enum CharSet {
     VisibleAscii,
-    NumericOnly,
+    NumeralsOnly,
 }
 
 pub struct ProgmemBitmapFont<const GLPYPH_WIDTH: u8, const GLYPH_HEIGHT: u8, const CHARSET: CharSet>
 where
-    [(); get_font_buffer_size(GLPYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
+    [(); get_font_buffer_size(GLPYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]: Sized,
 {
-    raw_bytes: ProgMem<[u8; get_font_buffer_size(GLPYPH_WIDTH, GLYPH_HEIGHT)]>,
+    raw_bytes: ProgMem<[u8; get_font_buffer_size(GLPYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]>,
 }
 
 trait HasGlyphSizeBytes<const GLYPH_WIDTH: u8, const GLYPH_HEIGHT: u8> {}
@@ -47,13 +52,13 @@ trait HasGlyphSizeBytes<const GLYPH_WIDTH: u8, const GLYPH_HEIGHT: u8> {}
 impl<const GLYPH_WIDTH: u8, const GLYPH_HEIGHT: u8, const CHARSET: CharSet>
     ProgmemBitmapFont<GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET>
 where
-    [(); get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
+    [(); get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]: Sized,
     [(); get_glyph_size_bytes(GLYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
 {
     pub fn get_glyph(&self, c: u8) -> [u8; get_glyph_size_bytes(GLYPH_WIDTH, GLYPH_HEIGHT)] {
         let (char_idx_start, char_idx_end) = match CHARSET {
             CharSet::VisibleAscii => (32u8, 127u8),
-            CharSet::NumericOnly => (48u8, 57u8),
+            CharSet::NumeralsOnly => (48u8, 57u8),
         };
         debug_assert!(c >= char_idx_start && c <= char_idx_end);
         self.raw_bytes
@@ -63,7 +68,7 @@ where
     }
 
     pub const fn new(
-        array: ProgMem<[u8; get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT)]>,
+        array: ProgMem<[u8; get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]>,
     ) -> Self {
         Self { raw_bytes: array }
     }
@@ -71,3 +76,6 @@ where
 
 pub static PRO_FONT_22: ProgmemBitmapFont<12, 22, { CharSet::VisibleAscii }> =
     ProgmemBitmapFont::<12, 22, { CharSet::VisibleAscii }>::new(PRO_FONT_22_RAW_BYTES);
+
+pub static PRO_FONT_29_NUMERIC: ProgmemBitmapFont<16, 29, { CharSet::NumeralsOnly }> =
+    ProgmemBitmapFont::<16, 29, { CharSet::NumeralsOnly }>::new(PRO_FONT_29_RAW_BYTES);

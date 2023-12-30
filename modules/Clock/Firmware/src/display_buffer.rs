@@ -215,7 +215,7 @@ where
         font: &'static ProgmemBitmapFont<GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET>,
         color: &TextColor,
     ) where
-        [(); get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
+        [(); get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]: Sized,
         [(); get_glyph_size_bytes(GLYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
     {
         let text_width = GLYPH_WIDTH as usize * text.len();
