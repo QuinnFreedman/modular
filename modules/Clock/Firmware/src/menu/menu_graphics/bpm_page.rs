@@ -47,9 +47,14 @@ pub fn render_bpm_page<DI, SIZE>(
     mini_buffer.blit(display, 32, 8).unwrap();
     drop(mini_buffer);
     if *menu_update == MenuUpdate::SwitchScreens {
-        let mut bpm_buffer = MiniBuffer::<19, 8>::new();
+        // Because the image fits perfectly in the native 8px pages and there
+        // is no compositing, there is no need to use a min buffer here
         let img = BPM_TEXT_IMG.load();
-        bpm_buffer.fast_draw_image(0, 0, 19, 8, &img, &TextColor::BinaryOn);
-        bpm_buffer.blit(display, 54, 48).unwrap();
+        let x = 54;
+        let y = 48;
+        let w = 19;
+        let h = 8;
+        display.set_draw_area((x, y), (x + w, y + h)).unwrap();
+        display.draw(&img).unwrap();
     }
 }
