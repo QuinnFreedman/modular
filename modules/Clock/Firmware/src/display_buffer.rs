@@ -7,7 +7,7 @@ use embedded_graphics::{
 };
 use ssd1306::{mode::BasicMode, size::DisplaySize, Ssd1306};
 
-use crate::font::{get_font_buffer_size, get_glyph_size_bytes, ProgmemBitmapFont};
+use crate::font::{get_font_buffer_size, get_glyph_size_bytes, CharSet, ProgmemBitmapFont};
 
 const BYTE_SIZE: usize = u8::BITS as usize;
 
@@ -203,12 +203,16 @@ where
     function takes advantage of specifically formatted font data stored in PROGMEM
     and the column-major layout of the buffer to draw text very efficiently.
     */
-    pub fn fast_draw_ascii_text<const GLYPH_WIDTH: u8, const GLYPH_HEIGHT: u8>(
+    pub fn fast_draw_ascii_text<
+        const GLYPH_WIDTH: u8,
+        const GLYPH_HEIGHT: u8,
+        const CHARSET: CharSet,
+    >(
         &mut self,
         horizontal: Justify,
         vertical: Justify,
         text: &[u8],
-        font: &'static ProgmemBitmapFont<GLYPH_WIDTH, GLYPH_HEIGHT>,
+        font: &'static ProgmemBitmapFont<GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET>,
         color: &TextColor,
     ) where
         [(); get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT)]: Sized,
