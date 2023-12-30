@@ -87,6 +87,7 @@ progmem! {
         0b00110000,
         0b00100000,
     ];
+    static progmem RETURN_ARROW: [u8; 57] = *include_bytes!("../../../assets/back_arrow.bin");
 }
 
 #[inline(never)]
@@ -256,13 +257,17 @@ fn draw_submenu_item_label<DI, SIZE>(
             &PRO_FONT_22,
             text_color,
         ),
-        SubMenuItem::Exit => buffer.fast_draw_ascii_text(
-            Justify::Start(2),
-            Justify::Start(1),
-            F!("Exit").as_bytes(),
-            &PRO_FONT_22,
-            text_color,
-        ),
+        SubMenuItem::Exit => {
+            let img = RETURN_ARROW.load();
+            buffer.fast_draw_image(2, 0, 19, 24, &img, text_color);
+            buffer.fast_draw_ascii_text(
+                Justify::Start(26),
+                Justify::Start(1),
+                F!("Exit").as_bytes(),
+                &PRO_FONT_22,
+                text_color,
+            );
+        }
     }
     buffer.blit(display, 0, y_offset).unwrap();
 }
