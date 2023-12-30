@@ -674,7 +674,7 @@ class SmallSwitch(Switch):
        self.hole_radius = self.radius
 
 
-class SmallLED(BasicCircle(0, inches(.05), 1.5)):
+class SmallLED(BasicCircle(0, inches(.05), 1.55)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
        super().__init__(x, y, rotation)
        self.color = color
@@ -1057,13 +1057,17 @@ def draw_m2_bolt_head(context: Group, point: Tuple[float, float]):
 class OLED(Component):
     def __init__(self, x, y, rotation=0):
         super().__init__(x, y)
+        # screen is 0.96in diagonal, 128x64, ~2mm bezel
+        # leave 1mm overlap between faceplate and screen
+        true_height = inches(0.96)/math.sqrt(5)
+        true_width = true_height * 2
         self.rotation = rotation
-        self.screen_height = inches(1/2)
-        self.screen_width = inches(15/16)
+        self.screen_height = true_height + 2
+        self.screen_width = true_width + 2
         self.center_x = inches(.15)
-        self.screen_bottom_offset = inches(-.1)
-        self.hole_spacing_x = inches(.9)
-        self.hole_spacing_y = inches(.9)
+        self.screen_bottom_offset = -3.4
+        self.hole_spacing_x = 23.5
+        self.hole_spacing_y = 24
         self.hole_offset_y = -inches(0.01)
 
     def rotated(self, point):
@@ -1159,23 +1163,3 @@ class OLEDSPI(OLED):
             draw_x(context, 0, 0),
             *[context.circle(center=self.rotated((inches(i * .1), 0)), r=.25) for i in range(7)],
         ]
-
-
-
-if __name__ == "__main__":
-    module = Module(8, (10, 30), title="Title")
-    module.add(JackSocket(0, 0, "input", False))
-    module.add(LED(inches(.3), inches(.3)))
-
-    module.add(JackSocket(inches(.6), 0, "output", True))
-    module.add(LED(inches(.9), inches(.3)))
-
-    module.add(Potentiometer(inches(.5), inches(.9), "Level", rotation=0))
-    
-    module.add(Potentiometer(inches(.5), inches(2), "Level", rotation=1))
-    
-    module.add(JackSocket(0, inches(.9), "rotated", True, rotation=1))
-
-    #module.add(OLED(inches(.2), inches(3)))
-
-    module.save()
