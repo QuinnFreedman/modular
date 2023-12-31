@@ -1,0 +1,27 @@
+[package]
+name = "fm-lib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+embedded-hal = "0.2.3"
+avr-device = { version = "0.5.2", features = ["atmega328p"] }
+avr-progmem = { version = "0.3.3", default-features = false }
+
+[dependencies.arduino-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
+features = ["arduino-nano"]
+
+# Profile will be ignored when compiled as a library; this is just
+# to get the LSP to work and to be consistent with bin settings
+[profile.dev]
+panic = "abort"
+lto = true
+codegen-units = 1
+opt-level = 3
+debug = false
+strip = "symbols"
+overflow-checks = true
+debug-assertions = true
+rpath = false

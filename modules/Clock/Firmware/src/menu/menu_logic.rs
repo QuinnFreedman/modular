@@ -1,10 +1,8 @@
 use arduino_hal::port::PinOps;
+use fm_lib::button_debouncer::{ButtonWithLongPress, LongPressButtonState};
+use fm_lib::rotary_encoder::RotaryEncoderHandler;
 
-use crate::{
-    button_debouncer::{ButtonWithLongPress, LongPressButtonState},
-    clock::{ClockChannelConfig, ClockConfig},
-    rotary_encoder::RotaryEncoderHandler,
-};
+use crate::clock::{ClockChannelConfig, ClockConfig};
 
 use super::{
     menu_state::*,

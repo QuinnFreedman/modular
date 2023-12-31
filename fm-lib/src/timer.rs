@@ -1,3 +1,11 @@
+/**
+Sets up a system real-time clock using TIMER0.
+This entire module is wrapped in a macro. This is because I wanted the frequency to
+be configurable but it needs to be available both in the SystemClock struct and in
+the interrupt handler and I wasn't willing to pay the performance hit of storing it
+in a thread-safe global variable and I didn't want the error prone-ness of having to
+set it twice to the same value. I will probably try to refactor this sometime later.
+*/
 #[macro_export]
 macro_rules! configure_system_clock {
     ($precision:expr) => {

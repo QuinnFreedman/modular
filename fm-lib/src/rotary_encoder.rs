@@ -1,59 +1,15 @@
-use core::{
-    marker::PhantomData,
-    sync::atomic::{AtomicI8, AtomicU8, Ordering},
-};
+/**
+Utility for handling rotary encoder input. Rotary encoders encode their relative
+position based on a state machine of two input wires. But, rotary encoders can
+be very "bouncy"; they can give erroneous inputs especially on a breadboard. This
+library uses a clever lookup from http://www.buxtronix.net/2011/10/rotary-encoders-done-properly.html
+to ensure that impossible state transitions are ignored, which makes the encoder
+much more accurate.
+*/
+use core::sync::atomic::{AtomicI8, AtomicU8, Ordering};
 
+use crate::nybl_pair::NyblPair;
 use avr_progmem::progmem;
-
-#[derive(Clone, Copy)]
-#[repr(transparent)]
-struct NyblPair<A, B>
-where
-    A: From<u8>,
-    B: From<u8>,
-    A: ~const Into<u8>,
-    B: ~const Into<u8>,
-{
-    data: u8,
-    a: PhantomData<A>,
-    b: PhantomData<B>,
-}
-
-impl<A, B> NyblPair<A, B>
-where
-    A: From<u8>,
-    B: From<u8>,
-    A: ~const Into<u8>,
-    B: ~const Into<u8>,
-{
-    #[inline(always)]
-    fn lsb(&self) -> B {
-        let value = self.data & 0x0f;
-        value.into()
-    }
-    #[inline(always)]
-    fn msb(&self) -> A {
-        let value = self.data >> 4;
-        value.into()
-    }
-    #[inline(always)]
-    #[allow(dead_code)]
-    fn as_tuple(&self) -> (A, B) {
-        (self.msb(), self.lsb())
-    }
-    #[inline(always)]
-    const fn new(msb: A, lsb: B) -> Self {
-        let a_value: u8 = msb.into();
-        let b_value: u8 = lsb.into();
-        debug_assert!(a_value < 16);
-        debug_assert!(b_value < 16);
-        Self {
-            data: a_value << 4 | b_value,
-            a: PhantomData,
-            b: PhantomData,
-        }
-    }
-}
 
 #[derive(Clone, Copy)]
 enum RotaryState {
@@ -75,13 +31,19 @@ impl const From<u8> for RotaryState {
     fn from(value: u8) -> Self {
         match value {
             const { Self::Start as u8 } => Self::Start,
-            const { Self::CwFinal as u8 } => Self::CwFinal,
             const { Self::CwBegin as u8 } => Self::CwBegin,
             const { Self::CwNext as u8 } => Self::CwNext,
+            const { Self::CwFinal as u8 } => Self::CwFinal,
             const { Self::CcwBegin as u8 } => Self::CcwBegin,
-            const { Self::CcwFinal as u8 } => Self::CcwFinal,
             const { Self::CcwNext as u8 } => Self::CcwNext,
-            _ => panic!(),
+            const { Self::CcwFinal as u8 } => Self::CcwFinal,
+            // This code is reachable if you pass in a random u8. But, this
+            // struct is private, and this impl is only used to store/retrieve
+            // RotaryStates from memory, so it will never be called.
+            // I wasn't sure if the compiler would be smart enough to optimize
+            // away a "panic!()" here, and performance is very important here
+            // since it will be in an interrupt.
+            _ => unreachable!(),
         }
     }
 }
@@ -109,6 +71,14 @@ impl const From<u8> for RotationTrigger {
 }
 
 progmem! {
+    /**
+    The state machine lookup table. Each of the 7 rows corresponds to one of the
+    7 possible states for the state machine. Each column is one of the 4 possible
+    combinations of inputs from the 2 input pins. Each cell indicates the result
+    of seeing that input in that state. Each cell is a pair. The first item is the
+    output to return (wheter the rotary encoder has completed a rotation). The
+    second item is the next state to go to.
+    */
     static progmem ROTARY_STATE_TABLE: [[NyblPair<RotationTrigger, RotaryState>; 4]; 7] = [
         // Start
         [
@@ -178,6 +148,11 @@ impl RotaryEncoderHandler {
 }
 
 impl RotaryEncoderHandler {
+    /**
+    Updates the rotary encoder state based on the readings from the
+    two input pins. Should be called whenever either pin changes,
+    ideally in a pin-change interrupt handler.
+    */
     pub fn update(&self, pin1: bool, pin2: bool) {
         let pinstate: u8 = ((pin2 as u8) << 1) | pin1 as u8;
         let state = self.state.load(Ordering::SeqCst);
@@ -185,9 +160,9 @@ impl RotaryEncoderHandler {
             .at(state.into())
             .at(pinstate.into())
             .load();
-        self.state.store(next_state.lsb().into(), Ordering::SeqCst);
+        self.state.store(next_state.lsbs().into(), Ordering::SeqCst);
         let rotation = self.rotation.load(Ordering::SeqCst);
-        let delta = match next_state.msb() {
+        let delta = match next_state.msbs() {
             RotationTrigger::None => 0,
             RotationTrigger::Clockwise => 1,
             RotationTrigger::CounterClockwise => -1,
@@ -195,16 +170,21 @@ impl RotaryEncoderHandler {
         self.rotation.store(rotation + delta, Ordering::SeqCst);
     }
 
+    /**
+    Returns the total number of detents that the encoder has rotated
+    (positive or negative) since the last time this function was called,
+    then resets the number to zero. Should be called periodically in the
+    main loop of the program.
+    */
     pub fn sample_and_reset(&self) -> i8 {
-        if self.rotation.load(Ordering::SeqCst) != 0 {
-            let delta = avr_device::interrupt::free(|_cs| {
-                let current_value = self.rotation.load(Ordering::SeqCst);
-                self.rotation.store(0, Ordering::SeqCst);
-                current_value
-            });
-            delta
-        } else {
-            0
+        if self.rotation.load(Ordering::SeqCst) == 0 {
+            return 0;
         }
+
+        avr_device::interrupt::free(|_cs| {
+            let current_value = self.rotation.load(Ordering::SeqCst);
+            self.rotation.store(0, Ordering::SeqCst);
+            current_value
+        })
     }
 }

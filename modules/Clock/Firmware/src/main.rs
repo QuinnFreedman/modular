@@ -10,22 +10,20 @@
 #![feature(const_convert)]
 #![feature(adt_const_params)]
 
-mod button_debouncer;
 mod clock;
 mod display_buffer;
 mod font;
 mod menu;
 mod random;
 mod render_nubers;
-mod rotary_encoder;
-mod timer;
 
 use arduino_hal::hal::port::{PC3, PC4};
-use button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
 use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
+use fm_lib::button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
+use fm_lib::configure_system_clock;
+use fm_lib::rotary_encoder::RotaryEncoderHandler;
 use menu::{render_menu, update_menu, MenuOrScreenSaverState, MenuUpdate};
-use rotary_encoder::RotaryEncoderHandler;
 use ssd1306::{prelude::*, Ssd1306};
 
 configure_system_clock!(ClockPrecision::MS8);
