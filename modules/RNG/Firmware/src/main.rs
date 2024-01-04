@@ -2,10 +2,14 @@
 #![no_main]
 #![feature(abi_avr_interrupt)]
 #![feature(asm_experimental_arch)]
+#![feature(int_roundings)]
+#![feature(adt_const_params)]
+#![feature(generic_const_exprs)]
 
 use core::panic::PanicInfo;
 
 use arduino_hal::{delay_ms, prelude::*};
+use fm_lib::rotary_encoder::RotaryEncoderHandler;
 use led_driver::TLC5940;
 use ufmt::uwriteln;
 
@@ -47,6 +51,8 @@ fn panic(info: &PanicInfo) -> ! {
     }
 }
 
+static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
+
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
@@ -74,11 +80,18 @@ fn main() -> ! {
     };
 
     loop {
-        led_driver.sync_write(&mut spi, &[0xfff, 0xfff, 0xfff, 0xfff, 0xfff, 0xfff, 0xfff]);
-        delay_ms(500);
-        led_driver.sync_write(&mut spi, &[0x1ff, 0x1ff, 0x1ff, 0x1ff, 0x1ff, 0x1ff, 0x1ff]);
-        delay_ms(500);
-        led_driver.sync_write(&mut spi, &[0, 0, 0, 0, 0, 0, 0]);
-        delay_ms(500);
+        let mut data = [0u16; 7];
+        led_driver.sync_write(&mut spi, &data);
+        delay_ms(300);
+        for i in 0..7 {
+            data[i] = 0xfff;
+            led_driver.sync_write(&mut spi, &data);
+            delay_ms(300);
+        }
+        for i in 0..7 {
+            data[i] = 0x111;
+            led_driver.sync_write(&mut spi, &data);
+            delay_ms(300);
+        }
     }
 }

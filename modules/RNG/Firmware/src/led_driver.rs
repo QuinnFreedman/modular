@@ -102,7 +102,17 @@ pub struct TLC5940<const NUM_OUTPUTS: usize> {
     _tc2: arduino_hal::pac::TC2,
 }
 
-impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
+const fn get_u12_payload_size(num_u16s: usize) -> usize {
+    usize::div_ceil(num_u16s * 3, 2)
+}
+
+impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS>
+where
+    [(); get_u12_payload_size(NUM_OUTPUTS)]: Sized,
+{
+    // const fn payload_size() -> usize {
+    //     usize::div_ceil(NUM_OUTPUTS * 3, 2)
+    // }
     /**
     Initializes the TLC5940 device; Takes ownership of the pins and timers
     used to drive the device since they shouldn't be used for other purposes
@@ -132,7 +142,7 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
         xlatch.set_low();
 
         // write initial values
-        for _ in 0..NUM_OUTPUTS * 2 {
+        for _ in 0..get_u12_payload_size(NUM_OUTPUTS) {
             nb::block!(spi.send(0)).void_unwrap();
         }
         xlatch.set_high();
@@ -235,11 +245,28 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
 
         unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).set(true));
 
-        for word in data {
-            let hbyte: u8 = (word >> 8) as u8 & 0x0fu8;
-            let lbyte: u8 = (word & 0xff) as u8;
-            nb::block!(spi.send(hbyte)).ok();
-            nb::block!(spi.send(lbyte)).ok();
+        let mut u12_buffer = [0u8; get_u12_payload_size(NUM_OUTPUTS)];
+        for i in 0..data.len() {
+            let n = data[i];
+            if i % 2 == 0 {
+                let high_idx = (i * 3) / 2;
+                let high_byte = (n >> 4) as u8;
+                let low_half_byte = (n << 4) as u8;
+                u12_buffer[high_idx] = high_byte;
+                u12_buffer[high_idx + 1] |= low_half_byte;
+            } else {
+                let high_idx = ((i - 1) * 3) / 2 + 1;
+                let high_half_byte = (n >> 8) as u8 & 0xf;
+                let low_byte = n as u8;
+                u12_buffer[high_idx] |= high_half_byte;
+                u12_buffer[high_idx + 1] = low_byte;
+            }
+        }
+
+        nb::block!(spi.send(0)).ok();
+
+        for byte in u12_buffer {
+            nb::block!(spi.send(byte)).ok();
         }
 
         enable_xlat_trigger(&self.tc1);
