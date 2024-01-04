@@ -1,0 +1,46 @@
+[package]
+name = "fm-rng"
+version = "0.1.0"
+authors = ["Quinn Freedman <quinnfreedman@gmail.com>"]
+edition = "2021"
+
+[[bin]]
+name = "fm-rng"
+test = false
+bench = false
+
+[dependencies]
+nb = "0.1.2"
+ufmt = "0.1.0"
+embedded-hal = "0.2.3"
+avr-progmem = { version = "0.3.3", default-features = false }
+avr-device = { version = "0.5.2", features = ["atmega328p"] }
+fm-lib = { path = "../../../fm-lib" }
+
+[dependencies.arduino-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
+features = ["arduino-nano"]
+
+# Configure the build for minimal size - AVRs have very little program memory
+[profile.dev]
+panic = "abort"
+lto = true
+codegen-units = 1
+opt-level = 3
+debug = false
+# strip = "symbols"
+overflow-checks = true
+debug-assertions = true
+rpath = false
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = 3
+debug = false
+strip = "symbols"
+overflow-checks = false
+debug-assertions = false
+rpath = false
