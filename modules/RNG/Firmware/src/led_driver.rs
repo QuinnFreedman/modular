@@ -1,4 +1,7 @@
-use core::cell::Cell;
+use core::{
+    cell::Cell,
+    sync::atomic::{compiler_fence, Ordering},
+};
 
 use arduino_hal::{
     hal::port::{PB1, PB2, PD3},
@@ -19,12 +22,78 @@ TLC_PWM_PERIOD = ((TLC_GSCLK_PERIOD + 1) * 4096)/2
 The default of 8192 means the PWM frequency is 976.5625Hz
 */
 const TLC_GSCLK_PERIOD: u8 = 3;
-const TLC_PWM_PERIOD: u16 = 4096 * 2; // Period of 4096 steps counting up and down
+const TLC_PWM_PERIOD: u16 = 8192; // Doubled because it counts up and down
 
 #[allow(dead_code)]
 static WAITING_FOR_XLAT: avr_device::interrupt::Mutex<Cell<bool>> =
     avr_device::interrupt::Mutex::new(Cell::new(false));
 
+/**
+This provides a way to access a static mutex that would otherwise be disallowed.
+It functions like avr_device::interrupt::free except that it doesn't actually
+block interrupts while the function is running.
+
+This should not be used unless you are sure that an interrupt will not happen
+or being interrupted while accessing the mutex will not cause a race condition.
+*/
+#[inline(always)]
+fn unsafe_access_mutex<F, R>(f: F) -> R
+where
+    F: FnOnce(CriticalSection) -> R,
+{
+    // unsafe { asm!("nop") };
+    compiler_fence(Ordering::SeqCst);
+
+    let r = f(unsafe { CriticalSection::new() });
+
+    compiler_fence(Ordering::SeqCst);
+
+    r
+}
+
+/**
+This struct is responsible for driving the TLC5940. The pins used are not configurable
+because they are all special pins that are internally connected to the ATmega's timers
+PWM outputs. A lot of this implementation is very hardware-specific and so it will not
+work on anything except an ATmega328P
+
+The TLC5940 doesn't have any internal oscilator so it must recieve constant clock
+triggers from the microcontroller. It requires 3 different clock signals in addition
+to the SPI data and clock lines.
+
+BLANK can be held HIGH to turn off the output. But, on the falling edge, it also
+triggers a new PWM cycle. Durring normal operation, BLANK must be pulsed at the
+desired PWM frequency. BLANK is connected to pin D10 (aka PB2) wich is internally
+connected to OC1B (the 2nd PWM output channel of the ATmega's Timer 1).
+
+GSLK is the high-resolution clock. Each pulse of BLANK, all outputs are enabled and
+all counters are reset. Each pulse on GSLK, each counter is decremented and any
+outputs are turned off if their counter hits zero. GSLK should pulse 4096 times
+per BLANK pulse if you want the full pulse width resoulution. GSLK is connected to
+D3 (PD3) which is the output of Timer 2.
+
+The TLC5940 does not have a chip-select pin for the SPI protocol. Instead, it is
+constantly reading SPI input into a shift register. You can send a pulse to the latch
+(XLAT) pin to lock the current contents of the shift register into the device's
+memory. You can write SPI data at any time, but you can only latch it between PWM
+cycles while the BLANK input is held high. BLANK must be set high first, then XLAT
+brought high, and then both brought low in the reverse order, with some time in
+between. To achieve this, the XLAT pin is connected to D9 (PB1) which is the other
+PWM output of Timer 1 which controlls the BLANK pin. The timer is configured in
+"Phase and Frequency Correct PWM Mode", which means that the shorter XLAT duty cycle
+will be centered in the BLANK pulse. The output on OC1A (PB1) is disabled at startup.
+When data is written to the SPI bus, a flat is set and then the output trigger is
+enabled. Additionally, the interrupt handler for Timer 1 is enabled. The next time
+the timer loops, it will pulse the XLAT pin with the correct timing and then call
+the interrupt. The interrupt clears the flag, disables the XLAT pulses, and also
+disables the interrupt iteself.
+
+This implementation is heavily based on the [SparkFun Arduino Library](https://github.com/sparkfun/SparkFun_TLC5940_Arduino_Library)
+as well is [Paul Stoffregen's version](https://github.com/PaulStoffregen/Tlc5940)
+which is very similar. However, it is made somewhat simpler by only supporting
+a single architecture and ignoring the TCL5940's dot correction mode, error reporting
+mode, and other features.
+*/
 pub struct TLC5940<const NUM_OUTPUTS: usize> {
     _xlatch: Pin<Output, PB1>,
     _blank: ChipSelectPin<PB2>,
@@ -64,12 +133,12 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
 
         // write initial values
         for _ in 0..NUM_OUTPUTS * 2 {
-            nb::block!(spi.send(0xff)).void_unwrap();
+            nb::block!(spi.send(0)).void_unwrap();
         }
         xlatch.set_high();
         xlatch.set_low();
 
-        avr_device::interrupt::free(|cs| WAITING_FOR_XLAT.borrow(cs).set(false));
+        unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).set(false));
 
         // Timer 1: BLANK and XLAT
         // Clear OC1B on compare match when up-counting. Set OC1B on compare match when down counting
@@ -111,6 +180,8 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
         tc1.tccr1b
             .modify(|r, w| w.wgm1().bits(r.wgm1().bits()).cs1().direct());
 
+        blank.set_low().ok();
+
         TLC5940 {
             _xlatch: xlatch,
             _blank: blank,
@@ -123,17 +194,15 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
     /**
     Returns FALSE if data has been written to the device that has not yet
     been latched. Latches can only happen at the end of a PWM cycle.
-    Don't use the SPI buss for any device until is_ready() returns TRUE.
+    After calling `write()`, on't use the SPI bus again for any device until
+    `is_ready()` returns TRUE.
     */
+    #[inline(always)]
     pub fn is_ready(&self) -> bool {
         // reads from global WAITING_FOR_XLAT mutex in an unsafe way, but
         // it's ok since it's just a read and WAITING_FOR_XLAT will only
         // be set TRUE from the main thread
-        let waiting = WAITING_FOR_XLAT
-            .borrow(unsafe { CriticalSection::new() })
-            .get();
-        true
-        // !avr_device::interrupt::free(|cs| WAITING_FOR_XLAT.borrow(cs).get())
+        !unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).get())
     }
 
     pub fn sync_write(&self, spi: &mut Spi, data: &[u16; NUM_OUTPUTS]) {
@@ -155,15 +224,16 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS> {
     use `sync_write`.
     */
     pub fn write(&self, spi: &mut Spi, data: &[u16; NUM_OUTPUTS]) -> Result<(), ()> {
-        // The whole function doesn't need to be wrapped in interrupt::free
-        // because an interrupt will only ever be clear WAITING_FOR_XLAT, not
-        // set it, so a race condition couldn't result in a duplicate write
-        let waiting_for_xlat = avr_device::interrupt::free(|cs| WAITING_FOR_XLAT.borrow(cs).get());
+        // There is no possible race condition here because and interrupt will only
+        // ever set WAITING_FOR_XLAT to FALSE, never TRUE, so an interrupt happening
+        // right before or after this check could only result in a false rejection,
+        // never in a duplicate write. Disabling interrupts is not needed
+        let waiting_for_xlat = unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).get());
         if waiting_for_xlat {
             return Err(());
         }
 
-        avr_device::interrupt::free(|cs| WAITING_FOR_XLAT.borrow(cs).set(true));
+        unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).set(true));
 
         for word in data {
             let hbyte: u8 = (word >> 8) as u8 & 0x0fu8;
@@ -201,5 +271,5 @@ fn TIMER1_OVF() {
     // triggers so it doesn't repeat
     let tc1 = unsafe { arduino_hal::Peripherals::steal().TC1 };
     disable_xlat_trigger(&tc1);
-    avr_device::interrupt::free(|cs| WAITING_FOR_XLAT.borrow(cs).set(false));
+    unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).set(false));
 }
