@@ -102,7 +102,7 @@ pub struct TLC5940<const NUM_OUTPUTS: usize> {
     _tc2: arduino_hal::pac::TC2,
 }
 
-const fn get_u12_payload_size(num_u16s: usize) -> usize {
+pub const fn get_u12_payload_size(num_u16s: usize) -> usize {
     usize::div_ceil(num_u16s * 3, 2)
 }
 
@@ -245,27 +245,40 @@ where
 
         unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).set(true));
 
-        let mut u12_buffer = [0u8; get_u12_payload_size(NUM_OUTPUTS)];
+        // The TLC5940 requires data to be transfered in tightly-packed 12-bit words
+        // and to be transmitted msb-first (i.e. big endian)
+        let mut u12_be_buffer = [0u8; get_u12_payload_size(NUM_OUTPUTS)];
         for i in 0..data.len() {
             let n = data[i];
             if i % 2 == 0 {
-                let high_idx = (i * 3) / 2;
+                let msb_idx = (i * 3) / 2;
                 let high_byte = (n >> 4) as u8;
                 let low_half_byte = (n << 4) as u8;
-                u12_buffer[high_idx] = high_byte;
-                u12_buffer[high_idx + 1] |= low_half_byte;
+                u12_be_buffer[msb_idx] = high_byte;
+                u12_be_buffer[msb_idx + 1] |= low_half_byte;
             } else {
-                let high_idx = ((i - 1) * 3) / 2 + 1;
+                let msb_idx = ((i - 1) * 3) / 2 + 1;
                 let high_half_byte = (n >> 8) as u8 & 0xf;
                 let low_byte = n as u8;
-                u12_buffer[high_idx] |= high_half_byte;
-                u12_buffer[high_idx + 1] = low_byte;
+                u12_be_buffer[msb_idx] |= high_half_byte;
+                u12_be_buffer[msb_idx + 1] = low_byte;
             }
         }
 
-        nb::block!(spi.send(0)).ok();
+        // Sometimes we need to write a non-integer number of bytes. Most other
+        // implementations I have seen use bit-bang SPI and write the data bit-by-bit.
+        // But, it seems faster and easier to use the hardware SPI and just write
+        // 4 extra bits of garbage before the real transmission. We do this by shifting
+        // everything in the buffer 4 bits to the right. There is probably a more clever
+        // way to do this as part of the packing above instead of as a separate step.
+        if NUM_OUTPUTS % 2 == 1 {
+            for i in (1..u12_be_buffer.len()).rev() {
+                u12_be_buffer[i] = u12_be_buffer[i] >> 4 | (u12_be_buffer[i - 1] & 0x0f) << 4;
+            }
+            u12_be_buffer[0] = u12_be_buffer[0] >> 4;
+        }
 
-        for byte in u12_buffer {
+        for byte in u12_be_buffer {
             nb::block!(spi.send(byte)).ok();
         }
 

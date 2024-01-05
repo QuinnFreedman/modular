@@ -73,23 +73,25 @@ fn main() -> ! {
     let xlatch = pins.d9.into_output();
     let pwm_ref = pins.d3.into_output();
 
-    let led_driver = TLC5940::<7>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
+    const NUM_LEDS: usize = 7;
+    let led_driver = TLC5940::<NUM_LEDS>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
+
     // turn on interrupts
     unsafe {
         avr_device::interrupt::enable();
     };
 
     loop {
-        let mut data = [0u16; 7];
+        let mut data = [0u16; NUM_LEDS];
         led_driver.sync_write(&mut spi, &data);
         delay_ms(300);
-        for i in 0..7 {
-            data[i] = 0xfff;
+        for i in 0..NUM_LEDS {
+            data[i] = 0xf234;
             led_driver.sync_write(&mut spi, &data);
             delay_ms(300);
         }
-        for i in 0..7 {
-            data[i] = 0x111;
+        for i in 0..NUM_LEDS {
+            data[i] = 0xfabc;
             led_driver.sync_write(&mut spi, &data);
             delay_ms(300);
         }
