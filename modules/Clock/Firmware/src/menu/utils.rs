@@ -1,20 +1,6 @@
-pub trait AddWithoutOverflow {
-    fn add_without_overflow(&self, delta: i8) -> Self;
-}
-
-impl AddWithoutOverflow for u8 {
-    fn add_without_overflow(&self, delta: i8) -> Self {
-        if delta < 0 {
-            self.saturating_sub((-delta) as u8)
-        } else {
-            self.saturating_add(delta as u8)
-        }
-    }
-}
-
 trait LowerPowerOfTwo {
     /**
-    Returns the largest power of two less than the given number
+    Returns the largest power of two less than the given number, or 0
     */
     fn lower_power_of_two(self) -> Self;
 }
