@@ -8,7 +8,7 @@
 
 use core::panic::PanicInfo;
 
-use arduino_hal::{delay_ms, prelude::*};
+use arduino_hal::{delay_ms, prelude::*, Peripherals};
 use fm_lib::rotary_encoder::RotaryEncoderHandler;
 use led_driver::TLC5940;
 use ufmt::uwriteln;
@@ -53,9 +53,48 @@ fn panic(info: &PanicInfo) -> ! {
 
 static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
 
+/**
+ Pin-change interrupt handler for port B (pins d8-d13)
+*/
+#[avr_device::interrupt(atmega328p)]
+#[allow(non_snake_case)]
+fn PCINT2() {
+    let dp = unsafe { arduino_hal::Peripherals::steal() };
+    let port = dp.PORTD.pind.read();
+    let a = port.pd4().bit_is_set();
+    let b = port.pd5().bit_is_set();
+    ROTARY_ENCODER.update(a, b);
+}
+
+fn enable_portd_pc_interrupts(dp: &Peripherals) {
+    // set pins d4 and d5 as inputs (PCINT20 and 21)
+    dp.PORTD.ddrd.modify(|r, w| {
+        unsafe { w.bits(r.bits()) }
+            .pd4()
+            .clear_bit()
+            .pd5()
+            .clear_bit()
+    });
+    // set pull-up for d4 and d5
+    dp.PORTD
+        .portd
+        .modify(|r, w| unsafe { w.bits(r.bits()) }.pd4().set_bit().pd5().set_bit());
+    // Enable interrupts for pins 4 and 5 in port D
+    dp.EXINT
+        .pcmsk2
+        .modify(|r, w| w.pcint().bits(r.pcint().bits() | 0b00110000));
+    // Enable pin-change interrupts for port D
+    dp.EXINT
+        .pcicr
+        .modify(|r, w| w.pcie().bits(r.pcie().bits() | 0b100));
+}
+
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
+
+    // Enable interrupts for rotary encoder
+    enable_portd_pc_interrupts(&dp);
 
     let pins = arduino_hal::pins!(dp);
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
@@ -81,19 +120,26 @@ fn main() -> ! {
         avr_device::interrupt::enable();
     };
 
+    let mut data = [0u16; NUM_LEDS];
+    let mut debug_number: u8 = 0;
+    let mut display_needs_update: bool = true;
     loop {
-        let mut data = [0u16; NUM_LEDS];
         led_driver.sync_write(&mut spi, &data);
-        delay_ms(300);
-        for i in 0..NUM_LEDS {
-            data[i] = 0xf234;
-            led_driver.sync_write(&mut spi, &data);
-            delay_ms(300);
+        let re_delta = ROTARY_ENCODER.sample_and_reset();
+        if re_delta != 0 {
+            debug_number = debug_number
+                .saturating_add_signed(re_delta)
+                .clamp(0, NUM_LEDS as u8);
+            for i in 0..7u8 {
+                data[i as usize] = if i < debug_number { 0xfff } else { 0 };
+            }
+            display_needs_update = true;
         }
-        for i in 0..NUM_LEDS {
-            data[i] = 0xfabc;
-            led_driver.sync_write(&mut spi, &data);
-            delay_ms(300);
+
+        if display_needs_update {
+            if let Err(()) = led_driver.write(&mut spi, &data) {
+                display_needs_update = false;
+            }
         }
     }
 }
