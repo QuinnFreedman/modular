@@ -1,4 +1,5 @@
 use core::{
+    arch::asm,
     cell::Cell,
     sync::atomic::{compiler_fence, Ordering},
 };
@@ -10,7 +11,7 @@ use arduino_hal::{
     spi::ChipSelectPin,
     Spi,
 };
-use avr_device::interrupt::CriticalSection;
+use avr_device::{asm::delay_cycles, interrupt::CriticalSection};
 use embedded_hal::digital::v2::OutputPin;
 
 /**
@@ -172,23 +173,34 @@ where
                 .wgm2()
                 .pwm_fast()
         });
+        // Reset PWM on TOP instead of MAX (set by OCR2A) (allows for freq control)
+        tc2.tccr2b.write(|w| w.wgm22().set_bit());
         // Lowest possible PWM (clear OC2B immediately)
         tc2.ocr2b.write(|w| w.bits(0));
         // Controls PWM frequency
         tc2.ocr2a.write(|w| w.bits(TLC_GSCLK_PERIOD));
-        tc2.tccr2b.write(|w| {
-            w
-                // Reset PWM on TOP instead of MAX (set by OCR2A) (allows for freq control)
-                .wgm22()
-                .set_bit()
-                // No prescale (start PWM output 2)
-                .cs2()
-                .direct()
-        });
 
-        // no prescale, (start PWM output 1)
+        // Start PWM output 2 with no prescale
+        tc2.tccr2b
+            .modify(|r, w| unsafe { w.bits(r.bits()) }.cs2().direct());
+
+        // Need to allow at least 10ns after BLANK goes LOW before GSCLK goes HIGH
+        // and also 10ns after GSCLK goes HIGH before BLANK goes HIGH. This delay
+        // staggers the two PWM outputs so this is true. If this is set up incorrectly,
+        // it can cause slight (or intense) flickering in the LEDs, since there will be
+        // a race condition that seems to cause whole PWM cycles to be skipped. A delay
+        // does not seem to be needed in the C/C++ version. I'm not sure why. I'm
+        // guessing Rust optimizes differently and so takes more cycles to modify the
+        // registers. The ideal phase offset would be around 94ns. At 16Mhz, the arduino
+        // gets ~62.5ns/cycle, so skipping 2 cycles puts us in spec. (Luckilly, the
+        // TLC5940 seems to ignore all GLSCLK pulses that happen while BLANK is fully
+        // HIGH, although the datasheet implies you shouldn't send them).
+        unsafe { asm!("nop") };
+        unsafe { asm!("nop") };
+
+        // Start PWM output 1 with no prescale
         tc1.tccr1b
-            .modify(|r, w| w.wgm1().bits(r.wgm1().bits()).cs1().direct());
+            .modify(|r, w| unsafe { w.bits(r.bits()) }.cs1().direct());
 
         blank.set_low().ok();
 
@@ -210,11 +222,13 @@ where
     #[inline(always)]
     pub fn is_ready(&self) -> bool {
         // reads from global WAITING_FOR_XLAT mutex in an unsafe way, but
-        // it's ok since it's just a read and WAITING_FOR_XLAT will only
-        // be set TRUE from the main thread
+        // it's ok since WAITING_FOR_XLAT will only ever be set TRUE from
+        // the main thread so this can return a "false positive" but not
+        // a "false negative"
         !unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).get())
     }
 
+    #[allow(dead_code)]
     pub fn sync_write(&self, spi: &mut Spi, data: &[u16; NUM_OUTPUTS]) {
         while !self.is_ready() {}
         self.write(spi, data).ok();
