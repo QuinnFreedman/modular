@@ -71,35 +71,38 @@ where
                 if original_delta == 0 {
                     return;
                 }
-                let mut direction = original_delta.signum();
-                let mut delta = original_delta.abs();
-                while delta > 0 {
-                    self.buffer_size = self.buffer_size.saturating_add_signed(direction);
-                    if self.buffer_size == 0 {
-                        self.buffer_size = 1;
-                        self.forward_backward = !self.forward_backward;
-                        direction *= -1;
-                    }
-                    delta -= 1;
+                let mut n: i8 = if self.forward_backward {
+                    -(self.buffer_size as i8)
+                } else {
+                    self.buffer_size as i8
+                };
+                if n >= 1 {
+                    n -= 2;
+                };
+                n += original_delta;
+                if n >= -1 {
+                    n += 2;
                 }
-                if self.buffer_size > MAX_BUFFER_SIZE {
-                    self.buffer_size = MAX_BUFFER_SIZE;
-                }
+                self.buffer_size = (n.abs() as u8).min(MAX_BUFFER_SIZE);
+                self.forward_backward = n < 0;
             }
         }
         self.display_needs_update = true;
         self.display_mode = DisplayMode::ShowBufferLengthSince(current_time)
     }
 
-    fn binary_representation_as_display_buffer(n: u8) -> [u16; NUM_LEDS as usize] {
-        // TODO handle negative
+    fn binary_representation_as_display_buffer(n: i8) -> [u16; NUM_LEDS as usize] {
         let mut result = [0u16; NUM_LEDS as usize];
+        let n_abs = n.abs() as u16;
         for i in 0..NUM_LEDS - 1 {
-            result[i as usize] = if n as u16 & (1 << i as u16) == 0 {
+            result[i as usize] = if n_abs & (1 << i as u16) == 0 {
                 0
             } else {
                 0xfff
             };
+        }
+        if n < 0 {
+            result[NUM_LEDS as usize - 1] = 0xfff;
         }
         result
     }
@@ -121,7 +124,11 @@ where
             let to_write = match self.display_mode {
                 DisplayMode::ShowBuffer => [0xfffu16; NUM_LEDS as usize], // DEBUG PLACEHOLDER
                 DisplayMode::ShowBufferLengthSince(_) => {
-                    Self::binary_representation_as_display_buffer(self.buffer_size)
+                    Self::binary_representation_as_display_buffer(if self.forward_backward {
+                        -(self.buffer_size as i8)
+                    } else {
+                        self.buffer_size as i8
+                    })
                 }
             };
             if let Ok(()) = render_display(&to_write) {
