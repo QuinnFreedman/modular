@@ -15,7 +15,10 @@ use fm_lib::{configure_system_clock, rotary_encoder::RotaryEncoderHandler};
 use led_driver::TLC5940;
 use ufmt::uwriteln;
 
+use crate::rng::RngModule;
+
 mod led_driver;
+mod rng;
 
 configure_system_clock!(ClockPrecision::MS16);
 
@@ -65,8 +68,9 @@ static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
 fn PCINT2() {
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let port = dp.PORTD.pind.read();
-    let a = port.pd4().bit_is_set();
-    let b = port.pd5().bit_is_set();
+    // TODO switch connections
+    let b = port.pd4().bit_is_set();
+    let a = port.pd5().bit_is_set();
     ROTARY_ENCODER.update(a, b);
 }
 
@@ -93,24 +97,6 @@ fn enable_portd_pc_interrupts(dp: &Peripherals) {
         .modify(|r, w| w.pcie().bits(r.pcie().bits() | 0b100));
 }
 
-enum DisplayMode {
-    ShowBuffer,
-    ShowBufferLengthSince(u32),
-}
-
-const NUM_LEDS: u8 = 7;
-fn binary_representation_as_display_buffer(n: u8) -> [u16; NUM_LEDS as usize] {
-    let mut result = [0u16; NUM_LEDS as usize];
-    for i in 0..NUM_LEDS - 1 {
-        result[i as usize] = if n as u16 & (1 << i as u16) == 0 {
-            0
-        } else {
-            0xfff
-        };
-    }
-    result
-}
-
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
@@ -135,6 +121,9 @@ fn main() -> ! {
     let xlatch = pins.d9.into_output();
     let pwm_ref = pins.d3.into_output();
 
+    const NUM_LEDS: u8 = 7;
+    const MAX_BUFFER_SIZE: u8 = 32;
+
     let led_driver =
         TLC5940::<{ NUM_LEDS as usize }>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
     let sys_clock = system_clock::init_system_clock(dp.TC0);
@@ -143,39 +132,21 @@ fn main() -> ! {
         avr_device::interrupt::enable();
     };
 
-    let mut display_needs_update: bool = true;
-    let mut display_mode: DisplayMode = DisplayMode::ShowBuffer;
-    let mut buffer_size: u8 = 8;
-    const MAX_BUFFER_SIZE: u8 = 32;
-    const BUFFER_LEN_DISPLAY_TIME_MS: u32 = 3000;
+    let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new();
+
     loop {
         let current_time = sys_clock.millis();
         let re_delta = ROTARY_ENCODER.sample_and_reset();
         if re_delta != 0 {
-            buffer_size = buffer_size
-                .saturating_add_signed(re_delta)
-                .clamp(0, MAX_BUFFER_SIZE);
-            display_mode = DisplayMode::ShowBufferLengthSince(current_time);
-            display_needs_update = true;
+            // TODO check encoder button status
+            rng_module.adjust_buffer_size(rng::SizeAdjustment::ExactDelta(re_delta), current_time);
         }
 
-        if let DisplayMode::ShowBufferLengthSince(start_time) = display_mode {
-            if current_time > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
-                display_mode = DisplayMode::ShowBuffer;
-                display_needs_update = true;
-            }
-        }
-
-        if display_needs_update {
-            let to_write = match display_mode {
-                DisplayMode::ShowBuffer => [0xfffu16; NUM_LEDS as usize], // DEBUG PLACEHOLDER
-                DisplayMode::ShowBufferLengthSince(_) => {
-                    binary_representation_as_display_buffer(buffer_size)
-                }
-            };
-            if let Ok(()) = led_driver.write(&mut spi, &to_write) {
-                display_needs_update = false;
-            }
-        }
+        rng_module.render_display_if_needed(
+            current_time,
+            |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
+                led_driver.write(&mut spi, buffer)
+            },
+        );
     }
 }
