@@ -65,10 +65,31 @@ where
                 if original_delta == 0 {
                     return;
                 }
-                todo!()
+                let delta_positive = original_delta > 0;
+                let mut delta = original_delta.unsigned_abs();
+                while delta > 0 {
+                    let buffer_size_positive = !self.forward_backward;
+                    self.buffer_size = if delta_positive == buffer_size_positive {
+                        (self.buffer_size + 1)
+                            .next_power_of_two()
+                            .min(MAX_BUFFER_SIZE)
+                    } else {
+                        self.buffer_size.lower_power_of_two()
+                    };
+                    if self.buffer_size == 0 || (self.buffer_size == 1 && self.forward_backward) {
+                        if delta_positive {
+                            self.buffer_size = 1;
+                            self.forward_backward = false;
+                        } else {
+                            self.buffer_size = 2;
+                            self.forward_backward = true;
+                        }
+                    }
+                    delta -= 1;
+                }
             }
-            SizeAdjustment::ExactDelta(original_delta) => {
-                if original_delta == 0 {
+            SizeAdjustment::ExactDelta(delta) => {
+                if delta == 0 {
                     return;
                 }
                 let mut n: i8 = if self.forward_backward {
@@ -79,11 +100,11 @@ where
                 if n >= 1 {
                     n -= 2;
                 };
-                n += original_delta;
+                n += delta;
                 if n >= -1 {
                     n += 2;
                 }
-                self.buffer_size = (n.abs() as u8).min(MAX_BUFFER_SIZE);
+                self.buffer_size = n.unsigned_abs().min(MAX_BUFFER_SIZE);
                 self.forward_backward = n < 0;
             }
         }
@@ -93,7 +114,7 @@ where
 
     fn binary_representation_as_display_buffer(n: i8) -> [u16; NUM_LEDS as usize] {
         let mut result = [0u16; NUM_LEDS as usize];
-        let n_abs = n.abs() as u16;
+        let n_abs = n.unsigned_abs() as u16;
         for i in 0..NUM_LEDS - 1 {
             result[i as usize] = if n_abs & (1 << i as u16) == 0 {
                 0

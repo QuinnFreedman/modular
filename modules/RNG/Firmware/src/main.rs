@@ -15,7 +15,7 @@ use fm_lib::{configure_system_clock, rotary_encoder::RotaryEncoderHandler};
 use led_driver::TLC5940;
 use ufmt::uwriteln;
 
-use crate::rng::RngModule;
+use crate::rng::{RngModule, SizeAdjustment};
 
 mod led_driver;
 mod rng;
@@ -120,6 +120,7 @@ fn main() -> ! {
     );
     let xlatch = pins.d9.into_output();
     let pwm_ref = pins.d3.into_output();
+    let encoder_switch = pins.a5.into_pull_up_input();
 
     const NUM_LEDS: u8 = 7;
     const MAX_BUFFER_SIZE: u8 = 32;
@@ -138,8 +139,12 @@ fn main() -> ! {
         let current_time = sys_clock.millis();
         let re_delta = ROTARY_ENCODER.sample_and_reset();
         if re_delta != 0 {
-            // TODO check encoder button status
-            rng_module.adjust_buffer_size(rng::SizeAdjustment::ExactDelta(re_delta), current_time);
+            let size_change = if encoder_switch.is_low() {
+                SizeAdjustment::PowersOfTwo(re_delta)
+            } else {
+                SizeAdjustment::ExactDelta(re_delta)
+            };
+            rng_module.adjust_buffer_size(size_change, current_time);
         }
 
         rng_module.render_display_if_needed(
