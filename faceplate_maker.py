@@ -801,11 +801,18 @@ class PotStyle(Enum):
     OLD = 1
     ROGAN_PT_1S = 2
     CHROMATIC_WHITE = 3
+    CHROMATIC_RED = 4
+    CHROMATIC_WHITE_SMALL = 10
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=12, style=PotStyle.OLD):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=None, style=PotStyle.OLD):
         super(Potentiometer, self).__init__(x, y, rotation)
+        if text_offset is None:
+            if "SMALL" in style.name:
+                text_offset = 10
+            else:
+                text_offset = 12
         self.label = label
         self.font_size = font_size
         self.color = color
@@ -839,15 +846,31 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
     def draw_cosmetics(self, context):
         if self.style == PotStyle.OLD:
             return self.draw_old_cap(context)
-        elif self.style == PotStyle.ROGAN_PT_1S:
+        
+        if self.style == PotStyle.ROGAN_PT_1S:
             skirt_radius = 14.38 / 2
             outer_r = 11 / 2
             inner_r = 10 / 2
             cap_r = 4
             radii=[skirt_radius, outer_r, inner_r, cap_r]
             return self.draw_new_cap(context, radii, cap_color=["#fff", "#bbb"])
-        elif self.style == PotStyle.CHROMATIC_WHITE:
+
+        if "CHROMATIC" in self.style.name and "SMALL" not in self.style.name:
+            if self.style == PotStyle.CHROMATIC_WHITE:
+                cap_color = ["#fff", "#bbb"]
+                pointer_color = "#eee"
+            elif self.style == PotStyle.CHROMATIC_RED:
+                cap_color = ["#e25f62", "#d23e3e"]
+                pointer_color = "#f44b4c"
             skirt_radius = 16 / 2
+            outer_r = 11 / 2
+            inner_r = 10 / 2
+            cap_r = 4
+            radii=[skirt_radius, outer_r, inner_r, cap_r]
+            return self.draw_new_cap(context, radii, cap_color, pointer_color)
+
+        if "CHROMATIC" in self.style.name and "SMALL" in self.style.name:
+            skirt_radius = 11.5/2
             outer_r = 11 / 2
             inner_r = 10 / 2
             cap_r = 4
@@ -855,20 +878,21 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             return self.draw_new_cap(context, radii, cap_color=["#fff", "#bbb"], pointer_color="#eee")
         
     def draw_new_cap(self, context, radii, cap_color=None, pointer_color=None):
-        skirt_radius = radii[0]
-        skirt_gradient = context.linearGradient(
-            (1, 0),
-            (0, 1),
-        )
-        skirt_gradient.add_stop_color(0, "#555")
-        skirt_gradient.add_stop_color(1, "#111")
-        context.defs.add(skirt_gradient)
         elements = []
-        elements.append(context.circle(
-            center=self.offset,
-            r=skirt_radius,
-            fill=skirt_gradient.get_paint_server()
-        ))
+        skirt_radius = radii[0]
+        if skirt_radius:
+            skirt_gradient = context.linearGradient(
+                (1, 0),
+                (0, 1),
+            )
+            skirt_gradient.add_stop_color(0, "#555")
+            skirt_gradient.add_stop_color(1, "#111")
+            context.defs.add(skirt_gradient)
+            elements.append(context.circle(
+                center=self.offset,
+                r=skirt_radius,
+                fill=skirt_gradient.get_paint_server()
+            ))
 
         num_lobes = 6
         outer_r, inner_r = radii[1:3]
