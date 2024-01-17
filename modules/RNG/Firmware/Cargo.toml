@@ -18,8 +18,9 @@ avr-device = { version = "0.5.2", features = ["atmega328p"] }
 fm-lib = { path = "../../../fm-lib" }
 
 [dependencies.arduino-hal]
-git = "https://github.com/rahix/avr-hal"
-rev = "7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
+# git = "https://github.com/rahix/avr-hal"
+git = "https://github.com/QuinnFreedman/avr-hal"
+rev = "8043b9dbc3380f86eb9bd3491bff67adc02ff4ea"
 features = ["arduino-nano"]
 
 # Configure the build for minimal size - AVRs have very little program memory

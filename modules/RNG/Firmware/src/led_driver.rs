@@ -11,7 +11,7 @@ use arduino_hal::{
     spi::ChipSelectPin,
     Spi,
 };
-use avr_device::{asm::delay_cycles, interrupt::CriticalSection};
+use avr_device::interrupt::CriticalSection;
 use embedded_hal::digital::v2::OutputPin;
 
 /**
@@ -137,14 +137,14 @@ where
         // overflow the input shift register with 193 bits of dummy data and latch
         // it while the TLS540 is in GS PWM mode.
         for _ in 0..193 {
-            nb::block!(spi.send(0)).void_unwrap();
+            nb::block!(spi.send(0)).unwrap_infallible();
         }
         xlatch.set_high();
         xlatch.set_low();
 
         // write initial values
         for _ in 0..get_u12_payload_size(NUM_OUTPUTS) {
-            nb::block!(spi.send(0)).void_unwrap();
+            nb::block!(spi.send(0)).unwrap_infallible();
         }
         xlatch.set_high();
         xlatch.set_low();

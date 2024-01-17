@@ -1,3 +1,5 @@
+use fm_lib::{number_utils::step_in_powers_of_2, rng::ParallelLfsr};
+
 trait LowerPowerOfTwo {
     /**
     Returns the largest power of two less than the given number, or 0
@@ -48,9 +50,14 @@ where
     [(); MAX_BUFFER_SIZE as usize]: Sized,
     [(); NUM_LEDS as usize]: Sized,
 {
-    pub fn new() -> Self {
+    pub fn new(prng: &mut ParallelLfsr) -> Self {
+        let mut buffer: [u16; MAX_BUFFER_SIZE as usize] =
+            unsafe { core::mem::MaybeUninit::uninit().assume_init() };
+        for i in 0..MAX_BUFFER_SIZE {
+            buffer[i as usize] = prng.next();
+        }
         Self {
-            buffer: [0u16; MAX_BUFFER_SIZE as usize],
+            buffer,
             forward_backward: false,
             buffer_size: 8,
             cursor: 0,
@@ -61,32 +68,18 @@ where
 
     pub fn adjust_buffer_size(&mut self, change: SizeAdjustment, current_time: u32) {
         match change {
-            SizeAdjustment::PowersOfTwo(original_delta) => {
-                if original_delta == 0 {
+            SizeAdjustment::PowersOfTwo(delta) => {
+                if delta == 0 {
                     return;
                 }
-                let delta_positive = original_delta > 0;
-                let mut delta = original_delta.unsigned_abs();
-                while delta > 0 {
-                    let buffer_size_positive = !self.forward_backward;
-                    self.buffer_size = if delta_positive == buffer_size_positive {
-                        (self.buffer_size + 1)
-                            .next_power_of_two()
-                            .min(MAX_BUFFER_SIZE)
-                    } else {
-                        self.buffer_size.lower_power_of_two()
-                    };
-                    if self.buffer_size == 0 || (self.buffer_size == 1 && self.forward_backward) {
-                        if delta_positive {
-                            self.buffer_size = 1;
-                            self.forward_backward = false;
-                        } else {
-                            self.buffer_size = 2;
-                            self.forward_backward = true;
-                        }
-                    }
-                    delta -= 1;
-                }
+                let n = if self.forward_backward {
+                    -(self.buffer_size as i8)
+                } else {
+                    self.buffer_size as i8
+                };
+                let result = step_in_powers_of_2(n, delta);
+                self.buffer_size = result.unsigned_abs().min(MAX_BUFFER_SIZE);
+                self.forward_backward = result < 0;
             }
             SizeAdjustment::ExactDelta(delta) => {
                 if delta == 0 {

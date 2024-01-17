@@ -7,13 +7,27 @@ name = "arduino-hal"
 version = "0.1.0"
 source = "git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a97afe0187ac1#7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
 dependencies = [
- "atmega-hal",
+ "atmega-hal 0.1.0 (git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a97afe0187ac1)",
  "avr-device",
- "avr-hal-generic",
+ "avr-hal-generic 0.1.0 (git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a97afe0187ac1)",
  "cfg-if 1.0.0",
- "embedded-hal",
- "ufmt",
+ "embedded-hal 0.2.7",
+ "ufmt 0.1.2",
  "void",
+]
+
+[[package]]
+name = "arduino-hal"
+version = "0.1.0"
+source = "git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea#8043b9dbc3380f86eb9bd3491bff67adc02ff4ea"
+dependencies = [
+ "atmega-hal 0.1.0 (git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea)",
+ "avr-device",
+ "avr-hal-generic 0.1.0 (git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea)",
+ "cfg-if 1.0.0",
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "ufmt 0.2.0",
 ]
 
 [[package]]
@@ -22,7 +36,16 @@ version = "0.1.0"
 source = "git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a97afe0187ac1#7dfa6d322b9df98b2d98afe0e14a97afe0187ac1"
 dependencies = [
  "avr-device",
- "avr-hal-generic",
+ "avr-hal-generic 0.1.0 (git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a97afe0187ac1)",
+]
+
+[[package]]
+name = "atmega-hal"
+version = "0.1.0"
+source = "git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea#8043b9dbc3380f86eb9bd3491bff67adc02ff4ea"
+dependencies = [
+ "avr-device",
+ "avr-hal-generic 0.1.0 (git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea)",
 ]
 
 [[package]]
@@ -55,13 +78,30 @@ source = "git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a9
 dependencies = [
  "avr-device",
  "cfg-if 0.1.10",
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "embedded-storage",
  "nb 0.1.3",
  "paste",
  "rustversion",
- "ufmt",
+ "ufmt 0.1.2",
  "void",
+]
+
+[[package]]
+name = "avr-hal-generic"
+version = "0.1.0"
+source = "git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea#8043b9dbc3380f86eb9bd3491bff67adc02ff4ea"
+dependencies = [
+ "avr-device",
+ "cfg-if 0.1.10",
+ "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
+ "embedded-storage",
+ "nb 1.1.0",
+ "paste",
+ "rustversion",
+ "ufmt 0.2.0",
+ "unwrap-infallible",
 ]
 
 [[package]]
@@ -114,6 +154,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-hal"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "361a90feb7004eca4019fb28352a9465666b24f840f5c3cddf0ff13920590b89"
+
+[[package]]
 name = "embedded-storage"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -123,23 +169,23 @@ checksum = "723dce4e9f25b6e6c5f35628e144794e5b459216ed7da97b7c4b66cdb3fa82ca"
 name = "fm-lib"
 version = "0.1.0"
 dependencies = [
- "arduino-hal",
+ "arduino-hal 0.1.0 (git+https://github.com/rahix/avr-hal?rev=7dfa6d322b9df98b2d98afe0e14a97afe0187ac1)",
  "avr-device",
  "avr-progmem",
- "embedded-hal",
+ "embedded-hal 0.2.7",
 ]
 
 [[package]]
 name = "fm-rng"
 version = "0.1.0"
 dependencies = [
- "arduino-hal",
+ "arduino-hal 0.1.0 (git+https://github.com/QuinnFreedman/avr-hal?rev=8043b9dbc3380f86eb9bd3491bff67adc02ff4ea)",
  "avr-device",
  "avr-progmem",
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "fm-lib",
  "nb 0.1.3",
- "ufmt",
+ "ufmt 0.1.2",
 ]
 
 [[package]]
@@ -211,7 +257,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "31d3c0c63312dfc9d8e5c71114d617018a19f6058674003c0da29ee8d8036cdd"
 dependencies = [
  "proc-macro-hack",
- "ufmt-macros",
+ "ufmt-macros 0.2.0",
+ "ufmt-write",
+]
+
+[[package]]
+name = "ufmt"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a64846ec02b57e9108d6469d98d1648782ad6bb150a95a9baac26900bbeab9d"
+dependencies = [
+ "ufmt-macros 0.3.0",
  "ufmt-write",
 ]
 
@@ -228,6 +284,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "ufmt-macros"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d337d3be617449165cb4633c8dece429afd83f84051024079f97ad32a9663716"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "ufmt-write"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +305,12 @@ name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+
+[[package]]
+name = "unwrap-infallible"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "151ac09978d3c2862c4e39b557f4eceee2cc72150bc4cb4f16abf061b6e381fb"
 
 [[package]]
 name = "vcell"

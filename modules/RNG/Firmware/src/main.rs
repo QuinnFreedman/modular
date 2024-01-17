@@ -11,7 +11,7 @@
 use core::panic::PanicInfo;
 
 use arduino_hal::{prelude::*, Peripherals};
-use fm_lib::{configure_system_clock, rotary_encoder::RotaryEncoderHandler};
+use fm_lib::{configure_system_clock, rng::ParallelLfsr, rotary_encoder::RotaryEncoderHandler};
 use led_driver::TLC5940;
 use ufmt::uwriteln;
 
@@ -38,9 +38,9 @@ fn panic(info: &PanicInfo) -> ! {
             location.file(),
             location.line()
         )
-        .void_unwrap();
+        .unwrap_infallible();
     } else {
-        uwriteln!(&mut serial, "Panic occurred").void_unwrap();
+        uwriteln!(&mut serial, "Panic occurred").unwrap_infallible();
     }
 
     let short = 100;
@@ -105,7 +105,15 @@ fn main() -> ! {
     enable_portd_pc_interrupts(&dp);
 
     let pins = arduino_hal::pins!(dp);
+    let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
     // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    let a5 = pins.a5.into_analog_input(&mut adc);
+    let seed: u16 = {
+        // TODO read all floating inputs and use their LSBs to generate a seed
+        let seed = a5.analog_read(&mut adc);
+        seed
+    };
+
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
         pins.d13.into_output(),        // Clock
@@ -120,7 +128,7 @@ fn main() -> ! {
     );
     let xlatch = pins.d9.into_output();
     let pwm_ref = pins.d3.into_output();
-    let encoder_switch = pins.a5.into_pull_up_input();
+    let encoder_switch = a5.into_digital(&mut adc).into_pull_up_input();
 
     const NUM_LEDS: u8 = 7;
     const MAX_BUFFER_SIZE: u8 = 32;
@@ -133,16 +141,19 @@ fn main() -> ! {
         avr_device::interrupt::enable();
     };
 
-    let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new();
+    // uwriteln!(&mut serial, "Seed: {}", seed).unwrap_infallible();
+
+    let mut prng = ParallelLfsr::new(seed);
+    let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
 
     loop {
         let current_time = sys_clock.millis();
         let re_delta = ROTARY_ENCODER.sample_and_reset();
         if re_delta != 0 {
             let size_change = if encoder_switch.is_low() {
-                SizeAdjustment::PowersOfTwo(re_delta)
-            } else {
                 SizeAdjustment::ExactDelta(re_delta)
+            } else {
+                SizeAdjustment::PowersOfTwo(re_delta)
             };
             rng_module.adjust_buffer_size(size_change, current_time);
         }
