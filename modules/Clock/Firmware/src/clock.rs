@@ -51,7 +51,7 @@ impl ClockState {
 }
 
 const NUM_CHANNELS: u8 = 8;
-const US_PER_MINUTE: u32 = 1000 * 1000 * 60;
+const MICROS_PER_MINUTE: u32 = 1000 * 1000 * 60;
 
 /**
 This is the main logic loop for the actual clock iteslf. It takes in the current time
@@ -64,12 +64,12 @@ at this sample point. This is used to render the screensaver.
 #[inline(never)]
 pub fn sample(config: &ClockConfig, state: &mut ClockState, current_time_ms: u32) -> (u8, bool) {
     let mut did_rollover = false;
-    let current_time_us: u64 = (current_time_ms as u64) * 1000;
-    let mut us_in_current_cycle = (current_time_us - state.last_cycle_start_time) as u32;
-    let us_per_cycle = US_PER_MINUTE / config.bpm as u32;
-    if us_in_current_cycle > us_per_cycle {
-        us_in_current_cycle -= us_per_cycle;
-        state.last_cycle_start_time += us_per_cycle as u64;
+    let current_time_micros: u64 = (current_time_ms as u64) * 1000;
+    let mut micros_in_current_cycle = (current_time_micros - state.last_cycle_start_time) as u32;
+    let micros_per_cycle = MICROS_PER_MINUTE / config.bpm as u32;
+    if micros_in_current_cycle > micros_per_cycle {
+        micros_in_current_cycle -= micros_per_cycle;
+        state.last_cycle_start_time += micros_per_cycle as u64;
         state.cycle_count += 1;
         did_rollover = true;
     }
@@ -80,15 +80,17 @@ pub fn sample(config: &ClockConfig, state: &mut ClockState, current_time_ms: u32
         // if the tempo is too slow, us counts will overflow a u32 at some points in
         // the math, so fall back to lower temporal resolution
         let (time_in_current_cycle, time_per_cycle) = if channel.division < -32 && config.bpm < 50 {
-            (us_in_current_cycle / 10, us_per_cycle / 10)
+            (micros_in_current_cycle / 10, micros_per_cycle / 10)
         } else {
-            (us_in_current_cycle, us_per_cycle)
+            (micros_in_current_cycle, micros_per_cycle)
         };
+        const TRIG_WIDTH_MICROS: u32 = 5000; // 5ms is the minimum pulse width
         let is_on = channel_is_on(
             channel,
             time_in_current_cycle,
             time_per_cycle,
             state.cycle_count,
+            TRIG_WIDTH_MICROS,
         );
         result |= (is_on as u8) << i;
     }
@@ -112,11 +114,12 @@ fn channel_is_on(
     ms_into_current_core_cycle: u32,
     ms_per_core_cycle: u32,
     core_cycle_count: u32,
+    min_trig_width_ms: u32,
 ) -> bool {
     // NOTE: maybe it would be more accurate to use f32 seconds for time calculations
     // instead of effectively fixed-point (u32 us). float math is probably slower but
     // there is some slight aliasing at high tempo. Alternatively, could supersample
-    // to an even higher resolution (pf, 100xus) at higher BPM. If different resolution
+    // to an even higher resolution (ns, 100xus) at higher BPM. If different resolution
     // is used for different channels it can cause some desync. The core clock BPM
     // range is only 1 OoM, so maybe not a huge win there.
 
@@ -160,9 +163,9 @@ fn channel_is_on(
     // handle phase shift with wrap around
     // this could be a simple signed modulus addition, but we have to keep
     // is_even_channel_period updated to implement swing, which adds complication
-    let phase_shift_percent = -channel.phase_shift;
-    if phase_shift_percent < 0 {
-        let phase_shift_ms = ms_per_channel_period * (-phase_shift_percent as u32) / 100;
+    let phase_shift_fraction = -channel.phase_shift;
+    if phase_shift_fraction < 0 {
+        let phase_shift_ms = ms_per_channel_period * (-phase_shift_fraction as u32) / 64;
         if ms_into_current_channel_period >= phase_shift_ms {
             ms_into_current_channel_period -= phase_shift_ms;
         } else {
@@ -170,8 +173,8 @@ fn channel_is_on(
             ms_into_current_channel_period =
                 ms_per_channel_period + ms_into_current_channel_period - phase_shift_ms;
         }
-    } else if phase_shift_percent > 0 {
-        let phase_shift_ms = ms_per_channel_period * (phase_shift_percent as u32) / 100;
+    } else if phase_shift_fraction > 0 {
+        let phase_shift_ms = ms_per_channel_period * (phase_shift_fraction as u32) / 64;
         ms_into_current_channel_period += phase_shift_ms;
         if ms_into_current_channel_period > ms_per_channel_period {
             ms_into_current_channel_period -= ms_per_channel_period;
@@ -180,18 +183,18 @@ fn channel_is_on(
     }
 
     // calculate pulse width, taking into account min trigger lengths
-    const TRIG_WIDTH_MS: u32 = 10;
-    let max_pw_ms = ms_per_channel_period.saturating_sub(TRIG_WIDTH_MS);
+    let max_pw_ms = ms_per_channel_period.saturating_sub(min_trig_width_ms);
 
-    let pulse_width_ms = if TRIG_WIDTH_MS >= max_pw_ms {
+    let pulse_width_ms = if min_trig_width_ms >= max_pw_ms {
         // If period gets very small, ignore pulse width
         ms_per_channel_period / 2
     } else if channel.pulse_width == 0 {
-        TRIG_WIDTH_MS
+        min_trig_width_ms
     } else if channel.pulse_width == 100 {
         max_pw_ms
     } else {
-        (ms_per_channel_period * channel.pulse_width as u32 / 100).clamp(TRIG_WIDTH_MS, max_pw_ms)
+        (ms_per_channel_period * channel.pulse_width as u32 / 100)
+            .clamp(min_trig_width_ms, max_pw_ms)
     };
 
     if is_even_channel_period {
@@ -199,7 +202,7 @@ fn channel_is_on(
         ms_into_current_channel_period < pulse_width_ms
     } else {
         // handle swing (odd cycles)
-        let swing_ms = ms_per_channel_period * channel.swing as u32 / 100;
+        let swing_ms = ms_per_channel_period * channel.swing as u32 / 64;
         ms_into_current_channel_period > swing_ms
             && ms_into_current_channel_period < swing_ms + pulse_width_ms
             && ms_into_current_channel_period < max_pw_ms

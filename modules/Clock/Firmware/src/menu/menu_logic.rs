@@ -239,14 +239,14 @@ fn handle_rotary_knob_change(
                         channel.phase_shift = channel
                             .phase_shift
                             .saturating_add(rotary_encoder_delta)
-                            .clamp(-50, 50);
+                            .clamp(-32, 32);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::Swing => {
                         channel.swing = channel
                             .swing
                             .add_without_overflow(rotary_encoder_delta)
-                            .min(50);
+                            .min(32);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::Exit => MenuUpdate::NoUpdate,
