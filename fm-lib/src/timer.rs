@@ -11,9 +11,12 @@ macro_rules! configure_system_clock {
     ($precision:expr) => {
         mod system_clock {
             use core::cell;
+            use core::marker::ConstParamTy;
+
+            use fm_lib::const_traits::ConstInto;
 
             #[allow(dead_code)]
-            #[derive(PartialEq, Eq)]
+            #[derive(PartialEq, Eq, ConstParamTy)]
             pub enum ClockPrecision {
                 MS1,
                 MS2,
@@ -31,8 +34,8 @@ macro_rules! configure_system_clock {
                 PS1024,
             }
 
-            impl const Into<u32> for Prescaler {
-                fn into(self) -> u32 {
+            impl const ConstInto<u32> for Prescaler {
+                fn const_into(self) -> u32 {
                     match self {
                         Prescaler::PS8 => 8,
                         Prescaler::PS64 => 64,
@@ -66,11 +69,11 @@ macro_rules! configure_system_clock {
                 }
 
                 const fn ctr_units_to_us(&self, counter_value: u8) -> u32 {
-                    (Into::<u32>::into(self.prescaler()) * counter_value as u32) / 16
+                    (ConstInto::<u32>::const_into(self.prescaler()) * counter_value as u32) / 16
                 }
 
                 const fn ctr_units_to_ms(&self, counter_value: u8) -> u32 {
-                    (Into::<u32>::into(self.prescaler()) * counter_value as u32) / 16000
+                    (ConstInto::<u32>::const_into(self.prescaler()) * counter_value as u32) / 16000
                 }
 
                 const fn ms_increment(&self) -> u32 {

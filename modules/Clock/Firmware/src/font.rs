@@ -1,3 +1,5 @@
+use core::marker::ConstParamTy;
+
 use avr_progmem::progmem;
 use avr_progmem::wrapper::ProgMem;
 
@@ -34,7 +36,7 @@ progmem! {
     static progmem PRO_FONT_29_RAW_BYTES:  [u8; get_font_buffer_size(16, 29, CharSet::NumeralsOnly)] = *include_bytes!("../assets/profont_29_numeric.bin");
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, ConstParamTy)]
 pub enum CharSet {
     VisibleAscii,
     NumeralsOnly,

@@ -8,7 +8,7 @@ much more accurate.
 */
 use core::sync::atomic::{AtomicI8, AtomicU8, Ordering};
 
-use crate::nybl_pair::NyblPair;
+use crate::{nybl_pair::{NyblPair, ConstNyblPair}, const_traits::{ConstInto, ConstFrom}};
 use avr_progmem::progmem;
 
 #[derive(Clone, Copy)]
@@ -22,13 +22,14 @@ enum RotaryState {
     CcwFinal = 0x6,
 }
 
-impl const Into<u8> for RotaryState {
-    fn into(self) -> u8 {
+impl const ConstInto<u8> for RotaryState {
+    fn const_into(self) -> u8 {
         self as u8
     }
 }
-impl const From<u8> for RotaryState {
-    fn from(value: u8) -> Self {
+
+impl const ConstFrom<u8> for RotaryState {
+    fn const_from(value: u8) -> Self {
         match value {
             const { Self::Start as u8 } => Self::Start,
             const { Self::CwBegin as u8 } => Self::CwBegin,
@@ -55,13 +56,13 @@ enum RotationTrigger {
     CounterClockwise = 0x2,
 }
 
-impl const Into<u8> for RotationTrigger {
-    fn into(self) -> u8 {
+impl const ConstInto<u8> for RotationTrigger {
+    fn const_into(self) -> u8 {
         self as u8
     }
 }
-impl const From<u8> for RotationTrigger {
-    fn from(value: u8) -> Self {
+impl const ConstFrom<u8> for RotationTrigger {
+    fn const_from(value: u8) -> Self {
         match value {
             const { Self::Clockwise as u8 } => Self::Clockwise,
             const { Self::CounterClockwise as u8 } => Self::CounterClockwise,
@@ -160,7 +161,7 @@ impl RotaryEncoderHandler {
             .at(state.into())
             .at(pinstate.into())
             .load();
-        self.state.store(next_state.lsbs().into(), Ordering::SeqCst);
+        self.state.store(next_state.lsbs().const_into(), Ordering::SeqCst);
         let rotation = self.rotation.load(Ordering::SeqCst);
         let delta = match next_state.msbs() {
             RotationTrigger::None => 0,

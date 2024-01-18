@@ -7,8 +7,8 @@
 #![feature(abi_avr_interrupt)]
 #![feature(inline_const_pat)]
 #![feature(const_trait_impl)]
-#![feature(const_convert)]
 #![feature(adt_const_params)]
+#![feature(effects)]
 
 mod clock;
 mod display_buffer;

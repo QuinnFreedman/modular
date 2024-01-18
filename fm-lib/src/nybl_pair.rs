@@ -1,5 +1,7 @@
 use core::marker::PhantomData;
 
+use crate::const_traits::{ConstInto, ConstFrom};
+
 #[derive(Clone, Copy)]
 #[repr(transparent)]
 /**
@@ -7,10 +9,10 @@ An abstraction to hold two 4-bit values in a single byte
 */
 pub struct NyblPair<A, B>
 where
-    A: From<u8>,
-    B: From<u8>,
-    A: ~const Into<u8>,
-    B: ~const Into<u8>,
+    A: ConstFrom<u8>,
+    B: ConstFrom<u8>,
+    A: ConstInto<u8>,
+    B: ConstInto<u8>,
 {
     data: u8,
     // I'm not sure if the PhantomData is strictly necesary since anything that
@@ -19,41 +21,66 @@ where
     b: PhantomData<B>,
 }
 
-impl<A, B> NyblPair<A, B>
+#[const_trait]
+pub trait ConstNyblPair<A, B>
 where
-    A: From<u8>,
-    B: From<u8>,
-    A: ~const Into<u8>,
-    B: ~const Into<u8>,
+    A: ~const ConstFrom<u8>,
+    B: ~const ConstFrom<u8>,
+    A: ~const ConstInto<u8>,
+    B: ~const ConstInto<u8>,
+ {
+    /**
+    Gets the "right" value of the pair, stored in the least-significant four bits
+    */
+    fn lsbs(&self) -> B ;
+
+    /**
+    Gets the "left" value of the pair, stored in the most-significant four bits
+    */
+    fn msbs(&self) -> A ;
+    /**
+    Returns both items as tuple: (left, right)
+    */
+    fn as_tuple(&self) -> (A, B) ;
+
+    fn new(msb: A, lsb: B) -> Self;
+}
+
+impl<A, B> const ConstNyblPair<A, B>  for NyblPair<A, B>
+where
+    A: ~const ConstFrom<u8>,
+    B: ~const ConstFrom<u8>,
+    A: ~const ConstInto<u8>,
+    B: ~const ConstInto<u8>,
 {
     /**
     Gets the "right" value of the pair, stored in the least-significant four bits
     */
     #[inline(always)]
-    pub fn lsbs(&self) -> B {
+    fn lsbs(&self) -> B {
         let value = self.data & 0x0f;
-        value.into()
+        ConstFrom::<u8>::const_from(value)
     }
     /**
     Gets the "left" value of the pair, stored in the most-significant four bits
     */
     #[inline(always)]
-    pub fn msbs(&self) -> A {
+    fn msbs(&self) -> A {
         let value = self.data >> 4;
-        value.into()
+        ConstFrom::<u8>::const_from(value)
     }
     /**
     Returns both items as tuple: (left, right)
     */
     #[inline(always)]
     #[allow(dead_code)]
-    pub fn as_tuple(&self) -> (A, B) {
+     fn as_tuple(&self) -> (A, B) {
         (self.msbs(), self.lsbs())
     }
     #[inline(always)]
-    pub const fn new(msb: A, lsb: B) -> Self {
-        let a_value: u8 = msb.into();
-        let b_value: u8 = lsb.into();
+     fn new(msb: A, lsb: B) -> Self {
+        let a_value: u8 = msb.const_into();
+        let b_value: u8 = lsb.const_into();
         debug_assert!(a_value < 16);
         debug_assert!(b_value < 16);
         Self {
