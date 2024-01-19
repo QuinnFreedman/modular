@@ -131,7 +131,7 @@ fn main() -> ! {
     let mut clock_config = ClockConfig::new();
     let mut clock_state = ClockState::new();
     let mut is_paused = false;
-    let mut start_time: u32 = 0;
+    let mut start_time: u64 = 0;
 
     render_menu(
         &menu_state,
@@ -148,7 +148,9 @@ fn main() -> ! {
 
     // Main loop. Will run for the rest of the program
     loop {
-        let current_time_ms = sys_clock.millis();
+        // use ms for menu logic but use micros for clock to reduce aliasing
+        let current_time_us = sys_clock.micros();
+        let current_time_ms = (current_time_us / 1000) as u32;
         // Handle pause button
         let pause_button_state = pause_button.sample(current_time_ms);
         if pause_button_state == ButtonState::ButtonJustPressed {
@@ -160,12 +162,12 @@ fn main() -> ! {
                     .write(|w| unsafe { w.bits(0x00) });
             } else {
                 clock_state.reset();
-                start_time = current_time_ms;
+                start_time = current_time_us;
             }
         }
 
         // Handle clock logic and write clock state to output pins
-        let clock_time = current_time_ms.wrapping_sub(start_time);
+        let clock_time = current_time_us.wrapping_sub(start_time);
         let (pin_state, did_rollover) = clock::sample(&clock_config, &mut clock_state, clock_time);
         if !is_paused {
             unsafe_peripherals

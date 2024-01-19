@@ -89,7 +89,7 @@ macro_rules! configure_system_clock {
 
             #[avr_device::interrupt(atmega328p)]
             fn TIMER0_COMPA() {
-                avr_device::interrupt::free(|cs| {
+                fm_lib::asynchronous::assert_interrupts_disabled(|cs| {
                     let counter_cell = MILLIS_COUNTER.borrow(cs);
                     let counter = counter_cell.get();
                     counter_cell.set(counter + CLOCK_PRECISION.ms_increment());
@@ -106,25 +106,59 @@ macro_rules! configure_system_clock {
                         self.0.tcnt0.write(|w| w.bits(0));
                     });
                 }
+                fn read_timer_register(&self) -> u8 {
+                    self.0.tcnt0.read().bits()
+                }
+                /**
+                Running system clock in ms. Precision is between 1ms and 16ms depending on
+                clock configuration.
+                */
                 #[allow(dead_code)]
+                #[inline(always)]
                 pub fn millis(&self) -> u32 {
-                    avr_device::interrupt::free(|cs| {
-                        let ms_counter = MILLIS_COUNTER.borrow(cs).get();
-                        let timer_register = self.0.tcnt0.read().bits();
-                        ms_counter + PRECISION.ctr_units_to_ms(timer_register)
-                    })
+                    fm_lib::asynchronous::unsafe_access_mutex(|cs| MILLIS_COUNTER.borrow(cs).get())
                 }
+
+                /**
+                Running system clock in ms. Augments the running counter with live data from
+                the hardware timer register for more precision at the cost of some more
+                computation. Precision is still limited by the prescale factor, which is a
+                property of the clock precision configuration.
+                */
                 #[allow(dead_code)]
-                pub fn millis_approx(&self) -> u32 {
-                    avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get())
+                pub fn millis_exact(&self) -> u32 {
+                    let mut timer_register = self.read_timer_register();
+                    let mut ms_counter: u32;
+                    loop {
+                        ms_counter = fm_lib::asynchronous::unsafe_access_mutex(|cs| {
+                            MILLIS_COUNTER.borrow(cs).get()
+                        });
+                        let timer_register_check = self.read_timer_register();
+                        let ok = timer_register_check > timer_register;
+                        timer_register = timer_register_check;
+                        if ok {
+                            break;
+                        }
+                    }
+                    ms_counter + PRECISION.ctr_units_to_ms(timer_register)
                 }
+
                 #[allow(dead_code)]
                 pub fn micros(&self) -> u64 {
-                    avr_device::interrupt::free(|cs| {
-                        let us_counter = MILLIS_COUNTER.borrow(cs).get() as u64 * 1000;
-                        let timer_register = self.0.tcnt0.read().bits();
-                        us_counter + PRECISION.ctr_units_to_us(timer_register) as u64
-                    })
+                    let mut timer_register = self.read_timer_register();
+                    let mut ms_counter: u32;
+                    loop {
+                        ms_counter = fm_lib::asynchronous::unsafe_access_mutex(|cs| {
+                            MILLIS_COUNTER.borrow(cs).get()
+                        });
+                        let timer_register_check = self.read_timer_register();
+                        let ok = timer_register_check > timer_register;
+                        timer_register = timer_register_check;
+                        if ok {
+                            break;
+                        }
+                    }
+                    (ms_counter as u64 * 1000) + PRECISION.ctr_units_to_us(timer_register) as u64
                 }
             }
 

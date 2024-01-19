@@ -10,8 +10,6 @@ test = false
 bench = false
 
 [dependencies]
-# panic-halt = "0.2.0"
-# ufmt = "0.1.0"
 nb = "0.1.2"
 embedded-hal = "0.2.3"
 embedded-graphics = "0.8.1"
@@ -24,7 +22,7 @@ fm-lib = { path = "../../../fm-lib" }
 
 [dependencies.arduino-hal]
 git = "https://github.com/rahix/avr-hal"
-rev = "8ab27dcf14538897494898337386a89b68d589c3"
+rev = "8e88f71e577db12f63c500532a9edb6c9ac54b38"
 features = ["arduino-nano"]
 
 # Configure the build for minimal size - AVRs have very little program memory

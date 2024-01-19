@@ -62,9 +62,12 @@ eight clock channels. The bool indicates whether or not the core clock rolled ov
 at this sample point. This is used to render the screensaver.
 */
 #[inline(never)]
-pub fn sample(config: &ClockConfig, state: &mut ClockState, current_time_ms: u32) -> (u8, bool) {
+pub fn sample(
+    config: &ClockConfig,
+    state: &mut ClockState,
+    current_time_micros: u64,
+) -> (u8, bool) {
     let mut did_rollover = false;
-    let current_time_micros: u64 = (current_time_ms as u64) * 1000;
     let mut micros_in_current_cycle = (current_time_micros - state.last_cycle_start_time) as u32;
     let micros_per_cycle = MICROS_PER_MINUTE / config.bpm as u32;
     if micros_in_current_cycle > micros_per_cycle {
@@ -77,7 +80,7 @@ pub fn sample(config: &ClockConfig, state: &mut ClockState, current_time_ms: u32
     let mut result: u8 = 0;
     for i in 0..NUM_CHANNELS {
         let channel = &config.channels[i as usize];
-        // if the tempo is too slow, us counts will overflow a u32 at some points in
+        // if the tempo is too slow, micros counts will overflow a u32 at some points in
         // the math, so fall back to lower temporal resolution
         let (time_in_current_cycle, time_per_cycle) = if channel.division < -32 && config.bpm < 50 {
             (micros_in_current_cycle / 10, micros_per_cycle / 10)

@@ -7,10 +7,11 @@ edition = "2021"
 embedded-hal = "0.2.3"
 avr-device = { version = "0.5.2", features = ["atmega328p"] }
 avr-progmem = { version = "0.3.3", default-features = false }
+cfg-if = "0.1.10"
 
 [dependencies.arduino-hal]
 git = "https://github.com/rahix/avr-hal"
-rev = "8ab27dcf14538897494898337386a89b68d589c3"
+rev = "8e88f71e577db12f63c500532a9edb6c9ac54b38"
 features = ["arduino-nano"]
 
 # Profile will be ignored when compiled as a library; this is just
