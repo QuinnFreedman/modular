@@ -1,3 +1,5 @@
+use core::marker::ConstParamTy;
+
 /**
 An implementation of the LFSR113 pseudo-random number generator algorithm (taken from
 https://web.mst.edu/vojtat/class_5403/lfsr113/). This isn't used right now, since I
@@ -56,7 +58,7 @@ impl LFSR113 {
     }
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, ConstParamTy)]
 pub struct LfsrConfig([u8; 4]);
 
 pub const LFSR_CONFIG_1: LfsrConfig = LfsrConfig([16, 14, 13, 11]);
