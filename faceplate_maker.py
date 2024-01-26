@@ -183,10 +183,11 @@ class Module:
 
 
     def add(self, component):
-        group = self.holes.add(self.d.g())
-        group.translate(*component.position)
-        for x in component.draw_holes(self.d):
-            group.add(x)
+        if not self.cosmetics or component.cosmetic_holes:
+            group = self.holes.add(self.d.g())
+            group.translate(*component.position)
+            for x in component.draw_holes(self.d):
+                group.add(x)
             
         group = self.stencil.add(self.d.g())
         group.translate(*component.position)
@@ -198,7 +199,7 @@ class Module:
             group.translate(*component.position)
             for x in component.draw_debug(self.d):
                 group.add(x)
-                
+
         if self.cosmetics and hasattr(component, "draw_cosmetics"):
             group = self.cosmetics.add(self.d.g())
             group.translate(*component.position)
@@ -317,6 +318,7 @@ class Component:
         self.position = (position_x, position_y)
         self.inkscape_actions: List[str] = []
         self.post_process: List[Callable] = []
+        self.cosmetic_holes = True
 
     def draw_holes(self, context: Group):
         return []
@@ -375,12 +377,14 @@ def draw_x(context, x, y):
 # the distance between the throughholes is 8.3mm (.33 inches) so I kept the ratio and scaled
 # it down to .3in
 class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
-       super(JackSocket, self).__init__(x, y, rotation)
-       self.label = label
-       self.is_output = is_output
-       self.font_size = font_size
-       self.label_above = label_above
+    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False, text_offset=None):
+        super(JackSocket, self).__init__(x, y, rotation)
+        self.label = label
+        self.is_output = is_output
+        self.font_size = font_size
+        self.label_above = label_above
+        self.text_offset = text_offset
+        self.hex = False
        
     def draw_holes(self, context):
         return [context.circle(center=self.offset, r=self.radius)]
@@ -388,12 +392,14 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
     def draw_stencil(self, context):
         hole_center = self.offset
         hole_radius = self.radius
-        text_offset = 8
-        if self.label_above:
-            text_offset = -5.5
+        text_offset = self.text_offset
+        if not text_offset:
+            text_offset = (0, self.radius + 4.85)
+            if self.label_above:
+                text_offset = (0, -(self.radius + 2.35))
             
         text_props = {
-            "insert": (hole_center[0], hole_center[1] + text_offset),
+            "insert": (hole_center[0] + text_offset[0], hole_center[1] + text_offset[1]),
             "text_anchor": "middle",
         }
 
@@ -456,14 +462,24 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         gradient.add_stop_color(-1, "white")
         gradient.add_stop_color(2, "black")
         context.defs.add(gradient)
-        elements.append(draw_bumpy_circle(
-            context,
-            self.offset,
-            radius + .4,
-            radius + .6,
-            18,
-            fill=gradient.get_paint_server()
-        ))
+        if self.hex:
+            elements.append(draw_regular_polygon(
+                context,
+                self.offset,
+                6,
+                radius + 1.3,
+                math.pi / 6,
+                fill=gradient.get_paint_server()
+            ))
+        else:
+            elements.append(draw_bumpy_circle(
+                context,
+                self.offset,
+                radius + .4,
+                radius + .6,
+                18,
+                fill=gradient.get_paint_server()
+            ))
 
         ring_thickness = .8
         gradient = context.radialGradient((.5, .5), .5)
@@ -492,8 +508,8 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
         return elements
         
 class JackSocketCentered(JackSocket):
-    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False):
-        super().__init__(x, y, label, is_output, rotation, font_size, label_above)
+    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False, text_offset=None):
+        super().__init__(x, y, label, is_output, rotation, font_size, label_above, text_offset)
         self.offset = (0, 0)
 
     def draw_debug(self, context):
@@ -502,6 +518,24 @@ class JackSocketCentered(JackSocket):
             context.circle(center=self.rotated((0, -4.92)), r=0.25),
             context.circle(center=self.rotated((0, 3.38)), r=0.25),
             context.circle(center=self.rotated((0, 6.48)), r=0.25),
+        ]
+
+class JackSocketQuarterInch(JackSocket):
+    def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False, text_offset=None):
+        super().__init__(x, y, label, is_output, rotation, font_size, label_above, text_offset)
+        self.offset = (0, 0)
+        self.radius = 9.5 / 2
+        self.hex = True
+
+    def draw_debug(self, context):
+        return [
+            *super().draw_debug(context),
+            context.circle(center=self.rotated((4.67, 4.67)), r=0.25),
+            context.circle(center=self.rotated((-2.4, 6.38)), r=0.25),
+            context.circle(center=self.rotated((-6.38, 0.56)), r=0.25),
+            context.circle(center=self.rotated((0.56, -6.38)), r=0.25),
+            context.circle(center=self.rotated((6.38, -2.4)), r=0.25),
+            context.rect((-8, -8), (16, 16), stroke="cyan", fill="none", stroke_width=.2),
         ]
 
 
@@ -669,15 +703,17 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
 
 class SmallSwitch(Switch):
     def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
-       super(SmallSwitch, self).__init__(x, y, label=label, left_text=left_text, right_text=right_text, font_size=font_size, rotation=rotation)
-       self.radius = 2.25 + HOLE_ALLOWANCE
-       self.hole_radius = self.radius
+        super(SmallSwitch, self).__init__(x, y, label=label, left_text=left_text, right_text=right_text, font_size=font_size, rotation=rotation)
+        self.radius = 2.25 + HOLE_ALLOWANCE
+        self.hole_radius = self.radius
+        self.cosmetic_holes = False
 
 
 class SmallLED(BasicCircle(0, inches(.05), 1.55)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
-       super().__init__(x, y, rotation)
-       self.color = color
+        super().__init__(x, y, rotation)
+        self.color = color
+        self.cosmetic_holes = False
 
     def draw_debug(self, context):
         return [
@@ -689,8 +725,9 @@ class SmallLED(BasicCircle(0, inches(.05), 1.55)):
 
 class LED(BasicCircle(0, inches(.05), 2.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
-       super(LED, self).__init__(x, y, rotation)
-       self.color = color
+        super(LED, self).__init__(x, y, rotation)
+        self.color = color
+        self.cosmetic_holes = False
 
     def draw_debug(self, context):
         return [
@@ -771,6 +808,10 @@ setattr(TL1265, 'draw_cosmetics', draw_button_cosmetic)
 
 
 class TL1105SP(BasicCircle(0, 0, 5.1/2)):
+    def __init__(self, x, y, rotation):
+        super(self).__init__(x, y, rotation)
+        self.cosmetic_holes = False
+
     def draw_cosmetics(self, context):
         return draw_button_cosmetic(self, context, with_washer=False)
 
@@ -785,6 +826,10 @@ class TL1105SP(BasicCircle(0, 0, 5.1/2)):
         ]
 
 class D6R30(BasicCircle(0, 0, 9/2)):
+    def __init__(self, x, y, rotation):
+        super(self).__init__(x, y, rotation)
+        self.cosmetic_holes = False
+
     def draw_cosmetics(self, context):
         return draw_button_cosmetic(self, context, with_washer=False, colors=[("#ff0", "#550"), ("#ff9", "#dd0")])
 
@@ -1019,11 +1064,11 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         return elements
 
 
-def draw_regular_polygon(context: Group, center:Tuple[float, float], n: int, r: float, **kwargs):
+def draw_regular_polygon(context: Group, center:Tuple[float, float], n: int, r: float, rotation: float=0, **kwargs):
     cx, cy = center
     points = []
     for i in range(n):
-        theta = 2 * math.pi * i / n
+        theta = 2 * math.pi * i / n + rotation
         x = math.cos(theta) * r + cx
         y = math.sin(theta) * r + cy
         points.append((x, y))

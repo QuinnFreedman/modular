@@ -11,6 +11,7 @@ __pycache__/
 # misc
 .vscode/
 output.svg
+*_debug.svg
 *.xcf
 
 # GitHub pages
