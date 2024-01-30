@@ -19,8 +19,8 @@ module.add(Potentiometer(-inches(.3), y + inches(.6), style=PotStyle.CHROMATIC_W
 
 y += inches(1.1)
 
-module.add(JackSocketCentered(-inches(0.2), y, "In L", False))
-module.add(JackSocketCentered(inches(0.2), y, "In R", False))
+module.add(JackSocketCentered(-inches(0.3), y, "In L", False))
+module.add(JackSocketCentered(inches(0.3), y, "In R", False))
 
 big_jack_start = y + inches(.75)
 big_jack_pitch = inches(.65) # .675?
@@ -42,7 +42,8 @@ for x in (-1, 1):
     x = x * inches(.45)
     colors = ["#f00", "#fcca05", "#2fdd04", "#2fdd04", "#2fdd04"]
     for i, color in enumerate(colors):
-        module.add(SmallLED(x, led_midpoint + ((i - 2) * led_pitch) - inches(.05), color=color))
+        y = led_midpoint + ((i - 2) * led_pitch) - inches(.05)
+        module.add(SmallLED(x, y, color=color))
 
 
 module.save()

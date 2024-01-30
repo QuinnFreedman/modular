@@ -1591,10 +1591,10 @@
   (symbol (lib_id "Device:C") (at 88.265 125.095 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid c2973e60-b658-4c6d-a7ee-01034f850448)
-    (property "Reference" "C18" (at 88.265 117.475 90)
+    (property "Reference" "C34" (at 88.265 118.11 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "100pF" (at 88.265 120.015 90)
+    (property "Value" "100pF" (at 88.265 120.65 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm" (at 92.075 124.1298 0)
@@ -1608,7 +1608,7 @@
     (instances
       (project "output_pcb"
         (path "/9afe4d4d-3155-44ea-9484-068db54e495a/1f69d69c-c7f1-4c71-9890-5c181d5a0d7a"
-          (reference "C18") (unit 1)
+          (reference "C34") (unit 1)
         )
       )
     )
@@ -1681,10 +1681,10 @@
   (symbol (lib_id "Device:C") (at 87.63 47.625 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid f02c5f23-8012-4566-9012-365f204d6bd2)
-    (property "Reference" "C17" (at 87.63 40.005 90)
+    (property "Reference" "C33" (at 87.63 40.64 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "100pF" (at 87.63 42.545 90)
+    (property "Value" "100pF" (at 87.63 43.18 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm" (at 91.44 46.6598 0)
@@ -1698,7 +1698,7 @@
     (instances
       (project "output_pcb"
         (path "/9afe4d4d-3155-44ea-9484-068db54e495a/1f69d69c-c7f1-4c71-9890-5c181d5a0d7a"
-          (reference "C17") (unit 1)
+          (reference "C33") (unit 1)
         )
       )
     )
