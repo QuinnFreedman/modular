@@ -8,16 +8,21 @@
 #![feature(generic_const_exprs)]
 #![feature(const_trait_impl)]
 #![feature(effects)]
+#![feature(inline_const)]
 
 use core::panic::PanicInfo;
 
-use arduino_hal::{prelude::*, Peripherals};
+use arduino_hal::{delay_ms, prelude::*, Peripherals};
 use fm_lib::{configure_system_clock, rng::ParallelLfsr, rotary_encoder::RotaryEncoderHandler};
-use led_driver::TLC5940;
 use ufmt::uwriteln;
 
-use crate::rng::{RngModule, SizeAdjustment};
+use crate::{
+    async_dac::{handle_conversion_result, init_async_adc, AsyncAdc, Indexable},
+    led_driver::TLC5940,
+    rng::RngModule,
+};
 
+mod async_dac;
 mod led_driver;
 mod rng;
 
@@ -65,7 +70,6 @@ static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
  Pin-change interrupt handler for port B (pins d8-d13)
 */
 #[avr_device::interrupt(atmega328p)]
-#[allow(non_snake_case)]
 fn PCINT2() {
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let port = dp.PORTD.pind.read();
@@ -98,6 +102,13 @@ fn enable_portd_pc_interrupts(dp: &Peripherals) {
         .modify(|r, w| w.pcie().bits(r.pcie().bits() | 0b100));
 }
 
+static mut GLOBAL_ASYNC_ADC_STATE: AsyncAdc<4> = None;
+
+#[avr_device::interrupt(atmega328p)]
+fn ADC() {
+    handle_conversion_result(unsafe { &mut GLOBAL_ASYNC_ADC_STATE });
+}
+
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
@@ -107,13 +118,22 @@ fn main() -> ! {
 
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
-    // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    let a0 = pins.a0.into_analog_input(&mut adc);
+    let a2 = pins.a2.into_analog_input(&mut adc);
+    let a3 = pins.a3.into_analog_input(&mut adc);
+    let a4 = pins.a4.into_analog_input(&mut adc);
     let a5 = pins.a5.into_analog_input(&mut adc);
     let seed: u16 = {
-        // TODO read all floating inputs and use their LSBs to generate a seed
-        let seed = a5.analog_read(&mut adc);
+        // initialize random seed by reading voltage of floating pins
+        let mut seed: u16 = 0;
+        seed |= a5.analog_read(&mut adc) & 0xf;
+        seed |= (a3.analog_read(&mut adc) & 0xf) << 4;
+        seed |= (a2.analog_read(&mut adc) & 0xf) << 8;
+        seed |= (adc.read_blocking(&arduino_hal::adc::channel::ADC7) & 0xf) << 12;
         seed
     };
+    let encoder_switch = a5.into_digital(&mut adc).into_pull_up_input();
 
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -127,9 +147,24 @@ fn main() -> ! {
             mode: embedded_hal::spi::MODE_0,
         },
     );
+
+    unsafe {
+        avr_device::interrupt::enable();
+    };
+
+    init_async_adc(
+        adc,
+        unsafe { &mut GLOBAL_ASYNC_ADC_STATE },
+        [
+            arduino_hal::adc::channel::ADC7.into_channel(),
+            arduino_hal::adc::channel::ADC6.into_channel(),
+            a0.into_channel(),
+            a4.into_channel(),
+        ],
+    );
+
     let xlatch = pins.d9.into_output();
     let pwm_ref = pins.d3.into_output();
-    let encoder_switch = a5.into_digital(&mut adc).into_pull_up_input();
 
     const NUM_LEDS: u8 = 7;
     const MAX_BUFFER_SIZE: u8 = 32;
@@ -138,32 +173,39 @@ fn main() -> ! {
         TLC5940::<{ NUM_LEDS as usize }>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
     let sys_clock = system_clock::init_system_clock(dp.TC0);
 
-    unsafe {
-        avr_device::interrupt::enable();
-    };
-
-    // uwriteln!(&mut serial, "Seed: {}", seed).unwrap_infallible();
+    uwriteln!(&mut serial, "Seed: {}", seed).unwrap_infallible();
 
     let mut prng = ParallelLfsr::new(seed);
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
 
     loop {
-        let current_time = sys_clock.millis();
-        let re_delta = ROTARY_ENCODER.sample_and_reset();
-        if re_delta != 0 {
-            let size_change = if encoder_switch.is_low() {
-                SizeAdjustment::ExactDelta(re_delta)
-            } else {
-                SizeAdjustment::PowersOfTwo(re_delta)
-            };
-            rng_module.adjust_buffer_size(size_change, current_time);
-        }
+        uwriteln!(
+            &mut serial,
+            "ADC: {}, {}, {}, {}",
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(0) },
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(1) },
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(2) },
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(3) },
+        )
+        .unwrap_infallible();
+        delay_ms(100);
 
-        rng_module.render_display_if_needed(
-            current_time,
-            |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
-                led_driver.write(&mut spi, buffer)
-            },
-        );
+        // let current_time = sys_clock.millis();
+        // let re_delta = ROTARY_ENCODER.sample_and_reset();
+        // if re_delta != 0 {
+        //     let size_change = if encoder_switch.is_low() {
+        //         SizeAdjustment::ExactDelta(re_delta)
+        //     } else {
+        //         SizeAdjustment::PowersOfTwo(re_delta)
+        //     };
+        //     rng_module.adjust_buffer_size(size_change, current_time);
+        // }
+
+        // rng_module.render_display_if_needed(
+        //     current_time,
+        //     |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
+        //         led_driver.write(&mut spi, buffer)
+        //     },
+        // );
     }
 }

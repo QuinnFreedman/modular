@@ -91,7 +91,8 @@ pub struct ParallelLfsr {
 
 impl ParallelLfsr {
     pub fn new(seed: u16) -> Self {
-        // I don't know if
+        // Generate second seed from first; I don't know if this method is ideal
+        // but this just a way to try to get low correlation between seeds
         let seed2 = !(((seed >> 8) & 0xff) | (seed << 8));
         Self {
             lfsr1: LFSR::new(seed),

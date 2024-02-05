@@ -1016,7 +1016,7 @@
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 917a147f-8603-43e7-815a-861aa39e6d72)
     )
-    (fp_text value "100kΩ" (at 3.81 2.37) (layer "F.Fab")
+    (fp_text value "15kΩ" (at 3.81 2.37) (layer "F.Fab")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp c3b89825-6fe1-4503-881a-659da566ca73)
     )
@@ -2422,7 +2422,7 @@
   (footprint "FreeModualr:logo_small" (layer "F.Cu")
     (tstamp e74306eb-1b18-4695-932e-f69543fdc0c5)
     (at 34.602337 56.615091)
-    (fp_text reference "REF**" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
+    (fp_text reference "G1" (at 0 -0.5 unlocked) (layer "F.SilkS") hide
         (effects (font (size 1 1) (thickness 0.1)))
       (tstamp 4b5e722f-aecd-49f7-863d-c1fd4673717f)
     )

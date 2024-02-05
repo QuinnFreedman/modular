@@ -3735,7 +3735,7 @@
     (property "Reference" "R17" (at 105.41 31.75 90)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "100kΩ" (at 104.14 34.29 90)
+    (property "Value" "15kΩ" (at 104.14 34.29 90)
       (effects (font (size 1.27 1.27)))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" (at 113.03 31.242 90)
