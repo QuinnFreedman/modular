@@ -109,6 +109,19 @@ fn ADC() {
     handle_conversion_result(unsafe { &mut GLOBAL_ASYNC_ADC_STATE });
 }
 
+enum AnalogChannel {
+    Chance,
+    Bias,
+    BiasCV,
+    GateTrigSwitch,
+}
+
+impl Into<u16> for AnalogChannel {
+    fn into(self) -> u16 {
+        self as u16
+    }
+}
+
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
@@ -157,9 +170,9 @@ fn main() -> ! {
         unsafe { &mut GLOBAL_ASYNC_ADC_STATE },
         [
             arduino_hal::adc::channel::ADC7.into_channel(),
-            arduino_hal::adc::channel::ADC6.into_channel(),
-            a0.into_channel(),
             a4.into_channel(),
+            a0.into_channel(),
+            arduino_hal::adc::channel::ADC6.into_channel(),
         ],
     );
 
@@ -181,11 +194,11 @@ fn main() -> ! {
     loop {
         uwriteln!(
             &mut serial,
-            "ADC: {}, {}, {}, {}",
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(0) },
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(1) },
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(2) },
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(3) },
+            "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::Chance) },
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::Bias) },
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::BiasCV) },
+            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::GateTrigSwitch) },
         )
         .unwrap_infallible();
         delay_ms(100);

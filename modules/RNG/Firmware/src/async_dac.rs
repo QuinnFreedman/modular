@@ -15,12 +15,19 @@ pub struct AsyncAdcState<const N: usize> {
 pub type AsyncAdc<const N: usize> = Option<AsyncAdcState<N>>;
 
 pub trait Indexable {
-    fn get(&self, i: u8) -> u16;
+    fn get<T>(&self, i: T) -> u16
+    where
+        T: Into<u16>;
 }
 
 impl<const N: usize> Indexable for AsyncAdc<N> {
-    fn get(&self, i: u8) -> u16 {
-        debug_assert!(i < N as u8);
+    #[inline(always)]
+    fn get<T>(&self, index: T) -> u16
+    where
+        T: Into<u16>,
+    {
+        let i: u16 = index.into();
+        debug_assert!(i < N as u16);
         debug_assert!(self.is_some());
         let adc = unsafe { self.as_ref().unwrap_unchecked() };
         adc.values[i as usize]
