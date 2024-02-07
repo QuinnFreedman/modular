@@ -1,9 +1,10 @@
 use core::{
     arch::asm,
+    cell::UnsafeCell,
     sync::atomic::{compiler_fence, Ordering},
 };
 
-use avr_device::interrupt::CriticalSection;
+use avr_device::interrupt::{CriticalSection, Mutex};
 
 /**
 This provides a way to access a static mutex that would otherwise be disallowed.
@@ -28,6 +29,9 @@ where
 }
 
 /**
+A way to access a mutex if you are sure that interrupts are already disabled, e.g.
+if you are calling from inside an interrupt. In debug mode, that assertion will be
+checked, but if debug_assertions are disabled then it is unchecked
 */
 #[inline(always)]
 #[allow(unreachable_code)]
@@ -63,4 +67,24 @@ where
     compiler_fence(Ordering::SeqCst);
 
     r
+}
+
+pub trait Borrowable {
+    type Inner;
+    /**
+    A way to get the contents of a Mutex inside an UnsafeCell. Sometimes
+    UnsafeCell is needed if you want to be able modify a type behind a mutex
+    which does not implement Copy, either because it is large or contains
+    unique resource handles.
+    */
+    fn get<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner;
+}
+
+impl<T> Borrowable for Mutex<UnsafeCell<T>> {
+    type Inner = T;
+    fn get<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner {
+        let ptr = self.borrow(cs).get();
+        let option_ref = unsafe { ptr.as_ref().unwrap_unchecked() };
+        option_ref
+    }
 }

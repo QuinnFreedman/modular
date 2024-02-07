@@ -13,21 +13,20 @@
 use core::panic::PanicInfo;
 
 use arduino_hal::{delay_ms, prelude::*, Peripherals};
-use async_dac::new_async_adc_state;
 
 use fm_lib::{
-    asynchronous::unsafe_access_mutex, configure_system_clock, rng::ParallelLfsr,
+    async_adc::{
+        handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, Indexable,
+    },
+    asynchronous::{unsafe_access_mutex, Borrowable},
+    configure_system_clock,
+    rng::ParallelLfsr,
     rotary_encoder::RotaryEncoderHandler,
 };
 use ufmt::uwriteln;
 
-use crate::{
-    async_dac::{handle_conversion_result, init_async_adc, AsyncAdc, Borrowable, Indexable},
-    led_driver::TLC5940,
-    rng::RngModule,
-};
+use crate::{led_driver::TLC5940, rng::RngModule};
 
-mod async_dac;
 mod led_driver;
 mod rng;
 

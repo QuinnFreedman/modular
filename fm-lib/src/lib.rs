@@ -6,6 +6,7 @@
 #![feature(asm_experimental_arch)]
 #![feature(adt_const_params)]
 
+pub mod async_adc;
 pub mod asynchronous;
 pub mod button_debouncer;
 pub mod const_traits;
