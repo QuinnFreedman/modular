@@ -121,9 +121,9 @@ enum AnalogChannel {
     GateTrigSwitch,
 }
 
-impl Into<u16> for AnalogChannel {
-    fn into(self) -> u16 {
-        self as u16
+impl Into<usize> for AnalogChannel {
+    fn into(self) -> usize {
+        self as usize
     }
 }
 
@@ -198,7 +198,7 @@ fn main() -> ! {
 
     loop {
         unsafe_access_mutex(|cs| {
-            let adc = GLOBAL_ASYNC_ADC_STATE.borrow_inner(cs);
+            let adc = GLOBAL_ASYNC_ADC_STATE.get(cs);
             uwriteln!(
                 &mut serial,
                 "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",

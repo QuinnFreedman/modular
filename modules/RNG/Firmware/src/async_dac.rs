@@ -1,4 +1,4 @@
-use core::{arch::asm, cell::UnsafeCell, mem::MaybeUninit};
+use core::{cell::UnsafeCell, mem::MaybeUninit};
 
 use arduino_hal::{
     adc::{AdcChannel, Channel},
@@ -22,31 +22,31 @@ pub const fn new_async_adc_state<const N: usize>() -> AsyncAdc<N> {
 pub trait Indexable {
     fn get<T>(&self, i: T) -> u16
     where
-        T: Into<u16>;
-}
-
-pub trait Borrowable {
-    type Inner;
-    fn borrow_inner<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner;
+        T: Into<usize>;
 }
 
 impl<const N: usize> Indexable for Option<AsyncAdcState<N>> {
     #[inline(always)]
     fn get<T>(&self, index: T) -> u16
     where
-        T: Into<u16>,
+        T: Into<usize>,
     {
-        let i: u16 = index.into();
-        debug_assert!(i < N as u16);
+        let i: usize = index.into();
+        debug_assert!(i < N);
         debug_assert!(self.is_some());
         let adc = unsafe { self.as_ref().unwrap_unchecked() };
-        adc.values[i as usize]
+        unsafe { *adc.values.get_unchecked(i as usize) }
     }
 }
-impl<const N: usize> Borrowable for AsyncAdc<N> {
-    type Inner = Option<AsyncAdcState<N>>;
 
-    fn borrow_inner<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner {
+pub trait Borrowable {
+    type Inner;
+    fn get<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner;
+}
+
+impl<T> Borrowable for Mutex<UnsafeCell<T>> {
+    type Inner = T;
+    fn get<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner {
         let ptr = self.borrow(cs).get();
         let option_ref = unsafe { ptr.as_ref().unwrap_unchecked() };
         option_ref
@@ -104,12 +104,22 @@ pub fn handle_conversion_result<const N: usize>(adc: &AsyncAdc<N>) {
         let dp = unsafe { arduino_hal::Peripherals::steal() };
 
         let result = dp.ADC.adc.read().bits();
-        adc.values[adc.cursor as usize] = result;
+        debug_assert!(adc.cursor < N as u8);
+        unsafe {
+            *adc.values.get_unchecked_mut(adc.cursor as usize) = result;
+        };
 
         adc.cursor = (adc.cursor + 1) % N as u8;
-        let next_channel = unsafe { adc.channels.assume_init_ref() }
-            [((adc.cursor + 1) % N as u8) as usize]
-            .channel();
+        // original cursor + 1 is already being read once the interrupt is called,
+        // and setting ADMUX won't take effect until the current conversion is done,
+        // so we have to look 2 ahead when setting the next channel
+        let next_channel_index = (adc.cursor + 1) % N as u8;
+        let next_channel = unsafe {
+            adc.channels
+                .assume_init_ref()
+                .get_unchecked(next_channel_index as usize)
+                .channel()
+        };
         dp.ADC
             .admux
             .modify(|r, w| unsafe { w.bits(r.bits()) }.mux().variant(next_channel));
