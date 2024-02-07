@@ -13,11 +13,16 @@
 use core::panic::PanicInfo;
 
 use arduino_hal::{delay_ms, prelude::*, Peripherals};
-use fm_lib::{configure_system_clock, rng::ParallelLfsr, rotary_encoder::RotaryEncoderHandler};
+use async_dac::new_async_adc_state;
+
+use fm_lib::{
+    asynchronous::unsafe_access_mutex, configure_system_clock, rng::ParallelLfsr,
+    rotary_encoder::RotaryEncoderHandler,
+};
 use ufmt::uwriteln;
 
 use crate::{
-    async_dac::{handle_conversion_result, init_async_adc, AsyncAdc, Indexable},
+    async_dac::{handle_conversion_result, init_async_adc, AsyncAdc, Borrowable, Indexable},
     led_driver::TLC5940,
     rng::RngModule,
 };
@@ -102,11 +107,11 @@ fn enable_portd_pc_interrupts(dp: &Peripherals) {
         .modify(|r, w| w.pcie().bits(r.pcie().bits() | 0b100));
 }
 
-static mut GLOBAL_ASYNC_ADC_STATE: AsyncAdc<4> = None;
+static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<4> = new_async_adc_state();
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
-    handle_conversion_result(unsafe { &mut GLOBAL_ASYNC_ADC_STATE });
+    handle_conversion_result(&GLOBAL_ASYNC_ADC_STATE);
 }
 
 enum AnalogChannel {
@@ -167,7 +172,7 @@ fn main() -> ! {
 
     init_async_adc(
         adc,
-        unsafe { &mut GLOBAL_ASYNC_ADC_STATE },
+        &GLOBAL_ASYNC_ADC_STATE,
         [
             arduino_hal::adc::channel::ADC7.into_channel(),
             a4.into_channel(),
@@ -192,15 +197,18 @@ fn main() -> ! {
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
 
     loop {
-        uwriteln!(
-            &mut serial,
-            "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::Chance) },
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::Bias) },
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::BiasCV) },
-            unsafe { GLOBAL_ASYNC_ADC_STATE.get(AnalogChannel::GateTrigSwitch) },
-        )
-        .unwrap_infallible();
+        unsafe_access_mutex(|cs| {
+            let adc = GLOBAL_ASYNC_ADC_STATE.borrow_inner(cs);
+            uwriteln!(
+                &mut serial,
+                "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",
+                adc.get(AnalogChannel::Chance),
+                adc.get(AnalogChannel::Bias),
+                adc.get(AnalogChannel::BiasCV),
+                adc.get(AnalogChannel::GateTrigSwitch),
+            )
+            .unwrap_infallible();
+        });
         delay_ms(100);
 
         // let current_time = sys_clock.millis();

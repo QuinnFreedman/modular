@@ -1,10 +1,11 @@
-use core::mem::MaybeUninit;
+use core::{arch::asm, cell::UnsafeCell, mem::MaybeUninit};
 
 use arduino_hal::{
     adc::{AdcChannel, Channel},
     Adc,
 };
-use fm_lib::asynchronous::assert_interrupts_disabled;
+use avr_device::interrupt::{CriticalSection, Mutex};
+use fm_lib::asynchronous::{assert_interrupts_disabled, unsafe_access_mutex};
 
 pub struct AsyncAdcState<const N: usize> {
     channels: MaybeUninit<[Channel; N]>,
@@ -12,7 +13,11 @@ pub struct AsyncAdcState<const N: usize> {
     cursor: u8,
 }
 
-pub type AsyncAdc<const N: usize> = Option<AsyncAdcState<N>>;
+pub type AsyncAdc<const N: usize> = Mutex<UnsafeCell<Option<AsyncAdcState<N>>>>;
+
+pub const fn new_async_adc_state<const N: usize>() -> AsyncAdc<N> {
+    Mutex::new(UnsafeCell::new(None))
+}
 
 pub trait Indexable {
     fn get<T>(&self, i: T) -> u16
@@ -20,7 +25,12 @@ pub trait Indexable {
         T: Into<u16>;
 }
 
-impl<const N: usize> Indexable for AsyncAdc<N> {
+pub trait Borrowable {
+    type Inner;
+    fn borrow_inner<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner;
+}
+
+impl<const N: usize> Indexable for Option<AsyncAdcState<N>> {
     #[inline(always)]
     fn get<T>(&self, index: T) -> u16
     where
@@ -33,10 +43,19 @@ impl<const N: usize> Indexable for AsyncAdc<N> {
         adc.values[i as usize]
     }
 }
+impl<const N: usize> Borrowable for AsyncAdc<N> {
+    type Inner = Option<AsyncAdcState<N>>;
+
+    fn borrow_inner<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner {
+        let ptr = self.borrow(cs).get();
+        let option_ref = unsafe { ptr.as_ref().unwrap_unchecked() };
+        option_ref
+    }
+}
 
 pub fn init_async_adc<const N: usize>(
     mut adc: Adc,
-    async_adc_state: &'static mut AsyncAdc<N>,
+    async_adc_state: &AsyncAdc<N>,
     channels: [Channel; N],
 ) {
     let ch1 = channels[0].channel();
@@ -46,11 +65,16 @@ pub fn init_async_adc<const N: usize>(
     for i in 0..N {
         values[i] = adc.read_blocking(&channels[i]);
     }
-    debug_assert!(async_adc_state.is_none());
-    *async_adc_state = Some(AsyncAdcState {
-        channels: MaybeUninit::new(channels),
-        values,
-        cursor: 0,
+
+    unsafe_access_mutex(|cs| {
+        let cell = async_adc_state.borrow(cs);
+        let inner = unsafe { &mut *cell.get() };
+        debug_assert!(inner.is_none());
+        *inner = Some(AsyncAdcState {
+            channels: MaybeUninit::new(channels),
+            values,
+            cursor: 0,
+        });
     });
 
     let dp = unsafe { arduino_hal::Peripherals::steal() };
@@ -71,10 +95,12 @@ pub fn init_async_adc<const N: usize>(
 }
 
 #[inline(always)]
-pub fn handle_conversion_result<const N: usize>(adc: &'static mut AsyncAdc<N>) {
-    assert_interrupts_disabled(|_cs| {
-        debug_assert!(adc.is_some());
-        let adc = unsafe { adc.as_mut().unwrap_unchecked() };
+pub fn handle_conversion_result<const N: usize>(adc: &AsyncAdc<N>) {
+    assert_interrupts_disabled(|cs| {
+        let cell = adc.borrow(cs);
+        let inner = unsafe { &mut *cell.get() }.as_mut();
+        debug_assert!(inner.is_some());
+        let adc = unsafe { inner.unwrap_unchecked() };
         let dp = unsafe { arduino_hal::Peripherals::steal() };
 
         let result = dp.ADC.adc.read().bits();
