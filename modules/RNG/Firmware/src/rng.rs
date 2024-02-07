@@ -1,24 +1,7 @@
+//! This module abstracts the core functionality of the RNG module in a
+//! more-or-less hardare-independent way.
+
 use fm_lib::{number_utils::step_in_powers_of_2, rng::ParallelLfsr};
-
-trait LowerPowerOfTwo {
-    /**
-    Returns the largest power of two less than the given number, or 0
-    */
-    fn lower_power_of_two(self) -> Self;
-}
-
-impl LowerPowerOfTwo for u8 {
-    fn lower_power_of_two(self) -> Self {
-        if self <= 1 {
-            return 0;
-        }
-        let n = self - 1;
-
-        let first_set_bit_index = Self::BITS - n.leading_zeros() - 1;
-
-        1u8 << first_set_bit_index
-    }
-}
 
 pub enum SizeAdjustment {
     PowersOfTwo(i8),
@@ -31,6 +14,8 @@ pub enum DisplayMode {
 }
 
 const BUFFER_LEN_DISPLAY_TIME_MS: u32 = 3000;
+const TRIG_LED_TIME_MS: u32 = 60;
+const TRIG_TIME_MS: u32 = 10;
 
 pub struct RngModule<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>
 where
@@ -43,6 +28,7 @@ where
     cursor: u8,
     display_mode: DisplayMode,
     display_needs_update: bool,
+    last_clock_trigger_ms: u32,
 }
 
 impl<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8> RngModule<MAX_BUFFER_SIZE, NUM_LEDS>
@@ -63,6 +49,7 @@ where
             cursor: 0,
             display_mode: DisplayMode::ShowBuffer,
             display_needs_update: true,
+            last_clock_trigger_ms: u32::MAX,
         }
     }
 
@@ -150,4 +137,39 @@ where
             }
         }
     }
+
+    /**
+    Main functionality called on every clock input. Rotates the buffer, maybe
+    mutates it, then outputs the current analog value and triggers.
+    */
+    pub fn handle_clock_trigger(
+        &mut self,
+        current_time_ms: u32,
+        input: &RngModuleInput,
+    ) -> RngModuleOutput {
+        todo!()
+    }
+
+    /**
+    Update the outputs as time passes to turn off LEDs and/or tirggers
+    */
+    pub fn time_step(&mut self, current_time_ms: u32) -> RngModuleOutput {
+        todo!()
+    }
+}
+
+struct RngModuleInput {
+    chance_pot: u16,
+    bias_pot: u16,
+    bias_cv: u16,
+    trig_mode: bool,
+    enable_cv: bool,
+}
+
+struct RngModuleOutput {
+    clock_led_on: bool,
+    enable_led_on: bool,
+    output_a: bool,
+    output_b: bool,
+    analog_out: u16,
 }
