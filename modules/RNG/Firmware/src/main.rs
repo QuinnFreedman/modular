@@ -27,7 +27,7 @@ use ufmt::uwriteln;
 
 use crate::{
     led_driver::TLC5940,
-    rng::{RngModule, SizeAdjustment},
+    rng::{RngModule, RngModuleInput, SizeAdjustment},
 };
 
 mod led_driver;
@@ -128,6 +128,8 @@ impl Into<usize> for AnalogChannel {
     }
 }
 
+const DEBUG_AUTO_STEP: bool = true;
+
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
@@ -197,6 +199,8 @@ fn main() -> ! {
     let mut prng = ParallelLfsr::new(seed);
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
 
+    let mut last_step_time: u32 = 0;
+
     loop {
         // unsafe_access_mutex(|cs| {
         //     let adc = GLOBAL_ASYNC_ADC_STATE.get(cs);
@@ -240,5 +244,22 @@ fn main() -> ! {
                 led_driver.write(&mut spi, buffer)
             },
         );
+
+        if DEBUG_AUTO_STEP {
+            if current_time - last_step_time > 1000 {
+                last_step_time += 1000;
+                let output = rng_module.handle_clock_trigger(
+                    current_time,
+                    &RngModuleInput {
+                        chance_pot: 0,
+                        bias_pot: 0,
+                        bias_cv: 0,
+                        trig_mode: false,
+                        enable_cv: false,
+                    },
+                );
+                uwriteln!(&mut serial, "{}", output.analog_out).unwrap_infallible();
+            }
+        }
     }
 }

@@ -62,3 +62,21 @@ pub fn step_in_powers_of_2(mut start: i8, mut delta: i8) -> i8 {
         result
     }
 }
+
+pub trait ModulusSubtraction {
+    /**
+    Performs subtraction on an unsigned integer modulo a modulus without
+    subtraction underflow
+
+    ```
+    a.subtract_mod(b, c) == (a - b) % c // if a is signed or a > b
+    ```
+    */
+    fn subtract_mod(&self, subtrahend: Self, modulus: Self) -> Self;
+}
+
+impl ModulusSubtraction for u8 {
+    fn subtract_mod(&self, subtrahend: u8, modulus: u8) -> u8 {
+        ((self % modulus) + modulus - (subtrahend % modulus)) % modulus
+    }
+}

@@ -1,9 +1,11 @@
 //! This module abstracts the core functionality of the RNG module in a
 //! more-or-less hardare-independent way.
 
-use core::mem::MaybeUninit;
-
-use fm_lib::{bit_ops::BitOps, number_utils::step_in_powers_of_2, rng::ParallelLfsr};
+use fm_lib::{
+    bit_ops::BitOps,
+    number_utils::{step_in_powers_of_2, ModulusSubtraction},
+    rng::ParallelLfsr,
+};
 
 pub enum SizeAdjustment {
     PowersOfTwo(i8),
@@ -32,11 +34,11 @@ Module input.
 Analog values are 12-bit (0-4095)
 */
 pub struct RngModuleInput {
-    chance_pot: u16,
-    bias_pot: u16,
-    bias_cv: u16,
-    trig_mode: bool,
-    enable_cv: bool,
+    pub chance_pot: u16,
+    pub bias_pot: u16,
+    pub bias_cv: u16,
+    pub trig_mode: bool,
+    pub enable_cv: bool,
 }
 
 /**
@@ -44,11 +46,11 @@ Module output.
 Analog values are 12-bit (0-4095)
 */
 pub struct RngModuleOutput {
-    clock_led_on: bool,
-    enable_led_on: bool,
-    output_a: bool,
-    output_b: bool,
-    analog_out: u16,
+    pub clock_led_on: bool,
+    pub enable_led_on: bool,
+    pub output_a: bool,
+    pub output_b: bool,
+    pub analog_out: u16,
 }
 
 pub struct RngModule<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>
@@ -71,11 +73,12 @@ where
     [(); NUM_LEDS as usize]: Sized,
 {
     pub fn new(prng: &mut ParallelLfsr) -> Self {
-        let mut buffer: [u16; MAX_BUFFER_SIZE as usize] =
-            unsafe { core::mem::MaybeUninit::uninit().assume_init() };
-        for i in 0..MAX_BUFFER_SIZE {
-            buffer[i as usize] = prng.next() % SCALE_MAX;
-        }
+        // let mut buffer = [0u16; MAX_BUFFER_SIZE as usize];
+        // buffer[0] = SCALE_MAX;
+        // buffer[1] = SCALE_MAX;
+        // buffer[3] = SCALE_MAX;
+        let buffer: [u16; MAX_BUFFER_SIZE as usize] =
+            core::array::from_fn(|_| prng.next() % SCALE_MAX);
         Self {
             buffer,
             forward_backward: false,
@@ -88,6 +91,8 @@ where
     }
 
     pub fn adjust_buffer_size(&mut self, change: SizeAdjustment, current_time: u32) {
+        // TODO maybe only edit a candidate value and lock it in after a delay so
+        // cusor position doesn't get messed up when hovering a small buffer size
         match change {
             SizeAdjustment::PowersOfTwo(delta) => {
                 if delta == 0 {
@@ -122,6 +127,8 @@ where
                 self.forward_backward = n < 0;
             }
         }
+        // Should this be mod or max? or just reset to 0?
+        self.cursor = self.cursor % self.buffer_size;
         self.display_mode = DisplayMode::ShowBufferLengthSince(current_time)
     }
 
@@ -129,7 +136,7 @@ where
         let mut result: u8 = 0;
         let n_abs = n.unsigned_abs() as u16;
         for i in 0..NUM_LEDS - 1 {
-            result.write_bit(i, n_abs & (1 << i as u16) == 0);
+            result.write_bit(i, n_abs & (1 << i as u16) != 0);
         }
         if n < 0 {
             result.set_bit(NUM_LEDS - 1);
@@ -153,9 +160,13 @@ where
 
         let bit_vector_to_display = match self.display_mode {
             DisplayMode::ShowBuffer => {
+                const ACTIVE_VALUE_LED_INDEX: u8 = 3;
                 let mut result: u8 = 0;
                 for i in 0..NUM_LEDS {
-                    result.write_bit(i, self.buffer[i as usize] > bias);
+                    let buffer_idx = (i + self.cursor)
+                        .subtract_mod(ACTIVE_VALUE_LED_INDEX, self.buffer_size)
+                        as usize;
+                    result.write_bit(NUM_LEDS - 1 - i, self.buffer[buffer_idx] > bias);
                 }
                 result
             }
@@ -193,7 +204,16 @@ where
         current_time_ms: u32,
         input: &RngModuleInput,
     ) -> RngModuleOutput {
-        todo!()
+        self.last_clock_trigger_ms = current_time_ms;
+        // TODO
+        self.cursor = (self.cursor + 1) % self.buffer_size;
+        RngModuleOutput {
+            clock_led_on: false,
+            enable_led_on: false,
+            output_a: false,
+            output_b: false,
+            analog_out: self.buffer[self.cursor as usize],
+        }
     }
 
     /**

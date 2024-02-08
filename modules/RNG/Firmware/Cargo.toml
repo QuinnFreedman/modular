@@ -1,3 +1,5 @@
+cargo-features = ["profile-rustflags"]
+
 [package]
 name = "fm-rng"
 version = "0.1.0"
@@ -33,6 +35,7 @@ debug = false
 overflow-checks = true
 debug-assertions = true
 rpath = false
+rustflags = ["-Zlocation-detail=line"]
 
 [profile.release]
 panic = "abort"
@@ -44,3 +47,4 @@ strip = "symbols"
 overflow-checks = false
 debug-assertions = false
 rpath = false
+rustflags = ["-Zlocation-detail=none"]
