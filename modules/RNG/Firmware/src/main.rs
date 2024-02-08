@@ -12,7 +12,7 @@
 
 use core::panic::PanicInfo;
 
-use arduino_hal::{delay_ms, prelude::*, Peripherals};
+use arduino_hal::{prelude::*, Peripherals};
 
 use fm_lib::{
     async_adc::{
@@ -25,7 +25,10 @@ use fm_lib::{
 };
 use ufmt::uwriteln;
 
-use crate::{led_driver::TLC5940, rng::RngModule};
+use crate::{
+    led_driver::TLC5940,
+    rng::{RngModule, SizeAdjustment},
+};
 
 mod led_driver;
 mod rng;
@@ -77,9 +80,8 @@ static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
 fn PCINT2() {
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let port = dp.PORTD.pind.read();
-    // TODO switch connections
-    let b = port.pd4().bit_is_set();
-    let a = port.pd5().bit_is_set();
+    let a = port.pd4().bit_is_set();
+    let b = port.pd5().bit_is_set();
     ROTARY_ENCODER.update(a, b);
 }
 
@@ -196,36 +198,47 @@ fn main() -> ! {
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
 
     loop {
-        unsafe_access_mutex(|cs| {
-            let adc = GLOBAL_ASYNC_ADC_STATE.get(cs);
-            uwriteln!(
-                &mut serial,
-                "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",
-                adc.get(AnalogChannel::Chance),
-                adc.get(AnalogChannel::Bias),
-                adc.get(AnalogChannel::BiasCV),
-                adc.get(AnalogChannel::GateTrigSwitch),
-            )
-            .unwrap_infallible();
-        });
-        delay_ms(100);
+        // unsafe_access_mutex(|cs| {
+        //     let adc = GLOBAL_ASYNC_ADC_STATE.get(cs);
+        //     uwriteln!(
+        //         &mut serial,
+        //         "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",
+        //         adc.get(AnalogChannel::Chance),
+        //         adc.get(AnalogChannel::Bias),
+        //         adc.get(AnalogChannel::BiasCV),
+        //         adc.get(AnalogChannel::GateTrigSwitch),
+        //     )
+        //     .unwrap_infallible();
+        // });
 
-        // let current_time = sys_clock.millis();
-        // let re_delta = ROTARY_ENCODER.sample_and_reset();
-        // if re_delta != 0 {
-        //     let size_change = if encoder_switch.is_low() {
-        //         SizeAdjustment::ExactDelta(re_delta)
-        //     } else {
-        //         SizeAdjustment::PowersOfTwo(re_delta)
-        //     };
-        //     rng_module.adjust_buffer_size(size_change, current_time);
+        // for i in 0..rng_module.buffer.len() {
+        //     let x = rng_module.buffer[i];
+        //     uwrite!(&mut serial, "{} ", x).unwrap_infallible();
         // }
+        // uwriteln!(&mut serial, "").unwrap_infallible();
+        // delay_ms(100);
 
-        // rng_module.render_display_if_needed(
-        //     current_time,
-        //     |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
-        //         led_driver.write(&mut spi, buffer)
-        //     },
-        // );
+        let current_time = sys_clock.millis();
+        let re_delta = ROTARY_ENCODER.sample_and_reset();
+        if re_delta != 0 {
+            let size_change = if encoder_switch.is_low() {
+                SizeAdjustment::ExactDelta(re_delta)
+            } else {
+                SizeAdjustment::PowersOfTwo(re_delta)
+            };
+            rng_module.adjust_buffer_size(size_change, current_time);
+        }
+
+        let bias =
+            unsafe_access_mutex(|cs| GLOBAL_ASYNC_ADC_STATE.get(cs).get(AnalogChannel::Bias));
+        let bias_adjusted = (bias & !0b11u16) << 2;
+
+        rng_module.render_display_if_needed(
+            current_time,
+            bias_adjusted,
+            |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
+                led_driver.write(&mut spi, buffer)
+            },
+        );
     }
 }

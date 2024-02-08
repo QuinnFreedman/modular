@@ -8,6 +8,7 @@
 
 pub mod async_adc;
 pub mod asynchronous;
+pub mod bit_ops;
 pub mod button_debouncer;
 pub mod const_traits;
 pub mod number_utils;

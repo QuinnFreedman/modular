@@ -1,7 +1,9 @@
 //! This module abstracts the core functionality of the RNG module in a
 //! more-or-less hardare-independent way.
 
-use fm_lib::{number_utils::step_in_powers_of_2, rng::ParallelLfsr};
+use core::mem::MaybeUninit;
+
+use fm_lib::{bit_ops::BitOps, number_utils::step_in_powers_of_2, rng::ParallelLfsr};
 
 pub enum SizeAdjustment {
     PowersOfTwo(i8),
@@ -16,18 +18,50 @@ pub enum DisplayMode {
 const BUFFER_LEN_DISPLAY_TIME_MS: u32 = 3000;
 const TRIG_LED_TIME_MS: u32 = 60;
 const TRIG_TIME_MS: u32 = 10;
+const SCALE_MAX: u16 = 0xfff;
+
+#[derive(PartialEq, Eq)]
+enum RenderedDisplay {
+    BufferSize { size: u8, forward_backgward: bool },
+    BufferValues { cursor: u8, bias: u16 },
+    None,
+}
+
+/**
+Module input.
+Analog values are 12-bit (0-4095)
+*/
+pub struct RngModuleInput {
+    chance_pot: u16,
+    bias_pot: u16,
+    bias_cv: u16,
+    trig_mode: bool,
+    enable_cv: bool,
+}
+
+/**
+Module output.
+Analog values are 12-bit (0-4095)
+*/
+pub struct RngModuleOutput {
+    clock_led_on: bool,
+    enable_led_on: bool,
+    output_a: bool,
+    output_b: bool,
+    analog_out: u16,
+}
 
 pub struct RngModule<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>
 where
     [(); MAX_BUFFER_SIZE as usize]: Sized,
     [(); NUM_LEDS as usize]: Sized,
 {
-    buffer: [u16; MAX_BUFFER_SIZE as usize],
+    pub buffer: [u16; MAX_BUFFER_SIZE as usize],
     forward_backward: bool,
     buffer_size: u8,
     cursor: u8,
     display_mode: DisplayMode,
-    display_needs_update: bool,
+    last_rendered_led_display: u8,
     last_clock_trigger_ms: u32,
 }
 
@@ -40,7 +74,7 @@ where
         let mut buffer: [u16; MAX_BUFFER_SIZE as usize] =
             unsafe { core::mem::MaybeUninit::uninit().assume_init() };
         for i in 0..MAX_BUFFER_SIZE {
-            buffer[i as usize] = prng.next();
+            buffer[i as usize] = prng.next() % SCALE_MAX;
         }
         Self {
             buffer,
@@ -48,7 +82,7 @@ where
             buffer_size: 8,
             cursor: 0,
             display_mode: DisplayMode::ShowBuffer,
-            display_needs_update: true,
+            last_rendered_led_display: 0,
             last_clock_trigger_ms: u32::MAX,
         }
     }
@@ -88,22 +122,17 @@ where
                 self.forward_backward = n < 0;
             }
         }
-        self.display_needs_update = true;
         self.display_mode = DisplayMode::ShowBufferLengthSince(current_time)
     }
 
-    fn binary_representation_as_display_buffer(n: i8) -> [u16; NUM_LEDS as usize] {
-        let mut result = [0u16; NUM_LEDS as usize];
+    fn binary_representation_as_display_buffer(n: i8) -> u8 {
+        let mut result: u8 = 0;
         let n_abs = n.unsigned_abs() as u16;
         for i in 0..NUM_LEDS - 1 {
-            result[i as usize] = if n_abs & (1 << i as u16) == 0 {
-                0
-            } else {
-                0xfff
-            };
+            result.write_bit(i, n_abs & (1 << i as u16) == 0);
         }
         if n < 0 {
-            result[NUM_LEDS as usize - 1] = 0xfff;
+            result.set_bit(NUM_LEDS - 1);
         }
         result
     }
@@ -111,6 +140,7 @@ where
     pub fn render_display_if_needed<RENDERER>(
         &mut self,
         current_time: u32,
+        bias: u16,
         render_display: RENDERER,
     ) where
         RENDERER: FnOnce(&[u16; NUM_LEDS as usize]) -> Result<(), ()>,
@@ -118,23 +148,39 @@ where
         if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
             if current_time > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
                 self.display_mode = DisplayMode::ShowBuffer;
-                self.display_needs_update = true;
             }
         }
-        if self.display_needs_update {
-            let to_write = match self.display_mode {
-                DisplayMode::ShowBuffer => [0xfffu16; NUM_LEDS as usize], // DEBUG PLACEHOLDER
-                DisplayMode::ShowBufferLengthSince(_) => {
-                    Self::binary_representation_as_display_buffer(if self.forward_backward {
-                        -(self.buffer_size as i8)
-                    } else {
-                        self.buffer_size as i8
-                    })
+
+        let bit_vector_to_display = match self.display_mode {
+            DisplayMode::ShowBuffer => {
+                let mut result: u8 = 0;
+                for i in 0..NUM_LEDS {
+                    result.write_bit(i, self.buffer[i as usize] > bias);
                 }
-            };
-            if let Ok(()) = render_display(&to_write) {
-                self.display_needs_update = false;
+                result
             }
+            DisplayMode::ShowBufferLengthSince(_) => {
+                Self::binary_representation_as_display_buffer(if self.forward_backward {
+                    -(self.buffer_size as i8)
+                } else {
+                    self.buffer_size as i8
+                })
+            }
+        };
+
+        if bit_vector_to_display == self.last_rendered_led_display {
+            return;
+        }
+
+        let to_write: [u16; NUM_LEDS as usize] = core::array::from_fn(|i| {
+            if bit_vector_to_display.get_bit(i as u8) {
+                SCALE_MAX
+            } else {
+                0u16
+            }
+        });
+        if let Ok(()) = render_display(&to_write) {
+            self.last_rendered_led_display = bit_vector_to_display;
         }
     }
 
@@ -156,20 +202,4 @@ where
     pub fn time_step(&mut self, current_time_ms: u32) -> RngModuleOutput {
         todo!()
     }
-}
-
-struct RngModuleInput {
-    chance_pot: u16,
-    bias_pot: u16,
-    bias_cv: u16,
-    trig_mode: bool,
-    enable_cv: bool,
-}
-
-struct RngModuleOutput {
-    clock_led_on: bool,
-    enable_led_on: bool,
-    output_a: bool,
-    output_b: bool,
-    analog_out: u16,
 }
