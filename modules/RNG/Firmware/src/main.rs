@@ -12,17 +12,27 @@
 
 use core::panic::PanicInfo;
 
-use arduino_hal::{prelude::*, Peripherals};
+use arduino_hal::{
+    hal::port,
+    port::{
+        mode::{Floating, Input, Output},
+        Pin, PinOps,
+    },
+    prelude::*,
+    Peripherals, Pins, Usart,
+};
 
 use fm_lib::{
     async_adc::{
-        handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, Indexable,
+        handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, AsyncAdcState,
+        Indexable,
     },
     asynchronous::{unsafe_access_mutex, Borrowable},
     configure_system_clock,
     rng::ParallelLfsr,
     rotary_encoder::RotaryEncoderHandler,
 };
+use rng::{RngModuleInputShort, RngModuleOutput};
 use ufmt::uwriteln;
 
 use crate::{
@@ -139,7 +149,7 @@ fn main() -> ! {
 
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
-    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let a0 = pins.a0.into_analog_input(&mut adc);
     let a2 = pins.a2.into_analog_input(&mut adc);
     let a3 = pins.a3.into_analog_input(&mut adc);
@@ -155,6 +165,8 @@ fn main() -> ! {
         seed
     };
     let encoder_switch = a5.into_digital(&mut adc).into_pull_up_input();
+    let a2_digital = a2.into_digital(&mut adc).into_output();
+    let a3_digital = a3.into_digital(&mut adc).into_output();
 
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -193,73 +205,168 @@ fn main() -> ! {
     let led_driver =
         TLC5940::<{ NUM_LEDS as usize }>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
     let sys_clock = system_clock::init_system_clock(dp.TC0);
-
-    uwriteln!(&mut serial, "Seed: {}", seed).unwrap_infallible();
-
     let mut prng = ParallelLfsr::new(seed);
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
+
+    let mut output_pins = OutputPins {
+        enabled_led: a2_digital,
+        clock_led: a3_digital,
+        gate_a: pins.d7.into_output(),
+        gate_b: pins.d6.into_output(),
+    };
+
+    let input_pins = DigitalInputPins {
+        enabled_cv: pins.a1.into_floating_input(),
+    };
 
     let mut last_step_time: u32 = 0;
 
     loop {
-        // unsafe_access_mutex(|cs| {
-        //     let adc = GLOBAL_ASYNC_ADC_STATE.get(cs);
-        //     uwriteln!(
-        //         &mut serial,
-        //         "Chance: {}, Bias: {}, ChanceCV {}, Trig: {}",
-        //         adc.get(AnalogChannel::Chance),
-        //         adc.get(AnalogChannel::Bias),
-        //         adc.get(AnalogChannel::BiasCV),
-        //         adc.get(AnalogChannel::GateTrigSwitch),
-        //     )
-        //     .unwrap_infallible();
-        // });
-
-        // for i in 0..rng_module.buffer.len() {
-        //     let x = rng_module.buffer[i];
-        //     uwrite!(&mut serial, "{} ", x).unwrap_infallible();
-        // }
-        // uwriteln!(&mut serial, "").unwrap_infallible();
-        // delay_ms(100);
-
         let current_time = sys_clock.millis();
-        let re_delta = ROTARY_ENCODER.sample_and_reset();
-        if re_delta != 0 {
-            let size_change = if encoder_switch.is_low() {
-                SizeAdjustment::ExactDelta(re_delta)
-            } else {
-                SizeAdjustment::PowersOfTwo(re_delta)
-            };
-            rng_module.adjust_buffer_size(size_change, current_time);
+
+        // Handle rotary encoder
+        {
+            let re_delta = ROTARY_ENCODER.sample_and_reset();
+            if re_delta != 0 {
+                let size_change = if encoder_switch.is_low() {
+                    SizeAdjustment::ExactDelta(re_delta)
+                } else {
+                    SizeAdjustment::PowersOfTwo(re_delta)
+                };
+                rng_module.adjust_buffer_size(size_change, current_time);
+            }
         }
 
-        let bias =
-            unsafe_access_mutex(|cs| GLOBAL_ASYNC_ADC_STATE.get(cs).get(AnalogChannel::Bias));
-        let bias_adjusted = (bias & !0b11u16) << 2;
+        // Handle time passing
+        {
+            let chance_pot_value = unsafe_access_mutex(|cs| {
+                GLOBAL_ASYNC_ADC_STATE
+                    .get_inner(cs)
+                    .get(AnalogChannel::Chance)
+            });
+            let output = rng_module.time_step(
+                current_time,
+                &RngModuleInputShort {
+                    chance_pot: chance_pot_value << 2,
+                    enable_cv: input_pins.enabled_cv.is_high(),
+                },
+            );
+            write_module_output(&output, &mut output_pins, false);
+        }
 
-        rng_module.render_display_if_needed(
-            current_time,
-            bias_adjusted,
-            |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
-                led_driver.write(&mut spi, buffer)
-            },
-        );
+        // Handle LED bar display updates
+        {
+            let bias = unsafe_access_mutex(|cs| get_bias(GLOBAL_ASYNC_ADC_STATE.get_inner(cs)));
+            rng_module.render_display_if_needed(
+                bias,
+                |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
+                    led_driver.write(&mut spi, buffer)
+                },
+            );
+        }
 
         if DEBUG_AUTO_STEP {
-            if current_time - last_step_time > 1000 {
+            debug_assert!(current_time >= last_step_time);
+            if current_time - last_step_time >= 1000u32 {
                 last_step_time += 1000;
-                let output = rng_module.handle_clock_trigger(
-                    current_time,
-                    &RngModuleInput {
-                        chance_pot: 0,
-                        bias_pot: 0,
-                        bias_cv: 0,
-                        trig_mode: false,
-                        enable_cv: false,
-                    },
-                );
-                uwriteln!(&mut serial, "{}", output.analog_out).unwrap_infallible();
+                handle_clock_step(&mut rng_module, current_time, &input_pins, &mut output_pins);
             }
         }
     }
+}
+
+/**
+Reads bias pot and cv analog inputs, undoes functions applied to CV in hardware,
+sums them, and upscales the result to match the RNG modules 12-bit scale
+*/
+fn get_bias<const N: usize>(adc: &Option<AsyncAdcState<N>>) -> u16 {
+    let pot_value = adc.get(AnalogChannel::Bias);
+    let cv_value = adc.get(AnalogChannel::BiasCV);
+    const HALF_ADC_SCALE: i16 = 1024 / 2;
+    let adjusted_cv = -(HALF_ADC_SCALE - (cv_value as i16));
+    let sum = pot_value.saturating_add_signed(adjusted_cv);
+    // discard the 2 lsbs of the input to reduce display flickering. The difference
+    // should not be musically noticable
+    (sum & !0b11u16) << 2
+}
+
+fn handle_clock_step<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>(
+    rng: &mut RngModule<MAX_BUFFER_SIZE, NUM_LEDS>,
+    current_time: u32,
+    input_pins: &SpecifiedDigitalInputPins,
+    output_pins: &mut SpecifiedOutputPins,
+) where
+    [(); NUM_LEDS as usize]: Sized,
+    [(); MAX_BUFFER_SIZE as usize]: Sized,
+{
+    let input = unsafe_access_mutex(|cs| {
+        let adc = GLOBAL_ASYNC_ADC_STATE.get_inner(cs);
+        RngModuleInput {
+            chance_cv: adc.get(AnalogChannel::Chance) << 2,
+            bias_cv: get_bias(adc),
+            trig_mode: adc.get(AnalogChannel::GateTrigSwitch) > 1024 / 2,
+            enable_cv: input_pins.enabled_cv.is_high(),
+        }
+    });
+    let output = rng.handle_clock_trigger(current_time, &input);
+
+    write_module_output(&output, output_pins, true);
+}
+
+fn write_module_output(
+    state: &RngModuleOutput,
+    output_pins: &mut SpecifiedOutputPins,
+    analog_output_may_change: bool,
+) {
+    if state.enable_led_on {
+        output_pins.enabled_led.set_high();
+    } else {
+        output_pins.enabled_led.set_low();
+    }
+
+    if state.clock_led_on {
+        output_pins.clock_led.set_high();
+    } else {
+        output_pins.clock_led.set_low();
+    }
+
+    if !state.output_a {
+        output_pins.gate_a.set_low();
+    }
+    if !state.output_b {
+        output_pins.gate_b.set_low();
+    }
+
+    if analog_output_may_change {
+        // TODO analog output
+    }
+
+    if state.output_a {
+        output_pins.gate_a.set_high();
+    }
+    if state.output_b {
+        output_pins.gate_b.set_high();
+    }
+}
+
+type SpecifiedOutputPins = OutputPins<port::PC2, port::PC3, port::PD7, port::PD6>;
+struct OutputPins<EnabledLedPin, ClockLedPin, GateAPin, GateBPin>
+where
+    EnabledLedPin: PinOps,
+    ClockLedPin: PinOps,
+    GateAPin: PinOps,
+    GateBPin: PinOps,
+{
+    enabled_led: Pin<Output, EnabledLedPin>,
+    clock_led: Pin<Output, ClockLedPin>,
+    gate_a: Pin<Output, GateAPin>,
+    gate_b: Pin<Output, GateBPin>,
+}
+
+type SpecifiedDigitalInputPins = DigitalInputPins<port::PC1>;
+struct DigitalInputPins<EnabledCvPin>
+where
+    EnabledCvPin: PinOps,
+{
+    enabled_cv: Pin<Input<Floating>, EnabledCvPin>,
 }

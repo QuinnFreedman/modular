@@ -116,7 +116,7 @@ macro_rules! configure_system_clock {
                 #[allow(dead_code)]
                 #[inline(always)]
                 pub fn millis(&self) -> u32 {
-                    fm_lib::asynchronous::unsafe_access_mutex(|cs| MILLIS_COUNTER.borrow(cs).get())
+                    avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get())
                 }
 
                 /**
@@ -130,9 +130,8 @@ macro_rules! configure_system_clock {
                     let mut timer_register = self.read_timer_register();
                     let mut ms_counter: u32;
                     loop {
-                        ms_counter = fm_lib::asynchronous::unsafe_access_mutex(|cs| {
-                            MILLIS_COUNTER.borrow(cs).get()
-                        });
+                        ms_counter =
+                            avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get());
                         let timer_register_check = self.read_timer_register();
                         let ok = timer_register_check > timer_register;
                         timer_register = timer_register_check;
@@ -148,9 +147,8 @@ macro_rules! configure_system_clock {
                     let mut timer_register = self.read_timer_register();
                     let mut ms_counter: u32;
                     loop {
-                        ms_counter = fm_lib::asynchronous::unsafe_access_mutex(|cs| {
-                            MILLIS_COUNTER.borrow(cs).get()
-                        });
+                        ms_counter =
+                            avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get());
                         let timer_register_check = self.read_timer_register();
                         let ok = timer_register_check > timer_register;
                         timer_register = timer_register_check;

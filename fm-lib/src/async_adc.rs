@@ -27,7 +27,7 @@ use arduino_hal::{
 };
 use avr_device::interrupt::Mutex;
 
-use crate::asynchronous::{assert_interrupts_disabled, unsafe_access_mutex};
+use crate::asynchronous::{assert_interrupts_disabled, unsafe_access_mutex, Borrowable as _};
 
 pub struct AsyncAdcState<const N: usize> {
     channels: MaybeUninit<[Channel; N]>,
@@ -84,8 +84,7 @@ pub fn init_async_adc<const N: usize>(
     }
 
     unsafe_access_mutex(|cs| {
-        let cell = async_adc_state.borrow(cs);
-        let inner = unsafe { &mut *cell.get() };
+        let inner = async_adc_state.get_inner_mut(cs);
         debug_assert!(inner.is_none());
         *inner = Some(AsyncAdcState {
             channels: MaybeUninit::new(channels),
@@ -119,8 +118,7 @@ then advances the ADC input channel by one.
 #[inline(always)]
 pub fn handle_conversion_result<const N: usize>(adc: &AsyncAdc<N>) {
     assert_interrupts_disabled(|cs| {
-        let cell = adc.borrow(cs);
-        let inner = unsafe { &mut *cell.get() }.as_mut();
+        let inner = adc.get_inner_mut(cs).as_mut();
         debug_assert!(inner.is_some());
         let adc = unsafe { inner.unwrap_unchecked() };
         let dp = unsafe { arduino_hal::Peripherals::steal() };

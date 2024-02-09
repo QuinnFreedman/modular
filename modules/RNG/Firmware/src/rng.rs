@@ -1,6 +1,8 @@
 //! This module abstracts the core functionality of the RNG module in a
 //! more-or-less hardare-independent way.
 
+use core::cell::Cell;
+
 use fm_lib::{
     bit_ops::BitOps,
     number_utils::{step_in_powers_of_2, ModulusSubtraction},
@@ -22,22 +24,23 @@ const TRIG_LED_TIME_MS: u32 = 60;
 const TRIG_TIME_MS: u32 = 10;
 const SCALE_MAX: u16 = 0xfff;
 
-#[derive(PartialEq, Eq)]
-enum RenderedDisplay {
-    BufferSize { size: u8, forward_backgward: bool },
-    BufferValues { cursor: u8, bias: u16 },
-    None,
-}
-
 /**
-Module input.
+Module input parameters
 Analog values are 12-bit (0-4095)
 */
 pub struct RngModuleInput {
-    pub chance_pot: u16,
-    pub bias_pot: u16,
+    pub chance_cv: u16,
     pub bias_cv: u16,
     pub trig_mode: bool,
+    pub enable_cv: bool,
+}
+
+/**
+Subset of input parameters needed on every timestep
+Analog values are 12-bit (0-4095)
+*/
+pub struct RngModuleInputShort {
+    pub chance_pot: u16,
     pub enable_cv: bool,
 }
 
@@ -53,6 +56,19 @@ pub struct RngModuleOutput {
     pub analog_out: u16,
 }
 
+#[derive(PartialEq, Eq)]
+pub enum Channel {
+    A,
+    B,
+    Neither,
+}
+
+#[derive(PartialEq, Eq)]
+pub enum TriggerMode {
+    Trigger,
+    Gate,
+}
+
 pub struct RngModule<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>
 where
     [(); MAX_BUFFER_SIZE as usize]: Sized,
@@ -63,7 +79,10 @@ where
     buffer_size: u8,
     cursor: u8,
     display_mode: DisplayMode,
-    last_rendered_led_display: u8,
+    current_channel: Channel,
+    current_trigger_mode: TriggerMode,
+    current_analog_out: u16,
+    last_rendered_led_display: Cell<u8>,
     last_clock_trigger_ms: u32,
 }
 
@@ -73,10 +92,6 @@ where
     [(); NUM_LEDS as usize]: Sized,
 {
     pub fn new(prng: &mut ParallelLfsr) -> Self {
-        // let mut buffer = [0u16; MAX_BUFFER_SIZE as usize];
-        // buffer[0] = SCALE_MAX;
-        // buffer[1] = SCALE_MAX;
-        // buffer[3] = SCALE_MAX;
         let buffer: [u16; MAX_BUFFER_SIZE as usize] =
             core::array::from_fn(|_| prng.next() % SCALE_MAX);
         Self {
@@ -85,7 +100,10 @@ where
             buffer_size: 8,
             cursor: 0,
             display_mode: DisplayMode::ShowBuffer,
-            last_rendered_led_display: 0,
+            current_channel: Channel::Neither,
+            current_trigger_mode: TriggerMode::Trigger,
+            current_analog_out: 0,
+            last_rendered_led_display: Cell::new(0),
             last_clock_trigger_ms: u32::MAX,
         }
     }
@@ -144,20 +162,10 @@ where
         result
     }
 
-    pub fn render_display_if_needed<RENDERER>(
-        &mut self,
-        current_time: u32,
-        bias: u16,
-        render_display: RENDERER,
-    ) where
+    pub fn render_display_if_needed<RENDERER>(&self, bias: u16, render_display: RENDERER)
+    where
         RENDERER: FnOnce(&[u16; NUM_LEDS as usize]) -> Result<(), ()>,
     {
-        if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
-            if current_time > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
-                self.display_mode = DisplayMode::ShowBuffer;
-            }
-        }
-
         let bit_vector_to_display = match self.display_mode {
             DisplayMode::ShowBuffer => {
                 const ACTIVE_VALUE_LED_INDEX: u8 = 3;
@@ -166,7 +174,7 @@ where
                     let buffer_idx = (i + self.cursor)
                         .subtract_mod(ACTIVE_VALUE_LED_INDEX, self.buffer_size)
                         as usize;
-                    result.write_bit(NUM_LEDS - 1 - i, self.buffer[buffer_idx] > bias);
+                    result.write_bit(NUM_LEDS - 1 - i, self.buffer[buffer_idx] <= bias);
                 }
                 result
             }
@@ -179,7 +187,7 @@ where
             }
         };
 
-        if bit_vector_to_display == self.last_rendered_led_display {
+        if bit_vector_to_display == self.last_rendered_led_display.get() {
             return;
         }
 
@@ -191,7 +199,7 @@ where
             }
         });
         if let Ok(()) = render_display(&to_write) {
-            self.last_rendered_led_display = bit_vector_to_display;
+            self.last_rendered_led_display.set(bit_vector_to_display);
         }
     }
 
@@ -205,21 +213,62 @@ where
         input: &RngModuleInput,
     ) -> RngModuleOutput {
         self.last_clock_trigger_ms = current_time_ms;
-        // TODO
         self.cursor = (self.cursor + 1) % self.buffer_size;
+        let channel_b = self.buffer[self.cursor as usize] <= input.bias_cv;
+        self.current_channel = if channel_b { Channel::B } else { Channel::A };
+        self.current_trigger_mode = if input.trig_mode {
+            TriggerMode::Trigger
+        } else {
+            TriggerMode::Gate
+        };
+
+        let enabled = input.enable_cv && input.chance_cv > 0;
+        self.current_analog_out = self.buffer[self.cursor as usize];
+
         RngModuleOutput {
-            clock_led_on: false,
-            enable_led_on: false,
-            output_a: false,
-            output_b: false,
-            analog_out: self.buffer[self.cursor as usize],
+            clock_led_on: true,
+            enable_led_on: enabled,
+            output_a: !channel_b,
+            output_b: channel_b,
+            analog_out: self.current_analog_out,
         }
     }
 
     /**
     Update the outputs as time passes to turn off LEDs and/or tirggers
     */
-    pub fn time_step(&mut self, current_time_ms: u32) -> RngModuleOutput {
-        todo!()
+    pub fn time_step(
+        &mut self,
+        current_time_ms: u32,
+        input: &RngModuleInputShort,
+    ) -> RngModuleOutput {
+        if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
+            if current_time_ms > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
+                self.display_mode = DisplayMode::ShowBuffer;
+            }
+        }
+
+        // TODO handle initial state
+        debug_assert!(
+            self.last_clock_trigger_ms == u32::MAX || current_time_ms >= self.last_clock_trigger_ms
+        );
+        let time_since_last_clock = current_time_ms.saturating_sub(self.last_clock_trigger_ms);
+
+        if self.current_trigger_mode == TriggerMode::Trigger && time_since_last_clock > TRIG_TIME_MS
+        {
+            self.current_channel = Channel::Neither;
+        }
+
+        let clock_led_on = time_since_last_clock < TRIG_LED_TIME_MS;
+
+        let enabled = input.enable_cv && input.chance_pot > 0;
+
+        RngModuleOutput {
+            clock_led_on,
+            enable_led_on: enabled,
+            output_a: self.current_channel == Channel::A,
+            output_b: self.current_channel == Channel::B,
+            analog_out: self.current_analog_out,
+        }
     }
 }

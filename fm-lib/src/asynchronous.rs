@@ -77,14 +77,20 @@ pub trait Borrowable {
     which does not implement Copy, either because it is large or contains
     unique resource handles.
     */
-    fn get<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner;
+    fn get_inner<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner;
+    fn get_inner_mut<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs mut Self::Inner;
 }
 
 impl<T> Borrowable for Mutex<UnsafeCell<T>> {
     type Inner = T;
-    fn get<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner {
+    fn get_inner<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs Self::Inner {
         let ptr = self.borrow(cs).get();
-        let option_ref = unsafe { ptr.as_ref().unwrap_unchecked() };
+        let inner_ref = unsafe { ptr.as_ref().unwrap_unchecked() };
+        inner_ref
+    }
+    fn get_inner_mut<'cs>(&self, cs: CriticalSection<'cs>) -> &'cs mut Self::Inner {
+        let ptr = self.borrow(cs).get();
+        let option_ref = unsafe { ptr.as_mut().unwrap_unchecked() };
         option_ref
     }
 }
