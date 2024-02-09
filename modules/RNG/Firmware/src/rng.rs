@@ -69,6 +69,13 @@ pub enum TriggerMode {
     Gate,
 }
 
+struct CurrentOutputState {
+    channel: Channel,
+    trigger_mode: TriggerMode,
+    analog_out: u16,
+    clock_trigger_time_ms: u32,
+}
+
 pub struct RngModule<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>
 where
     [(); MAX_BUFFER_SIZE as usize]: Sized,
@@ -78,12 +85,9 @@ where
     forward_backward: bool,
     buffer_size: u8,
     cursor: u8,
+    current_output: Option<CurrentOutputState>,
     display_mode: DisplayMode,
-    current_channel: Channel,
-    current_trigger_mode: TriggerMode,
-    current_analog_out: u16,
     last_rendered_led_display: Cell<u8>,
-    last_clock_trigger_ms: u32,
 }
 
 impl<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8> RngModule<MAX_BUFFER_SIZE, NUM_LEDS>
@@ -100,11 +104,8 @@ where
             buffer_size: 8,
             cursor: 0,
             display_mode: DisplayMode::ShowBuffer,
-            current_channel: Channel::Neither,
-            current_trigger_mode: TriggerMode::Trigger,
-            current_analog_out: 0,
+            current_output: None,
             last_rendered_led_display: Cell::new(0),
-            last_clock_trigger_ms: u32::MAX,
         }
     }
 
@@ -212,25 +213,30 @@ where
         current_time_ms: u32,
         input: &RngModuleInput,
     ) -> RngModuleOutput {
-        self.last_clock_trigger_ms = current_time_ms;
-        self.cursor = (self.cursor + 1) % self.buffer_size;
-        let channel_b = self.buffer[self.cursor as usize] <= input.bias_cv;
-        self.current_channel = if channel_b { Channel::B } else { Channel::A };
-        self.current_trigger_mode = if input.trig_mode {
-            TriggerMode::Trigger
-        } else {
-            TriggerMode::Gate
-        };
+        let is_enabled = input.enable_cv && input.chance_cv > 0;
 
-        let enabled = input.enable_cv && input.chance_cv > 0;
-        self.current_analog_out = self.buffer[self.cursor as usize];
+        self.cursor = (self.cursor + 1) % self.buffer_size;
+
+        let is_channel_b = self.buffer[self.cursor as usize] <= input.bias_cv;
+        let analog_out = self.buffer[self.cursor as usize];
+
+        self.current_output = Some(CurrentOutputState {
+            clock_trigger_time_ms: current_time_ms,
+            channel: if is_channel_b { Channel::B } else { Channel::A },
+            trigger_mode: if input.trig_mode {
+                TriggerMode::Trigger
+            } else {
+                TriggerMode::Gate
+            },
+            analog_out,
+        });
 
         RngModuleOutput {
             clock_led_on: true,
-            enable_led_on: enabled,
-            output_a: !channel_b,
-            output_b: channel_b,
-            analog_out: self.current_analog_out,
+            enable_led_on: is_enabled,
+            output_a: !is_channel_b,
+            output_b: is_channel_b,
+            analog_out,
         }
     }
 
@@ -242,33 +248,40 @@ where
         current_time_ms: u32,
         input: &RngModuleInputShort,
     ) -> RngModuleOutput {
-        if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
-            if current_time_ms > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
-                self.display_mode = DisplayMode::ShowBuffer;
-            }
-        }
-
-        // TODO handle initial state
-        debug_assert!(
-            self.last_clock_trigger_ms == u32::MAX || current_time_ms >= self.last_clock_trigger_ms
-        );
-        let time_since_last_clock = current_time_ms.saturating_sub(self.last_clock_trigger_ms);
-
-        if self.current_trigger_mode == TriggerMode::Trigger && time_since_last_clock > TRIG_TIME_MS
-        {
-            self.current_channel = Channel::Neither;
-        }
-
-        let clock_led_on = time_since_last_clock < TRIG_LED_TIME_MS;
-
         let enabled = input.enable_cv && input.chance_pot > 0;
+        match self.current_output {
+            Some(ref mut current_output) => {
+                if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
+                    if current_time_ms > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
+                        self.display_mode = DisplayMode::ShowBuffer;
+                    }
+                }
 
-        RngModuleOutput {
-            clock_led_on,
-            enable_led_on: enabled,
-            output_a: self.current_channel == Channel::A,
-            output_b: self.current_channel == Channel::B,
-            analog_out: self.current_analog_out,
+                let time_since_last_clock = current_time_ms - current_output.clock_trigger_time_ms;
+
+                if current_output.trigger_mode == TriggerMode::Trigger
+                    && time_since_last_clock > TRIG_TIME_MS
+                {
+                    current_output.channel = Channel::Neither;
+                }
+
+                let clock_led_on = time_since_last_clock < TRIG_LED_TIME_MS;
+
+                RngModuleOutput {
+                    clock_led_on,
+                    enable_led_on: enabled,
+                    output_a: current_output.channel == Channel::A,
+                    output_b: current_output.channel == Channel::B,
+                    analog_out: current_output.analog_out,
+                }
+            }
+            None => RngModuleOutput {
+                clock_led_on: false,
+                enable_led_on: enabled,
+                output_a: false,
+                output_b: false,
+                analog_out: 0,
+            },
         }
     }
 }
