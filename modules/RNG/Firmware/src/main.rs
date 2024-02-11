@@ -19,7 +19,7 @@ use arduino_hal::{
         Pin, PinOps,
     },
     prelude::*,
-    Peripherals, Pins, Usart,
+    Peripherals,
 };
 
 use fm_lib::{
@@ -149,7 +149,7 @@ fn main() -> ! {
 
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
-    // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let a0 = pins.a0.into_analog_input(&mut adc);
     let a2 = pins.a2.into_analog_input(&mut adc);
     let a3 = pins.a3.into_analog_input(&mut adc);
@@ -257,6 +257,8 @@ fn main() -> ! {
         // Handle LED bar display updates
         {
             let bias = unsafe_access_mutex(|cs| get_bias(GLOBAL_ASYNC_ADC_STATE.get_inner(cs)));
+            uwriteln!(&mut serial, "bias: {}", bias).unwrap_infallible();
+
             rng_module.render_display_if_needed(
                 bias,
                 |buffer: &[u16; NUM_LEDS as usize]| -> Result<(), ()> {
@@ -283,7 +285,7 @@ fn get_bias<const N: usize>(adc: &Option<AsyncAdcState<N>>) -> u16 {
     let pot_value = adc.get(AnalogChannel::Bias);
     let cv_value = adc.get(AnalogChannel::BiasCV);
     const HALF_ADC_SCALE: i16 = 1024 / 2;
-    let adjusted_cv = -(HALF_ADC_SCALE - (cv_value as i16));
+    let adjusted_cv = -(HALF_ADC_SCALE - (cv_value as i16)) * 2;
     let sum = pot_value.saturating_add_signed(adjusted_cv);
     // discard the 2 lsbs of the input to reduce display flickering. The difference
     // should not be musically noticable
