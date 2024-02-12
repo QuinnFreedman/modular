@@ -133,38 +133,71 @@ def build_manual(name, output_dir, last_commit):
     log_ok()
 
 
-def build_kicad_project(src_dir, output_dir, pcb_name, last_commit):
+def build_kicad_project(src_dir, output_dir, pcb_name, last_commit, multiboard_refs=None):
     pcb_file = path.join(src_dir, f"{pcb_name}.kicad_pcb")
     if not path.exists(pcb_file):
         return
     if not has_changed_since(src_dir, last_commit):
         return
+    is_faceplate = "faceplate" in pcb_name
     log(1, "⚙️ ", f"Building KiCad project for {pcb_name}:")
 
-    log(2, "🛠️ ", "Exporting GERBERs:")
+    if multiboard_refs:
+        for name, ref in multiboard_refs:
+            log(2, "🧩", f"Part {ref} (\"{name}\"):")
+            sub_file_name = f"{pcb_name}_{name}"
+            tmp_dir = make_sibling_dir(src_dir, sub_file_name)
+            sub_file = path.join(tmp_dir, f"{sub_file_name}.kicad_pcb")
+            run_kikit_commad("separate", "--stripAnnotations", "--source", f"annotation; ref: {ref}", pcb_file, sub_file)
+            export_gerber_files(sub_file, output_dir, 3)
+
+            if not is_faceplate:
+                export_html_bom(sub_file, output_dir, 3)
+
+            shutil.rmtree(tmp_dir)
+    else:
+        export_gerber_files(pcb_file, output_dir, 2)
+
+        if not is_faceplate:
+            export_html_bom(pcb_file, output_dir, 2)
+
+    if not is_faceplate:
+        export_schematic_pdf(path.join(src_dir, f"{pcb_name}.kicad_sch"), output_dir)
+
+
+def make_sibling_dir(src_dir, dir_name):
+    parent = path.split(src_dir)[0]
+    new_dir = path.join(parent, dir_name)
+    os.mkdir(new_dir)
+    return new_dir
+
+
+def export_gerber_files(kicad_pcb_file, output_dir, log_level):
+    board_name = path.splitext(path.basename(kicad_pcb_file))[0].removesuffix("_pcb")
+    log(log_level, "🛠️ ", "Exporting GERBERs:")
     # should be tempfile.mkdtemp() but kicad doesn't seem to work with /tmp files
     tmpdir = "tmp"
     for fab_flavor in ["jlcpcb", "pcbway"]:
-        log(3, ">>", f"{fab_flavor}", True)
-        result = run_kikit_commad("fab", fab_flavor, pcb_file, tmpdir, "--no-drc")
-        gerber_zip = path.join(output_dir, f"{pcb_name}_{fab_flavor}.zip")
-        os.replace(path.join(tmpdir, "gerbers.zip"), gerber_zip)
+        log(log_level+1, ">>", f"{fab_flavor}", True)
+        result = run_kikit_commad("fab", fab_flavor, kicad_pcb_file, tmpdir, "--no-drc")
+        gerber_zip_dest = path.join(output_dir, f"{board_name}_{fab_flavor}.zip")
+        os.replace(path.join(tmpdir, "gerbers.zip"), gerber_zip_dest)
         shutil.rmtree(tmpdir)
         log_ok()
 
-    if "faceplate" not in pcb_name:
-        # Export HTML BOM
-        log(2, "📑", "Exporting interactive BOM", True)
+def export_html_bom(kicad_pcb_file, output_dir, log_level):
+        log(log_level, "📑", "Exporting interactive BOM", True)
         output_dir_rel = os.path.realpath(output_dir)
-        run_ibom_commad("--no-browser", f"--dest-dir={output_dir_rel}", "--name-format=%f_interactive_bom", "--blacklist=G*", pcb_file)
+        run_ibom_commad("--no-browser", f"--dest-dir={output_dir_rel}", "--name-format=%f_interactive_bom", "--blacklist=G*", kicad_pcb_file)
         log_ok()
 
-        # Export schematic PDF
-        schematic_file = path.join(src_dir, f"{pcb_name}.kicad_sch")
-        sch_pdf_output = path.join(output_dir, f"{pcb_name}_schematic.pdf")
-        log(2, "📝", "Exporting schematic", True)
-        run_kicad_cli_commad("sch", "export", "pdf", "--no-background-color", "--output", sch_pdf_output, schematic_file)
-        log_ok()
+def export_schematic_pdf(kicad_sch_file, output_dir):
+    file = path.basename(kicad_sch_file)
+    name = path.splitext(file)[0].removesuffix("_pcb")
+    sch_pdf_output = path.join(output_dir, f"{name}_schematic.pdf")
+    log(2, "🔌", "Exporting schematic", True)
+    run_kicad_cli_commad("sch", "export", "pdf", "--no-background-color", "--output", sch_pdf_output, kicad_sch_file)
+    log_ok()
 
 
 def to_snake_case(text):
@@ -215,7 +248,7 @@ def build_rust_firmware(name: str, output_dir: str, last_commit: str):
     log_ok()
 
 
-def build(name, output_dir):
+def build(name, output_dir, multiboard_refs=None):
     dir = path.join("modules", name)
     output_dir = path.join(output_dir, name)
     last_commit = get_last_commit(output_dir)
@@ -245,7 +278,8 @@ def build(name, output_dir):
     ]:
         kicad_proj_dir = path.join(path.abspath(dir), "PCBs", pcb_name)
         if path.isdir(kicad_proj_dir):
-            build_kicad_project(kicad_proj_dir, output_dir, pcb_name, last_commit)
+            refs = None if "faceplate" in pcb_name else multiboard_refs
+            build_kicad_project(kicad_proj_dir, output_dir, pcb_name, last_commit, refs)
 
     build_faceplate(name, output_dir, last_commit)
 
@@ -266,4 +300,5 @@ if __name__ == "__main__":
     build("Clock", output_dir)
     build("Mixer", output_dir)
     build("RNG", output_dir)
+    build("Output", output_dir, [("front", "B1"), ("middle", "B2"), ("back", "B3")])
 
