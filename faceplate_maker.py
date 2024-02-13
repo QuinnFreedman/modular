@@ -11,6 +11,16 @@ except ImportError:
     sys.exit(1)
 
 try:
+    import colour
+    from colour import Color
+except ImportError:
+    print("This library requires the colour package but it is not installed.")
+    print("Install it with:")
+    print("    python3 -m pip install --user colour")
+    import sys
+    sys.exit(1)
+
+try:
     import lxml.etree as ET
 except ImportError:
     print("This tool uses lxml but it is not installed.")
@@ -35,6 +45,7 @@ except Exception as e:
     font_string = "local('Ubuntu Medium'), local('Ubuntu-Medium')"
 
 import math
+from math import sqrt
 import subprocess
 import random
 import string
@@ -574,6 +585,58 @@ def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
     path.push("z")
     return path
 
+
+def draw_bumpy_circle_2(context, center, inner_r, outer_r, n, large_frac, small_frac, start_theta=0, **kwargs):
+    assert outer_r > inner_r
+    rads_per_lobe = 2 * math.pi / n
+    lobe_width_rad = large_frac * rads_per_lobe
+    cut_width_rad = small_frac * rads_per_lobe
+    slope_width_rad = (rads_per_lobe - lobe_width_rad - cut_width_rad) / 2
+    assert slope_width_rad > 0
+    assert lobe_width_rad + cut_width_rad + 2 * slope_width_rad == rads_per_lobe
+
+    cx, cy = center
+    def from_polar(theta, r):
+        return cx + math.cos(theta) * r, cy + math.sin(theta) * r
+
+    start_x, start_y = from_polar(start_theta, outer_r)
+    path = context.path(**kwargs)
+    path.push(f"M {start_x} {start_y}")
+
+    for i in range(n):
+        theta = start_theta + (i * rads_per_lobe)
+
+        # Lobe
+        theta += lobe_width_rad
+        x, y = from_polar(theta, outer_r)
+        path.push(f"A {outer_r} {outer_r} 0 0 1 {x} {y}")
+
+        # Bevel 1
+        theta += slope_width_rad
+        x, y = from_polar(theta, inner_r)
+        path.push(f"L {x} {y}")
+
+        # Cut
+        theta += cut_width_rad
+        x, y = from_polar(theta, inner_r)
+        path.push(f"L {x} {y}")
+
+        # Bevel 1
+        if i != n - 1:
+            theta += slope_width_rad
+            x, y = from_polar(theta, outer_r)
+            path.push(f"L {x} {y}")
+
+    path.push("Z")
+    return path
+
+
+def lighten(color, amount):
+    color = Color(color)
+    color.luminance += amount
+    return color.hex
+
+
 class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
         super(Switch, self).__init__(x, y, 0)
@@ -842,22 +905,32 @@ class D6R30(BasicCircle(0, 0, 9/2)):
             context.circle(center=self.rotated(( spread,  spread)), r=0.25),
         ]
 
+
 class PotStyle(Enum):
     OLD = 1
     ROGAN_PT_1S = 2
-    CHROMATIC_WHITE = 3
-    CHROMATIC_RED = 4
-    CHROMATIC_WHITE_SMALL = 10
+    CHROMATIC = 3
+    CHROMATIC_SMALL = 10
+    SIFAM_MEDIUM = 20
+    SIFAM_LARGE = 30
+
+class PotColor(Enum):
+    WHITE = 1,
+    RED = 2
+    ORANGE = 3
+    GREEN = 5
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
-    def __init__(self, x, y, label=None, rotation=0, font_size=None, color="white", text_offset=None, style=PotStyle.OLD):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, color=PotColor.WHITE, text_offset=None, style=PotStyle.SIFAM_MEDIUM):
         super(Potentiometer, self).__init__(x, y, rotation)
         if text_offset is None:
             if "SMALL" in style.name:
                 text_offset = 10
+            elif style == PotStyle.SIFAM_LARGE:
+                text_offset = 12.75
             else:
-                text_offset = 12
+                text_offset = 11.5
         self.label = label
         self.font_size = font_size
         self.color = color
@@ -886,11 +959,25 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             context.circle(center=self.rotated((inches(.1), 0)), r=0.25),
             context.circle(center=self.rotated((inches(.2), 0)), r=0.25),
         ]
-
     
     def draw_cosmetics(self, context):
         if self.style == PotStyle.OLD:
             return self.draw_old_cap(context)
+
+        if self.style == PotStyle.SIFAM_MEDIUM:
+            skirt_radius = 14.3 / 2
+            outer_r = 11 / 2
+            inner_r = 10.5 / 2
+            cap_r = 4
+            radii=[skirt_radius, outer_r, inner_r, cap_r]
+            return self.draw_sifam_cap(context, radii)
+        elif self.style == PotStyle.SIFAM_LARGE:
+            skirt_radius = 18.5 / 2
+            outer_r = 15.3 / 2
+            inner_r = outer_r - .35
+            cap_r = 11.5/2
+            radii=[skirt_radius, outer_r, inner_r, cap_r]
+            return self.draw_sifam_cap(context, radii)
         
         if self.style == PotStyle.ROGAN_PT_1S:
             skirt_radius = 14.38 / 2
@@ -898,7 +985,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             inner_r = 10 / 2
             cap_r = 4
             radii=[skirt_radius, outer_r, inner_r, cap_r]
-            return self.draw_new_cap(context, radii, cap_color=["#fff", "#bbb"])
+            return self.draw_chromatic_cap(context, radii, cap_color=["#fff", "#bbb"])
 
         if "CHROMATIC" in self.style.name and "SMALL" not in self.style.name:
             if self.style == PotStyle.CHROMATIC_WHITE:
@@ -912,7 +999,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             inner_r = 10 / 2
             cap_r = 4
             radii=[skirt_radius, outer_r, inner_r, cap_r]
-            return self.draw_new_cap(context, radii, cap_color, pointer_color)
+            return self.draw_chromatic_cap(context, radii, cap_color, pointer_color)
 
         if "CHROMATIC" in self.style.name and "SMALL" in self.style.name:
             skirt_radius = 11.5/2
@@ -920,9 +1007,117 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             inner_r = 10 / 2
             cap_r = 4
             radii=[skirt_radius, outer_r, inner_r, cap_r]
-            return self.draw_new_cap(context, radii, cap_color=["#fff", "#bbb"], pointer_color="#eee")
+            return self.draw_chromatic_cap(context, radii, cap_color=["#fff", "#bbb"], pointer_color="#eee")
+
+    def draw_sifam_cap(self, context, radii):
+        cap_colors = {
+            PotColor.WHITE: ["#fff", "#ccc"],
+            PotColor.RED: ["#e25f62", "#d23e3e"],
+            PotColor.GREEN: [lighten("#54ad77", .18), "#379a64"],
+            PotColor.ORANGE: [lighten("#ff947d", .04), "#e55d44"],
+        }
+        cap_color = cap_colors[self.color]
+        if self.color in [PotColor.WHITE]:
+            pointer_color = "#000"
+        else:
+            pointer_color = "#fff"
+
+        elements=[]
+        skirt_radius = radii[0]
+        outer_r, inner_r = radii[1:3]
+        if skirt_radius:
+            skirt_gradient = context.linearGradient(
+                (sqrt(1/2), 0),
+                (0, sqrt(1/2)),
+            )
+            skirt_gradient.add_stop_color(0, "#666")
+            skirt_gradient.add_stop_color(1, "#191919")
+            context.defs.add(skirt_gradient)
+            elements.append(context.circle(
+                center=self.offset,
+                r=skirt_radius,
+                fill=skirt_gradient.get_paint_server()
+            ))
+            skirt_gradient2 = context.radialGradient(
+                center=(.5, .5),
+                r=.5,
+            )
+            scale = outer_r / skirt_radius
+            skirt_gradient2.add_stop_color(scale * .85, "#000", 1)
+            skirt_gradient2.add_stop_color(scale * 1.15, "#000", 0)
+            context.defs.add(skirt_gradient2)
+            elements.append(context.circle(
+                center=self.offset,
+                r=skirt_radius,
+                fill=skirt_gradient2.get_paint_server()
+            ))
+
+        cx, cy = self.offset
+        def from_polar(theta, r):
+            return cx + math.cos(theta) * r, cy + math.sin(theta) * r
+
+        num_lobes = 6
+        lobe_width_ratio = .7
+        cut_width_ratio = .12
+
+        knob_theta = -math.pi * 3/4
+        start_theta = knob_theta + ((1 - lobe_width_ratio) * (2 * math.pi / num_lobes)) / 2
+
+        grip_gradient = context.linearGradient(
+            (sqrt(1/2), 0),
+            (0, sqrt(1/2)),
+        )
+        grip_gradient.add_stop_color(0, "#666")
+        grip_gradient.add_stop_color(.04, "#686868")
+        grip_gradient.add_stop_color(1, "#212121")
+        context.defs.add(grip_gradient)
+        elements.append(draw_bumpy_circle_2(
+            context, self.offset, inner_r, outer_r, num_lobes,
+            lobe_width_ratio, cut_width_ratio, start_theta,
+            fill=grip_gradient.get_paint_server()
+        ))
+
+        cap_r = radii[3]
+
+        grip_gradient2 = context.linearGradient(
+            (sqrt(1/2), 0),
+            (0, sqrt(1/2)),
+        )
+        grip_gradient2.add_stop_color(0, "#777")
+        grip_gradient2.add_stop_color(1, "#555555")
+        context.defs.add(grip_gradient2)
+        elements.append(draw_bumpy_circle_2(
+            context, self.offset,
+            cap_r + .5, cap_r + .5 + outer_r - inner_r,
+            num_lobes,
+            lobe_width_ratio, cut_width_ratio, start_theta,
+            fill=grip_gradient2.get_paint_server()
+        ))
+
+        cap_gradient = context.linearGradient(
+            (sqrt(1/2), 0),
+            (0, sqrt(1/2)),
+        )
+        cap_gradient.add_stop_color(0, cap_color[0])
+        cap_gradient.add_stop_color(1, cap_color[1])
+        context.defs.add(cap_gradient)
+        elements.append(context.circle(
+            center=self.offset,
+            r=cap_r,
+            fill=cap_gradient.get_paint_server()
+        ))
+
+        if pointer_color is not None:
+            pointer = context.line(
+                self.offset,
+                from_polar(knob_theta, cap_r),
+                stroke_width=.8,
+                stroke=pointer_color)
+            elements.append(pointer)
+
+        return elements
         
-    def draw_new_cap(self, context, radii, cap_color=None, pointer_color=None):
+    def draw_chromatic_cap(self, context, radii, cap_color=None, pointer_color=None):
         elements = []
         skirt_radius = radii[0]
         if skirt_radius:

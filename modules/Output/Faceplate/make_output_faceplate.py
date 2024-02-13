@@ -14,13 +14,13 @@ module = Module.from_cli(HP, global_y_offset=17, title="Output")
 
 y = inches(.45)
 
-module.add(Potentiometer(inches(.2), y, style=PotStyle.CHROMATIC_WHITE_SMALL, label="Phones"))
-module.add(Potentiometer(-inches(.3), y + inches(.6), style=PotStyle.CHROMATIC_WHITE, label="Line out"))
+module.add(Potentiometer(inches(.25), y - inches(.05), style=PotStyle.SIFAM_MEDIUM, color=PotColor.ORANGE, label="Phones"))
+module.add(Potentiometer(-inches(.35), y + inches(.6), style=PotStyle.SIFAM_LARGE, color=PotColor.GREEN, label="Line out"))
 
 y += inches(1.1)
 
-module.add(JackSocketCentered(-inches(0.3), y, "In L", False))
-module.add(JackSocketCentered(inches(0.3), y, "In R", False))
+module.add(JackSocketCentered(-inches(0.3), y, "In L", False, rotation=1))
+module.add(JackSocketCentered(inches(0.3), y, "In R", False, rotation=3))
 
 big_jack_start = y + inches(.75)
 big_jack_pitch = inches(.65) # .675?
@@ -39,11 +39,16 @@ led_midpoint = big_jack_start + big_jack_pitch
 led_pitch = inches(.25)
 
 for x in (-1, 1):
-    x = x * inches(.45)
     colors = ["#f00", "#fcca05", "#2fdd04", "#2fdd04", "#2fdd04"]
+    dbs = ["+6", "+3", "0", "-9", "-18"]
+    # dbs = ["+6dBu", "+3dBu", "0dBu", "-9dBu", "-18dBu"]
     for i, color in enumerate(colors):
         y = led_midpoint + ((i - 2) * led_pitch) - inches(.05)
-        module.add(SmallLED(x, y, color=color))
-
+        module.add(SmallLED(x * inches(.45), y, color=color))
+        module.draw(lambda ctx: ctx.text(dbs[i],
+                        insert=(x * inches(.65), y + 2.1),
+                        font_size=2.8,
+                        text_anchor="middle"
+                    ))
 
 module.save()
