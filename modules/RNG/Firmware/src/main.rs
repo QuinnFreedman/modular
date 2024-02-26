@@ -29,6 +29,7 @@ use fm_lib::{
     },
     asynchronous::{unsafe_access_mutex, Borrowable},
     configure_system_clock,
+    mcp4922::{DacChannel, MCP4922},
     rng::ParallelLfsr,
     rotary_encoder::RotaryEncoderHandler,
 };
@@ -149,7 +150,6 @@ fn main() -> ! {
 
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
-    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let a0 = pins.a0.into_analog_input(&mut adc);
     let a2 = pins.a2.into_analog_input(&mut adc);
     let a3 = pins.a3.into_analog_input(&mut adc);
@@ -207,6 +207,7 @@ fn main() -> ! {
     let sys_clock = system_clock::init_system_clock(dp.TC0);
     let mut prng = ParallelLfsr::new(seed);
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
+    let mut dac = MCP4922::new(pins.d8.into_output_high());
 
     let mut output_pins = OutputPins {
         enabled_led: a2_digital,
@@ -251,13 +252,14 @@ fn main() -> ! {
                     enable_cv: input_pins.enabled_cv.is_high(),
                 },
             );
-            write_module_output(&output, &mut output_pins, false);
+            // optimization: we know that DAC value can't change between clock
+            // pulses, so just skip writing it in this update (pass noop closure)
+            write_module_output(&output, &mut output_pins, |_value| {});
         }
 
         // Handle LED bar display updates
         {
             let bias = unsafe_access_mutex(|cs| get_bias(GLOBAL_ASYNC_ADC_STATE.get_inner(cs)));
-            uwriteln!(&mut serial, "bias: {}", bias).unwrap_infallible();
 
             rng_module.render_display_if_needed(
                 bias,
@@ -271,7 +273,13 @@ fn main() -> ! {
             debug_assert!(current_time >= last_step_time);
             if current_time - last_step_time >= 1000u32 {
                 last_step_time += 1000;
-                handle_clock_step(&mut rng_module, current_time, &input_pins, &mut output_pins);
+                handle_clock_step(
+                    &mut rng_module,
+                    current_time,
+                    &input_pins,
+                    &mut output_pins,
+                    |value| dac.write(&mut spi, DacChannel::ChannelA, value),
+                );
             }
         }
     }
@@ -292,14 +300,16 @@ fn get_bias<const N: usize>(adc: &Option<AsyncAdcState<N>>) -> u16 {
     (sum & !0b11u16) << 2
 }
 
-fn handle_clock_step<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>(
+fn handle_clock_step<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8, WriteToDac>(
     rng: &mut RngModule<MAX_BUFFER_SIZE, NUM_LEDS>,
     current_time: u32,
     input_pins: &SpecifiedDigitalInputPins,
     output_pins: &mut SpecifiedOutputPins,
+    write_to_dac: WriteToDac,
 ) where
     [(); NUM_LEDS as usize]: Sized,
     [(); MAX_BUFFER_SIZE as usize]: Sized,
+    WriteToDac: FnOnce(u16),
 {
     let input = unsafe_access_mutex(|cs| {
         let adc = GLOBAL_ASYNC_ADC_STATE.get_inner(cs);
@@ -312,14 +322,16 @@ fn handle_clock_step<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>(
     });
     let output = rng.handle_clock_trigger(current_time, &input);
 
-    write_module_output(&output, output_pins, true);
+    write_module_output(&output, output_pins, write_to_dac);
 }
 
-fn write_module_output(
+fn write_module_output<WriteToDac>(
     state: &RngModuleOutput,
     output_pins: &mut SpecifiedOutputPins,
-    analog_output_may_change: bool,
-) {
+    write_to_dac: WriteToDac,
+) where
+    WriteToDac: FnOnce(u16),
+{
     if state.enable_led_on {
         output_pins.enabled_led.set_high();
     } else {
@@ -339,9 +351,7 @@ fn write_module_output(
         output_pins.gate_b.set_low();
     }
 
-    if analog_output_may_change {
-        // TODO analog output
-    }
+    write_to_dac(state.analog_out);
 
     if state.output_a {
         output_pins.gate_a.set_high();
