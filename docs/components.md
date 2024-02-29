@@ -62,7 +62,7 @@ A few of my modules use rotary encoders in addition to potentiometers. I use EC1
 
 ### Switches
 
-When I use switches in my projects, I use the Taiway Sub-Mini SPDT's -- both the ON/ON's (two position) and the ON/OFF/ON's (three position). You can get them from [Love My Switches](https://lovemyswitches.com/taiway-sub-mini-spdt-on-on-switch-pcb-mount-long-shaft/). Make sure you get the "PCB mount" version so they can solder directly into the PCB. If you want a different size or style of switch, just adjust the faceplate cutout to match.
+When I use switches in my projects, I use the Taiway Sub-Mini SPDT's -- both the ON/ON's (two position) and the ON/OFF/ON's (three position). You can get them from [Love My Switches](https://lovemyswitches.com/taiway-sub-mini-spdt-on-on-switch-pcb-mount-long-shaft/), [Thonk](https://www.thonk.co.uk/shop/sub-mini-toggle-switches/), or [Amplified Parts](https://www.amplifiedparts.com/products/switch-carling-submini-toggle-spdt-2-position-pc-pins). Make sure you get the "PCB mount" version so they can solder directly into the PCB. If you want a different size or style of switch, just adjust the faceplate cutout to match.
 
 ## IC chips
 
