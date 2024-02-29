@@ -123,12 +123,15 @@ def run_ibom_commad(*command):
 
 def build_manual(name, output_dir, last_commit):
     manual_svg = path.abspath(path.join("modules", name, "docs", f"{to_snake_case(name)}_manual.svg"))
-    if not path.exists(manual_svg):
-        return
     if not has_changed_since(manual_svg, last_commit):
         return
 
     log(1, "🖨️ ", f"Building manual PDF for {name}", True)
+
+    if not path.exists(manual_svg):
+        log_skip()
+        return
+
     output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_manual.pdf"))
     result = run_command_or_exit_with_error(
         ["inkscape", f"--actions=export-filename:{output_file};export-do", manual_svg],
@@ -273,6 +276,7 @@ def build(name, output_dir, multiboard_refs=None):
 
     os.makedirs(output_dir, exist_ok=True)
 
+    did_build = False
     for pcb_name in [
         f"{name.lower()}_pcb",
         f"{name.lower()}_front_pcb",
@@ -282,10 +286,15 @@ def build(name, output_dir, multiboard_refs=None):
         f"{name.lower()}_faceplate",
         f"{name.lower()}_faceplate_pcb",
     ]:
+        did_build = False
         kicad_proj_dir = path.join(path.abspath(dir), "PCBs", pcb_name)
         if path.isdir(kicad_proj_dir):
             refs = None if "faceplate" in pcb_name else multiboard_refs
             build_kicad_project(kicad_proj_dir, output_dir, pcb_name, last_commit, refs)
+
+    if not did_build:
+        log(1, "⚙️ ", f"Building KiCad project for {name.lower()}", True)
+        log_skip()
 
     build_faceplate(name, output_dir, last_commit)
 
