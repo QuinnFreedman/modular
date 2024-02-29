@@ -103,6 +103,9 @@ def log(indent, icon, msg, wait=False):
 def log_ok():
     print("✅ done")
 
+def log_skip():
+    print("🟨 skip")
+
 def log_error():
     print("⛔ error")
  
@@ -211,6 +214,9 @@ def build_faceplate(name, output_dir, last_commit):
     if not has_changed_since(build_script, last_commit):
         return
     log(1, "🤖", "Building faceplate SVG", True)
+    if not path.isfile(build_script):
+        log_skip()
+        return
     faceplate_file = to_snake_case(name)
     run_command_or_exit_with_error(
         [
@@ -301,4 +307,5 @@ if __name__ == "__main__":
     build("Mixer", output_dir)
     build("RNG", output_dir)
     build("Output", output_dir, [("front", "B1"), ("middle", "B2"), ("back", "B3")])
+    build("devboard", output_dir)
 
