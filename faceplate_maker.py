@@ -435,7 +435,7 @@ class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
                 height,
                 1.5
             )
-            inner_r = hole_radius+.5
+            inner_r = hole_radius+.35
             inner_path = " ".join([
                 f"M {hole_center[0]} {hole_center[1] - inner_r}",
                 f"a {inner_r} {inner_r} 0 1 0 0 {inner_r * 2}",
@@ -912,6 +912,7 @@ class PotStyle(Enum):
     CHROMATIC = 3
     CHROMATIC_SMALL = 10
     SIFAM_MEDIUM = 20
+    SIFAM_MEDIUM_RE = 21
     SIFAM_LARGE = 30
 
 class PotColor(Enum):
@@ -964,13 +965,13 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
         if self.style == PotStyle.OLD:
             return self.draw_old_cap(context)
 
-        if self.style == PotStyle.SIFAM_MEDIUM:
+        if self.style == PotStyle.SIFAM_MEDIUM or self.style == PotStyle.SIFAM_MEDIUM_RE:
             skirt_radius = 14.3 / 2
             outer_r = 11 / 2
             inner_r = 10.5 / 2
             cap_r = 4
             radii=[skirt_radius, outer_r, inner_r, cap_r]
-            return self.draw_sifam_cap(context, radii)
+            return self.draw_sifam_cap(context, radii, self.style == PotStyle.SIFAM_MEDIUM)
         elif self.style == PotStyle.SIFAM_LARGE:
             skirt_radius = 18.5 / 2
             outer_r = 15.3 / 2
@@ -1009,7 +1010,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             radii=[skirt_radius, outer_r, inner_r, cap_r]
             return self.draw_chromatic_cap(context, radii, cap_color=["#fff", "#bbb"], pointer_color="#eee")
 
-    def draw_sifam_cap(self, context, radii):
+    def draw_sifam_cap(self, context, radii, pointer=True):
         cap_colors = {
             PotColor.WHITE: ["#fff", "#ccc"],
             PotColor.RED: ["#e25f62", "#d23e3e"],
@@ -1107,13 +1108,12 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             fill=cap_gradient.get_paint_server()
         ))
 
-        if pointer_color is not None:
-            pointer = context.line(
+        if pointer:
+            elements.append(context.line(
                 self.offset,
                 from_polar(knob_theta, cap_r),
                 stroke_width=.8,
-                stroke=pointer_color)
-            elements.append(pointer)
+                stroke=pointer_color))
 
         return elements
         
