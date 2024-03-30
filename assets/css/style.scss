@@ -101,6 +101,14 @@ ul.fm-index-links-container {
 
 }
 
+@media (min-width: 1012px) {
+  ul.fm-index-links-container {
+    flex-wrap: nowrap;
+    gap: 4px;
+    justify-content: space-between;
+  }
+}
+
 .fm-readme-container {
   display:flex;
   flex-direction:row;
