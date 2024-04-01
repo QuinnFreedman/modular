@@ -2208,179 +2208,6 @@
 				)
 			)
 		)
-		(symbol "Switch:SW_SPDT"
-			(pin_names
-				(offset 0) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "SW"
-				(at 0 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "SW_SPDT"
-				(at 0 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 -7.62 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Switch, single pole double throw"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "switch single-pole double-throw spdt ON-ON"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "SW_SPDT_0_1"
-				(circle
-					(center -2.032 0)
-					(radius 0.4572)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.651 0.254) (xy 1.651 2.286)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 2.032 -2.54)
-					(radius 0.4572)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 2.032 2.54)
-					(radius 0.4572)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "SW_SPDT_1_1"
-				(rectangle
-					(start -3.175 3.81)
-					(end 3.175 -3.81)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin passive line
-					(at 5.08 2.54 180)
-					(length 2.54)
-					(name "A"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "B"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 5.08 -2.54 180)
-					(length 2.54)
-					(name "C"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "power:+5V"
 			(power)
 			(pin_names
@@ -3530,7 +3357,7 @@
 	)
 	(global_label "OUTPUT_PREAMP_UNIPOLAR"
 		(shape input)
-		(at 92.71 106.68 180)
+		(at 92.71 101.6 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3540,7 +3367,7 @@
 		)
 		(uuid "174a1a7a-8a0b-4d4b-b588-b5b3245acd6e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 63.8409 106.68 0)
+			(at 63.8409 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4168,7 +3995,7 @@
 	)
 	(global_label "OUTPUT_PREAMP_BIPOLAR"
 		(shape input)
-		(at 92.71 101.6 180)
+		(at 92.71 106.68 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4178,7 +4005,7 @@
 		)
 		(uuid "cb9024cb-232e-4b50-9e40-5b3fc64a49f8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 65.2319 101.6 0)
+			(at 65.2319 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7058,6 +6885,76 @@
 		)
 	)
 	(symbol
+		(lib_id "FreeModular:SW_SPDT_small")
+		(at 99.06 104.14 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "aa439b3c-37f3-4d1d-b3d5-d601b14bddee")
+		(property "Reference" "SW2"
+			(at 100.33 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TAIWAY 200CWMSP1T3B4M2"
+			(at 111.76 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "FreeModualr:TAIWAY 200CWMSP1T3B4M2"
+			(at 99.06 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.taiway.com/resource/annexes/product_items/81/383d79ce24fd13ac9c4d36337853e90c.pdf"
+			(at 99.06 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 99.06 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "12d3073e-978f-4626-9abb-0b81dce2cee2")
+		)
+		(pin "2"
+			(uuid "eba1e825-88e7-41a9-a5b7-75d6338c9db7")
+		)
+		(pin "3"
+			(uuid "57b5f8e5-9e6b-4876-96a3-4ca703dbe9a9")
+		)
+		(instances
+			(project "rng_pcb_front"
+				(path "/53c2a808-e337-4b11-8126-cc5e1b54736a"
+					(reference "SW2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:R")
 		(at 246.38 102.87 90)
 		(unit 1)
@@ -7675,77 +7572,6 @@
 			(project "rng_pcb_front"
 				(path "/53c2a808-e337-4b11-8126-cc5e1b54736a"
 					(reference "#PWR019")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Switch:SW_SPDT")
-		(at 99.06 104.14 0)
-		(mirror y)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "d03ab7fd-1388-42ef-a715-98aec1697505")
-		(property "Reference" "SW2"
-			(at 99.06 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "TAIWAY 200CWMSP1T3B4M2"
-			(at 99.06 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "FreeModualr:TAIWAY 200CWMSP1T3B4M2"
-			(at 99.06 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 99.06 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 99.06 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6927fc07-04e0-408a-ad90-b7d9f1b91b86")
-		)
-		(pin "2"
-			(uuid "d1e590d2-b300-46d8-914b-03c10b15d8aa")
-		)
-		(pin "3"
-			(uuid "46867b11-df6f-4897-9166-47535b37e92f")
-		)
-		(instances
-			(project "rng_pcb_front"
-				(path "/53c2a808-e337-4b11-8126-cc5e1b54736a"
-					(reference "SW2")
 					(unit 1)
 				)
 			)

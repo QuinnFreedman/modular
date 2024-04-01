@@ -119,7 +119,7 @@ fn enable_portd_pc_interrupts(dp: &Peripherals) {
         .modify(|r, w| w.pcie().bits(r.pcie().bits() | 0b100));
 }
 
-static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<4> = new_async_adc_state();
+static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3> = new_async_adc_state();
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
@@ -130,7 +130,6 @@ enum AnalogChannel {
     Chance,
     Bias,
     BiasCV,
-    GateTrigSwitch,
 }
 
 impl Into<usize> for AnalogChannel {
@@ -167,6 +166,7 @@ fn main() -> ! {
     let encoder_switch = a5.into_digital(&mut adc).into_pull_up_input();
     let a2_digital = a2.into_digital(&mut adc).into_output();
     let a3_digital = a3.into_digital(&mut adc).into_output();
+    let a4_digital = a4.into_digital(&mut adc).into_output();
 
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -190,7 +190,6 @@ fn main() -> ! {
         &GLOBAL_ASYNC_ADC_STATE,
         [
             arduino_hal::adc::channel::ADC7.into_channel(),
-            a4.into_channel(),
             a0.into_channel(),
             arduino_hal::adc::channel::ADC6.into_channel(),
         ],
@@ -217,7 +216,8 @@ fn main() -> ! {
     };
 
     let input_pins = DigitalInputPins {
-        enabled_cv: pins.a1.into_floating_input(),
+        enabled_cv: pins.a1,
+        gate_trig_switch: a4_digital.into_floating_input(),
     };
 
     let mut last_step_time: u32 = 0;
@@ -316,7 +316,7 @@ fn handle_clock_step<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8, WriteToDac>(
         RngModuleInput {
             chance_cv: adc.get(AnalogChannel::Chance) << 2,
             bias_cv: get_bias(adc),
-            trig_mode: adc.get(AnalogChannel::GateTrigSwitch) > 1024 / 2,
+            trig_mode: input_pins.gate_trig_switch.is_high(),
             enable_cv: input_pins.enabled_cv.is_high(),
         }
     });
@@ -375,10 +375,12 @@ where
     gate_b: Pin<Output, GateBPin>,
 }
 
-type SpecifiedDigitalInputPins = DigitalInputPins<port::PC1>;
-struct DigitalInputPins<EnabledCvPin>
+type SpecifiedDigitalInputPins = DigitalInputPins<port::PC1, port::PC4>;
+struct DigitalInputPins<EnabledCvPin, GateTrigSwitchPin>
 where
     EnabledCvPin: PinOps,
+    GateTrigSwitchPin: PinOps,
 {
     enabled_cv: Pin<Input<Floating>, EnabledCvPin>,
+    gate_trig_switch: Pin<Input<Floating>, GateTrigSwitchPin>,
 }
