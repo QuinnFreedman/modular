@@ -188,7 +188,7 @@ def export_gerber_files(kicad_pcb_file, output_dir, log_level):
 def export_html_bom(kicad_pcb_file, output_dir, log_level):
         log(log_level, "📑", "Exporting interactive BOM", True)
         output_dir_rel = os.path.realpath(output_dir)
-        run_ibom_commad("--no-browser", f"--dest-dir={output_dir_rel}", "--name-format=%f_interactive_bom", "--blacklist=G*", kicad_pcb_file)
+        run_ibom_commad("--no-browser", f"--dest-dir={output_dir_rel}", "--name-format=%f_interactive_bom", "--blacklist=G*,H*", kicad_pcb_file)
         log_ok()
 
 def export_schematic_pdf(kicad_sch_file, output_dir):

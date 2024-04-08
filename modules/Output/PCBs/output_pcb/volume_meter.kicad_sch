@@ -3622,7 +3622,7 @@
 		(fields_autoplaced yes)
 		(uuid "382bfbfe-6be5-4051-84cf-90476cba02e8")
 		(property "Reference" "R36"
-			(at 218.44 128.905 0)
+			(at 218.44 128.9049 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3630,8 +3630,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "3k6Ω"
-			(at 218.44 131.445 0)
+		(property "Value" "2k4Ω"
+			(at 218.44 131.4449 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5817,7 +5817,7 @@
 		(fields_autoplaced yes)
 		(uuid "ab84b23f-4052-4742-afb0-745e9845d390")
 		(property "Reference" "R33"
-			(at 218.44 106.045 0)
+			(at 218.44 106.0449 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5825,8 +5825,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "51kΩ"
-			(at 218.44 108.585 0)
+		(property "Value" "33kΩ"
+			(at 218.44 108.5849 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5887,7 +5887,7 @@
 		(fields_autoplaced yes)
 		(uuid "b25c3679-3150-46a7-906e-f89f79ce88fd")
 		(property "Reference" "R38"
-			(at 218.44 144.145 0)
+			(at 218.44 144.1449 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5895,8 +5895,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "750Ω"
-			(at 218.44 146.685 0)
+		(property "Value" "470Ω"
+			(at 218.44 146.6849 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6161,7 +6161,7 @@
 		(fields_autoplaced yes)
 		(uuid "cd8ec037-0716-4b51-b7f9-4a1aa9dfe5cc")
 		(property "Reference" "R37"
-			(at 218.44 136.525 0)
+			(at 218.44 136.5249 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6169,8 +6169,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1k3Ω"
-			(at 218.44 139.065 0)
+		(property "Value" "820Ω"
+			(at 218.44 139.0649 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6318,7 +6318,7 @@
 		(fields_autoplaced yes)
 		(uuid "d16a8868-4dd9-40ae-a14c-9f1ae56edc93")
 		(property "Reference" "R34"
-			(at 218.44 113.665 0)
+			(at 218.44 113.6649 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6326,8 +6326,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "3k3kΩ"
-			(at 218.44 116.205 0)
+		(property "Value" "2k2Ω"
+			(at 218.44 116.2049 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6388,7 +6388,7 @@
 		(fields_autoplaced yes)
 		(uuid "d6241e22-3013-4f75-894a-f529fde6af14")
 		(property "Reference" "R35"
-			(at 218.44 121.285 0)
+			(at 218.44 121.2849 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6396,8 +6396,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k4Ω"
-			(at 218.44 123.825 0)
+		(property "Value" "1k5Ω"
+			(at 218.44 123.8249 0)
 			(effects
 				(font
 					(size 1.27 1.27)

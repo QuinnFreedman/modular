@@ -2876,7 +2876,7 @@
 				)
 			)
 		)
-		(property "Value" "3k6Ω"
+		(property "Value" "2k4Ω"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "1bd3c01e-8195-4a5d-99b5-3ab2a7f3be96")
@@ -3148,7 +3148,7 @@
 				)
 			)
 		)
-		(property "Value" "51kΩ"
+		(property "Value" "33kΩ"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "17d34458-63c8-4e75-b26f-9700d0ae497a")
@@ -5393,7 +5393,7 @@
 				)
 			)
 		)
-		(property "Value" "2k4Ω"
+		(property "Value" "1k5Ω"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "edfbb97a-a7a0-466e-abc5-c8489872ee85")
@@ -6189,7 +6189,7 @@
 				)
 			)
 		)
-		(property "Value" "3k3kΩ"
+		(property "Value" "2k2Ω"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "6f9164a4-2bfd-42de-94d5-452132f4fde0")
@@ -25570,7 +25570,7 @@
 				)
 			)
 		)
-		(property "Value" "750Ω"
+		(property "Value" "470Ω"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "7b80d0af-4839-41ba-9bb2-a8d0f4caf779")
@@ -28219,7 +28219,7 @@
 				)
 			)
 		)
-		(property "Value" "1k3Ω"
+		(property "Value" "820Ω"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "b4499e83-866d-44bb-857b-15b5a8f5ebdc")
