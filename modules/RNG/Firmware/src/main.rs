@@ -10,7 +10,10 @@
 #![feature(effects)]
 #![feature(inline_const)]
 
-use core::panic::PanicInfo;
+use core::{
+    panic::PanicInfo,
+    sync::atomic::{AtomicU8, Ordering},
+};
 
 use arduino_hal::{
     hal::port,
@@ -22,12 +25,13 @@ use arduino_hal::{
     Peripherals,
 };
 
+use avr_device::interrupt::{self, Mutex};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, AsyncAdcState,
         Indexable,
     },
-    asynchronous::{unsafe_access_mutex, Borrowable},
+    asynchronous::{assert_interrupts_disabled, unsafe_access_mutex, Borrowable},
     configure_system_clock,
     mcp4922::{DacChannel, MCP4922},
     rng::ParallelLfsr,
@@ -96,6 +100,19 @@ fn PCINT2() {
     ROTARY_ENCODER.update(a, b);
 }
 
+static UNHANDLED_STEP_COUNT: Mutex<u8> = Mutex::new(0);
+/**
+ Pin-change interrupt handler pin d2 (external interrupt 0)
+*/
+#[avr_device::interrupt(atmega328p)]
+fn INT0() {
+    assert_interrupts_disabled(|cs| {
+        *UNHANDLED_STEP_COUNT.borrow(cs) += 1;
+    })
+    // let old_value = UNHANDLED_STEP_COUNT.load(Ordering::SeqCst);
+    // UNHANDLED_STEP_COUNT.store(old_value.wrapping_add(1), Ordering::SeqCst)
+}
+
 fn enable_portd_pc_interrupts(dp: &Peripherals) {
     // set pins d4 and d5 as inputs (PCINT20 and 21)
     dp.PORTD.ddrd.modify(|r, w| {
@@ -138,7 +155,7 @@ impl Into<usize> for AnalogChannel {
     }
 }
 
-const DEBUG_AUTO_STEP: bool = true;
+const DEBUG_AUTO_STEP: bool = false;
 
 #[arduino_hal::entry]
 fn main() -> ! {
@@ -224,6 +241,25 @@ fn main() -> ! {
 
     loop {
         let current_time = sys_clock.millis();
+
+        // Step the buffer forward if there have been any unhandled clock pulses
+        {
+            let mut to_handle = unsafe_access_mutex(|cs| *UNHANDLED_STEP_COUNT.borrow(cs));
+            while to_handle > 0 {
+                handle_clock_step(
+                    &mut rng_module,
+                    current_time,
+                    &input_pins,
+                    &mut output_pins,
+                    |value| dac.write(&mut spi, DacChannel::ChannelA, value),
+                );
+                interrupt::free(|cs| {
+                    let count_ref = UNHANDLED_STEP_COUNT.borrow(cs);
+                    *count_ref -= 1;
+                    to_handle = *count_ref;
+                });
+            }
+        }
 
         // Handle rotary encoder
         {
