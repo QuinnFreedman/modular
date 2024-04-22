@@ -301,4 +301,5 @@ if __name__ == "__main__":
     build("Mixer", output_dir)
     build("RNG", output_dir)
     build("Output", output_dir, [("front", "B1"), ("middle", "B2"), ("back", "B3")])
+    build("OffsetAtten", output_dir, [("front", "B1"), ("back", "B2")])
 

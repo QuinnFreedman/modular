@@ -3178,6 +3178,112 @@
 			)
 		)
 	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "416c483c-fb4b-44f0-a5e6-0f0472e6e44b")
+		(at 102.87 63.5)
+		(descr "Mark board for extraction")
+		(property "Reference" "B2"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "58251328-1a72-42d6-a6c1-98141c120e07")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "548ecb61-ac59-445f-b476-4f14de451ef4")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "db473ef3-7f18-4bfb-b0f8-e7d035589cbf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "4f5bbc53-0c45-4977-b637-4b20e36d3cc9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "2f53d36b-6efe-4760-b6e3-190876cfc294")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "117b668c-0617-4fa3-9d1f-1825d1e2d5b2")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "4cf024da-fa11-49e0-95ff-225b4619c7bd")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "125fc9d3-33d7-43d9-b2ff-85a7e7779eb7")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "186a94a0-7a23-4a89-86c4-27a01d8603f8")
+		)
+	)
 	(footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 		(layer "F.Cu")
 		(uuid "42df1186-e18f-4dfb-be51-1e6399b1e9e2")
@@ -3448,6 +3554,112 @@
 			(rotate
 				(xyz 0 0 0)
 			)
+		)
+	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "490d67c8-22a2-4146-b6fe-03a1f7c71db2")
+		(at 57.785 63.5)
+		(descr "Mark board for extraction")
+		(property "Reference" "B1"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "58251328-1a72-42d6-a6c1-98141c120e07")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "548ecb61-ac59-445f-b476-4f14de451ef4")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "db473ef3-7f18-4bfb-b0f8-e7d035589cbf")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "4f5bbc53-0c45-4977-b637-4b20e36d3cc9")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "2f53d36b-6efe-4760-b6e3-190876cfc294")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "117b668c-0617-4fa3-9d1f-1825d1e2d5b2")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "4cf024da-fa11-49e0-95ff-225b4619c7bd")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "125fc9d3-33d7-43d9-b2ff-85a7e7779eb7")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "186a94a0-7a23-4a89-86c4-27a01d8603f8")
 		)
 	)
 	(footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
