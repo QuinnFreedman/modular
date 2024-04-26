@@ -3433,7 +3433,7 @@
 				)
 			)
 		)
-		(property "Value" "100pF"
+		(property "Value" "330pF"
 			(at 68.5863 46.99 90)
 			(effects
 				(font
