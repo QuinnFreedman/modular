@@ -48,9 +48,9 @@ If they don't have the potentiometer values you need in stock, most designs are 
 
 ### Knobs
 
-I use Thonk's [spectrum series](https://www.thonk.co.uk/shop/spectrum-knobs/) for my potentiometer knobs along with [Rogan PT S1](https://www.thonk.co.uk/shop/make-noise-mutable-style-knobs/) knobs for rotary encoders.
+I personally use [black Sifam/Selco skirted knobs (small and large)](https://www.thonk.co.uk/shop/intellijel-black-knobs/) for everything and design my modules with those in mind. For these knobs, you need to buy the [colored end caps](https://www.thonk.co.uk/shop/sifam-caps/) separately and press them in. I use the colors Red, Orange, Yellow, Green, Bright Aqua, Magenta, and white.
 
-I think these look nice, but they are a bit pricey if you are buying a lot. You can find cheap plastic knobs in big lots online (e.g. [these](https://www.amazon.com/gp/product/B073BCR8T6)). Just make sure they match your potentiometer shaft.
+If you want to customize the look of your modules, just look at any DIY supply store like [Thonk](https://www.thonk.co.uk/product-category/parts/knobs/), [Modular Addict](https://modularaddict.com/parts/synth-diy-parts/knob), [Amplified Parts](https://www.amplifiedparts.com/products/knobs), or [Love My Switches](https://lovemyswitches.com/knobs/). Or, get cheap lots on amazon or ebay (like [this](https://www.amazon.com/gp/product/B073BCR8T6), or [this](https://www.amazon.com/gp/product/B073BCR8T6)) Any knobs should be compatible as long as you match the shaft type to the potentiometers you are using.
 
 ### Jacks
 
