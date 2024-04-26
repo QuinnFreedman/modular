@@ -1,6 +1,6 @@
 # Components
 
-Each module will list the specific components required to build it in a **bill of materials**, which is in the assembly instructions for that module. To avoid repetion, common componets that are used in many modules are listed here along with advice about where to buy them.
+Each module will list the specific components required to build it in a **bill of materials**, which is in the assembly instructions for that module. To avoid repetition, common components that are used in many modules are listed here along with advice about where to buy them.
 
 ## Microcontrollers
 
@@ -16,7 +16,7 @@ The exact model of these components doesn't matter. I recommend you buy them fro
 
 ### Resistors
 
-All my modules use 1/4 Watt THT resitors. These are the standard resistors that you will find in any DIY kit. The specific specs and tolerances do not matter. I recommend buying a kit of all different values together. This is probably cheaper and easier than buying the specific resistors listed in each module.
+All my modules use 1/4 Watt THT resistors. These are the standard resistors that you will find in any DIY kit. The specific specs and tolerances do not matter. I recommend buying a kit of all different values together. This is probably cheaper and easier than buying the specific resistors listed in each module.
 
 ### Capacitors
 

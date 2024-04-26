@@ -8,7 +8,7 @@ At its most basic level, this lets you make your ideal traditional synthesizer -
 
 Your modular synth can be a traditional keyboard-driven voice, or a generative instrument that creates its own non-repeating melodies. It can be a dedicated effects unit that just processes external sound, or a drum machine that plays back samples according to a sequencer. And, it can be all these things by just re-arranging some cables.
 
-**Eurorack** is just a standard format for modules. All these modules need to fit into a the same case, get their power from the same power supply, and output the same range of voltages so they can talk to eachother. There are many different form factors for modular synthesizers, but Eurorack is by far the most popular. Eurorack modules are about 5 inches tall, work off of 12 volt power, and output +/-10v signals. All the modules in this repository are designed for Eurorack, but it shouldn't be too hard to adapt them to the standard of your choice.
+**Eurorack** is just a standard format for modules. All these modules need to fit into a the same case, get their power from the same power supply, and output the same range of voltages so they can talk to each other. There are many different form factors for modular synthesizers, but Eurorack is by far the most popular. Eurorack modules are about 5 inches tall, work off of 12 volt power, and output +/-10v signals. All the modules in this repository are designed for Eurorack, but it shouldn't be too hard to adapt them to the standard of your choice.
 
 Here are some quick videos that explain modular better than I can:
 
