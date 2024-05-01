@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "OffsetAtten")
-		(date "2024-04-16")
-		(rev "v0.1")
+		(date "2024-05-01")
+		(rev "v2.0")
 		(company "Free Modular")
 	)
 	(lib_symbols

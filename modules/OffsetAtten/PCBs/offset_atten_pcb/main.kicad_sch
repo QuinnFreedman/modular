@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "OffsetAtten")
-		(date "2024-04-16")
-		(rev "v0.1")
+		(date "2024-05-01")
+		(rev "v2.0")
 		(company "Free Modular")
 	)
 	(lib_symbols
@@ -957,8 +957,8 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "J?"
-				(at 5.08 0 0)
+			(property "Reference" "J7"
+				(at -3.81 2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -985,7 +985,7 @@
 				)
 			)
 			(property "Datasheet" "~"
-				(at 0 0 0)
+				(at 1.27 2.54 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -1023,7 +1023,7 @@
 			(symbol "Eurorack_2x5_Power_0_1"
 				(polyline
 					(pts
-						(xy -1.27 5.08) (xy -1.905 5.08) (xy -1.905 0) (xy -1.27 0)
+						(xy 2.54 -2.54) (xy 3.175 -2.54) (xy 3.175 2.54) (xy 2.54 2.54)
 					)
 					(stroke
 						(width 0)
@@ -1036,8 +1036,8 @@
 			)
 			(symbol "Eurorack_2x5_Power_1_1"
 				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
+					(start -2.54 -5.207)
+					(end -1.27 -4.953)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1047,8 +1047,8 @@
 					)
 				)
 				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
+					(start -2.54 -2.667)
+					(end -1.27 -2.413)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1058,8 +1058,8 @@
 					)
 				)
 				(rectangle
-					(start -1.27 2.667)
-					(end 0 2.413)
+					(start -2.54 -0.127)
+					(end -1.27 0.127)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1069,8 +1069,8 @@
 					)
 				)
 				(rectangle
-					(start -1.27 5.207)
-					(end 0 4.953)
+					(start -2.54 2.413)
+					(end -1.27 2.667)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1080,8 +1080,8 @@
 					)
 				)
 				(rectangle
-					(start -1.27 7.747)
-					(end 0 7.493)
+					(start -2.54 4.953)
+					(end -1.27 5.207)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1091,8 +1091,8 @@
 					)
 				)
 				(rectangle
-					(start -1.27 8.89)
-					(end 3.81 -3.81)
+					(start 2.54 -6.35)
+					(end -2.54 6.35)
 					(stroke
 						(width 0.254)
 						(type default)
@@ -1102,8 +1102,8 @@
 					)
 				)
 				(rectangle
-					(start 3.81 -2.413)
-					(end 2.54 -2.667)
+					(start 2.54 -5.207)
+					(end 1.27 -4.953)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1113,8 +1113,8 @@
 					)
 				)
 				(rectangle
-					(start 3.81 0.127)
-					(end 2.54 -0.127)
+					(start 2.54 -2.667)
+					(end 1.27 -2.413)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1124,8 +1124,8 @@
 					)
 				)
 				(rectangle
-					(start 3.81 2.667)
-					(end 2.54 2.413)
+					(start 2.54 -0.127)
+					(end 1.27 0.127)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1135,8 +1135,8 @@
 					)
 				)
 				(rectangle
-					(start 3.81 5.207)
-					(end 2.54 4.953)
+					(start 2.54 2.413)
+					(end 1.27 2.667)
 					(stroke
 						(width 0.1524)
 						(type default)
@@ -1146,18 +1146,26 @@
 					)
 				)
 				(rectangle
-					(start 3.81 7.747)
-					(end 2.54 7.493)
+					(start 2.54 4.953)
+					(end 1.27 5.207)
 					(stroke
 						(width 0.1524)
 						(type default)
 					)
 					(fill
 						(type none)
+					)
+				)
+				(text "stripe"
+					(at 0 -5.588 0)
+					(effects
+						(font
+							(size 0.9 0.9)
+						)
 					)
 				)
 				(pin power_out line
-					(at -5.08 7.62 0)
+					(at 6.35 -5.08 180)
 					(length 3.81)
 					(name "-12v"
 						(effects
@@ -1175,7 +1183,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 -2.54 0)
+					(at 6.35 5.08 180)
 					(length 3.81) hide
 					(name "+12v"
 						(effects
@@ -1193,7 +1201,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 7.62 0)
+					(at 6.35 -5.08 180)
 					(length 3.81) hide
 					(name "-12v"
 						(effects
@@ -1211,7 +1219,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
+					(at 6.35 0 180)
 					(length 3.81) hide
 					(name "GND"
 						(effects
@@ -1229,7 +1237,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
+					(at 6.35 0 180)
 					(length 3.81) hide
 					(name "GND"
 						(effects
@@ -1247,7 +1255,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
+					(at 6.35 0 180)
 					(length 3.81)
 					(name "GND"
 						(effects
@@ -1265,7 +1273,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
+					(at 6.35 0 180)
 					(length 3.81) hide
 					(name "GND"
 						(effects
@@ -1283,7 +1291,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
+					(at 6.35 0 180)
 					(length 3.81) hide
 					(name "GND"
 						(effects
@@ -1301,7 +1309,7 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 2.54 0)
+					(at 6.35 0 180)
 					(length 3.81) hide
 					(name "GND"
 						(effects
@@ -1319,7 +1327,7 @@
 					)
 				)
 				(pin power_out line
-					(at -5.08 -2.54 0)
+					(at 6.35 5.08 180)
 					(length 3.81)
 					(name "+12v"
 						(effects
@@ -1613,7 +1621,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 119.38) (xy 213.36 124.46)
+			(xy 223.52 121.92) (xy 223.52 127)
 		)
 		(stroke
 			(width 0)
@@ -1773,7 +1781,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 139.7) (xy 213.36 134.62)
+			(xy 223.52 142.24) (xy 223.52 137.16)
 		)
 		(stroke
 			(width 0)
@@ -1833,7 +1841,7 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 129.54) (xy 208.28 130.81)
+			(xy 228.6 132.08) (xy 228.6 133.35)
 		)
 		(stroke
 			(width 0)
@@ -2143,7 +2151,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 134.62) (xy 215.9 134.62)
+			(xy 223.52 137.16) (xy 220.98 137.16)
 		)
 		(stroke
 			(width 0)
@@ -2203,7 +2211,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 119.38) (xy 212.09 119.38)
+			(xy 223.52 121.92) (xy 224.79 121.92)
 		)
 		(stroke
 			(width 0)
@@ -2263,7 +2271,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 139.7) (xy 212.09 139.7)
+			(xy 223.52 142.24) (xy 224.79 142.24)
 		)
 		(stroke
 			(width 0)
@@ -2453,7 +2461,7 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 129.54) (xy 215.9 129.54)
+			(xy 228.6 132.08) (xy 220.98 132.08)
 		)
 		(stroke
 			(width 0)
@@ -2633,7 +2641,7 @@
 	)
 	(wire
 		(pts
-			(xy 213.36 124.46) (xy 215.9 124.46)
+			(xy 223.52 127) (xy 220.98 127)
 		)
 		(stroke
 			(width 0)
@@ -2729,13 +2737,13 @@
 	)
 	(hierarchical_label "+12V"
 		(shape bidirectional)
-		(at 212.09 119.38 180)
+		(at 224.79 121.92 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "0c0fa077-0f03-4728-8586-b51d0842302b")
 	)
@@ -2765,7 +2773,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape bidirectional)
-		(at 208.28 130.81 270)
+		(at 228.6 133.35 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2789,13 +2797,13 @@
 	)
 	(hierarchical_label "-12V"
 		(shape bidirectional)
-		(at 212.09 139.7 180)
+		(at 224.79 142.24 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "5365bbf7-5ff9-4242-a290-14793a2027be")
 	)
@@ -2981,16 +2989,15 @@
 	)
 	(symbol
 		(lib_id "FreeModular:Eurorack_2x5_Power")
-		(at 220.98 132.08 0)
+		(at 214.63 132.08 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "0c11c489-acc2-432b-b16e-38ff15bcfffb")
 		(property "Reference" "J9"
-			(at 226.06 128.2699 0)
+			(at 208.788 126.746 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2999,7 +3006,7 @@
 			)
 		)
 		(property "Value" "Eurorack_2x5_Power"
-			(at 226.06 130.8099 0)
+			(at 202.692 122.936 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3008,7 +3015,7 @@
 			)
 		)
 		(property "Footprint" "Connector_IDC:IDC-Header_2x05_P2.54mm_Vertical"
-			(at 222.25 139.7 0)
+			(at 215.9 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3017,7 +3024,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 220.98 132.08 0)
+			(at 214.63 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3026,7 +3033,7 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x05, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers)"
-			(at 220.98 132.08 0)
+			(at 214.63 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
