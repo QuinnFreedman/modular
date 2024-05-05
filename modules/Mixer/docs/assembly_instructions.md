@@ -17,7 +17,7 @@ See [general components notes](https://quinnfreedman.github.io/modular/docs/comp
 | C3,C4     | Capacitor        | 33pF                                    |         | **[Optional]** Amp stabilization. Anything in the 100pF-33pF range is probably fine. |
 | C5,C6     | Capacitor        | 10uF                                    |         | **[Optional]** Power supply noise filtering capacitor |
 | RV1-RV4   | Potentiometer    | A100kΩ                                  | [Thonk](https://www.thonk.co.uk/shop/alpha-9mm-pots-dshaft/) | Logarithmic is best if you primarily want to mix audio. Any value should work for these as long as they are significantly higher than the output impedance of the sources you are mixing.|
-| SW1-SW5   | Switch           | TAIWAY 200CWMSP1T3B4M2                  | [Love My Switches](https://lovemyswitches.com/taiway-sub-mini-spdt-on-on-switch-pcb-mount-long-shaft/) | |
+| SW1-SW5   | Switch           | TAIWAY 200CWMSP1T3B4M2                  | [Thonk](https://www.thonk.co.uk/shop/sub-mini-toggle-switches/), [Love My Switches](https://lovemyswitches.com/taiway-sub-mini-spdt-on-on-switch-pcb-mount-long-shaft/) | SPDT ON-ON |
 | J1-J6     | Jack Socket      | PJ301M-12                               | [Thonk](https://www.thonk.co.uk/shop/thonkiconn/) | |
 | J7        | Power header     | IDC male 2x5                            |         | |
 | J8, J9    | Jumper headers   |                                         |         | **[Optional]** Chain multiple modules together by connecting OUT to IN. |

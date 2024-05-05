@@ -6,7 +6,7 @@ use crate::clock::{ClockChannelConfig, ClockConfig};
 
 use super::{
     menu_state::*,
-    utils::{single_step_clock_division, step_clock_division, AddWithoutOverflow},
+    utils::{single_step_clock_division, step_clock_division},
 };
 
 pub fn update_menu<BtnPin, const BTN_DEBOUNCE: u32, const BTN_LONG_PRESS: u32>(
@@ -179,7 +179,7 @@ fn handle_rotary_knob_change(
             EditingState::Editing => {
                 clock_state.bpm = clock_state
                     .bpm
-                    .add_without_overflow(rotary_encoder_delta)
+                    .saturating_add_signed(rotary_encoder_delta)
                     .clamp(30, 250);
                 MenuUpdate::UpdateValueAtCursor
             }
@@ -231,7 +231,7 @@ fn handle_rotary_knob_change(
                     SubMenuItem::PulseWidth => {
                         channel.pulse_width = channel
                             .pulse_width
-                            .add_without_overflow(rotary_encoder_delta)
+                            .saturating_add_signed(rotary_encoder_delta)
                             .clamp(0, 100);
                         MenuUpdate::UpdateValueAtCursor
                     }
@@ -245,7 +245,7 @@ fn handle_rotary_knob_change(
                     SubMenuItem::Swing => {
                         channel.swing = channel
                             .swing
-                            .add_without_overflow(rotary_encoder_delta)
+                            .saturating_add_signed(rotary_encoder_delta)
                             .min(32);
                         MenuUpdate::UpdateValueAtCursor
                     }
@@ -254,7 +254,7 @@ fn handle_rotary_knob_change(
             }
             EditingState::Navigating => {
                 let old_cursor = *cursor;
-                *cursor = cursor.add_without_overflow(rotary_encoder_delta).min(4);
+                *cursor = cursor.saturating_add_signed(rotary_encoder_delta).min(4);
                 if old_cursor == *cursor {
                     MenuUpdate::NoUpdate
                 } else if *cursor < *scroll {

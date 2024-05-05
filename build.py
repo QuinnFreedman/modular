@@ -238,6 +238,8 @@ def build(name, output_dir):
         f"{name.lower()}_pcb",
         f"{name.lower()}_front_pcb",
         f"{name.lower()}_back_pcb",
+        f"{name.lower()}_pcb_front",
+        f"{name.lower()}_pcb_back",
         f"{name.lower()}_faceplate",
         f"{name.lower()}_faceplate_pcb",
     ]:
@@ -263,5 +265,5 @@ if __name__ == "__main__":
     output_dir = "../fm-artifacts"
     build("Clock", output_dir)
     build("Mixer", output_dir)
-    # build("DiodeDistortion", output_dir)
+    build("RNG", output_dir)
 
