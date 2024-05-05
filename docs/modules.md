@@ -17,6 +17,18 @@
       </div>
     </div>
   </a>
+  <a href="https://quinnfreedman.github.io/modular/modules/RNG" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://quinnfreedman.github.io/modular/modules/RNG/docs/images/rng_faceplate_display.svg" />
+      <div>
+        <h2>RNG</h2>
+        <p>The Random Number Generator -- A module for creating semi-looping, randomized CV and gates. Inspired by the Turning Machine</p>
+      </div>
+    </div>
+  </a>
+  <div class="fm-module-box">
+  Coming soon...
+  </div>
   <div class="fm-module-box">
   Coming soon...
   </div>
