@@ -26,9 +26,15 @@
       </div>
     </div>
   </a>
-  <div class="fm-module-box">
-  Coming soon...
-  </div>
+  <a href="https://quinnfreedman.github.io/modular/modules/OffsetAtten" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://quinnfreedman.github.io/modular/modules/OffsetAtten/docs/images/offset_atten_faceplate.svg" />
+      <div>
+        <h2>OffsetAtten</h2>
+        <p>A utility module to scale, shift, and invert signals</p>
+      </div>
+    </div>
+  </a>
   <div class="fm-module-box">
   Coming soon...
   </div>

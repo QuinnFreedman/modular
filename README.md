@@ -54,5 +54,6 @@ To get started, check out some of the links below.
   <li><a href="https://quinnfreedman.github.io/modular/modules/Clock">Clock</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/Mixer">Mixer</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/RNG">RNG</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/OffsetAtten">Offset/Atten</a></li>
 </ul>
 {% include_relative docs/modules.md %}
