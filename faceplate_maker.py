@@ -58,7 +58,7 @@ def inches(n):
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5):
+    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5, hide_logo=False):
         assert isinstance(global_y_offset, (int, float))
         assert isinstance(hp, int)
         HP = inches(0.2)
@@ -111,7 +111,7 @@ class Module:
         if title:
             title_offset_y = 6.3
             if hp < 8:
-                title_offset_y = 9
+                title_offset_y = 10
             self.stencil.add(
                 self.d.text(title,
                     insert=(self.width / 2, title_offset_y),
@@ -120,16 +120,17 @@ class Module:
                 ))
 
         # Draw logo
-        logo_y = self.height - 9
-        if hp < 8:
-            logo_y = self.height - 12
-        logo_width = min(self.width, 15)
-            
-        logo = self.d.path(
-            LOGO_PATH,
-            transform=f"translate({self.width / 2 - logo_width / 2}, {logo_y}) scale({logo_width / 100})",
-        )
-        self.stencil.add(logo)
+        if not hide_logo:
+            logo_width = min(self.width, 15)
+            # logo_height = .465 * logo_width
+            logo_y = self.height - 9
+            if hp < 8:
+                logo_y = self.height - 12
+            logo = self.d.path(
+                LOGO_PATH,
+                transform=f"translate({self.width / 2 - logo_width / 2}, {logo_y}) scale({logo_width / 100})",
+            )
+            self.stencil.add(logo)
 
         # Draw outline
         if outline is None:
@@ -273,7 +274,7 @@ class Module:
 
 
     @classmethod
-    def from_cli(self, hp, global_y_offset=0, title=None, title_size=5):
+    def from_cli(self, hp, global_y_offset=0, title=None, title_size=5, hide_logo=False):
         import argparse
         parser = argparse.ArgumentParser(description="Script to make faceplate SVGs for FM modules")
         parser.add_argument("--mode", choices=["stencil", "display", "debug"], default="stencil", help="which features should be included in the image")
@@ -284,6 +285,7 @@ class Module:
             global_y_offset=global_y_offset,
             title=title,
             title_size=title_size,
+            hide_logo=hide_logo,
             filename=args.output or f"{title}.svg",
             debug=args.mode == "debug",
             cosmetics=args.mode == "display",
@@ -636,6 +638,11 @@ def lighten(color, amount):
     color.luminance += amount
     return color.hex
 
+def darken(color, amount):
+    color = Color(color)
+    color.luminance -= amount
+    return color.hex
+
 
 class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
@@ -920,6 +927,7 @@ class PotColor(Enum):
     RED = 2
     ORANGE = 3
     GREEN = 5
+    BLUE = 6
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
@@ -1016,9 +1024,10 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             PotColor.RED: ["#e25f62", "#d23e3e"],
             PotColor.GREEN: [lighten("#54ad77", .18), "#379a64"],
             PotColor.ORANGE: [lighten("#ff947d", .04), "#e55d44"],
+            PotColor.BLUE: [lighten("#0bbff2", .18), darken("#0bbff2", .1)],
         }
         cap_color = cap_colors[self.color]
-        if self.color in [PotColor.WHITE]:
+        if self.color in [PotColor.WHITE, PotColor.BLUE]:
             pointer_color = "#000"
         else:
             pointer_color = "#fff"

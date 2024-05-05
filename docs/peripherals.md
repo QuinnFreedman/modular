@@ -1,4 +1,4 @@
-In addition to the modules in this repository, you will need a few extra components to make a working synth. If you are new to Eurorack, you will need a case, powersupply, and cables. Additionally, there aren't enough modules in this project to make a fully working synth **(yet)** so you will probably want to supplement with a few commercial modules.
+In addition to the modules in this repository, you will need a few extra components to make a working synth. If you are new to Eurorack, you will need a case, power supply, and cables. Additionally, there aren't enough modules in this project to make a fully working synth **(yet)** so you will probably want to supplement with a few commercial modules.
 
 ## Cases
 

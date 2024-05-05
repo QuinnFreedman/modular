@@ -246,7 +246,7 @@ def build_rust_firmware(name: str, output_dir: str, last_commit: str):
         cwd=firmware_dir,
     )
 
-    firmware_name = f"fm-{name.lower().replace('_', '-')}"
+    firmware_name = f"fm-{to_snake_case(name).replace('_', '-')}"
     elf_file = path.join(firmware_dir, "target", "avr-atmega328p", "release", f"{firmware_name}.elf")
     hex_file = path.join(output_dir, f"{firmware_name}.hex")
 
@@ -277,14 +277,15 @@ def build(name, output_dir, multiboard_refs=None):
     os.makedirs(output_dir, exist_ok=True)
 
     did_build = False
+    pcb_name_base = to_snake_case(name)
     for pcb_name in [
-        f"{name.lower()}_pcb",
-        f"{name.lower()}_front_pcb",
-        f"{name.lower()}_back_pcb",
-        f"{name.lower()}_pcb_front",
-        f"{name.lower()}_pcb_back",
-        f"{name.lower()}_faceplate",
-        f"{name.lower()}_faceplate_pcb",
+        f"{pcb_name_base}_pcb",
+        f"{pcb_name_base}_front_pcb",
+        f"{pcb_name_base}_back_pcb",
+        f"{pcb_name_base}_pcb_front",
+        f"{pcb_name_base}_pcb_back",
+        f"{pcb_name_base}_faceplate",
+        f"{pcb_name_base}_faceplate_pcb",
     ]:
         did_build = False
         kicad_proj_dir = path.join(path.abspath(dir), "PCBs", pcb_name)
@@ -307,7 +308,6 @@ def build(name, output_dir, multiboard_refs=None):
     rev_file_name = path.join(output_dir, "last_modified.txt")
     with open(rev_file_name, "w") as f:
         f.write(current_commit)
-    
 
 
 if __name__ == "__main__":
@@ -317,4 +317,5 @@ if __name__ == "__main__":
     build("RNG", output_dir)
     build("Output", output_dir, [("front", "B1"), ("middle", "B2"), ("back", "B3")])
     build("devboard", output_dir)
+    build("OffsetAtten", output_dir, [("front", "B1"), ("back", "B2")])
 
