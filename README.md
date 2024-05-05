@@ -53,5 +53,6 @@ To get started, check out some of the links below.
 <ul style="display:none">
   <li><a href="https://quinnfreedman.github.io/modular/modules/Clock">Clock</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/Mixer">Mixer</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/RNG">RNG</a></li>
 </ul>
 {% include_relative docs/modules.md %}
