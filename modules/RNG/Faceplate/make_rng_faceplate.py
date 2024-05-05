@@ -15,10 +15,10 @@ for i in range(NUM_LEDS):
     x = inches(.25 * (i - NUM_LEDS // 2))
     module.add(SmallLED(x, inches(.1)))
 
-module.add(Potentiometer(-inches(.6), inches(1), label="Chance", style=PotStyle.CHROMATIC_RED))
-module.add(Potentiometer(inches(.4), inches(1), label="Time", style=PotStyle.ROGAN_PT_1S))
-module.add(Potentiometer(-inches(.6), inches(2), label="Spread", style=PotStyle.CHROMATIC_WHITE_SMALL))
-module.add(Potentiometer(inches(.4), inches(2), label="Bias", style=PotStyle.CHROMATIC_WHITE_SMALL))
+module.add(Potentiometer(-inches(.6), inches(1), label="Chance", style=PotStyle.SIFAM_LARGE, color=PotColor.RED))
+module.add(Potentiometer(inches(.4), inches(1), label="Time", style=PotStyle.SIFAM_MEDIUM_RE))
+module.add(Potentiometer(-inches(.6), inches(2), label="Spread", style=PotStyle.SIFAM_MEDIUM))
+module.add(Potentiometer(inches(.4), inches(2), label="Bias", style=PotStyle.SIFAM_MEDIUM))
 
 module.add(Switch(-inches(.5), inches(2.5), left_text="Uni", right_text="Bi")) #label="Bipolar/Unipolar"))
 module.add(Switch(inches(.5), inches(2.5), left_text="Trig", right_text="Gate")) #label="Trigger/Gate"))
