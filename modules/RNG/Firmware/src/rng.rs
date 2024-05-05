@@ -1,13 +1,15 @@
 //! This module abstracts the core functionality of the RNG module in a
 //! more-or-less hardare-independent way.
 
-use core::cell::Cell;
+use core::{cell::Cell, fmt::Write};
 
+use arduino_hal::hal::{usart::Usart0, Atmega};
 use fm_lib::{
     bit_ops::BitOps,
     number_utils::{step_in_powers_of_2, ModulusSubtraction},
     rng::ParallelLfsr,
 };
+use ufmt::uWrite;
 
 pub enum SizeAdjustment {
     PowersOfTwo(i8),
@@ -241,22 +243,22 @@ where
     }
 
     /**
-    Update the outputs as time passes to turn off LEDs and/or tirggers
+    Update the outputs as time passes to turn off LEDs and/or triggers
     */
     pub fn time_step(
         &mut self,
         current_time_ms: u32,
         input: &RngModuleInputShort,
     ) -> RngModuleOutput {
+        if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
+            if current_time_ms > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
+                self.display_mode = DisplayMode::ShowBuffer;
+            }
+        }
+
         let enabled = input.enable_cv && input.chance_pot > 0;
         match self.current_output {
             Some(ref mut current_output) => {
-                if let DisplayMode::ShowBufferLengthSince(start_time) = self.display_mode {
-                    if current_time_ms > start_time + BUFFER_LEN_DISPLAY_TIME_MS {
-                        self.display_mode = DisplayMode::ShowBuffer;
-                    }
-                }
-
                 let time_since_last_clock = current_time_ms - current_output.clock_trigger_time_ms;
 
                 if current_output.trigger_mode == TriggerMode::Trigger

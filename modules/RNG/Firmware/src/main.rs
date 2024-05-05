@@ -9,11 +9,9 @@
 #![feature(const_trait_impl)]
 #![feature(effects)]
 #![feature(inline_const)]
+#![feature(cell_update)]
 
-use core::{
-    panic::PanicInfo,
-    sync::atomic::{AtomicU8, Ordering},
-};
+use core::{cell::Cell, panic::PanicInfo};
 
 use arduino_hal::{
     hal::port,
@@ -100,19 +98,16 @@ fn PCINT2() {
     ROTARY_ENCODER.update(a, b);
 }
 
-static UNHANDLED_STEP_COUNT: Mutex<u8> = Mutex::new(0);
+static UNHANDLED_STEP_COUNT: Mutex<Cell<u8>> = Mutex::new(Cell::new(0));
 /**
  Pin-change interrupt handler pin d2 (external interrupt 0)
 */
 #[avr_device::interrupt(atmega328p)]
 fn INT0() {
-    assert_interrupts_disabled(|cs| {
-        *UNHANDLED_STEP_COUNT.borrow(cs) += 1;
-    })
-    // let old_value = UNHANDLED_STEP_COUNT.load(Ordering::SeqCst);
-    // UNHANDLED_STEP_COUNT.store(old_value.wrapping_add(1), Ordering::SeqCst)
+    assert_interrupts_disabled(|cs| UNHANDLED_STEP_COUNT.borrow(cs).update(|x| x + 1));
 }
 
+/// Enable pin-change interrupts on Port D, specifically digital pins 4 and 5
 fn enable_portd_pc_interrupts(dp: &Peripherals) {
     // set pins d4 and d5 as inputs (PCINT20 and 21)
     dp.PORTD.ddrd.modify(|r, w| {
@@ -134,6 +129,18 @@ fn enable_portd_pc_interrupts(dp: &Peripherals) {
     dp.EXINT
         .pcicr
         .modify(|r, w| w.pcie().bits(r.pcie().bits() | 0b100));
+}
+
+/// Enable external interrupts for INT0 (digital pin 2)
+fn enable_external_interrupts(dp: &Peripherals) {
+    // set pins d2 as an input
+    dp.PORTD
+        .ddrd
+        .modify(|r, w| unsafe { w.bits(r.bits()) }.pd2().clear_bit());
+    // enable external interrupt 0
+    dp.EXINT.eimsk.write(|r| r.int0().set_bit());
+    // trigger interrupt on rising edge
+    dp.EXINT.eicra.write(|r| r.isc0().val_0x03());
 }
 
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3> = new_async_adc_state();
@@ -163,6 +170,7 @@ fn main() -> ! {
 
     // Enable interrupts for rotary encoder
     enable_portd_pc_interrupts(&dp);
+    enable_external_interrupts(&dp);
 
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
@@ -244,8 +252,8 @@ fn main() -> ! {
 
         // Step the buffer forward if there have been any unhandled clock pulses
         {
-            let mut to_handle = unsafe_access_mutex(|cs| *UNHANDLED_STEP_COUNT.borrow(cs));
-            while to_handle > 0 {
+            let steps_to_handle = unsafe_access_mutex(|cs| UNHANDLED_STEP_COUNT.borrow(cs).get());
+            for _ in 0..steps_to_handle {
                 handle_clock_step(
                     &mut rng_module,
                     current_time,
@@ -253,12 +261,12 @@ fn main() -> ! {
                     &mut output_pins,
                     |value| dac.write(&mut spi, DacChannel::ChannelA, value),
                 );
-                interrupt::free(|cs| {
-                    let count_ref = UNHANDLED_STEP_COUNT.borrow(cs);
-                    *count_ref -= 1;
-                    to_handle = *count_ref;
-                });
             }
+            interrupt::free(|cs| {
+                UNHANDLED_STEP_COUNT
+                    .borrow(cs)
+                    .update(|x| x.saturating_sub(steps_to_handle))
+            });
         }
 
         // Handle rotary encoder
@@ -309,13 +317,7 @@ fn main() -> ! {
             debug_assert!(current_time >= last_step_time);
             if current_time - last_step_time >= 1000u32 {
                 last_step_time += 1000;
-                handle_clock_step(
-                    &mut rng_module,
-                    current_time,
-                    &input_pins,
-                    &mut output_pins,
-                    |value| dac.write(&mut spi, DacChannel::ChannelA, value),
-                );
+                interrupt::free(|cs| UNHANDLED_STEP_COUNT.borrow(cs).set(1));
             }
         }
     }
@@ -332,7 +334,7 @@ fn get_bias<const N: usize>(adc: &Option<AsyncAdcState<N>>) -> u16 {
     let adjusted_cv = -(HALF_ADC_SCALE - (cv_value as i16)) * 2;
     let sum = pot_value.saturating_add_signed(adjusted_cv);
     // discard the 2 lsbs of the input to reduce display flickering. The difference
-    // should not be musically noticable
+    // should not be musically noticeable
     (sum & !0b11u16) << 2
 }
 
