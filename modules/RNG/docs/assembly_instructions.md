@@ -10,7 +10,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pc
 
 | Board | Reference | Part             | Value                                   | Source  | Comment |
 | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
-| Front | R1        | Resistor         | 100kΩ                                   |         |         |
+| Front | R1, R20   | Resistor         | 100kΩ                                   |         |         |
 | Front | R2, R3    | Resistor         | 1kΩ                                     |         | Determines output impedance. Any value is fine. |
 | Front | R4-R7     | Resistor         | 10kΩ                                    |         | Determines LED brightness. You may want to use a different value if you have different LEDs. A lower value means less resistance and brighter LEDs |
 | Front | RV1-RV3   | Potentiometer    | B50kΩ                                   | [Thonk](https://www.thonk.co.uk/shop/alpha-9mm-pots-dshaft/) | Linear. Any value is fine. |
