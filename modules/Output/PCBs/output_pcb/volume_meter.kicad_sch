@@ -3238,7 +3238,6 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 26.67 0)
-		(mirror x)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3246,7 +3245,7 @@
 		(dnp no)
 		(uuid "0a315f30-a205-4031-88f4-d6acf1e54caa")
 		(property "Reference" "U12"
-			(at 128.27 17.145 0)
+			(at 128.27 36.195 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3254,7 +3253,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 19.685 0)
+			(at 128.27 33.655 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3262,7 +3261,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 29.21 0)
+			(at 127 24.13 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3271,7 +3270,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 31.75 0)
+			(at 129.54 21.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3684,16 +3683,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 120.015 0)
-		(mirror x)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "3dea29bc-c805-49fe-8670-2a79f4e4d5f0")
 		(property "Reference" "U11"
-			(at 128.27 109.855 0)
+			(at 128.27 130.175 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3701,7 +3698,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 112.395 0)
+			(at 128.27 127.635 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3709,7 +3706,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 122.555 0)
+			(at 127 117.475 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3718,7 +3715,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 125.095 0)
+			(at 129.54 114.935 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3857,16 +3854,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 70.485 0)
-		(mirror x)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "47835416-0079-485a-a3e3-80f7584a7493")
 		(property "Reference" "U10"
-			(at 128.27 60.325 0)
+			(at 128.27 80.645 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3874,7 +3869,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 62.865 0)
+			(at 128.27 78.105 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3882,7 +3877,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 73.025 0)
+			(at 127 67.945 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3891,7 +3886,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 75.565 0)
+			(at 129.54 65.405 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3962,16 +3957,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 55.88 0)
-		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "4973c500-d7da-4993-8be9-256b8c4fa1cd")
 		(property "Reference" "U10"
-			(at 128.27 45.72 0)
+			(at 128.27 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3979,7 +3972,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 48.26 0)
+			(at 128.27 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3987,7 +3980,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 58.42 0)
+			(at 127 53.34 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3996,7 +3989,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 60.96 0)
+			(at 129.54 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4135,16 +4128,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 149.225 0)
-		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "59289dac-16df-48db-9c93-106ce6b8fc50")
 		(property "Reference" "U11"
-			(at 128.27 139.065 0)
+			(at 128.27 159.385 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4152,7 +4143,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 141.605 0)
+			(at 128.27 156.845 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4160,7 +4151,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 151.765 0)
+			(at 127 146.685 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4169,7 +4160,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 154.305 0)
+			(at 129.54 144.145 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5251,16 +5242,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 134.62 0)
-		(mirror x)
 		(unit 3)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "9da1edd2-8aec-46e3-b60e-5a1d1c87ed72")
 		(property "Reference" "U11"
-			(at 128.27 125.095 0)
+			(at 128.27 144.145 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5268,7 +5257,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 127.635 0)
+			(at 128.27 141.605 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5276,7 +5265,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 137.16 0)
+			(at 127 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5285,7 +5274,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 139.7 0)
+			(at 129.54 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5566,16 +5555,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 163.83 0)
-		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "a45ebde5-91c8-44d8-8f4d-88621ae6e963")
 		(property "Reference" "U11"
-			(at 128.27 154.305 0)
+			(at 128.27 173.355 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5583,7 +5570,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 156.845 0)
+			(at 128.27 170.815 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5591,7 +5578,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 166.37 0)
+			(at 127 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5600,7 +5587,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 168.91 0)
+			(at 129.54 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6518,16 +6505,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 85.09 0)
-		(mirror x)
 		(unit 4)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "dbe3be2a-bf0f-42db-8fc2-39815f304ba9")
 		(property "Reference" "U10"
-			(at 128.27 74.93 0)
+			(at 128.27 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6535,7 +6520,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 77.47 0)
+			(at 128.27 92.71 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6543,7 +6528,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 87.63 0)
+			(at 127 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6552,7 +6537,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 90.17 0)
+			(at 129.54 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6935,16 +6920,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 104.775 0)
-		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "e646c939-5258-4671-9f68-a8dcd5b445e9")
 		(property "Reference" "U12"
-			(at 128.27 94.615 0)
+			(at 128.27 114.935 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6952,7 +6935,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 97.155 0)
+			(at 128.27 112.395 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6960,7 +6943,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 107.315 0)
+			(at 127 102.235 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6969,7 +6952,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 109.855 0)
+			(at 129.54 99.695 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7213,16 +7196,14 @@
 	(symbol
 		(lib_id "Amplifier_Operational:TL074")
 		(at 128.27 41.275 0)
-		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "fe3d3a40-6d3c-4ddf-bc1e-2eaf798932f2")
 		(property "Reference" "U10"
-			(at 128.27 31.75 0)
+			(at 128.27 50.8 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7230,7 +7211,7 @@
 			)
 		)
 		(property "Value" "TL074"
-			(at 128.27 34.29 0)
+			(at 128.27 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7238,7 +7219,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
-			(at 127 43.815 0)
+			(at 127 38.735 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7247,7 +7228,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.ti.com/lit/ds/symlink/tl071.pdf"
-			(at 129.54 46.355 0)
+			(at 129.54 36.195 0)
 			(effects
 				(font
 					(size 1.27 1.27)

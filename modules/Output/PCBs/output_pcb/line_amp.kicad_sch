@@ -3948,6 +3948,7 @@
 	(symbol
 		(lib_id "Amplifier_Operational:NE5532")
 		(at 152.4 154.94 0)
+		(mirror x)
 		(unit 2)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3955,7 +3956,7 @@
 		(dnp no)
 		(uuid "a4cb9455-c3ce-4d36-a29f-39f6d77cd779")
 		(property "Reference" "U9"
-			(at 152.4 160.655 0)
+			(at 152.4 164.592 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3963,7 +3964,7 @@
 			)
 		)
 		(property "Value" "NE5532"
-			(at 152.4 163.195 0)
+			(at 152.4 162.052 0)
 			(effects
 				(font
 					(size 1.27 1.27)
