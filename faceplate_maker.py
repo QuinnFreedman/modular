@@ -346,7 +346,7 @@ class Component:
 def BasicCircle(offset_x: float, offset_y: float, r: float):
     class BasicCircle(Component):
         def __init__(self, position_x: float, position_y: float, rotation=0):
-            super(BasicCircle, self).__init__(position_x, position_y)
+            super().__init__(position_x, position_y)
             self.rotation = rotation
             if rotation not in [0, 1, 2, 3]:
                 raise ValueError("rotation must be 0...3")
@@ -391,7 +391,7 @@ def draw_x(context, x, y):
 # it down to .3in
 class JackSocket(BasicCircle(0, 4.51691566, 3 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label, is_output, rotation=0, font_size=None, label_above=False, text_offset=None):
-        super(JackSocket, self).__init__(x, y, rotation)
+        super().__init__(x, y, rotation)
         self.label = label
         self.is_output = is_output
         self.font_size = font_size
@@ -646,7 +646,7 @@ def darken(color, amount):
 
 class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
-        super(Switch, self).__init__(x, y, 0)
+        super().__init__(x, y, 0)
         self.label = label
         self.font_size = font_size
         self.left_text = left_text
@@ -773,7 +773,7 @@ class Switch(BasicCircle(0, 0, inches(1/8) + HOLE_ALLOWANCE)):
 
 class SmallSwitch(Switch):
     def __init__(self, x, y, label=None, left_text=None, right_text=None, font_size=None, rotation=0):
-        super(SmallSwitch, self).__init__(x, y, label=label, left_text=left_text, right_text=right_text, font_size=font_size, rotation=rotation)
+        super().__init__(x, y, label=label, left_text=left_text, right_text=right_text, font_size=font_size, rotation=rotation)
         self.radius = 2.25 + HOLE_ALLOWANCE
         self.hole_radius = self.radius
         self.cosmetic_holes = False
@@ -795,7 +795,7 @@ class SmallLED(BasicCircle(0, inches(.05), 1.55)):
 
 class LED(BasicCircle(0, inches(.05), 2.5)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
-        super(LED, self).__init__(x, y, rotation)
+        super().__init__(x, y, rotation)
         self.color = color
         self.cosmetic_holes = False
 
@@ -878,8 +878,8 @@ setattr(TL1265, 'draw_cosmetics', draw_button_cosmetic)
 
 
 class TL1105SP(BasicCircle(0, 0, 5.1/2)):
-    def __init__(self, x, y, rotation):
-        super(self).__init__(x, y, rotation)
+    def __init__(self, x, y, rotation=0):
+        super().__init__(x, y, rotation)
         self.cosmetic_holes = False
 
     def draw_cosmetics(self, context):
@@ -897,7 +897,7 @@ class TL1105SP(BasicCircle(0, 0, 5.1/2)):
 
 class D6R30(BasicCircle(0, 0, 9/2)):
     def __init__(self, x, y, rotation):
-        super(self).__init__(x, y, rotation)
+        super().__init__(x, y, rotation)
         self.cosmetic_holes = False
 
     def draw_cosmetics(self, context):
@@ -926,13 +926,14 @@ class PotColor(Enum):
     WHITE = 1,
     RED = 2
     ORANGE = 3
+    YELLOW = 4
     GREEN = 5
     BLUE = 6
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, label=None, rotation=0, font_size=None, color=PotColor.WHITE, text_offset=None, style=PotStyle.SIFAM_MEDIUM):
-        super(Potentiometer, self).__init__(x, y, rotation)
+        super().__init__(x, y, rotation)
         if text_offset is None:
             if "SMALL" in style.name:
                 text_offset = 10
@@ -1024,10 +1025,11 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             PotColor.RED: ["#e25f62", "#d23e3e"],
             PotColor.GREEN: [lighten("#54ad77", .18), "#379a64"],
             PotColor.ORANGE: [lighten("#ff947d", .04), "#e55d44"],
+            PotColor.YELLOW: ["#fefe69", "#fef139"],
             PotColor.BLUE: [lighten("#0bbff2", .18), darken("#0bbff2", .1)],
         }
         cap_color = cap_colors[self.color]
-        if self.color in [PotColor.WHITE, PotColor.BLUE]:
+        if self.color in [PotColor.WHITE, PotColor.BLUE, PotColor.YELLOW]:
             pointer_color = "#000"
         else:
             pointer_color = "#fff"
