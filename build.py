@@ -287,7 +287,7 @@ def build(name, output_dir, multiboard_refs=None):
         f"{pcb_name_base}_faceplate",
         f"{pcb_name_base}_faceplate_pcb",
     ]:
-        did_build = False
+        did_build = True
         kicad_proj_dir = path.join(path.abspath(dir), "PCBs", pcb_name)
         if path.isdir(kicad_proj_dir):
             refs = None if "faceplate" in pcb_name else multiboard_refs
@@ -318,4 +318,5 @@ if __name__ == "__main__":
     build("Output", output_dir, [("front", "B1"), ("middle", "B2"), ("back", "B3")])
     build("devboard", output_dir)
     build("OffsetAtten", output_dir, [("front", "B1"), ("back", "B2")])
+    build("Envelope", output_dir, [("front", "B1"), ("back", "B2")])
 
