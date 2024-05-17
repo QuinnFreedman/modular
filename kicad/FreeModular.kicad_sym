@@ -2111,7 +2111,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "FreeModualr:THONKICONN"
+		(property "Footprint" "FreeModular:THONKICONN"
 			(at 6.35 2.54 0)
 			(effects
 				(font
