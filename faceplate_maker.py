@@ -58,7 +58,7 @@ def inches(n):
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5, hide_logo=False):
+    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5, hide_logo=False, title_offset=0):
         assert isinstance(global_y_offset, (int, float))
         assert isinstance(hp, int)
         HP = inches(0.2)
@@ -112,6 +112,8 @@ class Module:
             title_offset_y = 6.3
             if hp < 8:
                 title_offset_y = 10
+            if title_offset:
+                title_offset_y = title_offset
             self.stencil.add(
                 self.d.text(title,
                     insert=(self.width / 2, title_offset_y),
@@ -274,7 +276,7 @@ class Module:
 
 
     @classmethod
-    def from_cli(self, hp, global_y_offset=0, title=None, title_size=5, hide_logo=False):
+    def from_cli(self, hp, global_y_offset=0, title=None, title_size=5, hide_logo=False, **kwargs):
         import argparse
         parser = argparse.ArgumentParser(description="Script to make faceplate SVGs for FM modules")
         parser.add_argument("--mode", choices=["stencil", "display", "debug"], default="stencil", help="which features should be included in the image")
@@ -289,6 +291,7 @@ class Module:
             filename=args.output or f"{title}.svg",
             debug=args.mode == "debug",
             cosmetics=args.mode == "display",
+            **kwargs
         )
 
 

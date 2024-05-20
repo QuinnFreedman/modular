@@ -6,7 +6,7 @@ sys.path.append("../../..")
 from faceplate_maker import *
 from svgwrite.path import Path
 
-module = Module.from_cli(8, global_y_offset=11.5, title="Envelope")
+module = Module.from_cli(8, global_y_offset=12, title="Envelope", title_size=4.6)
 
 y = inches(0.1)
 
@@ -44,7 +44,7 @@ for i in range(4):
     y += inches(.3)
     module.add(Potentiometer(inches(0.3), y, color=colors[i]))
 
-y += inches(.4)
+y += inches(.375)
 
 module.add(JackSocketCentered(inches(-.6), y, "Gate", False))
 module.add(JackSocketCentered(inches(-.2), y, "Trig", False))
