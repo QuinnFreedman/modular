@@ -2278,12 +2278,6 @@
 		(uuid "0b70ce92-ecdd-4b52-ba7f-e8f70fab69da")
 	)
 	(junction
-		(at 68.58 119.38)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "124dc694-374f-4f0f-b6f7-337aaf0d0eb3")
-	)
-	(junction
 		(at 191.77 50.8)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2330,12 +2324,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f35ebeb8-029d-49fb-a841-28666ec378d4")
-	)
-	(junction
-		(at 68.58 162.56)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "fc8aebb6-54b1-4243-a928-3318de70917d")
 	)
 	(junction
 		(at 167.64 127)
@@ -2467,6 +2455,16 @@
 	)
 	(wire
 		(pts
+			(xy 48.26 170.18) (xy 50.8 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "143c621c-47a0-46da-87a7-93b0b281d738")
+	)
+	(wire
+		(pts
 			(xy 149.86 154.94) (xy 167.64 154.94)
 		)
 		(stroke
@@ -2554,16 +2552,6 @@
 			(type default)
 		)
 		(uuid "338737c8-e9a0-4a15-8748-5703935059a9")
-	)
-	(wire
-		(pts
-			(xy 68.58 116.84) (xy 68.58 119.38)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3cd3cb2c-077e-4c78-9223-fdb081b5c325")
 	)
 	(wire
 		(pts
@@ -2727,16 +2715,6 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 149.86) (xy 68.58 152.4)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55491e54-2977-4477-83c8-bab3a5bcd093")
-	)
-	(wire
-		(pts
 			(xy 125.73 68.58) (xy 127 68.58)
 		)
 		(stroke
@@ -2784,16 +2762,6 @@
 			(type default)
 		)
 		(uuid "5fc7fbfc-c2c6-48f9-bd1c-976bf1e8755d")
-	)
-	(wire
-		(pts
-			(xy 68.58 160.02) (xy 68.58 162.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "62d2eba8-7072-4b85-931d-f493dbe98134")
 	)
 	(wire
 		(pts
@@ -2864,16 +2832,6 @@
 			(type default)
 		)
 		(uuid "847022b2-4d5d-4e6a-b586-7fbf78061410")
-	)
-	(wire
-		(pts
-			(xy 68.58 106.68) (xy 68.58 109.22)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "857d7520-7aa6-486e-9893-9d324d9c3037")
 	)
 	(wire
 		(pts
@@ -3247,6 +3205,16 @@
 	)
 	(wire
 		(pts
+			(xy 48.26 127) (xy 50.8 127)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec296aca-0b35-4f17-9bdb-ce79e4407510")
+	)
+	(wire
+		(pts
 			(xy 152.4 48.26) (xy 165.1 48.26)
 		)
 		(stroke
@@ -3344,6 +3312,26 @@
 			(type default)
 		)
 		(uuid "fe456080-1759-498c-96de-c6bfe7003f53")
+	)
+	(text "with internal pullup to 5v"
+		(exclude_from_sim no)
+		(at 87.376 164.592 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "9cf749bf-0a54-4544-87ea-6b8f5e82b5a8")
+	)
+	(text "with internal pullup to 5v"
+		(exclude_from_sim no)
+		(at 87.376 121.158 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "dada1012-d5b8-48c8-8ed0-30945695423e")
 	)
 	(label "CV3_BUFFERED"
 		(at 104.14 81.28 0)
@@ -3675,7 +3663,7 @@
 	)
 	(hierarchical_label "GATE_INPUT"
 		(shape input)
-		(at 58.42 127 180)
+		(at 48.26 127 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3732,18 +3720,6 @@
 			(justify left)
 		)
 		(uuid "84526d12-1a32-4649-9491-9866fccd9e94")
-	)
-	(hierarchical_label "5V"
-		(shape input)
-		(at 68.58 106.68 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "858c02b9-2dbf-4ae4-a873-a02dffddf06b")
 	)
 	(hierarchical_label "OUT_AUX"
 		(shape output)
@@ -3843,7 +3819,7 @@
 	)
 	(hierarchical_label "TRIG_INPUT"
 		(shape input)
-		(at 58.42 170.18 180)
+		(at 48.26 170.18 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3900,18 +3876,6 @@
 			(justify left)
 		)
 		(uuid "e004d82b-fedd-4c28-812d-2b319a5de1c9")
-	)
-	(hierarchical_label "5V"
-		(shape input)
-		(at 68.58 149.86 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f8f40d03-e07e-4a04-a706-07e80b7aaee7")
 	)
 	(symbol
 		(lib_id "Amplifier_Operational:MCP6004")
@@ -4119,7 +4083,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 68.58 113.03 180)
+		(at 54.61 127 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4127,7 +4091,7 @@
 		(dnp no)
 		(uuid "200a6017-bde4-48fc-9898-3ec411d3ae2f")
 		(property "Reference" "R15"
-			(at 63.246 113.03 90)
+			(at 54.61 121.666 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4135,7 +4099,7 @@
 			)
 		)
 		(property "Value" "100kΩ"
-			(at 65.786 113.03 90)
+			(at 54.61 124.206 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4143,7 +4107,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 70.358 113.03 90)
+			(at 54.61 128.778 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4152,7 +4116,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 68.58 113.03 0)
+			(at 54.61 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4161,7 +4125,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 68.58 113.03 0)
+			(at 54.61 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4186,7 +4150,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 68.58 156.21 180)
+		(at 54.61 170.18 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4194,7 +4158,7 @@
 		(dnp no)
 		(uuid "2481ebdc-0b22-4299-bdd3-1b8f0818a5ae")
 		(property "Reference" "R16"
-			(at 63.246 156.21 90)
+			(at 54.61 164.846 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4202,7 +4166,7 @@
 			)
 		)
 		(property "Value" "100kΩ"
-			(at 65.786 156.21 90)
+			(at 54.61 167.386 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4210,7 +4174,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 70.358 156.21 90)
+			(at 54.61 171.958 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4219,7 +4183,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 68.58 156.21 0)
+			(at 54.61 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4228,7 +4192,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 68.58 156.21 0)
+			(at 54.61 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
