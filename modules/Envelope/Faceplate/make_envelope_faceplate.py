@@ -21,7 +21,7 @@ for i in range(4):
 y += inches(.05)
 
 colors = [PotColor.YELLOW, PotColor.BLUE, PotColor.RED, PotColor.GREEN]
-labels = ["A/A/A/A", "D/A'/A'/S", "S/R/R/R", "R/R'/R'/D"]
+labels = ["A/A/A/A", "D/C/C/H", "S/R/R/R", "R/C/C/H"]
 
 
 def get_center(circle):
