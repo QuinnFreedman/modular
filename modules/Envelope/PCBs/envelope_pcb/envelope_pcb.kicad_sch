@@ -2294,12 +2294,6 @@
 		(uuid "347790b5-13fb-47bb-8ef9-6683ef28e08f")
 	)
 	(junction
-		(at 114.3 45.72)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "64abc0e1-8bca-48f4-a7f2-221d645ad5c0")
-	)
-	(junction
 		(at 162.56 63.5)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2314,10 +2308,6 @@
 	(no_connect
 		(at 170.18 66.04)
 		(uuid "9941f755-3e92-4867-8c59-ae0afc77e928")
-	)
-	(no_connect
-		(at 170.18 76.2)
-		(uuid "acaadb8b-8b1c-412b-863a-77226ab75ce0")
 	)
 	(wire
 		(pts
@@ -2471,16 +2461,6 @@
 	)
 	(wire
 		(pts
-			(xy 95.25 45.72) (xy 114.3 45.72)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "47d4da3c-5fd9-4228-9c80-4f5e2053355c")
-	)
-	(wire
-		(pts
 			(xy 114.3 45.72) (xy 135.89 45.72)
 		)
 		(stroke
@@ -2488,16 +2468,6 @@
 			(type default)
 		)
 		(uuid "490629ac-09e4-4533-9139-1055731634ef")
-	)
-	(wire
-		(pts
-			(xy 95.25 45.72) (xy 95.25 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4e755d68-71de-43e8-9578-b805ef1145fb")
 	)
 	(wire
 		(pts
@@ -2691,16 +2661,6 @@
 	)
 	(wire
 		(pts
-			(xy 95.25 66.04) (xy 92.71 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bbc14431-1f35-490a-ac90-cefddcf3ddb4")
-	)
-	(wire
-		(pts
 			(xy 78.74 45.72) (xy 78.74 66.04)
 		)
 		(stroke
@@ -2761,6 +2721,16 @@
 	)
 	(wire
 		(pts
+			(xy 167.64 76.2) (xy 170.18 76.2)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dfc91d9e-d002-4f2e-a11d-027285b1e834")
+	)
+	(wire
+		(pts
 			(xy 60.96 45.72) (xy 78.74 45.72)
 		)
 		(stroke
@@ -2818,6 +2788,28 @@
 			(type default)
 		)
 		(uuid "ffa1abe8-9dca-48c2-bda7-b7bf220d0347")
+	)
+	(label "-12V"
+		(at 167.64 76.2 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "26672bc2-8494-4dd2-854a-63b80a361483")
+	)
+	(label "-12V"
+		(at 92.71 66.04 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b7afea88-3b23-40ed-a4b7-916ef836cc27")
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x08_Socket")
@@ -3507,7 +3499,7 @@
 			)
 			(uuid "0660a3c2-f276-4448-bde4-e01bf594784f")
 		)
-		(pin "5V" input
+		(pin "-12V" input
 			(at 60.96 50.8 90)
 			(effects
 				(font
@@ -3515,7 +3507,7 @@
 				)
 				(justify right)
 			)
-			(uuid "565b3d7b-b012-47a8-b301-a0eeda272b58")
+			(uuid "e6c78506-af1e-4c93-900a-5053b83d066a")
 		)
 		(instances
 			(project "envelope_pcb"
