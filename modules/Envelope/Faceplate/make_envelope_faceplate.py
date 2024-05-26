@@ -21,7 +21,7 @@ for i in range(4):
 y += inches(.05)
 
 colors = [PotColor.YELLOW, PotColor.BLUE, PotColor.RED, PotColor.GREEN]
-labels = ["A/A/A/A", "D/C/C/H", "S/R/R/R", "R/C/C/H"]
+labels = ["A/A/A/A", "D/C/C/H", "S/R/R/R", "R/C/C/D"]
 
 
 def get_center(circle):
@@ -49,6 +49,6 @@ y += inches(.375)
 module.add(JackSocketCentered(inches(-.6), y, "Gate", False))
 module.add(JackSocketCentered(inches(-.2), y, "Trig", False))
 module.add(JackSocketCentered(inches(.2), y, "Out", True))
-module.add(JackSocketCentered(inches(.6), y, "Inv", True))
+module.add(JackSocketCentered(inches(.6), y, "Aux", True))
 
 module.save()
