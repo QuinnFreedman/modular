@@ -319,4 +319,5 @@ if __name__ == "__main__":
     build("devboard", output_dir)
     build("OffsetAtten", output_dir, [("front", "B1"), ("back", "B2")])
     build("Envelope", output_dir, [("front", "B1"), ("back", "B2")])
+    build("Drift", output_dir, [("front", "B1"), ("back", "B2")])
 

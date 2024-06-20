@@ -1009,6 +1009,115 @@
 			)
 		)
 	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "199541b9-4a56-4600-9d57-bab510e3f051")
+		(at 124.46 50.8)
+		(descr "Mark board for extraction")
+		(property "Reference" "B2"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "35f11981-da18-4f7d-97fa-55bbc642f74c")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "664554a5-3ac9-429f-baed-fe2ee3a5e01b")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Footprint" "kikit:Board"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "db473ef3-7f18-4bfb-b0f8-e7d035589cbf")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "4f5bbc53-0c45-4977-b637-4b20e36d3cc9")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "2f53d36b-6efe-4760-b6e3-190876cfc294")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "22c95932-f8fe-4952-a53d-afc4e9434499")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "25a84db5-5c4e-4cb1-b0b0-b6160aca2417")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "4bc8a85b-3466-493e-8fb0-9314e1c04643")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "aa6c95dd-616a-4cc5-b1f9-3e3c5edf958f")
+		)
+	)
 	(footprint "Capacitor_THT:CP_Radial_D4.0mm_P1.50mm"
 		(layer "F.Cu")
 		(uuid "253d8308-1a7d-4d9c-8e4d-73c83557c696")
@@ -1016,7 +1125,7 @@
 		(descr "CP, Radial series, Radial, pin pitch=1.50mm, , diameter=4mm, Electrolytic Capacitor")
 		(tags "CP Radial series Radial pin pitch 1.50mm  diameter 4mm Electrolytic Capacitor")
 		(property "Reference" "C7"
-			(at 3.405 -1.905 360)
+			(at 3.405 -1.905 0)
 			(layer "F.SilkS")
 			(uuid "efca53cc-2d4c-4246-a504-9cc56a6c87b5")
 			(effects
@@ -1027,7 +1136,7 @@
 			)
 		)
 		(property "Value" "10uF"
-			(at 0.75 3.25 360)
+			(at 0.75 3.25 0)
 			(layer "F.Fab")
 			(uuid "5a8a5394-ec2b-4bad-9da0-1f76b6d73b53")
 			(effects
@@ -2085,7 +2194,7 @@
 			(uuid "4931736b-2ab3-4f60-85c8-8b32cba883b3")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0.75 0 360)
+			(at 0.75 0 0)
 			(layer "F.Fab")
 			(uuid "46adc67f-372b-40de-bc2f-3daf571c13e0")
 			(effects
@@ -2505,6 +2614,115 @@
 			(rotate
 				(xyz 0 0 0)
 			)
+		)
+	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "2c736f6d-562b-4077-9795-550c189a8fdb")
+		(at 71.755 50.8)
+		(descr "Mark board for extraction")
+		(property "Reference" "B1"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "35f11981-da18-4f7d-97fa-55bbc642f74c")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "664554a5-3ac9-429f-baed-fe2ee3a5e01b")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Footprint" "kikit:Board"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "db473ef3-7f18-4bfb-b0f8-e7d035589cbf")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "4f5bbc53-0c45-4977-b637-4b20e36d3cc9")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "2f53d36b-6efe-4760-b6e3-190876cfc294")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "22c95932-f8fe-4952-a53d-afc4e9434499")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "25a84db5-5c4e-4cb1-b0b0-b6160aca2417")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "4bc8a85b-3466-493e-8fb0-9314e1c04643")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "aa6c95dd-616a-4cc5-b1f9-3e3c5edf958f")
 		)
 	)
 	(footprint "Module:Arduino_Nano"
@@ -3261,7 +3479,7 @@
 		(descr "CP, Radial series, Radial, pin pitch=1.50mm, , diameter=4mm, Electrolytic Capacitor")
 		(tags "CP Radial series Radial pin pitch 1.50mm  diameter 4mm Electrolytic Capacitor")
 		(property "Reference" "C6"
-			(at 3.405 -1.905 360)
+			(at 3.405 -1.905 0)
 			(layer "F.SilkS")
 			(uuid "3e654e09-c6ed-48a6-88a0-5e88e6d6417b")
 			(effects
@@ -3272,7 +3490,7 @@
 			)
 		)
 		(property "Value" "10uF"
-			(at 0.75 3.25 360)
+			(at 0.75 3.25 0)
 			(layer "F.Fab")
 			(uuid "fcf4c13f-a338-494a-bdba-57cd6257ce74")
 			(effects
@@ -4330,7 +4548,7 @@
 			(uuid "5ee1f608-ed59-4195-85a9-fb29e8d4af50")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0.75 0 360)
+			(at 0.75 0 0)
 			(layer "F.Fab")
 			(uuid "ee499849-081b-48f5-94be-8ca3a06e8bcf")
 			(effects
@@ -4379,7 +4597,7 @@
 		(descr "CP, Radial series, Radial, pin pitch=1.50mm, , diameter=4mm, Electrolytic Capacitor")
 		(tags "CP Radial series Radial pin pitch 1.50mm  diameter 4mm Electrolytic Capacitor")
 		(property "Reference" "C5"
-			(at 3.405 -1.905 360)
+			(at 3.405 -1.905 0)
 			(layer "F.SilkS")
 			(uuid "74ceda6e-f0d4-4aa8-a2da-f97bb6b97244")
 			(effects
@@ -4390,7 +4608,7 @@
 			)
 		)
 		(property "Value" "10uF"
-			(at 0.75 3.25 360)
+			(at 0.75 3.25 0)
 			(layer "F.Fab")
 			(uuid "60139b65-d437-47cc-8dca-ca8f1bb0b2f9")
 			(effects
@@ -5448,7 +5666,7 @@
 			(uuid "56477e7a-feae-4146-a32c-f7f4f0f4bc44")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0.75 0 360)
+			(at 0.75 0 0)
 			(layer "F.Fab")
 			(uuid "4d967bc7-1ed2-4288-8e2a-f0e98038ec63")
 			(effects
