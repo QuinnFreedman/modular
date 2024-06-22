@@ -5,7 +5,7 @@ use crate::{
     display_buffer::{Justify, MiniBuffer, TextColor},
     font::PRO_FONT_22,
     menu::{menu_state::EditingState, MenuUpdate},
-    render_nubers::tempo_to_str,
+    render_numbers::tempo_to_str,
 };
 
 #[inline(never)]

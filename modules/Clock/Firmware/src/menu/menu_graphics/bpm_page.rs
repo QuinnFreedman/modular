@@ -6,7 +6,7 @@ use crate::{
     display_buffer::{Justify, MiniBuffer, TextColor},
     font::PRO_FONT_29_NUMERIC,
     menu::{menu_state::EditingState, MenuUpdate},
-    render_nubers::u8_to_str_b10,
+    render_numbers::u8_to_str_b10,
 };
 
 progmem! {

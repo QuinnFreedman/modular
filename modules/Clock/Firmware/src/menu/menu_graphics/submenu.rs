@@ -9,7 +9,7 @@ use crate::{
         menu_state::{EditingState, SubMenuItem},
         MenuUpdate,
     },
-    render_nubers::{i8_to_str_b10, tempo_to_str, u8_to_str_b10},
+    render_numbers::{i8_to_str_b10, tempo_to_str, u8_to_str_b10},
 };
 
 #[inline(always)]

@@ -15,7 +15,7 @@ mod display_buffer;
 mod font;
 mod menu;
 mod random;
-mod render_nubers;
+mod render_numbers;
 
 use arduino_hal::hal::port::{PC3, PC4};
 use clock::{ClockConfig, ClockState};
@@ -143,7 +143,7 @@ fn main() -> ! {
     // I want to use direct port manipulation for performance but also the
     // individual pins from the board support library for convenience at the
     // same time, which isn't allowed by the borrow checker, so I have to use
-    // an unsafe copy of the refferences to the ports here
+    // an unsafe copy of the references to the ports here
     let unsafe_peripherals = unsafe { arduino_hal::Peripherals::steal() };
 
     // Main loop. Will run for the rest of the program

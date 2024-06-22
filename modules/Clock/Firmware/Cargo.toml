@@ -1,3 +1,5 @@
+cargo-features = ["profile-rustflags"]
+
 [package]
 name = "fm-clock"
 version = "0.1.0"
@@ -36,6 +38,7 @@ strip = "symbols"
 overflow-checks = true
 debug-assertions = true
 rpath = false
+rustflags = ["-Zlocation-detail=none"]
 
 [profile.release]
 panic = "abort"
@@ -47,3 +50,4 @@ strip = "symbols"
 overflow-checks = false
 debug-assertions = false
 rpath = false
+rustflags = ["-Zlocation-detail=none"]

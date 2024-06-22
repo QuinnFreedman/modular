@@ -49,12 +49,15 @@ where
             if bytes >= self.0.len() {
                 return Ok(());
             };
-            let byte = self.0[bytes];
             let bit_mask = 1 << bits;
+
+            debug_assert!(bytes < self.0.len());
+            let addr = unsafe { self.0.get_unchecked_mut(bytes) };
+
             if color.is_on() {
-                self.0[bytes] = byte | bit_mask;
+                *addr |= bit_mask;
             } else {
-                self.0[bytes] = byte & !bit_mask;
+                *addr &= !bit_mask;
             }
         }
         Ok(())
@@ -109,9 +112,12 @@ where
         Ok(())
     }
 
-    fn get_idx(&self, col: usize, page: usize) -> usize {
-        return col * HEIGHT / BYTE_SIZE + page;
+    fn get_byte_at(&mut self, col: usize, page: usize) -> &mut u8 {
+        let index = col * HEIGHT / BYTE_SIZE + page;
+        debug_assert!(index < self.0.len());
+        unsafe { self.0.get_unchecked_mut(index) }
     }
+
     fn write_byte_if_in_bounds(&mut self, col: usize, page: usize, value: u8, color: &TextColor) {
         if page >= HEIGHT / BYTE_SIZE {
             return;
@@ -119,13 +125,13 @@ where
         if col >= WIDTH {
             return;
         }
-        let idx = self.get_idx(col, page);
-        return self.0[idx] = match color {
+        let current = self.get_byte_at(col, page);
+        return *current = match color {
             TextColor::BinaryOn => value,
             TextColor::BinaryOff => !value,
-            TextColor::BinaryOnTransparent => self.0[idx] | value,
-            TextColor::BinaryOffTransparent => self.0[idx] & !value,
-            TextColor::InvertTransparent => (self.0[idx] & !value) | (!self.0[idx] & value),
+            TextColor::BinaryOnTransparent => *current | value,
+            TextColor::BinaryOffTransparent => *current & !value,
+            TextColor::InvertTransparent => (*current & !value) | (!*current & value),
         };
     }
 
@@ -168,8 +174,10 @@ where
             let col_in_buff = col_in_glyph as usize + x;
             let mut last_byte_in_glyph = 0u8;
             for byte_idx_in_glyph in 0..img_height_bytes {
-                let byte_in_glyph = raw_data[col_in_glyph as usize * img_height_bytes as usize
-                    + byte_idx_in_glyph as usize];
+                let offset_in_glyph =
+                    col_in_glyph as usize * img_height_bytes as usize + byte_idx_in_glyph as usize;
+                debug_assert!(offset_in_glyph < raw_data.len());
+                let byte_in_glyph = unsafe { *raw_data.get_unchecked(offset_in_glyph) };
                 let byte_to_write = if y_offset_bits == 0 {
                     byte_in_glyph
                 } else {
@@ -220,7 +228,7 @@ where
     {
         let text_width = GLYPH_WIDTH as usize * text.len();
         // NOTE: if we want to allow negative offset, we could make x and y i16 and
-        // add a boudns check to the loop then cast back, but it's faster to not as
+        // add a bounds check to the loop then cast back, but it's faster to not as
         // long as it's not used
         let x = match horizontal {
             Justify::Start(offset) => offset,
@@ -286,42 +294,41 @@ where
             let bit_offset_from_end = ((byte_idx + 1) * BYTE_SIZE) - lower_bound_exclusive;
             let mask = (0xffu8 << bit_offset) & (0xffu8 >> bit_offset_from_end);
             for col in left_bound_inclusive..right_bound_exclusive {
-                let idx = self.get_idx(col, byte_idx);
-                self.0[idx] = match color {
-                    BinaryColor::Off => self.0[idx] & !mask,
-                    BinaryColor::On => self.0[idx] | mask,
+                let current_byte = self.get_byte_at(col, byte_idx);
+                *current_byte = match color {
+                    BinaryColor::Off => *current_byte & !mask,
+                    BinaryColor::On => *current_byte | mask,
                 };
             }
             return;
         }
 
         for col in left_bound_inclusive..right_bound_exclusive {
-            let mut vcursor_bits = upper_bound_inclusive;
+            let mut v_cursor_bits = upper_bound_inclusive;
             // (maybe) fill first partial byte
-            let bit_shift_in_first_byte = vcursor_bits % BYTE_SIZE;
+            let bit_shift_in_first_byte = v_cursor_bits % BYTE_SIZE;
             if bit_shift_in_first_byte != 0 {
-                let idx = self.get_idx(col, vcursor_bits / BYTE_SIZE);
-                self.0[idx] = match color {
-                    BinaryColor::Off => self.0[idx] & !(0xffu8 << bit_shift_in_first_byte),
-                    BinaryColor::On => self.0[idx] | 0xffu8 << bit_shift_in_first_byte,
+                let current_byte = self.get_byte_at(col, v_cursor_bits / BYTE_SIZE);
+                *current_byte = match color {
+                    BinaryColor::Off => *current_byte & !(0xffu8 << bit_shift_in_first_byte),
+                    BinaryColor::On => *current_byte | 0xffu8 << bit_shift_in_first_byte,
                 };
-                vcursor_bits += BYTE_SIZE - bit_shift_in_first_byte;
+                v_cursor_bits += BYTE_SIZE - bit_shift_in_first_byte;
             }
             // fill all full bytes in column
-            debug_assert!(vcursor_bits % BYTE_SIZE == 0);
-            while lower_bound_exclusive - vcursor_bits >= 8 {
-                let idx = self.get_idx(col, vcursor_bits / BYTE_SIZE);
-                self.0[idx] = fill;
-                vcursor_bits += 8;
+            debug_assert!(v_cursor_bits % BYTE_SIZE == 0);
+            while lower_bound_exclusive - v_cursor_bits >= 8 {
+                *self.get_byte_at(col, v_cursor_bits / BYTE_SIZE) = fill;
+                v_cursor_bits += 8;
             }
             // (maybe) fill last partial byte
-            let remaining_bits_to_fill = lower_bound_exclusive - vcursor_bits;
+            let remaining_bits_to_fill = lower_bound_exclusive - v_cursor_bits;
             if remaining_bits_to_fill > 0 {
                 let last_byte_mask = 0xffu8 >> (BYTE_SIZE - remaining_bits_to_fill);
-                let idx = self.get_idx(col, vcursor_bits / BYTE_SIZE);
-                self.0[idx] = match color {
-                    BinaryColor::Off => self.0[idx] & !last_byte_mask,
-                    BinaryColor::On => self.0[idx] | last_byte_mask,
+                let current_byte = self.get_byte_at(col, v_cursor_bits / BYTE_SIZE);
+                *current_byte = match color {
+                    BinaryColor::Off => *current_byte & !last_byte_mask,
+                    BinaryColor::On => *current_byte | last_byte_mask,
                 };
             }
         }
