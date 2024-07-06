@@ -1,4 +1,5 @@
 use embedded_graphics::pixelcolor::BinaryColor;
+use fm_lib::debug_unwrap::DebugUnwrap;
 
 use crate::{
     clock::ClockConfig,
@@ -147,5 +148,5 @@ fn draw_top_level_menu_item<DI, SIZE>(
             2,
         );
     }
-    mini_buffer.blit(display, screen_x, screen_y).unwrap();
+    mini_buffer.blit(display, screen_x, screen_y).assert_ok();
 }

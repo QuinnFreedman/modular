@@ -1,5 +1,6 @@
 use avr_progmem::progmem;
 use embedded_graphics::pixelcolor::BinaryColor;
+use fm_lib::debug_unwrap::DebugUnwrap;
 
 use crate::{
     clock::ClockConfig,
@@ -42,9 +43,9 @@ pub fn render_bpm_page<DI, SIZE>(
         },
     );
     if *menu_update == MenuUpdate::SwitchScreens {
-        display.clear().unwrap();
+        display.clear().assert_ok();
     }
-    mini_buffer.blit(display, 32, 8).unwrap();
+    mini_buffer.blit(display, 32, 8).assert_ok();
     drop(mini_buffer);
     if *menu_update == MenuUpdate::SwitchScreens {
         // Because the image fits perfectly in the native 8px pages and there
@@ -54,7 +55,7 @@ pub fn render_bpm_page<DI, SIZE>(
         let y = 48;
         let w = 19;
         let h = 8;
-        display.set_draw_area((x, y), (x + w, y + h)).unwrap();
-        display.draw(&img).unwrap();
+        display.set_draw_area((x, y), (x + w, y + h)).assert_ok();
+        display.draw(&img).assert_ok();
     }
 }

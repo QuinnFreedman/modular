@@ -1,3 +1,5 @@
+use fm_lib::debug_unwrap::DebugUnwrap;
+
 use crate::menu::{menu_state::ScreenSaverState, MenuUpdate};
 
 pub fn render_screensaver<DI, SIZE>(
@@ -17,13 +19,13 @@ pub fn render_screensaver<DI, SIZE>(
             let col_px = col * 8;
             display
                 .set_draw_area((col_px, row_px), (col_px + 8, row_px + 8))
-                .unwrap();
+                .assert_ok();
             let color = if ss_state.color { 0xff } else { 0x00 };
             for _ in 0..8 {
-                display.draw(&[color]).unwrap();
+                display.draw(&[color]).assert_ok();
             }
         }
-        MenuUpdate::SwitchScreens => display.clear().unwrap(),
+        MenuUpdate::SwitchScreens => display.clear().assert_ok(),
         _ => {}
     }
 }

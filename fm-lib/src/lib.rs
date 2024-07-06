@@ -11,6 +11,7 @@ pub mod asynchronous;
 pub mod bit_ops;
 pub mod button_debouncer;
 pub mod const_traits;
+pub mod debug_unwrap;
 pub mod mcp4922;
 pub mod number_utils;
 pub mod nybl_pair;

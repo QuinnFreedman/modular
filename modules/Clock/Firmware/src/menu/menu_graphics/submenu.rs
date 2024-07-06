@@ -1,5 +1,6 @@
 use avr_progmem::{progmem, progmem_str as F};
 use embedded_graphics::{pixelcolor::BinaryColor, prelude::DrawTarget};
+use fm_lib::debug_unwrap::DebugUnwrap;
 
 use crate::{
     clock::ClockChannelConfig,
@@ -121,7 +122,7 @@ fn draw_arrows<DI, SIZE>(
         }
     }
 
-    buffer.blit(display, 0, y).unwrap();
+    buffer.blit(display, 0, y).assert_ok();
 }
 
 #[inline(always)]
@@ -159,7 +160,7 @@ fn draw_submenu_item_value<DI, SIZE>(
 {
     let mut buffer = MiniBuffer::<54, 24>::new();
     let text_color = if selected && !Into::<bool>::into(editing) {
-        buffer.clear(BinaryColor::On).unwrap();
+        buffer.clear(BinaryColor::On).assert_ok();
         TextColor::BinaryOff
     } else {
         TextColor::BinaryOn
@@ -208,7 +209,7 @@ fn draw_submenu_item_value<DI, SIZE>(
     if editing == EditingState::Editing {
         buffer.fast_rect(0, 0, 54, 24, BinaryColor::On, 2);
     }
-    buffer.blit(display, 74, y_offset).unwrap();
+    buffer.blit(display, 74, y_offset).assert_ok();
 }
 
 #[inline(never)]
@@ -224,7 +225,7 @@ fn draw_submenu_item_label<DI, SIZE>(
     let mut buffer = MiniBuffer::<74, 24>::new();
 
     if invert {
-        buffer.clear(BinaryColor::On).unwrap();
+        buffer.clear(BinaryColor::On).assert_ok();
     }
 
     let text_color = match invert {
@@ -273,5 +274,5 @@ fn draw_submenu_item_label<DI, SIZE>(
             );
         }
     }
-    buffer.blit(display, 0, y_offset).unwrap();
+    buffer.blit(display, 0, y_offset).assert_ok();
 }

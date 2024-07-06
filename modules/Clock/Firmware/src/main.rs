@@ -22,6 +22,7 @@ use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
 use fm_lib::button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
 use fm_lib::configure_system_clock;
+use fm_lib::debug_unwrap::DebugUnwrap;
 use fm_lib::rotary_encoder::RotaryEncoderHandler;
 use menu::{render_menu, update_menu, MenuOrScreenSaverState, MenuUpdate};
 use ssd1306::{prelude::*, Ssd1306};
@@ -72,7 +73,7 @@ fn PCINT0() {
 
 #[arduino_hal::entry]
 fn main() -> ! {
-    let dp = arduino_hal::Peripherals::take().unwrap();
+    let dp = arduino_hal::Peripherals::take().assert_ok();
 
     // start system clock
     let sys_clock = system_clock::init_system_clock(dp.TC0);
@@ -116,11 +117,11 @@ fn main() -> ! {
         let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0);
         display
             .reset(&mut pins.a0.into_output(), &mut arduino_hal::Delay::new())
-            .unwrap();
+            .assert_ok();
         display
             .init_with_addr_mode(ssd1306::command::AddrMode::Vertical)
-            .unwrap();
-        display.clear().unwrap();
+            .assert_ok();
+        display.clear().assert_ok();
         display
     };
 
