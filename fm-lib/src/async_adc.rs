@@ -1,5 +1,5 @@
-//! This module provides an interface to continuously and asyncronously poll the
-//! analog values of any nuber of pins at the maximum possible speed. The most
+//! This module provides an interface to continuously and asynchronously poll the
+//! analog values of any number of pins at the maximum possible speed. The most
 //! recently converted value for each channel can be read back at any time.
 //!
 //! The ATmega uses a successive approximation ADC. It takes 13 ADC cycles to
@@ -35,6 +35,17 @@ pub struct AsyncAdcState<const N: usize> {
     cursor: u8,
 }
 
+/**
+An AsyncAdcState wrapped in the necessary synchronization primitives so it is
+thread-safe.
+
+The thread safety is not just to appease the borrow checker; it is
+necessary to always access the ADC values through a critical section guard because
+the values are 16 bit ints, which cannot be written to atomically. So if you try
+to read a value unsafely, it could be updated by the ADC interrupt mid read, which
+could cause spikes e.g. when going from 255 -> 256 would actually register as 0 or
+273 depending on write order.
+ */
 pub type AsyncAdc<const N: usize> = Mutex<UnsafeCell<Option<AsyncAdcState<N>>>>;
 
 pub const fn new_async_adc_state<const N: usize>() -> AsyncAdc<N> {
@@ -63,6 +74,18 @@ impl<const N: usize> Indexable for Option<AsyncAdcState<N>> {
         debug_assert!(self.is_some());
         let adc = unsafe { self.as_ref().unwrap_unchecked() };
         unsafe { *adc.values.get_unchecked(i as usize) }
+    }
+}
+
+pub trait GetAdcValues<const N: usize> {
+    fn get_all(&self) -> [u16; N];
+}
+
+impl<const N: usize> GetAdcValues<N> for Option<AsyncAdcState<N>> {
+    fn get_all(&self) -> [u16; N] {
+        debug_assert!(self.is_some());
+        let adc = unsafe { self.as_ref().unwrap_unchecked() };
+        adc.values
     }
 }
 

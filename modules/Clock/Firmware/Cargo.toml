@@ -27,7 +27,6 @@ git = "https://github.com/rahix/avr-hal"
 rev = "8e88f71e577db12f63c500532a9edb6c9ac54b38"
 features = ["arduino-nano"]
 
-# Configure the build for minimal size - AVRs have very little program memory
 [profile.dev]
 panic = "abort"
 lto = true

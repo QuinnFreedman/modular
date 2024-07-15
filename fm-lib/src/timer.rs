@@ -13,6 +13,7 @@ macro_rules! configure_system_clock {
             use core::cell;
             use core::marker::ConstParamTy;
 
+            use fm_lib::asynchronous::unsafe_access_mutex;
             use fm_lib::const_traits::ConstInto;
 
             #[allow(dead_code)]
@@ -120,6 +121,32 @@ macro_rules! configure_system_clock {
                 }
 
                 /**
+                Reads the timer register and the running ms count simultaneously.
+                This has to be done in a synchronized way. Otherwise, the timer register
+                could roll over (causing the ms counter to increment) between the time the
+                two values are read, causing the sum to jump ahead and then jump back
+                on subsequent reads. This function is intended to preserve monotonicity.
+
+                The two returned values can be summed after adjusting for scale factor to
+                get the exact current system time.
+                */
+                fn safe_read_counter_value(&self) -> (u32, u8) {
+                    let mut timer_register = self.read_timer_register();
+                    let mut ms_counter: u32;
+                    loop {
+                        ms_counter = unsafe_access_mutex(|cs| MILLIS_COUNTER.borrow(cs).get());
+                        let timer_register_check = self.read_timer_register();
+                        let ok = timer_register_check > timer_register;
+                        timer_register = timer_register_check;
+                        if ok {
+                            break;
+                        }
+                    }
+
+                    (ms_counter, timer_register)
+                }
+
+                /**
                 Running system clock in ms. Augments the running counter with live data from
                 the hardware timer register for more precision at the cost of some more
                 computation. Precision is still limited by the prescale factor, which is a
@@ -127,35 +154,13 @@ macro_rules! configure_system_clock {
                 */
                 #[allow(dead_code)]
                 pub fn millis_exact(&self) -> u32 {
-                    let mut timer_register = self.read_timer_register();
-                    let mut ms_counter: u32;
-                    loop {
-                        ms_counter =
-                            avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get());
-                        let timer_register_check = self.read_timer_register();
-                        let ok = timer_register_check > timer_register;
-                        timer_register = timer_register_check;
-                        if ok {
-                            break;
-                        }
-                    }
+                    let (ms_counter, timer_register) = self.safe_read_counter_value();
                     ms_counter + PRECISION.ctr_units_to_ms(timer_register)
                 }
 
                 #[allow(dead_code)]
                 pub fn micros(&self) -> u64 {
-                    let mut timer_register = self.read_timer_register();
-                    let mut ms_counter: u32;
-                    loop {
-                        ms_counter =
-                            avr_device::interrupt::free(|cs| MILLIS_COUNTER.borrow(cs).get());
-                        let timer_register_check = self.read_timer_register();
-                        let ok = timer_register_check > timer_register;
-                        timer_register = timer_register_check;
-                        if ok {
-                            break;
-                        }
-                    }
+                    let (ms_counter, timer_register) = self.safe_read_counter_value();
                     (ms_counter as u64 * 1000) + PRECISION.ctr_units_to_us(timer_register) as u64
                 }
             }
