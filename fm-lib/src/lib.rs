@@ -5,6 +5,7 @@
 #![feature(effects)]
 #![feature(asm_experimental_arch)]
 #![feature(adt_const_params)]
+#![feature(abi_avr_interrupt)]
 
 pub mod async_adc;
 pub mod asynchronous;
@@ -17,4 +18,4 @@ pub mod number_utils;
 pub mod nybl_pair;
 pub mod rng;
 pub mod rotary_encoder;
-pub mod timer;
+pub mod system_clock;
