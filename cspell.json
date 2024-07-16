@@ -1,0 +1,40 @@
+{
+  "words": [
+    "roundings",
+    "debouncer",
+    "MISO",
+    "MOSI",
+    "PICO",
+    "POCI",
+    "SCK",
+    "CLK",
+    "PORTB",
+    "PORTC",
+    "PORTD",
+    "atmega",
+    "PCINT",
+    "progmem",
+    "repr",
+    "blit",
+    "pixelcolor",
+    "uwriteln",
+    "ADSR",
+    "ACRC",
+    "AHRD",
+    "LEDs",
+    "Uninit",
+    "prescale",
+    "prescaler"
+  ],
+  "patterns": [
+    {
+      "name": "peripherals",
+      "pattern": "dp\\.[A-Z]{2,7}(?:\\.[a-z]+)?",
+    },
+    {
+      "name": "hex",
+      "pattern": "0x[0-9a-z]+",
+    }
+  ],
+  "ignoreRegExpList": ["peripherals", "hex"]
+}

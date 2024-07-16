@@ -22,7 +22,7 @@ use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
 use fm_lib::button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
 use fm_lib::debug_unwrap::DebugUnwrap;
-use fm_lib::handle_system_clock;
+use fm_lib::handle_system_clock_interrupt;
 use fm_lib::rotary_encoder::RotaryEncoderHandler;
 use fm_lib::system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock};
 use menu::{render_menu, update_menu, MenuOrScreenSaverState, MenuUpdate};
@@ -30,7 +30,7 @@ use ssd1306::{prelude::*, Ssd1306};
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
-handle_system_clock!(ClockPrecision::MS16, &SYSTEM_CLOCK_STATE);
+handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
 #[inline(never)]
 #[panic_handler]
@@ -79,11 +79,7 @@ fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().assert_ok();
 
     // start system clock
-    let sys_clock =
-        SystemClock::<arduino_hal::pac::TC0, { ClockPrecision::MS16 }>::init_system_clock(
-            dp.TC0,
-            &SYSTEM_CLOCK_STATE,
-        );
+    let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
 
     // set pins d0-d7 as output
     dp.PORTD.ddrd.write(|w| unsafe { w.bits(0xff) });

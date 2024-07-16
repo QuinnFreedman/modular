@@ -30,11 +30,12 @@ use fm_lib::{
         Indexable,
     },
     asynchronous::{assert_interrupts_disabled, unsafe_access_mutex, Borrowable},
-    configure_system_clock,
     mcp4922::{DacChannel, MCP4922},
     rng::ParallelLfsr,
     rotary_encoder::RotaryEncoderHandler,
+    system_clock::{ClockPrecision, GlobalSystemClockState},
 };
+use fm_lib::{handle_system_clock_interrupt, system_clock::SystemClock};
 use rng::{RngModuleInputShort, RngModuleOutput};
 use ufmt::uwriteln;
 
@@ -46,7 +47,9 @@ use crate::{
 mod led_driver;
 mod rng;
 
-configure_system_clock!(ClockPrecision::MS16);
+static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
+    GlobalSystemClockState::new();
+handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
 #[inline(never)]
 #[panic_handler]
@@ -228,7 +231,7 @@ fn main() -> ! {
 
     let led_driver =
         TLC5940::<{ NUM_LEDS as usize }>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
-    let sys_clock = system_clock::init_system_clock(dp.TC0);
+    let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut prng = ParallelLfsr::new(seed);
     let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
     let mut dac = MCP4922::new(pins.d8.into_output_high());

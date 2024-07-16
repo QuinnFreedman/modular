@@ -90,11 +90,11 @@ impl<const PRECISION: ClockPrecision> GlobalSystemClockState<{ PRECISION }> {
 }
 
 #[macro_export]
-macro_rules! handle_system_clock {
-    ($precision:expr, $global_state:expr) => {
+macro_rules! handle_system_clock_interrupt {
+    ($global_state:expr) => {
         #[avr_device::interrupt(atmega328p)]
         fn TIMER0_COMPA() {
-            fm_lib::system_clock::increment_global_counter::<{ $precision }>($global_state);
+            fm_lib::system_clock::increment_global_counter($global_state);
         }
     };
 }
