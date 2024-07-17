@@ -1,8 +1,4 @@
-use core::{
-    arch::asm,
-    cell::Cell,
-    sync::atomic::{compiler_fence, Ordering},
-};
+use core::{arch::asm, cell::Cell};
 
 use arduino_hal::{
     hal::port::{PB1, PB2, PD3},
@@ -11,8 +7,8 @@ use arduino_hal::{
     spi::ChipSelectPin,
     Spi,
 };
-use avr_device::interrupt::CriticalSection;
 use embedded_hal::digital::v2::OutputPin;
+use fm_lib::asynchronous::unsafe_access_mutex;
 
 /**
 Determines how long each PWM period should be, in clocks.
@@ -30,47 +26,24 @@ static WAITING_FOR_XLAT: avr_device::interrupt::Mutex<Cell<bool>> =
     avr_device::interrupt::Mutex::new(Cell::new(false));
 
 /**
-This provides a way to access a static mutex that would otherwise be disallowed.
-It functions like avr_device::interrupt::free except that it doesn't actually
-block interrupts while the function is running.
-
-This should not be used unless you are sure that an interrupt will not happen
-or being interrupted while accessing the mutex will not cause a race condition.
-*/
-#[inline(always)]
-fn unsafe_access_mutex<F, R>(f: F) -> R
-where
-    F: FnOnce(CriticalSection) -> R,
-{
-    // unsafe { asm!("nop") };
-    compiler_fence(Ordering::SeqCst);
-
-    let r = f(unsafe { CriticalSection::new() });
-
-    compiler_fence(Ordering::SeqCst);
-
-    r
-}
-
-/**
 This struct is responsible for driving the TLC5940. The pins used are not configurable
 because they are all special pins that are internally connected to the ATmega's timers
 PWM outputs. A lot of this implementation is very hardware-specific and so it will not
 work on anything except an ATmega328P
 
-The TLC5940 doesn't have any internal oscilator so it must recieve constant clock
+The TLC5940 doesn't have any internal oscillator so it must receive constant clock
 triggers from the microcontroller. It requires 3 different clock signals in addition
 to the SPI data and clock lines.
 
 BLANK can be held HIGH to turn off the output. But, on the falling edge, it also
-triggers a new PWM cycle. Durring normal operation, BLANK must be pulsed at the
-desired PWM frequency. BLANK is connected to pin D10 (aka PB2) wich is internally
+triggers a new PWM cycle. During normal operation, BLANK must be pulsed at the
+desired PWM frequency. BLANK is connected to pin D10 (aka PB2) which is internally
 connected to OC1B (the 2nd PWM output channel of the ATmega's Timer 1).
 
 GSLK is the high-resolution clock. Each pulse of BLANK, all outputs are enabled and
 all counters are reset. Each pulse on GSLK, each counter is decremented and any
 outputs are turned off if their counter hits zero. GSLK should pulse 4096 times
-per BLANK pulse if you want the full pulse width resoulution. GSLK is connected to
+per BLANK pulse if you want the full pulse width resolution. GSLK is connected to
 D3 (PD3) which is the output of Timer 2.
 
 The TLC5940 does not have a chip-select pin for the SPI protocol. Instead, it is
@@ -80,14 +53,14 @@ memory. You can write SPI data at any time, but you can only latch it between PW
 cycles while the BLANK input is held high. BLANK must be set high first, then XLAT
 brought high, and then both brought low in the reverse order, with some time in
 between. To achieve this, the XLAT pin is connected to D9 (PB1) which is the other
-PWM output of Timer 1 which controlls the BLANK pin. The timer is configured in
+PWM output of Timer 1 which controls the BLANK pin. The timer is configured in
 "Phase and Frequency Correct PWM Mode", which means that the shorter XLAT duty cycle
 will be centered in the BLANK pulse. The output on OC1A (PB1) is disabled at startup.
 When data is written to the SPI bus, a flat is set and then the output trigger is
 enabled. Additionally, the interrupt handler for Timer 1 is enabled. The next time
 the timer loops, it will pulse the XLAT pin with the correct timing and then call
 the interrupt. The interrupt clears the flag, disables the XLAT pulses, and also
-disables the interrupt iteself.
+disables the interrupt itself.
 
 This implementation is heavily based on the [SparkFun Arduino Library](https://github.com/sparkfun/SparkFun_TLC5940_Arduino_Library)
 as well is [Paul Stoffregen's version](https://github.com/PaulStoffregen/Tlc5940)
@@ -111,9 +84,6 @@ impl<const NUM_OUTPUTS: usize> TLC5940<NUM_OUTPUTS>
 where
     [(); get_u12_payload_size(NUM_OUTPUTS)]: Sized,
 {
-    // const fn payload_size() -> usize {
-    //     usize::div_ceil(NUM_OUTPUTS * 3, 2)
-    // }
     /**
     Initializes the TLC5940 device; Takes ownership of the pins and timers
     used to drive the device since they shouldn't be used for other purposes
@@ -192,11 +162,13 @@ where
         // does not seem to be needed in the C/C++ version. I'm not sure why. I'm
         // guessing Rust optimizes differently and so takes more cycles to modify the
         // registers. The ideal phase offset would be around 94ns. At 16Mhz, the arduino
-        // gets ~62.5ns/cycle, so skipping 2 cycles puts us in spec. (Luckilly, the
+        // gets ~62.5ns/cycle, so skipping 2 cycles puts us in spec. (Luckily, the
         // TLC5940 seems to ignore all GLSCLK pulses that happen while BLANK is fully
         // HIGH, although the datasheet implies you shouldn't send them).
-        unsafe { asm!("nop") };
-        unsafe { asm!("nop") };
+        unsafe {
+            asm!("nop");
+            asm!("nop");
+        };
 
         // Start PWM output 1 with no prescale
         tc1.tccr1b
@@ -259,7 +231,7 @@ where
 
         unsafe_access_mutex(|cs| WAITING_FOR_XLAT.borrow(cs).set(true));
 
-        // The TLC5940 requires data to be transfered in tightly-packed 12-bit words
+        // The TLC5940 requires data to be transferred in tightly-packed 12-bit words
         // and to be transmitted msb-first (i.e. big endian)
         let mut u12_be_buffer = [0u8; get_u12_payload_size(NUM_OUTPUTS)];
         for i in 0..data.len() {
@@ -306,7 +278,7 @@ fn enable_xlat_trigger(tc1: &arduino_hal::pac::TC1) {
     tc1.tccr1a
         .write(|w| w.com1b().match_clear().com1a().match_clear());
 
-    // Enable TIMER1_OVF interupt to run on next XLAT pulse to turn off the trigger
+    // Enable TIMER1_OVF interrupt to run on next XLAT pulse to turn off the trigger
     tc1.tifr1.write(|w| w.tov1().set_bit());
     tc1.timsk1.write(|w| w.toie1().set_bit());
 }
@@ -314,12 +286,11 @@ fn enable_xlat_trigger(tc1: &arduino_hal::pac::TC1) {
 fn disable_xlat_trigger(tc1: &arduino_hal::pac::TC1) {
     // Disable pulses on XLAT pin
     tc1.tccr1a.write(|w| w.com1b().match_clear());
-    // Disable timer1 interupt
+    // Disable timer1 interrupt
     tc1.timsk1.write(|w| w.toie1().clear_bit());
 }
 
 #[avr_device::interrupt(atmega328p)]
-#[allow(non_snake_case)]
 fn TIMER1_OVF() {
     // Is called after an XLAT trigger has happened. Turns off XLAT
     // triggers so it doesn't repeat

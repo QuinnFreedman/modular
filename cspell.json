@@ -24,7 +24,9 @@
     "LEDs",
     "Uninit",
     "prescale",
-    "prescaler"
+    "prescaler",
+    "microcontroller",
+    "datasheet"
   ],
   "patterns": [
     {
