@@ -1,14 +1,13 @@
-use arduino_hal::{
-    port::{mode::Output, Pin, PinOps},
-    prelude::*,
-    Spi,
-};
+use core::convert::Infallible;
+
+use arduino_hal::{prelude::*, Spi};
+use embedded_hal::digital::v2::OutputPin;
 
 pub struct MCP4922<PIN>
 where
-    PIN: PinOps,
+    PIN: OutputPin<Error = Infallible>,
 {
-    cs_pin: Pin<Output, PIN>,
+    cs_pin: PIN,
 }
 
 #[derive(Copy, Clone)]
@@ -39,10 +38,10 @@ pub enum Power {
 
 #[derive(Copy, Clone, Default)]
 pub enum MultiplierMode {
-    /** (default) The channel output is VREF * D/(2^n) where D is the digtial value. There is no extra amplification. */
+    /** (default) The channel output is VREF * D/(2^12) where D is the digital value. There is no extra amplification. */
     #[default]
     Unity = 1,
-    /** There is an additional 2x amplification to the channel output. The output is 2 * VREF * D/(2^n) where D is the digtial value. */
+    /** There is an additional 2x amplification to the channel output. The output is 2 * VREF * D/(2^12) where D is the digital value. */
     Double = 0,
 }
 
@@ -55,9 +54,9 @@ pub struct ChannelConfig {
 
 impl<PIN> MCP4922<PIN>
 where
-    PIN: PinOps,
+    PIN: OutputPin<Error = Infallible>,
 {
-    pub fn new(cs_pin: Pin<Output, PIN>) -> Self {
+    pub fn new(cs_pin: PIN) -> Self {
         MCP4922 { cs_pin }
     }
 
@@ -73,8 +72,8 @@ where
 
     DAC selects which channel to write to.
 
-    In unbuffered mode (default, BUF=0), input impedance is 165k and input range is
-    0V to VDD. In puffered mode (BUF=1), input impedance is higher but range is lower.
+    In unbuffered mode (default, BUF=0), VREF input impedance is 165k and input range is
+    0V to VDD. In buffered mode (BUF=1), VREF input impedance is higher but range is lower.
 
     GA is the output gain stage control. When GA=1, output gain is 1x. When GA=0,
     output gain is 2x (relative to VREF).
@@ -82,7 +81,25 @@ where
     SHDN Shut down the given DAC channel when SHDN=0 (output impedance is 500k).
 
     */
-    pub fn write_sync(
+    pub fn write_with_config(
+        &mut self,
+        spi: &mut Spi,
+        channel: DacChannel,
+        value: u16,
+        config: ChannelConfig,
+    ) {
+        self.write_keep_cs_pin_low(spi, channel, value, config);
+        self.cs_pin.set_high().unwrap_infallible();
+    }
+
+    /**
+    _Almost_ writes the data to the DAC, but stops just before releasing the chip
+    select. If LDAC is held low (double-buffering disabled) then the value will be
+    output by the dac as soon as the CS pin is pulled back high. This function lets
+    you do that at a later, precisely timed point, e.g. from an interrupt. Otherwise,
+    don't use this function.
+    */
+    pub fn write_keep_cs_pin_low(
         &mut self,
         spi: &mut Spi,
         channel: DacChannel,
@@ -101,10 +118,9 @@ where
         let first_byte = dac_bit | buf_bit | ga_bit | shdn_bit | data_high;
         let second_byte = data_low;
 
-        self.cs_pin.set_low();
+        self.cs_pin.set_low().unwrap_infallible();
         spi.transfer(&mut [first_byte, second_byte])
             .unwrap_infallible();
-        self.cs_pin.set_high();
     }
 
     /**
@@ -112,6 +128,6 @@ where
     */
     #[inline(always)]
     pub fn write(&mut self, spi: &mut Spi, channel: DacChannel, value: u16) {
-        self.write_sync(spi, channel, value, ChannelConfig::default())
+        self.write_with_config(spi, channel, value, ChannelConfig::default())
     }
 }
