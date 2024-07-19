@@ -40,42 +40,42 @@ pub enum AcrcLoopState {
     Release,
 }
 
-pub fn ui_show_mode(state: &EnvelopeState) -> [bool; 4] {
-    // TODO use bit flags instead of bools
+pub fn ui_show_mode(state: &EnvelopeState) -> u8 {
     match state {
-        EnvelopeState::Adsr(_) => [true, false, false, false],
-        EnvelopeState::Acrc(_) => [false, true, false, false],
-        EnvelopeState::AcrcLoop(_) => [false, false, true, false],
-        EnvelopeState::AhrdLoop(_) => [false, false, false, true],
+        EnvelopeState::Adsr(_) => 0b1000 as u8,
+        EnvelopeState::Acrc(_) => 0b0100,
+        EnvelopeState::AcrcLoop(_) => 0b0010,
+        EnvelopeState::AhrdLoop(_) => 0b0001,
     }
+    .reverse_bits()
 }
 
-pub fn ui_show_stage(state: &EnvelopeState) -> [bool; 4] {
-    // TODO use bit flags instead of bools
+pub fn ui_show_stage(state: &EnvelopeState) -> u8 {
     match state {
         EnvelopeState::Adsr(phase) => match phase {
-            AdsrState::Wait => [false, false, false, false],
-            AdsrState::Attack => [true, false, false, false],
-            AdsrState::Decay => [false, true, false, false],
-            AdsrState::Sustain => [false, false, true, false],
-            AdsrState::Release => [false, false, false, true],
+            AdsrState::Wait => 0b0000 as u8,
+            AdsrState::Attack => 0b1000,
+            AdsrState::Decay => 0b0100,
+            AdsrState::Sustain => 0b0010,
+            AdsrState::Release => 0b0001,
         },
         EnvelopeState::Acrc(phase) => match phase {
-            AcrcState::Wait => [false, false, false, false],
-            AcrcState::Attack => [true, true, false, false],
-            AcrcState::Release => [false, false, true, true],
+            AcrcState::Wait => 0b0000,
+            AcrcState::Attack => 0b1100,
+            AcrcState::Release => 0b0011,
         },
         EnvelopeState::AcrcLoop(phase) => match phase {
-            AcrcLoopState::Attack => [true, true, false, false],
-            AcrcLoopState::Release => [false, false, true, true],
+            AcrcLoopState::Attack => 0b1100,
+            AcrcLoopState::Release => 0b0011,
         },
         EnvelopeState::AhrdLoop(phase) => match phase {
-            AhrdState::Attack => [true, false, false, false],
-            AhrdState::Hold => [false, true, false, false],
-            AhrdState::Release => [false, false, true, false],
-            AhrdState::Delay => [false, false, false, true],
+            AhrdState::Attack => 0b1000,
+            AhrdState::Hold => 0b0100,
+            AhrdState::Release => 0b0010,
+            AhrdState::Delay => 0b0001,
         },
     }
+    .reverse_bits()
 }
 
 struct Fraction<T> {

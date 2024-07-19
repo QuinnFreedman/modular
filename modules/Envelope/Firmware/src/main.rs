@@ -13,6 +13,9 @@
 
 use core::{cell::Cell, panic::PanicInfo};
 
+use arduino_hal::hal::port;
+use arduino_hal::port::mode::Output;
+use arduino_hal::port::Pin;
 use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
 use avr_device::interrupt::{self, Mutex};
 use embedded_hal::digital::v2::OutputPin;
@@ -194,12 +197,12 @@ fn main() -> ! {
 
     // let mut dac = MCP4922::new(pins.d8.into_output_high());
 
-    let mut leds = [
-        pins.d4.into_output().downgrade(),
-        pins.d5.into_output().downgrade(),
-        pins.d6.into_output().downgrade(),
-        pins.d7.into_output().downgrade(),
-    ];
+    let ui = UI::new(
+        pins.d4.into_output(),
+        pins.d5.into_output(),
+        pins.d6.into_output(),
+        pins.d7.into_output(),
+    );
 
     let d8 = pins.d8.into_pull_up_input();
     let mut button = ButtonDebouncer::<PB0, 32>::new(d8);
@@ -213,12 +216,7 @@ fn main() -> ! {
         until: UI_SHOW_ENVELOPE_MODE_MS,
     };
 
-    let ui_state = ui_show_mode(&envelope_state);
-    for i in 0..4u8 {
-        leds[i as usize]
-            .set_state(ui_state[i as usize].into())
-            .unwrap();
-    }
+    ui.update(ui_show_mode(&envelope_state));
 
     configure_timer(&dp.TC2);
     let mut dac = MCP4922::new(d10);
@@ -244,12 +242,7 @@ fn main() -> ! {
             display = DisplayMode::ShowEnvelopeMode {
                 until: current_time + UI_SHOW_ENVELOPE_MODE_MS,
             };
-            let ui_state = ui_show_mode(&envelope_state);
-            for i in 0..4u8 {
-                leds[i as usize]
-                    .set_state(ui_state[i as usize].into())
-                    .unwrap();
-            }
+            ui.update(ui_show_mode(&envelope_state));
         }
 
         // if current_time - debug_last_log_time >= DEBUG_LOG_INTERVAL {
@@ -262,12 +255,7 @@ fn main() -> ! {
         if let DisplayMode::ShowEnvelopeMode { until } = display {
             if current_time > until {
                 display = DisplayMode::ShowEnvelopeSegment;
-                let ui_state = ui_show_stage(&envelope_state);
-                for i in 0..4u8 {
-                    leds[i as usize]
-                        .set_state(ui_state[i as usize].into())
-                        .unwrap();
-                }
+                ui.update(ui_show_stage(&envelope_state));
             }
         }
 
@@ -277,12 +265,7 @@ fn main() -> ! {
             unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).set(true));
 
             if did_change_phase {
-                let ui_state = ui_show_stage(&envelope_state);
-                for i in 0..4u8 {
-                    leds[i as usize]
-                        .set_state(ui_state[i as usize].into())
-                        .unwrap();
-                }
+                ui.update(ui_show_stage(&envelope_state));
             }
         }
 
@@ -308,4 +291,37 @@ fn configure_timer(tc2: &arduino_hal::pac::TC2) {
 
     // enable interrupt on match to compare register A
     tc2.timsk2.write(|w| w.ocie2a().set_bit());
+}
+
+struct UI {
+    _d4: Pin<Output, port::PD4>,
+    _d5: Pin<Output, port::PD5>,
+    _d6: Pin<Output, port::PD6>,
+    _d7: Pin<Output, port::PD7>,
+}
+
+impl UI {
+    fn new(
+        d4: Pin<Output, port::PD4>,
+        d5: Pin<Output, port::PD5>,
+        d6: Pin<Output, port::PD6>,
+        d7: Pin<Output, port::PD7>,
+    ) -> Self {
+        UI {
+            _d4: d4,
+            _d5: d5,
+            _d6: d6,
+            _d7: d7,
+        }
+    }
+
+    fn update(&self, ui_state: u8) {
+        debug_assert!(ui_state & 0xf == 0);
+        unsafe {
+            let dp = arduino_hal::Peripherals::steal();
+            dp.PORTD
+                .portd
+                .modify(|r, w| w.bits(r.bits() & 0xf | ui_state))
+        }
+    }
 }
