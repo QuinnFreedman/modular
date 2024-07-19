@@ -222,9 +222,12 @@ fn main() -> ! {
     let mut dac = MCP4922::new(d10);
 
     let mut debug_skip_count_last = 0u16;
-
     let mut debug_last_log_time: u32 = 0;
-    const DEBUG_LOG_INTERVAL: u32 = 500;
+    const DEBUG_LOG_INTERVAL: u32 = 50;
+
+    const LED_BLINK_INTERVAL_MS: u32 = 100;
+    let mut led_blink_timer: u32 = 0;
+    let mut led_blink_state: bool = false;
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
@@ -242,6 +245,8 @@ fn main() -> ! {
             display = DisplayMode::ShowEnvelopeMode {
                 until: current_time + UI_SHOW_ENVELOPE_MODE_MS,
             };
+            led_blink_timer = current_time + LED_BLINK_INTERVAL_MS;
+            led_blink_state = true;
             ui.update(ui_show_mode(&envelope_state));
         }
 
@@ -256,6 +261,16 @@ fn main() -> ! {
             if current_time > until {
                 display = DisplayMode::ShowEnvelopeSegment;
                 ui.update(ui_show_stage(&envelope_state));
+            }
+
+            if current_time > led_blink_timer {
+                led_blink_timer = current_time + LED_BLINK_INTERVAL_MS;
+                led_blink_state = !led_blink_state;
+                if led_blink_state {
+                    ui.update(ui_show_mode(&envelope_state));
+                } else {
+                    ui.update(0);
+                }
             }
         }
 
