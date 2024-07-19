@@ -11,39 +11,27 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
-use core::{arch::asm, borrow::BorrowMut, cell::Cell, panic::PanicInfo};
+use core::{cell::Cell, panic::PanicInfo};
 
-use arduino_hal::{
-    delay_ms,
-    hal::port::{self, PB0},
-    port::{
-        mode::{Floating, Input, Output},
-        Pin, PinOps,
-    },
-    prelude::*,
-    simple_pwm::{Prescaler, Timer2Pwm},
-    Peripherals,
-};
-
+use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
 use avr_device::interrupt::{self, Mutex};
 use embedded_hal::digital::v2::OutputPin;
 use envelope::{
-    ui_show_mode, ui_show_stage, update, AcrcState, AdsrState, AhrdState, EnvelopeState,
+    ui_show_mode, ui_show_stage, update, AcrcLoopState, AcrcState, AdsrState, AhrdState,
+    EnvelopeState,
 };
+use fm_lib::asynchronous::Borrowable;
 use fm_lib::{
     async_adc::{
-        handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, AsyncAdcState,
-        GetAdcValues, Indexable,
+        handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
     },
-    asynchronous::{assert_interrupts_disabled, unsafe_access_mutex, Borrowable},
+    asynchronous::{assert_interrupts_disabled, unsafe_access_mutex},
     button_debouncer::ButtonDebouncer,
     handle_system_clock_interrupt,
     mcp4922::{DacChannel, MCP4922},
-    rng::ParallelLfsr,
-    rotary_encoder::RotaryEncoderHandler,
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
-use ufmt::{uwrite, uwriteln};
+use ufmt::uwriteln;
 
 mod envelope;
 
@@ -154,7 +142,7 @@ impl EnvelopeState {
     fn next(self) -> Self {
         match self {
             EnvelopeState::Adsr(_) => EnvelopeState::Acrc(AcrcState::default()),
-            EnvelopeState::Acrc(_) => EnvelopeState::AcrcLoop(AcrcState::default()),
+            EnvelopeState::Acrc(_) => EnvelopeState::AcrcLoop(AcrcLoopState::default()),
             EnvelopeState::AcrcLoop(_) => EnvelopeState::AhrdLoop(AhrdState::default()),
             EnvelopeState::AhrdLoop(_) => EnvelopeState::Adsr(AdsrState::default()),
         }
@@ -237,6 +225,9 @@ fn main() -> ! {
 
     let mut debug_skip_count_last = 0u16;
 
+    let mut debug_last_log_time: u32 = 0;
+    const DEBUG_LOG_INTERVAL: u32 = 500;
+
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
 
@@ -260,6 +251,13 @@ fn main() -> ! {
                     .unwrap();
             }
         }
+
+        // if current_time - debug_last_log_time >= DEBUG_LOG_INTERVAL {
+        //     debug_last_log_time = current_time;
+        //     // uwriteln!(&mut serial, "{}", current_time).unwrap_infallible();
+        //     uwriteln!(&mut serial, "{}, {}, {}, {}", cv[0], cv[1], cv[2], cv[3])
+        //         .unwrap_infallible();
+        // }
 
         if let DisplayMode::ShowEnvelopeMode { until } = display {
             if current_time > until {
@@ -306,7 +304,7 @@ fn configure_timer(tc2: &arduino_hal::pac::TC2) {
     // set timer frequency to cycle at 5kHz
     // (16MHz clock speed / 64 prescale factor / 50 count/reset )
     tc2.tccr2b.write(|w| w.cs2().prescale_64());
-    tc2.ocr2a.write(|w| w.bits(125));
+    tc2.ocr2a.write(|w| w.bits(50));
 
     // enable interrupt on match to compare register A
     tc2.timsk2.write(|w| w.ocie2a().set_bit());

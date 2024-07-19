@@ -2,13 +2,14 @@
 pub enum EnvelopeState {
     Adsr(AdsrState),
     Acrc(AcrcState),
-    AcrcLoop(AcrcState),
+    AcrcLoop(AcrcLoopState),
     AhrdLoop(AhrdState),
 }
 
 #[derive(Copy, Clone, Default)]
 pub enum AdsrState {
     #[default]
+    Wait,
     Attack,
     Decay,
     Sustain,
@@ -26,6 +27,14 @@ pub enum AhrdState {
 
 #[derive(Copy, Clone, Default)]
 pub enum AcrcState {
+    #[default]
+    Wait,
+    Attack,
+    Release,
+}
+
+#[derive(Copy, Clone, Default)]
+pub enum AcrcLoopState {
     #[default]
     Attack,
     Release,
@@ -45,14 +54,20 @@ pub fn ui_show_stage(state: &EnvelopeState) -> [bool; 4] {
     // TODO use bit flags instead of bools
     match state {
         EnvelopeState::Adsr(phase) => match phase {
+            AdsrState::Wait => [false, false, false, false],
             AdsrState::Attack => [true, false, false, false],
             AdsrState::Decay => [false, true, false, false],
             AdsrState::Sustain => [false, false, true, false],
             AdsrState::Release => [false, false, false, true],
         },
-        EnvelopeState::Acrc(phase) | EnvelopeState::AcrcLoop(phase) => match phase {
+        EnvelopeState::Acrc(phase) => match phase {
+            AcrcState::Wait => [false, false, false, false],
             AcrcState::Attack => [true, true, false, false],
             AcrcState::Release => [false, false, true, true],
+        },
+        EnvelopeState::AcrcLoop(phase) => match phase {
+            AcrcLoopState::Attack => [true, true, false, false],
+            AcrcLoopState::Release => [false, false, true, true],
         },
         EnvelopeState::AhrdLoop(phase) => match phase {
             AhrdState::Attack => [true, false, false, false],
@@ -63,14 +78,50 @@ pub fn ui_show_stage(state: &EnvelopeState) -> [bool; 4] {
     }
 }
 
+struct Fraction<T> {
+    numerator: T,
+    denominator: T,
+}
+
+/**
+Transforms a raw cv value into a usable fraction of the maximum.
+- Inverts value to compensate for the inverting amplifier in hardware
+- Shifts values slightly to account for the fact that the input voltage
+    is limited to a slightly smaller range than the DAC can read
+- Applies a simple piecewise exponential curve to make the knobs more usable
+*/
+fn read_cv(cv: u16) -> Fraction<u16> {
+    // ADC reads up to 1023, but voltage doesn't go all the way to 5v
+    const MAX_ADC_VALUE: u16 = 977;
+    let x = MAX_ADC_VALUE.saturating_sub(cv);
+
+    // let exp_cv = if x < 512 { x / 2 } else { x * 3 / 2 - 512 };
+    let exp_cv = if x < 512 {
+        x / 4
+    } else if x < 768 {
+        x - 384
+    } else {
+        3 * x - 1920
+    };
+
+    Fraction {
+        // CV is inverted in hardware; correct for that here
+        numerator: exp_cv,
+        // the piecewise function isn't perfect, the range is a little larger
+        // than the domain. Round to 1024 for performance
+        denominator: 1024, // MAX_ADC_VALUE,
+    }
+}
+
 fn get_delta_t(cv: u16) -> u32 {
     const MAX_PHASE_TIME_MS10: u32 = 10 * 1000 * 10;
     const MS10_PER_STEP: u32 = 2;
     const MAX_STEPS_PER_CYCLE: u32 = MAX_PHASE_TIME_MS10 / MS10_PER_STEP;
-    const MAX_CV_VALUE: u32 = 0x3ff;
-    // CV is inverted in hardware; correct for that here
-    let inv_cv = MAX_CV_VALUE as u16 - cv;
-    let actual_steps_per_cycle = u32::max(inv_cv as u32 * MAX_STEPS_PER_CYCLE / MAX_CV_VALUE, 1);
+    let cv_fraction = read_cv(cv);
+    let actual_steps_per_cycle = u32::max(
+        cv_fraction.numerator as u32 * MAX_STEPS_PER_CYCLE / cv_fraction.denominator as u32,
+        1,
+    );
     u32::MAX / actual_steps_per_cycle
 }
 
@@ -86,19 +137,11 @@ fn step_time(t: &mut u32, cv: u16) -> (u32, bool) {
 }
 
 pub fn update(state: &mut EnvelopeState, time: &mut u32, cv: [u16; 4]) -> (u16, bool) {
-    // .2ms / cycle
-    // const MAX_PHASE_TIME_MS10: u32 = 10 * 1000 * 10;
-    // const MS10_PER_STEP: u32 = 2;
-    // const MAX_STEPS_PER_CYCLE: u32 = MAX_PHASE_TIME_MS10 / MS10_PER_STEP;
-    // const MIN_DELTA_T: u32 = u32::MAX / MAX_STEPS_PER_CYCLE;
-    // const MAX_DELTA_T: u32 = u32::MAX;
-    // const MAX_CV_VALUE: u32 = 0xfff;
-    // const delta_t: u32 = 0xfffu16 as u32 * MAX_DELTA_T / MAX_CV_VALUE;
-
     let scale = |input: u32| (input >> 20) as u16;
 
     match state {
         EnvelopeState::Adsr(ref mut phase) => match phase {
+            AdsrState::Wait => (0, false),
             AdsrState::Attack => {
                 // let rollover = step_time(t, cv[0]);
                 // if rollover {
@@ -119,12 +162,13 @@ pub fn update(state: &mut EnvelopeState, time: &mut u32, cv: [u16; 4]) -> (u16, 
             AdsrState::Release => (0, false), // TODO
         },
         EnvelopeState::Acrc(ref mut phase) => match phase {
+            AcrcState::Wait => (0, false),
             AcrcState::Attack => (0, false),
             AcrcState::Release => (0, false),
         },
         EnvelopeState::AcrcLoop(ref mut phase) => match phase {
-            AcrcState::Attack => (0, false),
-            AcrcState::Release => (0, false),
+            AcrcLoopState::Attack => (0, false),
+            AcrcLoopState::Release => (0, false),
         },
         EnvelopeState::AhrdLoop(ref mut phase) => match phase {
             AhrdState::Attack => {
