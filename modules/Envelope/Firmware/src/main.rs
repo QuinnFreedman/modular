@@ -18,7 +18,6 @@ use arduino_hal::port::mode::Output;
 use arduino_hal::port::Pin;
 use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
 use avr_device::interrupt::{self, Mutex};
-use embedded_hal::digital::v2::OutputPin;
 use envelope::{
     ui_show_mode, ui_show_stage, update, AcrcLoopState, AcrcState, AdsrState, AhrdState,
     EnvelopeState,
@@ -128,19 +127,6 @@ fn ADC() {
     handle_conversion_result(&GLOBAL_ASYNC_ADC_STATE);
 }
 
-enum CvChannel {
-    CV1,
-    CV2,
-    CV3,
-    CV4,
-}
-
-impl Into<usize> for CvChannel {
-    fn into(self) -> usize {
-        self as usize
-    }
-}
-
 impl EnvelopeState {
     fn next(self) -> Self {
         match self {
@@ -195,8 +181,6 @@ fn main() -> ! {
         ],
     );
 
-    // let mut dac = MCP4922::new(pins.d8.into_output_high());
-
     let ui = UI::new(
         pins.d4.into_output(),
         pins.d5.into_output(),
@@ -222,8 +206,8 @@ fn main() -> ! {
     let mut dac = MCP4922::new(d10);
 
     let mut debug_skip_count_last = 0u16;
-    let mut debug_last_log_time: u32 = 0;
-    const DEBUG_LOG_INTERVAL: u32 = 50;
+    // let mut debug_last_log_time: u32 = 0;
+    // const DEBUG_LOG_INTERVAL: u32 = 50;
 
     const LED_BLINK_INTERVAL_MS: u32 = 100;
     let mut led_blink_timer: u32 = 0;
@@ -275,7 +259,7 @@ fn main() -> ! {
         }
 
         if !unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).get()) {
-            let (value, did_change_phase) = update(&mut envelope_state, &mut t, cv);
+            let (value, did_change_phase) = update(&mut envelope_state, &mut t, &cv);
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
             unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).set(true));
 
@@ -302,7 +286,7 @@ fn configure_timer(tc2: &arduino_hal::pac::TC2) {
     // set timer frequency to cycle at 5kHz
     // (16MHz clock speed / 64 prescale factor / 50 count/reset )
     tc2.tccr2b.write(|w| w.cs2().prescale_64());
-    tc2.ocr2a.write(|w| w.bits(50));
+    tc2.ocr2a.write(|w| w.bits(200));
 
     // enable interrupt on match to compare register A
     tc2.timsk2.write(|w| w.ocie2a().set_bit());

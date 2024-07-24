@@ -28,7 +28,8 @@
     "microcontroller",
     "datasheet",
     "ufmt",
-    "borrowable"
+    "borrowable",
+    "powf"
   ],
   "patterns": [
     {
