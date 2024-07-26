@@ -36,6 +36,7 @@ use fm_lib::{
 use ufmt::uwriteln;
 
 mod envelope;
+mod exponential_curves;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
@@ -54,7 +55,9 @@ fn panic(info: &PanicInfo) -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     serial.flush();
+    serial.write_byte(b'\r');
     serial.write_byte(b'\n');
+    serial.write_byte(b'\r');
     serial.write_byte(b'\n');
     if let Some(location) = info.location() {
         uwriteln!(
@@ -283,10 +286,10 @@ fn main() -> ! {
 fn configure_timer(tc2: &arduino_hal::pac::TC2) {
     // reset timer counter at TOP set by OCRA
     tc2.tccr2a.write(|w| w.wgm2().ctc());
-    // set timer frequency to cycle at 5kHz
-    // (16MHz clock speed / 64 prescale factor / 50 count/reset )
+    // set timer frequency to cycle at ~2.2727kHz
+    // (16MHz clock speed / 64 prescale factor / 120 count/reset )
     tc2.tccr2b.write(|w| w.cs2().prescale_64());
-    tc2.ocr2a.write(|w| w.bits(200));
+    tc2.ocr2a.write(|w| w.bits(120));
 
     // enable interrupt on match to compare register A
     tc2.timsk2.write(|w| w.ocie2a().set_bit());

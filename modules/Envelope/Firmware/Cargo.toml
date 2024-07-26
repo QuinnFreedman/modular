@@ -15,11 +15,10 @@ bench = false
 nb = "0.1.2"
 ufmt = "0.1.0"
 embedded-hal = "0.2.3"
-avr-progmem = { version = "0.3.3", default-features = false }
+avr-progmem = { version = "0.4.0" }
 avr-device = { version = "0.5.3", features = ["atmega328p"] }
 fm-lib = { path = "../../../fm-lib" }
-libm = "0.2.8"
-num-traits = { version = "0.2.19", default-features = false }
+fixed = "1.27.0"
 
 [dependencies.arduino-hal]
 git = "https://github.com/rahix/avr-hal"
@@ -36,7 +35,7 @@ debug = false
 overflow-checks = true
 debug-assertions = true
 rpath = false
-rustflags = ["-Zlocation-detail=none"]
+rustflags = ["-Zlocation-detail=line"]
 
 [profile.release]
 panic = "abort"

@@ -29,7 +29,10 @@
     "datasheet",
     "ufmt",
     "borrowable",
-    "powf"
+    "powf",
+    "recip",
+    "nybl",
+    "signum",
   ],
   "patterns": [
     {
