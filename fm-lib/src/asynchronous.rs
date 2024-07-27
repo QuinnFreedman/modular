@@ -1,6 +1,6 @@
 use core::{
     arch::asm,
-    cell::UnsafeCell,
+    cell::{Cell, UnsafeCell},
     sync::atomic::{compiler_fence, Ordering},
 };
 
@@ -92,5 +92,31 @@ impl<T> Borrowable for Mutex<UnsafeCell<T>> {
         let ptr = self.borrow(cs).get();
         let option_ref = unsafe { ptr.as_mut().unwrap_unchecked() };
         option_ref
+    }
+}
+
+pub trait IsSizeOne {}
+
+impl IsSizeOne for u8 {}
+impl IsSizeOne for i8 {}
+impl IsSizeOne for bool {}
+
+pub trait AtomicRead {
+    type DataType;
+    fn atomic_read(&self) -> Self::DataType;
+}
+
+impl<T> AtomicRead for Mutex<Cell<T>>
+where
+    // I would like to assert that T is size 1 at compile time, but I can't
+    // so requiring the user to implement IsSizeOne to declare that the type
+    // is the right size.
+    T: Copy + IsSizeOne,
+{
+    type DataType = T;
+
+    fn atomic_read(&self) -> Self::DataType {
+        debug_assert!(core::mem::size_of::<T>() == 1);
+        unsafe_access_mutex(|cs| self.borrow(cs).get())
     }
 }

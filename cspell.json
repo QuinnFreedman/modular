@@ -18,6 +18,7 @@
     "blit",
     "pixelcolor",
     "uwriteln",
+    "uwrite",
     "ADSR",
     "ACRC",
     "AHRD",

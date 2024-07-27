@@ -3,7 +3,21 @@ use fixed::{types::extra::U16, FixedU16};
 use crate::exponential_curves::exp_curve;
 
 #[derive(Copy, Clone)]
-pub enum EnvelopeState {
+pub enum TriggerAction {
+    None,
+    GateRise,
+    GateFall,
+    Trigger,
+}
+
+pub struct EnvelopeState {
+    pub mode: EnvelopeMode,
+    pub time: u32,
+    pub last_value: u16,
+}
+
+#[derive(Copy, Clone)]
+pub enum EnvelopeMode {
     Adsr(AdsrState),
     Acrc(AcrcState),
     AcrcLoop(AcrcLoopState),
@@ -44,35 +58,35 @@ pub enum AcrcLoopState {
     Release,
 }
 
-pub fn ui_show_mode(state: &EnvelopeState) -> u8 {
+pub fn ui_show_mode(state: &EnvelopeMode) -> u8 {
     match state {
-        EnvelopeState::Adsr(_) => 0b1000 as u8,
-        EnvelopeState::Acrc(_) => 0b0100,
-        EnvelopeState::AcrcLoop(_) => 0b0010,
-        EnvelopeState::AhrdLoop(_) => 0b0001,
+        EnvelopeMode::Adsr(_) => 0b1000 as u8,
+        EnvelopeMode::Acrc(_) => 0b0100,
+        EnvelopeMode::AcrcLoop(_) => 0b0010,
+        EnvelopeMode::AhrdLoop(_) => 0b0001,
     }
     .reverse_bits()
 }
 
-pub fn ui_show_stage(state: &EnvelopeState) -> u8 {
+pub fn ui_show_stage(state: &EnvelopeMode) -> u8 {
     match state {
-        EnvelopeState::Adsr(phase) => match phase {
+        EnvelopeMode::Adsr(phase) => match phase {
             AdsrState::Wait => 0b0000 as u8,
             AdsrState::Attack => 0b1000,
             AdsrState::Decay => 0b0100,
             AdsrState::Sustain => 0b0010,
             AdsrState::Release => 0b0001,
         },
-        EnvelopeState::Acrc(phase) => match phase {
+        EnvelopeMode::Acrc(phase) => match phase {
             AcrcState::Wait => 0b0000,
             AcrcState::Attack => 0b1100,
             AcrcState::Release => 0b0011,
         },
-        EnvelopeState::AcrcLoop(phase) => match phase {
+        EnvelopeMode::AcrcLoop(phase) => match phase {
             AcrcLoopState::Attack => 0b1100,
             AcrcLoopState::Release => 0b0011,
         },
-        EnvelopeState::AhrdLoop(phase) => match phase {
+        EnvelopeMode::AhrdLoop(phase) => match phase {
             AhrdState::Attack => 0b1000,
             AhrdState::Hold => 0b0100,
             AhrdState::Release => 0b0010,
@@ -164,11 +178,13 @@ fn step_time(t: &mut u32, cv: u16) -> (u32, bool) {
     (before_rollover, rollover)
 }
 
-pub fn update(state: &mut EnvelopeState, time: &mut u32, cv: &[u16; 4]) -> (u16, bool) {
+pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) -> (u16, bool) {
     let scale = |input: u32| (input >> 20) as u16;
 
-    match state {
-        EnvelopeState::Adsr(ref mut phase) => match phase {
+    let time = &mut state.time;
+
+    match state.mode {
+        EnvelopeMode::Adsr(ref mut phase) => match phase {
             AdsrState::Wait => (0, false),
             AdsrState::Attack => {
                 // let rollover = step_time(t, cv[0]);
@@ -189,12 +205,12 @@ pub fn update(state: &mut EnvelopeState, time: &mut u32, cv: &[u16; 4]) -> (u16,
             AdsrState::Sustain => (0, false), // TODO
             AdsrState::Release => (0, false), // TODO
         },
-        EnvelopeState::Acrc(ref mut phase) => match phase {
+        EnvelopeMode::Acrc(ref mut phase) => match phase {
             AcrcState::Wait => (0, false),    // TODO
             AcrcState::Attack => (0, false),  // TODO
             AcrcState::Release => (0, false), // TODO
         },
-        EnvelopeState::AcrcLoop(ref mut phase) => match phase {
+        EnvelopeMode::AcrcLoop(ref mut phase) => match phase {
             AcrcLoopState::Attack => {
                 let (t, rollover) = acrc_segment(time, cv[0], cv[1], false);
                 if rollover {
@@ -210,7 +226,7 @@ pub fn update(state: &mut EnvelopeState, time: &mut u32, cv: &[u16; 4]) -> (u16,
                 (t, rollover)
             }
         },
-        EnvelopeState::AhrdLoop(ref mut phase) => match phase {
+        EnvelopeMode::AhrdLoop(ref mut phase) => match phase {
             AhrdState::Attack => {
                 let (t, rollover) = step_time(time, cv[0]);
                 if rollover {

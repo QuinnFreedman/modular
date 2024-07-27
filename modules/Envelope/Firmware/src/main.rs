@@ -20,9 +20,9 @@ use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
 use avr_device::interrupt::{self, Mutex};
 use envelope::{
     ui_show_mode, ui_show_stage, update, AcrcLoopState, AcrcState, AdsrState, AhrdState,
-    EnvelopeState,
+    EnvelopeMode, TriggerAction,
 };
-use fm_lib::asynchronous::Borrowable;
+use fm_lib::asynchronous::{AtomicRead, Borrowable, IsSizeOne};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
@@ -33,7 +33,9 @@ use fm_lib::{
     mcp4922::{DacChannel, MCP4922},
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
-use ufmt::uwriteln;
+use ufmt::{uwrite, uwriteln};
+
+use crate::envelope::EnvelopeState;
 
 mod envelope;
 mod exponential_curves;
@@ -43,6 +45,7 @@ static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
 handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
 const UI_SHOW_ENVELOPE_MODE_MS: u32 = 2000;
+#[derive(PartialEq, Eq)]
 enum DisplayMode {
     ShowEnvelopeMode { until: u32 },
     ShowEnvelopeSegment,
@@ -91,7 +94,7 @@ fn panic(info: &PanicInfo) -> ! {
 */
 #[avr_device::interrupt(atmega328p)]
 fn INT0() {
-    // assert_interrupts_disabled(|cs| UNHANDLED_STEP_COUNT.borrow(cs).update(|x| x + 1));
+    // TODO
 }
 
 #[avr_device::interrupt(atmega328p)]
@@ -130,19 +133,32 @@ fn ADC() {
     handle_conversion_result(&GLOBAL_ASYNC_ADC_STATE);
 }
 
-impl EnvelopeState {
+impl EnvelopeMode {
     fn next(self) -> Self {
         match self {
-            EnvelopeState::Adsr(_) => EnvelopeState::Acrc(AcrcState::default()),
-            EnvelopeState::Acrc(_) => EnvelopeState::AcrcLoop(AcrcLoopState::default()),
-            EnvelopeState::AcrcLoop(_) => EnvelopeState::AhrdLoop(AhrdState::default()),
-            EnvelopeState::AhrdLoop(_) => EnvelopeState::Adsr(AdsrState::default()),
+            EnvelopeMode::Adsr(_) => EnvelopeMode::Acrc(AcrcState::default()),
+            EnvelopeMode::Acrc(_) => EnvelopeMode::AcrcLoop(AcrcLoopState::default()),
+            EnvelopeMode::AcrcLoop(_) => EnvelopeMode::AhrdLoop(AhrdState::default()),
+            EnvelopeMode::AhrdLoop(_) => EnvelopeMode::Adsr(AdsrState::default()),
+        }
+    }
+}
+
+impl EnvelopeState {
+    fn cycle_mode(self) -> Self {
+        Self {
+            mode: self.mode.next(),
+            time: 0,
+            last_value: 0,
         }
     }
 }
 
 static DAC_WRITE_READY: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
-static DEBUG_SKIPPED_WRITE_COUNT: Mutex<Cell<u16>> = Mutex::new(Cell::new(0));
+static DEBUG_SKIPPED_WRITE_COUNT: Mutex<Cell<u8>> = Mutex::new(Cell::new(0));
+static TRIGGER_ACTION: Mutex<Cell<TriggerAction>> = Mutex::new(Cell::new(TriggerAction::None));
+
+impl IsSizeOne for TriggerAction {}
 
 #[arduino_hal::entry]
 fn main() -> ! {
@@ -168,6 +184,7 @@ fn main() -> ! {
         },
     );
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    uwriteln!(&mut serial, "").unwrap_infallible();
 
     unsafe {
         avr_device::interrupt::enable();
@@ -196,21 +213,20 @@ fn main() -> ! {
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
 
-    let mut envelope_state = EnvelopeState::Adsr(AdsrState::default());
-    let mut t: u32 = 0;
+    let mut envelope_state = EnvelopeState {
+        mode: EnvelopeMode::Adsr(AdsrState::default()),
+        time: 0,
+        last_value: 0,
+    };
 
     let mut display = DisplayMode::ShowEnvelopeMode {
         until: UI_SHOW_ENVELOPE_MODE_MS,
     };
 
-    ui.update(ui_show_mode(&envelope_state));
+    ui.update(ui_show_mode(&envelope_state.mode));
 
     configure_timer(&dp.TC2);
     let mut dac = MCP4922::new(d10);
-
-    let mut debug_skip_count_last = 0u16;
-    // let mut debug_last_log_time: u32 = 0;
-    // const DEBUG_LOG_INTERVAL: u32 = 50;
 
     const LED_BLINK_INTERVAL_MS: u32 = 100;
     let mut led_blink_timer: u32 = 0;
@@ -227,34 +243,26 @@ fn main() -> ! {
         };
 
         if button_was_pressed {
-            envelope_state = envelope_state.next();
-            t = 0;
+            envelope_state = envelope_state.cycle_mode();
             display = DisplayMode::ShowEnvelopeMode {
                 until: current_time + UI_SHOW_ENVELOPE_MODE_MS,
             };
             led_blink_timer = current_time + LED_BLINK_INTERVAL_MS;
             led_blink_state = true;
-            ui.update(ui_show_mode(&envelope_state));
+            ui.update(ui_show_mode(&envelope_state.mode));
         }
-
-        // if current_time - debug_last_log_time >= DEBUG_LOG_INTERVAL {
-        //     debug_last_log_time = current_time;
-        //     // uwriteln!(&mut serial, "{}", current_time).unwrap_infallible();
-        //     uwriteln!(&mut serial, "{}, {}, {}, {}", cv[0], cv[1], cv[2], cv[3])
-        //         .unwrap_infallible();
-        // }
 
         if let DisplayMode::ShowEnvelopeMode { until } = display {
             if current_time > until {
                 display = DisplayMode::ShowEnvelopeSegment;
-                ui.update(ui_show_stage(&envelope_state));
+                ui.update(ui_show_stage(&envelope_state.mode));
             }
 
             if current_time > led_blink_timer {
                 led_blink_timer = current_time + LED_BLINK_INTERVAL_MS;
                 led_blink_state = !led_blink_state;
                 if led_blink_state {
-                    ui.update(ui_show_mode(&envelope_state));
+                    ui.update(ui_show_mode(&envelope_state.mode));
                 } else {
                     ui.update(0);
                 }
@@ -262,23 +270,22 @@ fn main() -> ! {
         }
 
         if !unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).get()) {
-            let (value, did_change_phase) = update(&mut envelope_state, &mut t, &cv);
+            let (value, did_change_phase) =
+                update(&mut envelope_state, TRIGGER_ACTION.atomic_read(), &cv);
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
             unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).set(true));
 
-            if did_change_phase {
-                ui.update(ui_show_stage(&envelope_state));
+            if did_change_phase && display == DisplayMode::ShowEnvelopeSegment {
+                ui.update(ui_show_stage(&envelope_state.mode));
             }
         }
 
-        if unsafe_access_mutex(|cs| DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).get())
-            != debug_skip_count_last
-        {
-            interrupt::free(|cs| {
-                let num_skipped = DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).get();
-                uwriteln!(&mut serial, "skipped: {}", num_skipped).unwrap_infallible();
-                debug_skip_count_last = num_skipped;
-            })
+        let num_skipped = DEBUG_SKIPPED_WRITE_COUNT.atomic_read();
+        if num_skipped != 0 {
+            unsafe_access_mutex(|cs| DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).set(0));
+            for _ in 0..num_skipped {
+                uwrite!(&mut serial, ".").unwrap_infallible();
+            }
         }
     }
 }
