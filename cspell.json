@@ -38,7 +38,7 @@
   "patterns": [
     {
       "name": "peripherals",
-      "pattern": "dp\\.[A-Z]{2,7}(?:\\.[a-z]+)?",
+      "pattern": "dp\\.[A-Z]{2,7}\\s*(?:\\.[a-z]+)?",
     },
     {
       "name": "hex",

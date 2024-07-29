@@ -184,26 +184,24 @@ pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) 
     let time = &mut state.time;
 
     match state.mode {
-        EnvelopeMode::Adsr(ref mut phase) => match phase {
-            AdsrState::Wait => (0, false),
-            AdsrState::Attack => {
-                // let rollover = step_time(t, cv[0]);
-                // if rollover {
-                //     *phase = AdsrState::Decay;
-                // }
-                // (0, rollover)
-                (0, false) // TODO
+        EnvelopeMode::Adsr(ref mut phase) => match trigger {
+            TriggerAction::None => handle_adsr_update(time, cv, phase),
+            TriggerAction::GateRise => {
+                *phase = AdsrState::Attack;
+                *time = 0; // TODO calculate time from current value
+                handle_adsr_update(time, cv, phase)
             }
-            AdsrState::Decay => {
-                // let (t, rollover) = step_time(time, cv[1]);
-                // if rollover {
-                //     *phase = AdsrState::Sustain;
-                // }
-                // (scale(u32::MAX), false)
-                (0, false) // TODO
+            TriggerAction::GateFall => {
+                *phase = AdsrState::Release;
+                *time = 0; // TODO calculate time from current value
+                let (value, _) = handle_adsr_update(time, cv, phase);
+                (value, true)
             }
-            AdsrState::Sustain => (0, false), // TODO
-            AdsrState::Release => (0, false), // TODO
+            TriggerAction::Trigger => {
+                // TODO handle ping trigger
+                let (value, _) = handle_adsr_update(time, cv, phase);
+                (value, true)
+            }
         },
         EnvelopeMode::Acrc(ref mut phase) => match phase {
             AcrcState::Wait => (0, false),    // TODO
@@ -256,6 +254,32 @@ pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) 
                 (scale(0), rollover)
             }
         },
+    }
+}
+
+const MAX_DAC_VALUE: u16 = 4095;
+
+fn handle_adsr_update(time: &mut u32, cv: &[u16; 4], phase: &mut AdsrState) -> (u16, bool) {
+    match phase {
+        AdsrState::Wait => (0, false),
+        AdsrState::Attack => {
+            // let rollover = step_time(t, cv[0]);
+            // if rollover {
+            //     *phase = AdsrState::Decay;
+            // }
+            // (0, rollover)
+            *phase = AdsrState::Sustain;
+            (MAX_DAC_VALUE, true) // TODO
+        }
+        AdsrState::Decay => {
+            *phase = AdsrState::Sustain;
+            (MAX_DAC_VALUE, true) // TODO
+        }
+        AdsrState::Sustain => (MAX_DAC_VALUE, false), // TODO
+        AdsrState::Release => {
+            *phase = AdsrState::Wait;
+            (0, true) // TODO
+        }
     }
 }
 

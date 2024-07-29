@@ -94,7 +94,28 @@ fn panic(info: &PanicInfo) -> ! {
 */
 #[avr_device::interrupt(atmega328p)]
 fn INT0() {
-    // TODO
+    let pin = arduino_hal::pins!(unsafe { arduino_hal::Peripherals::steal() }).d2;
+    // pin is held high, gate pulls low
+    let pin_value = pin.is_low();
+    assert_interrupts_disabled(|cs| {
+        TRIGGER_ACTION.borrow(cs).set(match pin_value {
+            true => TriggerAction::GateRise,
+            false => TriggerAction::GateFall,
+        });
+    });
+}
+
+/**
+ Pin-change interrupt handler pin d3 (external interrupt 1)
+*/
+#[avr_device::interrupt(atmega328p)]
+fn INT1() {
+    assert_interrupts_disabled(|cs| {
+        TRIGGER_ACTION.borrow(cs).update(|old| match old {
+            TriggerAction::None => TriggerAction::Trigger,
+            other => other,
+        });
+    });
 }
 
 #[avr_device::interrupt(atmega328p)]
@@ -116,14 +137,27 @@ fn TIMER2_COMPA() {
 
 /// Enable external interrupts for INT0 (digital pin 2)
 fn enable_external_interrupts(dp: &Peripherals) {
-    // set pins d2 as an input
+    // set pins d2 and d3 as an input
+    dp.PORTD.ddrd.modify(|r, w| {
+        unsafe { w.bits(r.bits()) }
+            .pd2()
+            .clear_bit()
+            .pd3()
+            .clear_bit()
+    });
+    // enable pullup resistors for pins d2 and d3
     dp.PORTD
-        .ddrd
-        .modify(|r, w| unsafe { w.bits(r.bits()) }.pd2().clear_bit());
-    // enable external interrupt 0
-    dp.EXINT.eimsk.write(|r| r.int0().set_bit());
-    // trigger interrupt on rising edge
-    dp.EXINT.eicra.write(|r| r.isc0().val_0x03());
+        .portd
+        .modify(|r, w| unsafe { w.bits(r.bits()) }.pd2().set_bit().pd3().set_bit());
+    // enable external interrupt 0 and 1
+    dp.EXINT
+        .eimsk
+        .write(|r| r.int0().set_bit().int1().set_bit());
+    // trigger interrupt 0 on rising and falling edge, interrupt 1 on falling only
+    // (trigger inputs are inverted)
+    dp.EXINT
+        .eicra
+        .write(|r| r.isc0().val_0x01().isc1().val_0x02());
 }
 
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<4> = new_async_adc_state();
@@ -270,8 +304,13 @@ fn main() -> ! {
         }
 
         if !unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).get()) {
-            let (value, did_change_phase) =
-                update(&mut envelope_state, TRIGGER_ACTION.atomic_read(), &cv);
+            let trigger_action = interrupt::free(|cs| {
+                let mutex = TRIGGER_ACTION.borrow(cs);
+                let value = mutex.get();
+                mutex.set(TriggerAction::None);
+                value
+            });
+            let (value, did_change_phase) = update(&mut envelope_state, trigger_action, &cv);
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
             unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).set(true));
 
