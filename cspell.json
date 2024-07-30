@@ -22,6 +22,7 @@
     "ADSR",
     "ACRC",
     "AHRD",
+    "ahdr",
     "LEDs",
     "Uninit",
     "prescale",

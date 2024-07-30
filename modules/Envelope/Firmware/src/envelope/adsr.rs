@@ -1,7 +1,17 @@
 use super::{
     shared::{lerp, read_cv, step_time, CvType},
-    AdsrState, TriggerAction, MAX_DAC_VALUE,
+    TriggerAction, MAX_DAC_VALUE,
 };
+
+#[derive(Copy, Clone, Default)]
+pub enum AdsrState {
+    #[default]
+    Wait,
+    Attack,
+    Decay,
+    Sustain,
+    Release,
+}
 
 pub fn adsr(
     phase: &mut AdsrState,
@@ -11,22 +21,22 @@ pub fn adsr(
     cv: &[u16; 4],
 ) -> (u16, bool) {
     match trigger {
-        TriggerAction::None => handle_adsr_update(time, cv, phase),
+        TriggerAction::None => compute_adsr_value(time, cv, phase),
         TriggerAction::GateRise => {
             *time = get_adsr_inverse_attack(last_value);
             *phase = AdsrState::Attack;
-            let (value, _) = handle_adsr_update(time, cv, phase);
+            let (value, _) = compute_adsr_value(time, cv, phase);
             (value, true)
         }
         TriggerAction::GateFall => {
             *phase = AdsrState::Release;
             *time = get_adsr_inverse_release(last_value);
-            let (value, _) = handle_adsr_update(time, cv, phase);
+            let (value, _) = compute_adsr_value(time, cv, phase);
             (value, true)
         }
         TriggerAction::Trigger => {
             // TODO handle ping trigger
-            let (value, _) = handle_adsr_update(time, cv, phase);
+            let (value, _) = compute_adsr_value(time, cv, phase);
             (value, true)
         }
     }
@@ -40,7 +50,7 @@ fn get_adsr_inverse_release(current_value: u16) -> u32 {
     ((MAX_DAC_VALUE - current_value) as u32) << 20
 }
 
-fn handle_adsr_update(time: &mut u32, cv: &[u16; 4], phase: &mut AdsrState) -> (u16, bool) {
+fn compute_adsr_value(time: &mut u32, cv: &[u16; 4], phase: &mut AdsrState) -> (u16, bool) {
     let scale = |input: u32| (input >> 20) as u16;
     let get_sustain = || {
         let cv_frac = read_cv::<{ CvType::Linear }>(cv[2]);

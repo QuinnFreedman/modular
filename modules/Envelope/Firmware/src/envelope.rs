@@ -1,13 +1,15 @@
+mod acrc;
 mod adsr;
+mod ahrd;
 mod shared;
 
-use fixed::{types::extra::U16, FixedU16};
-
-use crate::{
-    envelope::shared::{read_cv_signed_fixed, step_time},
-    exponential_curves::exp_curve,
-};
+use acrc::{acrc, acrc_loop};
 use adsr::adsr;
+use ahrd::ahrd;
+
+pub use self::acrc::{AcrcLoopState, AcrcState};
+pub use self::adsr::AdsrState;
+pub use self::ahrd::AhrdState;
 
 #[derive(Copy, Clone)]
 pub enum TriggerAction {
@@ -29,40 +31,6 @@ pub enum EnvelopeMode {
     Acrc(AcrcState),
     AcrcLoop(AcrcLoopState),
     AhrdLoop(AhrdState),
-}
-
-#[derive(Copy, Clone, Default)]
-pub enum AdsrState {
-    #[default]
-    Wait,
-    Attack,
-    Decay,
-    Sustain,
-    Release,
-}
-
-#[derive(Copy, Clone, Default)]
-pub enum AhrdState {
-    #[default]
-    Attack,
-    Hold,
-    Release,
-    Delay,
-}
-
-#[derive(Copy, Clone, Default)]
-pub enum AcrcState {
-    #[default]
-    Wait,
-    Attack,
-    Release,
-}
-
-#[derive(Copy, Clone, Default)]
-pub enum AcrcLoopState {
-    #[default]
-    Attack,
-    Release,
 }
 
 pub fn ui_show_mode(state: &EnvelopeMode) -> u8 {
@@ -110,63 +78,15 @@ struct Fraction<T> {
 }
 
 pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) -> (u16, bool) {
-    let scale = |input: u32| (input >> 20) as u16;
-
-    let time = &mut state.time;
-
     let (value, rollover) = match state.mode {
-        EnvelopeMode::Adsr(ref mut phase) => adsr(phase, time, state.last_value, trigger, cv),
-        EnvelopeMode::Acrc(ref mut phase) => match phase {
-            AcrcState::Wait => (0, false),    // TODO
-            AcrcState::Attack => (0, false),  // TODO
-            AcrcState::Release => (0, false), // TODO
-        },
-        EnvelopeMode::AcrcLoop(ref mut phase) => match phase {
-            AcrcLoopState::Attack => {
-                let (t, rollover) = acrc_segment(time, cv[0], cv[1], false);
-                if rollover {
-                    *phase = AcrcLoopState::Release;
-                }
-                (t, rollover)
-            }
-            AcrcLoopState::Release => {
-                let (t, rollover) = acrc_segment(time, cv[2], cv[3], true);
-                if rollover {
-                    *phase = AcrcLoopState::Attack;
-                }
-                (t, rollover)
-            }
-        },
-        EnvelopeMode::AhrdLoop(ref mut phase) => match phase {
-            AhrdState::Attack => {
-                let (t, rollover) = step_time(time, cv[0]);
-                if rollover {
-                    *phase = AhrdState::Hold;
-                }
-                (scale(t), rollover)
-            }
-            AhrdState::Hold => {
-                let (_, rollover) = step_time(time, cv[1]);
-                if rollover {
-                    *phase = AhrdState::Release;
-                }
-                (scale(u32::MAX), rollover)
-            }
-            AhrdState::Release => {
-                let (t, rollover) = step_time(time, cv[2]);
-                if rollover {
-                    *phase = AhrdState::Delay
-                }
-                (scale(u32::MAX - t), rollover)
-            }
-            AhrdState::Delay => {
-                let (_, rollover) = step_time(time, cv[3]);
-                if rollover {
-                    *phase = AhrdState::Attack;
-                }
-                (scale(0), rollover)
-            }
-        },
+        EnvelopeMode::Adsr(ref mut phase) => {
+            adsr(phase, &mut state.time, state.last_value, trigger, cv)
+        }
+        EnvelopeMode::Acrc(ref mut phase) => {
+            acrc(phase, &mut state.time, state.last_value, trigger, cv)
+        }
+        EnvelopeMode::AcrcLoop(ref mut phase) => acrc_loop(phase, &mut state.time, cv),
+        EnvelopeMode::AhrdLoop(ref mut phase) => ahrd(phase, &mut state.time, trigger, cv),
     };
 
     debug_assert!(value <= MAX_DAC_VALUE);
@@ -176,14 +96,3 @@ pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) 
 }
 
 const MAX_DAC_VALUE: u16 = 4095;
-
-fn acrc_segment(time: &mut u32, raw_cv_len: u16, raw_cv_c: u16, invert: bool) -> (u16, bool) {
-    let (t, rollover) = step_time(time, raw_cv_len);
-    let (c_fixed, c_negative) = read_cv_signed_fixed(raw_cv_c);
-    let t_fixed = FixedU16::<U16>::from_bits((t >> 16) as u16);
-    let value = exp_curve(t_fixed, c_fixed, c_negative);
-    const DAC_MAX_VALUE: u16 = 0xfff;
-    debug_assert!(value <= DAC_MAX_VALUE);
-
-    (if invert { DAC_MAX_VALUE - value } else { value }, rollover)
-}
