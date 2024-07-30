@@ -195,15 +195,13 @@ fn step_time(t: &mut u32, cv: u16) -> (u32, bool) {
     (before_rollover, rollover)
 }
 
-fn get_adsr_inverse_attack(current_phase: &AdsrState, current_time: &u32) -> u32 {
-    return 0;
-    // match current_phase {
-    //     AdsrState::Wait => todo!(),
-    //     AdsrState::Attack => todo!(),
-    //     AdsrState::Decay => todo!(),
-    //     AdsrState::Sustain => todo!(),
-    //     AdsrState::Release => todo!(),
-    // }
+fn get_adsr_inverse_attack(current_value: u16) -> u32 {
+    (current_value as u32) << 20
+}
+
+fn get_adsr_inverse_release(current_value: u16) -> u32 {
+    // (current_value as u32) << 20
+    0 // TODO
 }
 
 pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) -> (u16, bool) {
@@ -211,11 +209,11 @@ pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) 
 
     let time = &mut state.time;
 
-    match state.mode {
+    let (value, rollover) = match state.mode {
         EnvelopeMode::Adsr(ref mut phase) => match trigger {
             TriggerAction::None => handle_adsr_update(time, cv, phase),
             TriggerAction::GateRise => {
-                *time = get_adsr_inverse_attack(phase, time);
+                *time = get_adsr_inverse_attack(state.last_value);
                 *phase = AdsrState::Attack;
                 let (value, _) = handle_adsr_update(time, cv, phase);
                 (value, true)
@@ -283,7 +281,12 @@ pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) 
                 (scale(0), rollover)
             }
         },
-    }
+    };
+
+    debug_assert!(value <= MAX_DAC_VALUE);
+    state.last_value = value;
+
+    (value, rollover)
 }
 
 const MAX_DAC_VALUE: u16 = 4095;
