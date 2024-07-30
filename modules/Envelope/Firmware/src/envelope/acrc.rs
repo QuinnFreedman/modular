@@ -2,7 +2,7 @@ use fixed::{types::extra::U16, FixedU16};
 
 use super::{
     shared::{read_cv_signed_fixed, step_time},
-    TriggerAction,
+    TriggerAction, MAX_DAC_VALUE,
 };
 use crate::exponential_curves::exp_curve;
 
@@ -11,6 +11,7 @@ pub enum AcrcState {
     #[default]
     Wait,
     Attack,
+    Hold,
     Release,
 }
 
@@ -28,10 +29,56 @@ pub fn acrc(
     trigger: TriggerAction,
     cv: &[u16; 4],
 ) -> (u16, bool) {
+    match trigger {
+        TriggerAction::None => compute_acrc_value(phase, time, cv),
+        TriggerAction::GateRise => {
+            *time = get_acrc_inverse_attack(last_value);
+            *phase = AcrcState::Attack;
+            let (value, _) = compute_acrc_value(phase, time, cv);
+            (value, true)
+        }
+        TriggerAction::GateFall => {
+            *phase = AcrcState::Release;
+            *time = get_acrc_inverse_release(last_value);
+            let (value, _) = compute_acrc_value(phase, time, cv);
+            (value, true)
+        }
+        TriggerAction::Trigger => {
+            // TODO handle ping trigger
+            let (value, _) = compute_acrc_value(phase, time, cv);
+            (value, true)
+        }
+    }
+}
+
+fn get_acrc_inverse_attack(last_value: u16) -> u32 {
+    // TODO calculate inverse
+    0
+}
+
+fn get_acrc_inverse_release(last_value: u16) -> u32 {
+    // TODO calculate inverse
+    0
+}
+
+fn compute_acrc_value(phase: &mut AcrcState, time: &mut u32, cv: &[u16; 4]) -> (u16, bool) {
     match phase {
-        AcrcState::Wait => (0, false),    // TODO
-        AcrcState::Attack => (0, false),  // TODO
-        AcrcState::Release => (0, false), // TODO
+        AcrcState::Wait => (0, false),
+        AcrcState::Attack => {
+            let (t, rollover) = acrc_segment(time, cv[0], cv[1], false);
+            if rollover {
+                *phase = AcrcState::Hold;
+            }
+            (t, rollover)
+        }
+        AcrcState::Hold => (MAX_DAC_VALUE, false),
+        AcrcState::Release => {
+            let (t, rollover) = acrc_segment(time, cv[2], cv[3], true);
+            if rollover {
+                *phase = AcrcState::Wait;
+            }
+            (t, rollover)
+        }
     }
 }
 

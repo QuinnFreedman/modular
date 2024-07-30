@@ -1,6 +1,10 @@
 use fixed::{types::extra::U16, FixedU16};
 
-use super::Fraction;
+#[derive(Copy, Clone)]
+pub struct Fraction<T> {
+    pub numerator: T,
+    pub denominator: T,
+}
 
 #[derive(PartialEq, Eq)]
 pub enum CvType {

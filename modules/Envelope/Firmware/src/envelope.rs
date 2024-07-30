@@ -33,7 +33,7 @@ pub enum EnvelopeMode {
     AhrdLoop(AhrdState),
 }
 
-pub fn ui_show_mode(state: &EnvelopeMode) -> u8 {
+pub const fn ui_show_mode(state: &EnvelopeMode) -> u8 {
     match state {
         EnvelopeMode::Adsr(_) => 0b1000 as u8,
         EnvelopeMode::Acrc(_) => 0b0100,
@@ -43,7 +43,7 @@ pub fn ui_show_mode(state: &EnvelopeMode) -> u8 {
     .reverse_bits()
 }
 
-pub fn ui_show_stage(state: &EnvelopeMode) -> u8 {
+pub const fn ui_show_stage(state: &EnvelopeMode) -> u8 {
     match state {
         EnvelopeMode::Adsr(phase) => match phase {
             AdsrState::Wait => 0b0000 as u8,
@@ -55,6 +55,7 @@ pub fn ui_show_stage(state: &EnvelopeMode) -> u8 {
         EnvelopeMode::Acrc(phase) => match phase {
             AcrcState::Wait => 0b0000,
             AcrcState::Attack => 0b1100,
+            AcrcState::Hold => 0b0000,
             AcrcState::Release => 0b0011,
         },
         EnvelopeMode::AcrcLoop(phase) => match phase {
@@ -69,12 +70,6 @@ pub fn ui_show_stage(state: &EnvelopeMode) -> u8 {
         },
     }
     .reverse_bits()
-}
-
-#[derive(Copy, Clone)]
-struct Fraction<T> {
-    numerator: T,
-    denominator: T,
 }
 
 pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) -> (u16, bool) {
