@@ -4,7 +4,7 @@ use super::{
     shared::{read_cv_signed_fixed, step_time},
     TriggerAction, MAX_DAC_VALUE,
 };
-use crate::exponential_curves::exp_curve;
+use crate::exponential_curves::{exp_curve, exp_curve_inverse};
 
 #[derive(Copy, Clone, Default)]
 pub enum AcrcState {
@@ -32,16 +32,18 @@ pub fn acrc(
     match trigger {
         TriggerAction::None => compute_acrc_value(phase, time, cv),
         TriggerAction::GateRise => {
-            *time = get_acrc_inverse_attack(last_value);
+            let (c_fixed, c_negative) = read_cv_signed_fixed(cv[1]);
+            *time = get_acrc_inverse_attack(last_value, c_fixed, c_negative);
             *phase = AcrcState::Attack;
-            let (value, _) = compute_acrc_value(phase, time, cv);
-            (value, true)
+            // We don't have time to compute the inverse AND compute a new sample
+            // in one cycle, so repeat the last value for one sample
+            (last_value, true)
         }
         TriggerAction::GateFall => {
+            let (c_fixed, c_negative) = read_cv_signed_fixed(cv[3]);
             *phase = AcrcState::Release;
-            *time = get_acrc_inverse_release(last_value);
-            let (value, _) = compute_acrc_value(phase, time, cv);
-            (value, true)
+            *time = get_acrc_inverse_release(last_value, c_fixed, c_negative);
+            (last_value, true)
         }
         TriggerAction::Trigger => {
             // TODO handle ping trigger
@@ -51,14 +53,19 @@ pub fn acrc(
     }
 }
 
-fn get_acrc_inverse_attack(last_value: u16) -> u32 {
-    // TODO calculate inverse
-    0
+fn get_acrc_inverse_attack(last_value: u16, c: FixedU16<U16>, c_negative: bool) -> u32 {
+    // convert from [0, 4095] to [0, 1] in (0.16)
+    let last_value_frac = FixedU16::<U16>::from_bits(last_value << 4);
+    let x_frac = exp_curve_inverse(last_value_frac, c, c_negative);
+    (x_frac.to_bits() as u32) << 16
 }
 
-fn get_acrc_inverse_release(last_value: u16) -> u32 {
-    // TODO calculate inverse
-    0
+fn get_acrc_inverse_release(last_value: u16, c: FixedU16<U16>, c_negative: bool) -> u32 {
+    const ONE: FixedU16<U16> = FixedU16::<U16>::from_bits(u16::MAX);
+    let last_value_flipped = 4095 - last_value;
+    let last_value_frac = FixedU16::<U16>::from_bits(last_value_flipped << 4);
+    let x_frac = exp_curve_inverse(last_value_frac, c, c_negative);
+    (x_frac.to_bits() as u32) << 16
 }
 
 fn compute_acrc_value(phase: &mut AcrcState, time: &mut u32, cv: &[u16; 4]) -> (u16, bool) {
