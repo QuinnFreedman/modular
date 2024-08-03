@@ -15,7 +15,7 @@ pub enum AcrcState {
     Release,
 }
 
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq, Eq)]
 pub enum AcrcLoopState {
     #[default]
     Attack,
@@ -89,6 +89,13 @@ pub fn acrc_loop(
     input: &Input,
     cv: &[u16; 4],
 ) -> (u16, bool) {
+    if input.trigger {
+        *time = 0;
+        let did_change = *phase == AcrcLoopState::Release;
+        *phase = AcrcLoopState::Attack;
+        return (0, did_change);
+    }
+
     match phase {
         AcrcLoopState::Attack => {
             let (value, rollover) = acrc_segment(time, cv[0], cv[1], false);

@@ -3,7 +3,7 @@ use super::{
     GateState, Input,
 };
 
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq, Eq)]
 pub enum AhrdState {
     #[default]
     Attack,
@@ -14,6 +14,13 @@ pub enum AhrdState {
 
 pub fn ahrd(phase: &mut AhrdState, time: &mut u32, input: &Input, cv: &[u16; 4]) -> (u16, bool) {
     let scale = |x: u32| (x >> 20) as u16;
+
+    if input.trigger {
+        *time = 0;
+        let did_change = *phase != AhrdState::Attack;
+        *phase = AhrdState::Attack;
+        return (0, did_change);
+    }
 
     match phase {
         AhrdState::Attack => {
