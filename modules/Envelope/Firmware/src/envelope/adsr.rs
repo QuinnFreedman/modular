@@ -1,6 +1,6 @@
 use super::{
     shared::{lerp, read_cv, step_time, CvType},
-    TriggerAction, MAX_DAC_VALUE,
+    GateState, Input, MAX_DAC_VALUE,
 };
 
 #[derive(Copy, Clone, Default)]
@@ -17,25 +17,20 @@ pub fn adsr(
     phase: &mut AdsrState,
     time: &mut u32,
     last_value: u16,
-    trigger: TriggerAction,
+    input: &Input,
     cv: &[u16; 4],
 ) -> (u16, bool) {
-    match trigger {
-        TriggerAction::None => compute_adsr_value(phase, time, cv),
-        TriggerAction::GateRise => {
+    match input.gate {
+        GateState::High | GateState::Low => compute_adsr_value(phase, time, cv),
+        GateState::Rising => {
             *time = get_adsr_inverse_attack(last_value);
             *phase = AdsrState::Attack;
             let (value, _) = compute_adsr_value(phase, time, cv);
             (value, true)
         }
-        TriggerAction::GateFall => {
+        GateState::Falling => {
             *phase = AdsrState::Release;
             *time = get_adsr_inverse_release(last_value);
-            let (value, _) = compute_adsr_value(phase, time, cv);
-            (value, true)
-        }
-        TriggerAction::Trigger => {
-            // TODO handle ping trigger
             let (value, _) = compute_adsr_value(phase, time, cv);
             (value, true)
         }

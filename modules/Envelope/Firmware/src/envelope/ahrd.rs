@@ -1,4 +1,4 @@
-use super::{shared::step_time, TriggerAction};
+use super::{shared::step_time, Input};
 
 #[derive(Copy, Clone, Default)]
 pub enum AhrdState {
@@ -9,14 +9,8 @@ pub enum AhrdState {
     Delay,
 }
 
-pub fn ahrd(
-    phase: &mut AhrdState,
-    time: &mut u32,
-    // TODO handle trigger & gate
-    trigger: TriggerAction,
-    cv: &[u16; 4],
-) -> (u16, bool) {
-    let scale = |input: u32| (input >> 20) as u16;
+pub fn ahrd(phase: &mut AhrdState, time: &mut u32, input: &Input, cv: &[u16; 4]) -> (u16, bool) {
+    let scale = |x: u32| (x >> 20) as u16;
 
     match phase {
         AhrdState::Attack => {

@@ -2,7 +2,7 @@ use fixed::{types::extra::U16, FixedU16};
 
 use super::{
     shared::{read_cv_signed_fixed, step_time},
-    TriggerAction, MAX_DAC_VALUE,
+    GateState, Input, MAX_DAC_VALUE,
 };
 use crate::exponential_curves::{exp_curve, exp_curve_inverse};
 
@@ -26,12 +26,12 @@ pub fn acrc(
     phase: &mut AcrcState,
     time: &mut u32,
     last_value: u16,
-    trigger: TriggerAction,
+    input: &Input,
     cv: &[u16; 4],
 ) -> (u16, bool) {
-    match trigger {
-        TriggerAction::None => compute_acrc_value(phase, time, cv),
-        TriggerAction::GateRise => {
+    match input.gate {
+        GateState::High | GateState::Low => compute_acrc_value(phase, time, cv),
+        GateState::Rising => {
             let (c_fixed, c_negative) = read_cv_signed_fixed(cv[1]);
             *time = get_acrc_inverse_attack(last_value, c_fixed, c_negative);
             *phase = AcrcState::Attack;
@@ -39,16 +39,11 @@ pub fn acrc(
             // in one cycle, so repeat the last value for one sample
             (last_value, true)
         }
-        TriggerAction::GateFall => {
+        GateState::Falling => {
             let (c_fixed, c_negative) = read_cv_signed_fixed(cv[3]);
             *phase = AcrcState::Release;
             *time = get_acrc_inverse_release(last_value, c_fixed, c_negative);
             (last_value, true)
-        }
-        TriggerAction::Trigger => {
-            // TODO handle ping trigger
-            let (value, _) = compute_acrc_value(phase, time, cv);
-            (value, true)
         }
     }
 }
@@ -61,8 +56,7 @@ fn get_acrc_inverse_attack(last_value: u16, c: FixedU16<U16>, c_negative: bool) 
 }
 
 fn get_acrc_inverse_release(last_value: u16, c: FixedU16<U16>, c_negative: bool) -> u32 {
-    const ONE: FixedU16<U16> = FixedU16::<U16>::from_bits(u16::MAX);
-    let last_value_flipped = 4095 - last_value;
+    let last_value_flipped = MAX_DAC_VALUE - last_value;
     let last_value_frac = FixedU16::<U16>::from_bits(last_value_flipped << 4);
     let x_frac = exp_curve_inverse(last_value_frac, c, c_negative);
     (x_frac.to_bits() as u32) << 16
@@ -89,7 +83,12 @@ fn compute_acrc_value(phase: &mut AcrcState, time: &mut u32, cv: &[u16; 4]) -> (
     }
 }
 
-pub fn acrc_loop(phase: &mut AcrcLoopState, time: &mut u32, cv: &[u16; 4]) -> (u16, bool) {
+pub fn acrc_loop(
+    phase: &mut AcrcLoopState,
+    time: &mut u32,
+    input: &Input,
+    cv: &[u16; 4],
+) -> (u16, bool) {
     match phase {
         AcrcLoopState::Attack => {
             let (t, rollover) = acrc_segment(time, cv[0], cv[1], false);

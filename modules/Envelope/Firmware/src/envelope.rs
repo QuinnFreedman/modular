@@ -11,12 +11,17 @@ pub use self::acrc::{AcrcLoopState, AcrcState};
 pub use self::adsr::AdsrState;
 pub use self::ahrd::AhrdState;
 
-#[derive(Copy, Clone)]
-pub enum TriggerAction {
-    None,
-    GateRise,
-    GateFall,
-    Trigger,
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum GateState {
+    Rising,
+    Falling,
+    High,
+    Low,
+}
+
+pub struct Input {
+    pub gate: GateState,
+    pub trigger: bool,
 }
 
 pub struct EnvelopeState {
@@ -72,16 +77,16 @@ pub const fn ui_show_stage(state: &EnvelopeMode) -> u8 {
     .reverse_bits()
 }
 
-pub fn update(state: &mut EnvelopeState, trigger: TriggerAction, cv: &[u16; 4]) -> (u16, bool) {
+pub fn update(state: &mut EnvelopeState, input: &Input, cv: &[u16; 4]) -> (u16, bool) {
     let (value, rollover) = match state.mode {
         EnvelopeMode::Adsr(ref mut phase) => {
-            adsr(phase, &mut state.time, state.last_value, trigger, cv)
+            adsr(phase, &mut state.time, state.last_value, input, cv)
         }
         EnvelopeMode::Acrc(ref mut phase) => {
-            acrc(phase, &mut state.time, state.last_value, trigger, cv)
+            acrc(phase, &mut state.time, state.last_value, input, cv)
         }
-        EnvelopeMode::AcrcLoop(ref mut phase) => acrc_loop(phase, &mut state.time, cv),
-        EnvelopeMode::AhrdLoop(ref mut phase) => ahrd(phase, &mut state.time, trigger, cv),
+        EnvelopeMode::AcrcLoop(ref mut phase) => acrc_loop(phase, &mut state.time, input, cv),
+        EnvelopeMode::AhrdLoop(ref mut phase) => ahrd(phase, &mut state.time, input, cv),
     };
 
     debug_assert!(value <= MAX_DAC_VALUE);
