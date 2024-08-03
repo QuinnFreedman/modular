@@ -1,4 +1,7 @@
-use super::{shared::step_time, Input};
+use super::{
+    shared::{step_time, step_time_no_rollover},
+    GateState, Input,
+};
 
 #[derive(Copy, Clone, Default)]
 pub enum AhrdState {
@@ -35,6 +38,10 @@ pub fn ahrd(phase: &mut AhrdState, time: &mut u32, input: &Input, cv: &[u16; 4])
             (scale(u32::MAX - t), rollover)
         }
         AhrdState::Delay => {
+            if input.gate == GateState::High {
+                step_time_no_rollover(time, cv[3]);
+                return (0, false);
+            };
             let (_, rollover) = step_time(time, cv[3]);
             if rollover {
                 *phase = AhrdState::Attack;

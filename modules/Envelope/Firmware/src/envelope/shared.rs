@@ -99,6 +99,12 @@ pub fn step_time(t: &mut u32, cv: u16) -> (u32, bool) {
     (before_rollover, rollover)
 }
 
+pub fn step_time_no_rollover(t: &mut u32, cv: u16) -> u32 {
+    let dt = get_delta_t(cv);
+    *t = t.saturating_add(dt);
+    *t
+}
+
 pub fn lerp(x: u16, min: u16, max: u16) -> u16 {
     debug_assert!(min <= max);
     let range = max - min;

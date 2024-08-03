@@ -91,18 +91,22 @@ pub fn acrc_loop(
 ) -> (u16, bool) {
     match phase {
         AcrcLoopState::Attack => {
-            let (t, rollover) = acrc_segment(time, cv[0], cv[1], false);
+            let (value, rollover) = acrc_segment(time, cv[0], cv[1], false);
             if rollover {
                 *phase = AcrcLoopState::Release;
             }
-            (t, rollover)
+            (value, rollover)
         }
         AcrcLoopState::Release => {
-            let (t, rollover) = acrc_segment(time, cv[2], cv[3], true);
+            let (value, rollover) = acrc_segment(time, cv[2], cv[3], true);
+            if rollover && input.gate == GateState::High {
+                *time = u32::MAX;
+                return (0, false);
+            }
             if rollover {
                 *phase = AcrcLoopState::Attack;
             }
-            (t, rollover)
+            (value, rollover)
         }
     }
 }
