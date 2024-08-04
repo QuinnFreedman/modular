@@ -157,6 +157,7 @@ impl EnvelopeState {
             mode: self.mode.next(),
             time: 0,
             last_value: 0,
+            artificial_gate: false,
         }
     }
 }
@@ -223,6 +224,7 @@ fn main() -> ! {
         mode: EnvelopeMode::Adsr(AdsrState::default()),
         time: 0,
         last_value: 0,
+        artificial_gate: false,
     };
 
     let mut display = DisplayMode::ShowEnvelopeMode {

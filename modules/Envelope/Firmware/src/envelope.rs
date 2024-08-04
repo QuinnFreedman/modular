@@ -28,6 +28,7 @@ pub struct EnvelopeState {
     pub mode: EnvelopeMode,
     pub time: u32,
     pub last_value: u16,
+    pub artificial_gate: bool,
 }
 
 #[derive(Copy, Clone)]
@@ -82,9 +83,14 @@ pub fn update(state: &mut EnvelopeState, input: &Input, cv: &[u16; 4]) -> (u16, 
         EnvelopeMode::Adsr(ref mut phase) => {
             adsr(phase, &mut state.time, state.last_value, input, cv)
         }
-        EnvelopeMode::Acrc(ref mut phase) => {
-            acrc(phase, &mut state.time, state.last_value, input, cv)
-        }
+        EnvelopeMode::Acrc(ref mut phase) => acrc(
+            phase,
+            &mut state.time,
+            state.last_value,
+            input,
+            cv,
+            &mut state.artificial_gate,
+        ),
         EnvelopeMode::AcrcLoop(ref mut phase) => acrc_loop(phase, &mut state.time, input, cv),
         EnvelopeMode::AhrdLoop(ref mut phase) => ahrd(phase, &mut state.time, input, cv),
     };

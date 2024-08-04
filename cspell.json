@@ -13,6 +13,8 @@
     "PORTD",
     "atmega",
     "PCINT",
+    "COMPA",
+    "COMPB",
     "progmem",
     "repr",
     "blit",
@@ -35,7 +37,8 @@
     "recip",
     "nybl",
     "signum",
-    "lerp"
+    "lerp",
+    "pullup",
   ],
   "patterns": [
     {

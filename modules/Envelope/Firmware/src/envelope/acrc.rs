@@ -6,7 +6,9 @@ use super::{
 };
 use crate::exponential_curves::{exp_curve, exp_curve_inverse};
 
-#[derive(Copy, Clone, Default)]
+const CFG_ACRC_HARD_SYNC_ON_TRIGGER: bool = false;
+
+#[derive(Copy, Clone, Default, PartialEq, Eq)]
 pub enum AcrcState {
     #[default]
     Wait,
@@ -28,9 +30,10 @@ pub fn acrc(
     last_value: u16,
     input: &Input,
     cv: &[u16; 4],
+    artificial_gate: &mut bool,
 ) -> (u16, bool) {
     match input.gate {
-        GateState::High | GateState::Low => compute_acrc_value(phase, time, cv),
+        GateState::High => compute_acrc_value(phase, time, cv),
         GateState::Rising => {
             let (c_fixed, c_negative) = read_cv_signed_fixed(cv[1]);
             *time = get_acrc_inverse_attack(last_value, c_fixed, c_negative);
@@ -44,6 +47,29 @@ pub fn acrc(
             *phase = AcrcState::Release;
             *time = get_acrc_inverse_release(last_value, c_fixed, c_negative);
             (last_value, true)
+        }
+        GateState::Low => {
+            if input.trigger {
+                *time = if CFG_ACRC_HARD_SYNC_ON_TRIGGER {
+                    0
+                } else {
+                    let (c_fixed, c_negative) = read_cv_signed_fixed(cv[1]);
+                    get_acrc_inverse_attack(last_value, c_fixed, c_negative)
+                };
+                *phase = AcrcState::Attack;
+                *artificial_gate = true;
+                return (last_value, true);
+            }
+
+            let (value, rollover) = compute_acrc_value(phase, time, cv);
+
+            if *artificial_gate {
+                if rollover && *phase == AcrcState::Hold {
+                    *phase = AcrcState::Release;
+                }
+            }
+
+            (value, rollover)
         }
     }
 }

@@ -3,7 +3,7 @@ use super::{
     GateState, Input, MAX_DAC_VALUE,
 };
 
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq, Eq)]
 pub enum AdsrState {
     #[default]
     Wait,
@@ -20,6 +20,13 @@ pub fn adsr(
     input: &Input,
     cv: &[u16; 4],
 ) -> (u16, bool) {
+    if input.trigger && (*phase == AdsrState::Decay || *phase == AdsrState::Sustain) {
+        *time = get_adsr_inverse_attack(last_value);
+        *phase = AdsrState::Attack;
+        let (value, _) = compute_adsr_value(phase, time, cv);
+        return (value, true);
+    }
+
     match input.gate {
         GateState::High | GateState::Low => compute_adsr_value(phase, time, cv),
         GateState::Rising => {
