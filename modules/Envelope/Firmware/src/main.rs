@@ -18,6 +18,7 @@ use arduino_hal::port::mode::Output;
 use arduino_hal::port::Pin;
 use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
 use avr_device::interrupt::{self, Mutex};
+use embedded_hal::digital::v2::OutputPin;
 use envelope::{
     ui_show_mode, ui_show_stage, update, AcrcLoopState, AcrcState, AdsrState, AhrdState,
     EnvelopeMode,
@@ -35,8 +36,10 @@ use fm_lib::{
 };
 use ufmt::uwriteln;
 
+use crate::aux::{update_aux, AuxMode};
 use crate::envelope::{EnvelopeState, GateState, Input};
 
+mod aux;
 mod envelope;
 mod exponential_curves;
 
@@ -104,17 +107,16 @@ fn TIMER2_COMPA() {
     let dp = unsafe { arduino_hal::Peripherals::steal() };
 
     assert_interrupts_disabled(|cs| {
-        if DAC_WRITE_READY.borrow(cs).get() {
-            DAC_WRITE_READY.borrow(cs).set(false);
+        if DAC_WRITE_QUEUED.borrow(cs).get() {
+            DAC_WRITE_QUEUED.borrow(cs).set(false);
+            dp.PORTB
+                .portb
+                .modify(|r, w| unsafe { w.bits(r.bits()) }.pb2().set_bit());
         } else {
             #[cfg(feature = "debug")]
             DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).update(|x| x + 1);
         }
     });
-
-    dp.PORTB
-        .portb
-        .modify(|r, w| unsafe { w.bits(r.bits()) }.pb2().set_bit());
 }
 
 /// Enable external interrupts for INT0 (digital pin 2)
@@ -163,7 +165,7 @@ impl EnvelopeState {
     }
 }
 
-static DAC_WRITE_READY: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+static DAC_WRITE_QUEUED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
 static QUEUED_TRIGGER: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
 
 #[cfg(feature = "debug")]
@@ -221,6 +223,8 @@ fn main() -> ! {
 
     let d8 = pins.d8.into_pull_up_input();
     let mut button = ButtonDebouncer::<PB0, 32>::new(d8);
+
+    let mut aux_output_pin = pins.d9.into_output();
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
 
@@ -283,7 +287,7 @@ fn main() -> ! {
             }
         }
 
-        if !DAC_WRITE_READY.atomic_read() {
+        if !DAC_WRITE_QUEUED.atomic_read() {
             let gate_is_high = gate_pin.is_low();
             let gate = match (gate_was_high, gate_is_high) {
                 (true, true) => GateState::High,
@@ -301,10 +305,17 @@ fn main() -> ! {
             let input = Input { gate, trigger };
             let (value, did_change_phase) = update(&mut envelope_state, &input, &cv);
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
-            unsafe_access_mutex(|cs| DAC_WRITE_READY.borrow(cs).set(true));
+            unsafe_access_mutex(|cs| DAC_WRITE_QUEUED.borrow(cs).set(true));
 
-            if did_change_phase && display == DisplayMode::ShowEnvelopeSegment {
-                ui.update(ui_show_stage(&envelope_state.mode));
+            let config = AuxMode::EndOfRise;
+
+            if did_change_phase {
+                aux_output_pin
+                    .set_state(update_aux(envelope_state.mode, config).into())
+                    .unwrap_infallible();
+                if display == DisplayMode::ShowEnvelopeSegment {
+                    ui.update(ui_show_stage(&envelope_state.mode));
+                }
             }
         }
 
