@@ -33,7 +33,7 @@ use fm_lib::{
     mcp4922::{DacChannel, MCP4922},
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
-use ufmt::{uwrite, uwriteln};
+use ufmt::uwriteln;
 
 use crate::envelope::{EnvelopeState, GateState, Input};
 
@@ -107,6 +107,7 @@ fn TIMER2_COMPA() {
         if DAC_WRITE_READY.borrow(cs).get() {
             DAC_WRITE_READY.borrow(cs).set(false);
         } else {
+            #[cfg(feature = "debug")]
             DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).update(|x| x + 1);
         }
     });
@@ -163,8 +164,10 @@ impl EnvelopeState {
 }
 
 static DAC_WRITE_READY: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
-static DEBUG_SKIPPED_WRITE_COUNT: Mutex<Cell<u8>> = Mutex::new(Cell::new(0));
 static QUEUED_TRIGGER: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+
+#[cfg(feature = "debug")]
+static DEBUG_SKIPPED_WRITE_COUNT: Mutex<Cell<u8>> = Mutex::new(Cell::new(0));
 
 #[arduino_hal::entry]
 fn main() -> ! {
@@ -190,8 +193,9 @@ fn main() -> ! {
             mode: embedded_hal::spi::MODE_0,
         },
     );
+
+    #[cfg(feature = "debug")]
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-    uwriteln!(&mut serial, "").unwrap_infallible();
 
     unsafe {
         avr_device::interrupt::enable();
@@ -304,11 +308,15 @@ fn main() -> ! {
             }
         }
 
-        let num_skipped = DEBUG_SKIPPED_WRITE_COUNT.atomic_read();
-        if num_skipped != 0 {
-            unsafe_access_mutex(|cs| DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).set(0));
-            for _ in 0..num_skipped {
-                uwrite!(&mut serial, ".").unwrap_infallible();
+        #[cfg(feature = "debug")]
+        {
+            use ufmt::uwrite;
+            let num_skipped = DEBUG_SKIPPED_WRITE_COUNT.atomic_read();
+            if num_skipped != 0 {
+                unsafe_access_mutex(|cs| DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).set(0));
+                for _ in 0..num_skipped {
+                    uwrite!(&mut serial, ".").unwrap_infallible();
+                }
             }
         }
     }
