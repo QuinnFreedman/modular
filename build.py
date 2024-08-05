@@ -96,7 +96,7 @@ def log(indent, icon, msg, wait=False):
         " "
     ])
     if wait:
-        print(msg, end="")
+        print(msg, end="", flush=True)
     else:
         print(msg)
 

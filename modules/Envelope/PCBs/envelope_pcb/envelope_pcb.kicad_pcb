@@ -15778,7 +15778,7 @@
 		(layer "F.Cu")
 		(uuid "e3724996-020c-4e0e-a362-92ad340f49ee")
 		(at 163.83 112.395)
-		(property "Reference" "REF**"
+		(property "Reference" "G1"
 			(at 0 -0.5 0)
 			(unlocked yes)
 			(layer "F.SilkS")

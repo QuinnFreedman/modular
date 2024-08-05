@@ -11,7 +11,6 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
-use core::arch::asm;
 use core::{cell::Cell, panic::PanicInfo};
 
 use arduino_hal::hal::port;
@@ -237,8 +236,6 @@ fn main() -> ! {
     let _ = config_pin_1.into_floating_input();
     let _ = config_pin_2.into_floating_input();
 
-    let mut aux_output_pin = pins.d9.into_output();
-
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
 
     let mut envelope_state = EnvelopeState {
@@ -256,6 +253,9 @@ fn main() -> ! {
 
     configure_timer(&dp.TC2);
     let mut dac = MCP4922::new(d10);
+    dac.shutdown_channel(&mut spi, DacChannel::ChannelB);
+
+    let mut aux_output_pin = pins.d9.into_output();
 
     const LED_BLINK_INTERVAL_MS: u32 = 100;
     let mut led_blink_timer: u32 = 0;

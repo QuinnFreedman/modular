@@ -130,4 +130,16 @@ where
     pub fn write(&mut self, spi: &mut Spi, channel: DacChannel, value: u16) {
         self.write_with_config(spi, channel, value, ChannelConfig::default())
     }
+
+    pub fn shutdown_channel(&mut self, spi: &mut Spi, channel: DacChannel) {
+        self.write_with_config(
+            spi,
+            channel,
+            0,
+            ChannelConfig {
+                power: Power::Shutdown,
+                ..Default::default()
+            },
+        )
+    }
 }
