@@ -1,5 +1,6 @@
 use crate::envelope::{AcrcLoopState, AcrcState, AdsrState, AhrdState, EnvelopeMode};
 
+#[derive(Clone, Copy)]
 pub enum AuxMode {
     EndOfRise,
     EndOfFall,
@@ -7,7 +8,7 @@ pub enum AuxMode {
     FollowGate,
 }
 
-pub fn update_aux(env_mode: EnvelopeMode, config: AuxMode) -> bool {
+pub fn update_aux(env_mode: &EnvelopeMode, config: &AuxMode) -> bool {
     match config {
         AuxMode::EndOfRise => match env_mode {
             EnvelopeMode::Adsr(phase) => match phase {

@@ -11,6 +11,7 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
+use core::arch::asm;
 use core::{cell::Cell, panic::PanicInfo};
 
 use arduino_hal::hal::port;
@@ -182,6 +183,8 @@ fn main() -> ! {
     let a4 = pins.a4.into_analog_input(&mut adc);
     let a5 = pins.a5.into_analog_input(&mut adc);
     let gate_pin = pins.d2.into_pull_up_input();
+    let config_pin_1 = pins.a2.into_pull_up_input();
+    let config_pin_2 = pins.a1.into_pull_up_input();
 
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -223,6 +226,16 @@ fn main() -> ! {
 
     let d8 = pins.d8.into_pull_up_input();
     let mut button = ButtonDebouncer::<PB0, 32>::new(d8);
+
+    let config = match (config_pin_1.is_high(), config_pin_2.is_high()) {
+        (true, true) => AuxMode::EndOfRise,
+        (false, true) => AuxMode::EndOfFall,
+        (true, false) => AuxMode::NonZero,
+        (false, false) => AuxMode::FollowGate,
+    };
+
+    let _ = config_pin_1.into_floating_input();
+    let _ = config_pin_2.into_floating_input();
 
     let mut aux_output_pin = pins.d9.into_output();
 
@@ -307,11 +320,9 @@ fn main() -> ! {
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
             unsafe_access_mutex(|cs| DAC_WRITE_QUEUED.borrow(cs).set(true));
 
-            let config = AuxMode::EndOfRise;
-
             if did_change_phase {
                 aux_output_pin
-                    .set_state(update_aux(envelope_state.mode, config).into())
+                    .set_state(update_aux(&envelope_state.mode, &config).into())
                     .unwrap_infallible();
                 if display == DisplayMode::ShowEnvelopeSegment {
                     ui.update(ui_show_stage(&envelope_state.mode));
