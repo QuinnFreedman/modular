@@ -35,9 +35,15 @@
       </div>
     </div>
   </a>
-  <div class="fm-module-box">
-  Coming soon...
-  </div>
+  <a href="https://quinnfreedman.github.io/modular/modules/Envelope" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://quinnfreedman.github.io/modular/modules/Envelope/docs/images/envelope_faceplate_display.svg" />
+      <div>
+        <h2>Envelope</h2>
+        <p>A simple but powerful envelope generator/LFO with 4 modes</p>
+      </div>
+    </div>
+  </a>
   <div class="fm-module-box">
   Coming soon...
   </div>

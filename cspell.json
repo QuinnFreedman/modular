@@ -39,6 +39,11 @@
     "signum",
     "lerp",
     "pullup",
+    "eurorack",
+    "THONKICONN",
+    "DigiKey",
+    "Thonk",
+    "JLCPCB",
   ],
   "patterns": [
     {
