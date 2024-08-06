@@ -1,4 +1,4 @@
-# Offset/Atten Assembly Instructions
+# Envelope Assembly Instructions
 
 See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
 
