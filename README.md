@@ -48,8 +48,11 @@ To get started, check out some of the links below.
 <h2 style="display:none">Modules</h2>
 <ul style="display:none">
   <li><a href="https://quinnfreedman.github.io/modular/modules/Clock">Clock</a></li>
-  <li><a href="https://quinnfreedman.github.io/modular/modules/Mixer">Mixer</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/Envelope">Envelope</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/RNG">RNG</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/OffsetAtten">Offset/Atten</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/Mixer">Mixer</a></li>
+  <li><a href="https://quinnfreedman.github.io/modular/modules/Output">Output</a></li>
 </ul>
+
 {% include_relative docs/modules.md %}
