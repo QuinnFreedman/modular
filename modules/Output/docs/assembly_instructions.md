@@ -8,13 +8,13 @@ Note: this design has 3 PCBs that are stacked into a sandwich. The small one (to
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_interactive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_front_interactive_bom.html), [middle](https://quinnfreedman.github.io/fm-artifacts/Output/output_middle_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_interactive_bom.html)
 
 | Board | Reference       | Part             | Value                                   | Source  | Comment |
 | ----- | --------------- | ---------------- | --------------------------------------- | ------- | ------- |
 | Front | R1, R2          | Resistor         | 100kΩ                                   |         |         |
 | Back  | R3, R11         | Resistor         | 2kΩ                                     |         | These resistors overlap the mounting holes. I recommend putting in the standoff first and then putting the resistors over/around the bolt head. |
-| Back  | R4-R6, R12-R14  | Resistor         | 1kΩ                                     |         | See R3, R11. |
+| Back  | R4-R6, R12-R14  | Resistor         | 1kΩ                                     |         | See above |
 | Back  | R7-R10, R15-R18 | Resistor         | 10Ω                                     |         | Adds output impedance to headphone output; protects against shorts when plugging in headphones. |
 | Back  | R19, R20        | Resistor         | 2kΩ                                     |         | Any value is fine. |
 | Back  | R21, R22        | Resistor         | 1kΩ                                     |         | Any value is fine as long as they are 1/2 R19, R20. |
