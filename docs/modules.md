@@ -8,12 +8,12 @@
       </div>
     </div>
   </a>
-  <a href="https://quinnfreedman.github.io/modular/modules/Mixer" class="fm-hidden-link">
+  <a href="https://quinnfreedman.github.io/modular/modules/Envelope" class="fm-hidden-link">
     <div class="fm-module-box">
-      <img src="https://quinnfreedman.github.io/modular/modules/Mixer/docs/images/mixer_faceplate_display.svg" />
+      <img src="https://quinnfreedman.github.io/modular/modules/Envelope/docs/images/envelope_faceplate_display.svg" />
       <div>
-        <h2>Mixer</h2>
-        <p>A 5-channel active mixer for audio or CV. Can be daisy-chained together for larger mixes</p>
+        <h2>Envelope</h2>
+        <p>A simple but powerful envelope generator/LFO with 4 modes</p>
       </div>
     </div>
   </a>
@@ -30,17 +30,26 @@
     <div class="fm-module-box">
       <img src="https://quinnfreedman.github.io/modular/modules/OffsetAtten/docs/images/offset_atten_faceplate.svg" />
       <div>
-        <h2>OffsetAtten</h2>
+        <h2>Offset/Atten</h2>
         <p>A utility module to scale, shift, and invert signals</p>
       </div>
     </div>
   </a>
-  <a href="https://quinnfreedman.github.io/modular/modules/Envelope" class="fm-hidden-link">
+  <a href="https://quinnfreedman.github.io/modular/modules/Mixer" class="fm-hidden-link">
     <div class="fm-module-box">
-      <img src="https://quinnfreedman.github.io/modular/modules/Envelope/docs/images/envelope_faceplate_display.svg" />
+      <img src="https://quinnfreedman.github.io/modular/modules/Mixer/docs/images/mixer_faceplate_display.svg" />
       <div>
-        <h2>Envelope</h2>
-        <p>A simple but powerful envelope generator/LFO with 4 modes</p>
+        <h2>Mixer</h2>
+        <p>A 5-channel active mixer for audio or CV. Can be daisy-chained together for larger mixes</p>
+      </div>
+    </div>
+  </a>
+  <a href="https://quinnfreedman.github.io/modular/modules/Output" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://quinnfreedman.github.io/modular/modules/Output/docs/images/output_faceplate.svg" />
+      <div>
+        <h2>Output</h2>
+        <p>A stereo line out and headphone amp with VU meter</p>
       </div>
     </div>
   </a>
