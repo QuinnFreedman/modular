@@ -40,6 +40,7 @@ use crate::aux::{update_aux, AuxMode};
 use crate::envelope::{EnvelopeState, GateState, Input};
 
 mod aux;
+mod eeprom;
 mod envelope;
 mod exponential_curves;
 
