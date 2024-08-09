@@ -1,99 +1,97 @@
-use core::{
-    marker::PhantomData,
-    mem::{self, MaybeUninit},
-};
+use core::mem::MaybeUninit;
 
 use arduino_hal::Eeprom;
 use avr_device::atmega328p::EEPROM;
 
-struct WareLevelledEepromWriter<'a, const SIZE: u16, T>
-where
-    &'a T: Into<[u8; SIZE as usize]>,
-    T: From<[u8; SIZE as usize]>,
-{
-    address: u16,
-    generation: u16,
+/**
+Every time the writer is initialized (i.e. on device startup) the full object is
+copied to a new location in EEPROM. From then on, updates can be made quickly in
+place, while a mirrored copy of any relevant state is kept in memory by the user.
+EEPROM should not be read from again until the next startup.
+*/
+pub struct WearLevelledEepromWriter<const SIZE: usize> {
+    pub address: u16,
+    pub version: u16,
     eeprom: Eeprom,
-    _t: PhantomData<&'a T>,
 }
 
-impl<'a, const SIZE: u16, T> WareLevelledEepromWriter<'a, SIZE, T>
-where
-    &'a T: Into<[u8; SIZE as usize]>,
-    T: From<[u8; SIZE as usize]>,
-{
-    const TOTAL_SIZE: u16 = 2 + SIZE;
+impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
+    const DATA_SIZE: u16 = SIZE as u16;
+    const TOTAL_SIZE: u16 = 2 + Self::DATA_SIZE;
 
-    pub fn init_and_advance(eeprom: EEPROM, object: &'a mut T) -> Self {
-        let eep = arduino_hal::Eeprom::new(eeprom);
+    pub fn init_and_advance(eeprom: EEPROM, memory: &mut [u8; SIZE]) -> Self {
+        let mut eep = arduino_hal::Eeprom::new(eeprom);
 
-        let mut max_gen: u16 = 0;
-        let mut max_gen_addr: u16 = 0;
+        let mut max_version: u16 = 0;
+        let mut max_version_addr: u16 = 0;
         let mut found_address = false;
 
         for address in (0..eep.capacity() - Self::TOTAL_SIZE).step_by(Self::TOTAL_SIZE as usize) {
-            let mut gen_bytes = [0u8; 2];
-            eep.read(address, &mut gen_bytes).unwrap();
-            let gen = u16::from_le_bytes(gen_bytes);
-            if gen_bytes[1] != 0xFF && gen > max_gen {
-                max_gen = gen;
-                max_gen_addr = address;
+            let mut version_bytes = [0u8; 2];
+            eep.read(address, &mut version_bytes).unwrap();
+            let version = u16::from_le_bytes(version_bytes);
+            if version_bytes[1] != 0xFF && (max_version == 0 || version > max_version) {
+                max_version = version;
+                max_version_addr = address;
                 found_address = true;
             }
         }
 
         let mut writer = Self {
-            address: max_gen_addr,
-            generation: max_gen_addr,
+            address: max_version_addr,
+            version: max_version,
             eeprom: eep,
-            _t: PhantomData::<&'a T>::default(),
         };
 
         if !found_address {
-            writer.write_data(object);
+            writer.write_data(memory);
         } else {
-            *object = writer.advance_and_copy();
+            *memory = writer.advance_and_copy();
         }
 
         writer
     }
 
-    fn write_data(&mut self, data: &'a T) {
-        let marker_bytes = self.generation.to_le_bytes();
+    // TODO assume EEPROM is in order, use bin search
+    // fn binary_search_for_sector_with_highest_version(&self) {}
+
+    fn write_data(&mut self, data: &[u8; SIZE]) {
+        let marker_bytes = self.version.to_le_bytes();
         self.eeprom.erase_byte(self.address + 1);
-        self.eeprom.write(self.address + 2, &data.into()).unwrap();
+        self.eeprom.write(self.address + 2, data).unwrap();
         self.eeprom.write_byte(self.address + 0, marker_bytes[0]);
         self.eeprom.write_byte(self.address + 1, marker_bytes[1]);
     }
 
-    fn advance_and_copy(&mut self) -> T {
-        let mut gen_bytes = [0u8; 2];
-        self.eeprom.read(self.address, &mut gen_bytes).unwrap();
-        let old_gen = u16::from_le_bytes(gen_bytes);
-        debug_assert!(old_gen == self.generation);
+    fn advance_and_copy(&mut self) -> [u8; SIZE] {
+        let mut version_bytes = [0u8; 2];
+        self.eeprom.read(self.address, &mut version_bytes).unwrap();
+        let old_version = u16::from_le_bytes(version_bytes);
+        debug_assert!(old_version == self.version);
 
         let mut new_address = self.address + Self::TOTAL_SIZE;
         if new_address + Self::TOTAL_SIZE > self.eeprom.capacity() {
             new_address = 0;
         }
-        let new_gen = self.generation + 1;
-        if new_gen >> 8 == 0xFF {
+        let new_version = self.version + 1;
+        if new_version >> 8 == 0xFF {
             self.clear();
         }
 
-        let mut data: [u8; SIZE as usize] = unsafe { MaybeUninit::uninit().assume_init() };
+        let mut data: [u8; SIZE] = unsafe { MaybeUninit::uninit().assume_init() };
         self.eeprom.read(self.address + 2, &mut data).unwrap();
 
         self.eeprom.erase_byte(new_address + 1);
         self.eeprom.write(new_address + 2, &data).unwrap();
-        let new_gen_bytes = new_gen.to_le_bytes();
-        self.eeprom.write_byte(new_address, new_gen_bytes[0]);
-        self.eeprom.write_byte(new_address + 1, new_gen_bytes[1]);
+        let new_version_bytes = new_version.to_le_bytes();
+        self.eeprom.write_byte(new_address, new_version_bytes[0]);
+        self.eeprom
+            .write_byte(new_address + 1, new_version_bytes[1]);
 
         self.address = new_address;
-        self.generation = new_gen;
+        self.version = new_version;
 
-        data.into()
+        data
     }
 
     fn clear(&mut self) {
@@ -125,6 +123,7 @@ where
     */
 
     pub fn update_byte(&mut self, offset: u16, byte: u8) {
+        debug_assert!(offset < Self::DATA_SIZE);
         self.eeprom.write_byte(self.address + 2 + offset, byte);
     }
 }

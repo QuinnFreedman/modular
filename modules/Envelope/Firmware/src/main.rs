@@ -37,6 +37,7 @@ use fm_lib::{
 use ufmt::uwriteln;
 
 use crate::aux::{update_aux, AuxMode};
+use crate::eeprom::WearLevelledEepromWriter;
 use crate::envelope::{EnvelopeState, GateState, Input};
 
 mod aux;
@@ -237,10 +238,27 @@ fn main() -> ! {
     let _ = config_pin_1.into_floating_input();
     let _ = config_pin_2.into_floating_input();
 
+    let mut eeprom_data = [0u8; 1];
+    let mut eeprom = WearLevelledEepromWriter::<1>::init_and_advance(dp.EEPROM, &mut eeprom_data);
+
+    // uwriteln!(&mut serial, "eeprom_data: {}", eeprom_data[0]).unwrap_infallible();
+    // uwriteln!(&mut serial, "eeprom.address: {}", eeprom.address).unwrap_infallible();
+    // uwriteln!(&mut serial, "eeprom.version: {}", eeprom.version).unwrap_infallible();
+
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
 
     let mut envelope_state = EnvelopeState {
-        mode: EnvelopeMode::Adsr(AdsrState::default()),
+        mode: match eeprom_data[0] {
+            0 => EnvelopeMode::Adsr(AdsrState::default()),
+            1 => EnvelopeMode::Acrc(AcrcState::default()),
+            2 => EnvelopeMode::AcrcLoop(AcrcLoopState::default()),
+            3 => EnvelopeMode::AhrdLoop(AhrdState::default()),
+            _x => {
+                #[cfg(feature = "debug")]
+                uwriteln!(&mut serial, "Unexpected EEPROM value {}", _x).unwrap_infallible();
+                EnvelopeMode::Adsr(AdsrState::default())
+            }
+        },
         time: 0,
         last_value: 0,
         artificial_gate: false,
@@ -282,6 +300,15 @@ fn main() -> ! {
             led_blink_timer = current_time + LED_BLINK_INTERVAL_MS;
             led_blink_state = true;
             ui.update(ui_show_mode(&envelope_state.mode));
+            eeprom.update_byte(
+                0,
+                match envelope_state.mode {
+                    EnvelopeMode::Adsr(_) => 0,
+                    EnvelopeMode::Acrc(_) => 1,
+                    EnvelopeMode::AcrcLoop(_) => 2,
+                    EnvelopeMode::AhrdLoop(_) => 3,
+                },
+            );
         }
 
         if let DisplayMode::ShowEnvelopeMode { until } = display {
