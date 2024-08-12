@@ -10,8 +10,8 @@ module = Module.from_cli(8, global_y_offset=21.5, title="Clock")
 
 module.add(OLEDSPI(inches(.3), -inches(.4), rotation=2))
 
-module.add(Potentiometer(inches(.1), inches(.85), rotation=1, style=PotStyle.ROGAN_PT_1S))
-module.add(D6R30(-inches(.4), inches(.95)))
+module.add(Potentiometer(inches(.1), inches(.85), rotation=1, style=PotStyle.SIFAM_MEDIUM_RE))
+module.add(D6R30(-inches(.4), inches(.95), 0))
 
 jack_offset_y = inches(1.7)
 

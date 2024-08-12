@@ -42,7 +42,7 @@ for i in range(5):
         module.add(JackSocketCentered(inches(0.45), y + inches(.2), "OUT", True))
         module.add(SmallLED(inches(0.6), y - inches(0.15), color="#dd10ef"))
     else: 
-        module.add(Potentiometer(inches(0.35), y + inches(0.5), style=PotStyle.CHROMATIC_WHITE))
+        module.add(Potentiometer(inches(0.35), y + inches(0.5), style=PotStyle.SIFAM_MEDIUM))
         y += inches(.8)
 
 
