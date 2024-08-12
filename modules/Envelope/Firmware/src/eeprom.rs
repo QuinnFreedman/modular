@@ -19,31 +19,27 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
     const DATA_SIZE: u16 = SIZE as u16;
     const TOTAL_SIZE: u16 = 2 + Self::DATA_SIZE;
 
-    pub fn init_and_advance(eeprom: EEPROM, memory: &mut [u8; SIZE]) -> Self {
+    pub fn init_and_advance(eeprom: EEPROM, memory: &mut [u8; SIZE], clear: bool) -> Self {
         let mut eep = arduino_hal::Eeprom::new(eeprom);
 
-        let mut max_version: u16 = 0;
-        let mut max_version_addr: u16 = 0;
-        let mut found_address = false;
-
-        for address in (0..eep.capacity() - Self::TOTAL_SIZE).step_by(Self::TOTAL_SIZE as usize) {
-            let mut version_bytes = [0u8; 2];
-            eep.read(address, &mut version_bytes).unwrap();
-            let version = u16::from_le_bytes(version_bytes);
-            if version_bytes[1] != 0xFF && (max_version == 0 || version > max_version) {
-                max_version = version;
-                max_version_addr = address;
-                found_address = true;
-            }
+        if clear {
+            Self::clear_all(&mut eep);
         }
 
+        let (address, version) = Self::binary_search_for_monotonic_ringbuffer_head(&eep);
+
         let mut writer = Self {
-            address: max_version_addr,
-            version: max_version,
+            address,
+            version,
             eeprom: eep,
         };
 
-        if !found_address {
+        if version == 0xFFFF {
+            // This is a first time boot, or eeprom was corrupted in last write
+            // (and/or our invariants about eeprom layout were violated)
+            // TODO: in this case, maybe it's worth doing a slow scan of the full
+            // eeprom to find the most recent valid save
+            writer.version = 0;
             writer.write_data(memory);
         } else {
             *memory = writer.advance_and_copy();
@@ -51,9 +47,6 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
 
         writer
     }
-
-    // TODO assume EEPROM is in order, use bin search
-    // fn binary_search_for_sector_with_highest_version(&self) {}
 
     fn write_data(&mut self, data: &[u8; SIZE]) {
         let marker_bytes = self.version.to_le_bytes();
@@ -64,11 +57,6 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
     }
 
     fn advance_and_copy(&mut self) -> [u8; SIZE] {
-        let mut version_bytes = [0u8; 2];
-        self.eeprom.read(self.address, &mut version_bytes).unwrap();
-        let old_version = u16::from_le_bytes(version_bytes);
-        debug_assert!(old_version == self.version);
-
         let mut new_address = self.address + Self::TOTAL_SIZE;
         if new_address + Self::TOTAL_SIZE > self.eeprom.capacity() {
             new_address = 0;
@@ -76,6 +64,9 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
         let new_version = self.version + 1;
         if new_version >> 8 == 0xFF {
             self.clear();
+            // NOTE resetting the address on version overflow is not ideal,
+            // but it lets us keep the order invariant which loads much faster
+            self.address = 0;
         }
 
         let mut data: [u8; SIZE] = unsafe { MaybeUninit::uninit().assume_init() };
@@ -94,9 +85,17 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
         data
     }
 
+    fn clear_all(eeprom: &mut Eeprom) {
+        for address in (0..=eeprom.capacity() - Self::TOTAL_SIZE).step_by(Self::TOTAL_SIZE as usize)
+        {
+            // eeprom.erase_byte(address);
+            eeprom.erase_byte(address + 1);
+        }
+    }
+
     fn clear(&mut self) {
         for address in
-            (0..self.eeprom.capacity() - Self::TOTAL_SIZE).step_by(Self::TOTAL_SIZE as usize)
+            (0..=self.eeprom.capacity() - Self::TOTAL_SIZE).step_by(Self::TOTAL_SIZE as usize)
         {
             if address != self.address {
                 self.eeprom.erase_byte(address + 1);
@@ -106,24 +105,63 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
         self.eeprom.erase_byte(self.address + 1);
     }
 
-    /*
-    pub fn read(&mut self) -> T {
-        // TODO make T implement default and return default if error
-        debug_assert!(self.address + Self::TOTAL_SIZE <= self.eeprom.capacity());
-        let mut gen_bytes = [0u8; 2];
-        self.eeprom.read(self.address, &mut gen_bytes).unwrap();
-        let gen = u16::from_le_bytes(gen_bytes);
-        debug_assert!(gen >> 8 != 0xFF);
-        debug_assert!(gen == self.generation);
-
-        let mut data_bytes = [0u8; SIZE as usize];
-        self.eeprom.read(self.address + 2, &mut data_bytes).unwrap();
-        T::from(data_bytes)
-    }
-    */
-
     pub fn update_byte(&mut self, offset: u16, byte: u8) {
         debug_assert!(offset < Self::DATA_SIZE);
         self.eeprom.write_byte(self.address + 2 + offset, byte);
+    }
+
+    fn load_version_number(eeprom: &Eeprom, index: u16) -> u16 {
+        let address = index * Self::TOTAL_SIZE;
+        let msb = eeprom.read_byte(address + 1);
+        if msb == 0xFF {
+            return 0xFFFF;
+        }
+
+        let lsb = eeprom.read_byte(address);
+        u16::from_le_bytes([lsb, msb])
+    }
+
+    pub fn binary_search_for_monotonic_ringbuffer_head(eeprom: &Eeprom) -> (u16, u16) {
+        let midpoint = |low, high| {
+            debug_assert!(low <= high);
+            low + (high - low) / 2
+        };
+
+        let gt = |a, b| {
+            if b == 0xFFFF && a != 0xFFFF {
+                true
+            } else {
+                a > b
+            }
+        };
+
+        let len = eeprom.capacity() / Self::TOTAL_SIZE;
+        let mut low_idx = 0;
+        let mut high_idx = len - 1;
+        let mut mid_idx = midpoint(low_idx, high_idx);
+        let mut low_value = Self::load_version_number(eeprom, low_idx);
+        let mut mid_value = Self::load_version_number(eeprom, mid_idx);
+        let mut high_value = Self::load_version_number(eeprom, high_idx);
+
+        loop {
+            if gt(low_value, mid_value) {
+                if low_idx + 1 == mid_idx {
+                    return (low_idx * Self::TOTAL_SIZE, low_value);
+                }
+                high_idx = mid_idx;
+                high_value = mid_value;
+            } else if gt(mid_value, high_value) {
+                if mid_idx + 1 == high_idx {
+                    return (mid_idx * Self::TOTAL_SIZE, mid_idx);
+                }
+                low_idx = mid_idx;
+                low_value = mid_value;
+            } else {
+                return (low_idx * Self::TOTAL_SIZE, low_value);
+            }
+
+            mid_idx = midpoint(low_idx, high_idx);
+            mid_value = Self::load_version_number(eeprom, mid_idx);
+        }
     }
 }

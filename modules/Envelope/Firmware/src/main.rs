@@ -11,6 +11,7 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
+use core::arch::asm;
 use core::{cell::Cell, panic::PanicInfo};
 
 use arduino_hal::hal::port;
@@ -183,6 +184,7 @@ fn main() -> ! {
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
     let a4 = pins.a4.into_analog_input(&mut adc);
     let a5 = pins.a5.into_analog_input(&mut adc);
+    let btn_pin = pins.d8.into_pull_up_input();
     let gate_pin = pins.d2.into_pull_up_input();
     let config_pin_1 = pins.a2.into_pull_up_input();
     let config_pin_2 = pins.a1.into_pull_up_input();
@@ -225,9 +227,6 @@ fn main() -> ! {
         pins.d7.into_output(),
     );
 
-    let d8 = pins.d8.into_pull_up_input();
-    let mut button = ButtonDebouncer::<PB0, 32>::new(d8);
-
     let config = match (config_pin_1.is_high(), config_pin_2.is_high()) {
         (true, true) => AuxMode::EndOfRise,
         (false, true) => AuxMode::EndOfFall,
@@ -238,12 +237,25 @@ fn main() -> ! {
     let _ = config_pin_1.into_floating_input();
     let _ = config_pin_2.into_floating_input();
 
-    let mut eeprom_data = [0u8; 1];
-    let mut eeprom = WearLevelledEepromWriter::<1>::init_and_advance(dp.EEPROM, &mut eeprom_data);
+    let mut erase_eeprom = false;
+    if btn_pin.is_low() {
+        ui.update(0xF0);
+        arduino_hal::delay_ms(100);
+        if btn_pin.is_low() {
+            erase_eeprom = true;
+        }
+    }
 
-    // uwriteln!(&mut serial, "eeprom_data: {}", eeprom_data[0]).unwrap_infallible();
-    // uwriteln!(&mut serial, "eeprom.address: {}", eeprom.address).unwrap_infallible();
-    // uwriteln!(&mut serial, "eeprom.version: {}", eeprom.version).unwrap_infallible();
+    let mut eeprom_data = [0u8; 1];
+    let mut eeprom =
+        WearLevelledEepromWriter::<1>::init_and_advance(dp.EEPROM, &mut eeprom_data, erase_eeprom);
+    ui.update(0);
+
+    while btn_pin.is_low() {
+        unsafe { asm!("nop") };
+    }
+
+    let mut button = ButtonDebouncer::<PB0, 32>::new(btn_pin);
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
 

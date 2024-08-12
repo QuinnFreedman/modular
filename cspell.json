@@ -44,7 +44,8 @@
     "DigiKey",
     "Thonk",
     "JLCPCB",
-    "eeprom"
+    "eeprom",
+    "ringbuffer"
   ],
   "patterns": [
     {
