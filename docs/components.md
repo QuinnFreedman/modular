@@ -70,6 +70,6 @@ When I use switches in my projects, I use the Taiway Sub-Mini SPDT's -- both the
 
 ## IC chips
 
-All other components (integrated circuit chips, transistors, diodes, etc.) should have a specific part number specified in the module's bill of materials. You can get them from a supplier like [DigiKey](digikey.com/) or [Mouser](mouser.com).
+All other components (integrated circuit chips, transistors, diodes, etc.) should have a specific part number specified in the module's bill of materials. You can get them from a supplier like [DigiKey](https://digikey.com/) or [Mouser](https://mouser.com).
 
 In some cases there will be multiple skews of a single chip, specified by additional letters after the part number. For example, if you look up the TL072 op-amp on DigiKey, you will see TL072CP, TL072IP, TL072BPC, etc. Usually, these just indicate different grades (different heat tolerance, precision, etc). In general, you can just get whatever is cheap and available. But, look out for different packages. My modules use through-hole (aka large, breadboard-sized) parts wherever possible because they are easier to solder, but most chips also come in various smaller versions. Filter for `Mounting Type: Through Hole/THT` or `Package: DIP` when searching for parts.
