@@ -56,4 +56,10 @@
   <div class="fm-module-box">
   Coming soon...
   </div>
+  <div class="fm-module-box">
+  Coming soon...
+  </div>
+  <div class="fm-module-box">
+  Coming soon...
+  </div>
 </div>
