@@ -12,6 +12,7 @@ The Eurorack module design community is a pretty small niche, and even fewer peo
 ### Analog module designs
 * **[Dintree](http://www.dintree.com/)** is a small collection of DIY schematics for simple, analog utility modules.
 * **[Skull & Circuits](https://www.skullandcircuits.com/projects/)** has the schematics for all their modules available online.
+* **[Hagiwo](https://note.com/solder_state)** has a collection of budget-focused DIY designs including both analog and some digital.
 * **[Kosmodular Grid](https://www.kosmodulargrid.com/)** has a bunch of modules for the Kosmo fromat (including those designed by LMNC and others) and they are mostly open source/DIY.
 * **[Music From Outer Space](http://musicfromouterspace.com/index.php)** is an archive of the work of the late Ray Wilson -- a titan in the early days of DIY modular synths.
 * **[Yusynth](https://yusynth.net/index_en.php)** seems to have a lot of amazing designs for oldschool 5U modules. The website is largely inscrutable to me, but some day I plan to try to decipher it and maybe translate some of the modules into Eurorack.

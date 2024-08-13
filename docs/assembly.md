@@ -1,6 +1,12 @@
 # Assembly
 
-The assembly process is very similar for most modules, so I will describe the general procedure here. Specific information for each module can found in the documentation for that module.
+The assembly process is very similar for most modules, so I will describe the general procedure here. Specific information for each module can found in the documentation for that module. Basically, you'll need to:
+
+1. **Download** the GERBER files from each module's page
+2. **Upload** the files to a PCB manufacturer like JLCPCB
+3. **Buy** the parts listed in the module's **bill of materials**
+4. **Solder** everything together
+5. **Flash** the firmware onto the Arduino by USB (if applicable)
 
 ## What you will need
 
