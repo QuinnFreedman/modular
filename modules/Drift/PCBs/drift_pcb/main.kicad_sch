@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "Drift")
-		(date "2024-06-19")
-		(rev "v0.1")
+		(date "2024-08-13")
+		(rev "v0.2")
 		(company "Free Modular")
 	)
 	(lib_symbols
@@ -3140,6 +3140,16 @@
 	)
 	(wire
 		(pts
+			(xy 187.96 116.84) (xy 185.42 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3d969b4-492e-435e-a6ed-0070f15e9017")
+	)
+	(wire
+		(pts
 			(xy 83.82 129.54) (xy 83.82 121.92)
 		)
 		(stroke
@@ -3604,7 +3614,7 @@
 	)
 	(hierarchical_label "OUT_MAIN"
 		(shape output)
-		(at 177.8 116.84 0)
+		(at 187.96 116.84 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4171,6 +4181,73 @@
 				(path "/aac2b9ae-0367-4446-b109-7473284ab08d/40810798-1f66-48f1-9b6a-933a1b6f4e7c"
 					(reference "U3")
 					(unit 3)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 181.61 116.84 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "55104dc8-3734-47af-a4f3-2f7caf3b4b36")
+		(property "Reference" "R1"
+			(at 181.61 111.76 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "1kΩ"
+			(at 181.61 114.3 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+			(at 181.61 118.618 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 181.61 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "fb07e2fa-a637-41f5-a95d-d602a3c5d8b5")
+		)
+		(pin "1"
+			(uuid "d9e64f33-2c98-4baa-a154-475293c70847")
+		)
+		(instances
+			(project "drift_pcb"
+				(path "/aac2b9ae-0367-4446-b109-7473284ab08d/40810798-1f66-48f1-9b6a-933a1b6f4e7c"
+					(reference "R1")
+					(unit 1)
 				)
 			)
 		)
