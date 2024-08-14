@@ -1,0 +1,53 @@
+cargo-features = ["profile-rustflags"]
+
+[package]
+name = "fm-envelope"
+version = "0.1.0"
+authors = ["Quinn Freedman <quinnfreedman@gmail.com>"]
+edition = "2021"
+
+[features]
+debug = []
+
+[[bin]]
+name = "fm-envelope"
+test = false
+bench = false
+
+[dependencies]
+nb = "0.1.2"
+ufmt = "0.1.0"
+embedded-hal = "0.2.3"
+avr-progmem = { version = "0.4.0" }
+avr-device = { version = "0.5.3", features = ["atmega328p"] }
+fm-lib = { path = "../../../fm-lib" }
+fixed = "1.27.0"
+
+[dependencies.arduino-hal]
+git = "https://github.com/rahix/avr-hal"
+rev = "8e88f71e577db12f63c500532a9edb6c9ac54b38"
+features = ["arduino-nano"]
+
+[profile.dev]
+panic = "abort"
+lto = true
+codegen-units = 1
+opt-level = 3
+debug = false
+# strip = "symbols"
+overflow-checks = true
+debug-assertions = true
+rpath = false
+rustflags = ["-Zlocation-detail=line"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = 3
+debug = false
+strip = "symbols"
+overflow-checks = false
+debug-assertions = false
+rpath = false
+rustflags = ["-Zlocation-detail=none"]

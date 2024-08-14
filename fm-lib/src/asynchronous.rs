@@ -104,6 +104,7 @@ impl IsSizeOne for bool {}
 pub trait AtomicRead {
     type DataType;
     fn atomic_read(&self) -> Self::DataType;
+    fn atomic_write(&self, x: Self::DataType);
 }
 
 impl<T> AtomicRead for Mutex<Cell<T>>
@@ -118,5 +119,10 @@ where
     fn atomic_read(&self) -> Self::DataType {
         debug_assert!(core::mem::size_of::<T>() == 1);
         unsafe_access_mutex(|cs| self.borrow(cs).get())
+    }
+
+    fn atomic_write(&self, x: Self::DataType) {
+        debug_assert!(core::mem::size_of::<T>() == 1);
+        unsafe_access_mutex(|cs| self.borrow(cs).set(x))
     }
 }
