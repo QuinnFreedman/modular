@@ -3,25 +3,20 @@
 #![no_main]
 #![feature(abi_avr_interrupt)]
 #![feature(asm_experimental_arch)]
+#![feature(adt_const_params)]
 
 use arduino_hal::prelude::*;
 use core::{cell::Cell, panic::PanicInfo};
 
 use avr_device::interrupt::{self, Mutex};
-use fm_lib::asynchronous::{AtomicRead, Borrowable};
+use fm_lib::asynchronous::{assert_interrupts_disabled, AtomicRead, Borrowable};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
     },
-    handle_system_clock_interrupt,
     mcp4922::{DacChannel, MCP4922},
-    system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
 use ufmt::uwriteln;
-
-static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
-    GlobalSystemClockState::new();
-handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
 #[inline(never)]
 #[panic_handler]
@@ -120,35 +115,23 @@ fn main() -> ! {
     //     (false, false) => AuxMode::FollowGate,
     // };
 
-    let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
-
-    // configure_timer(&dp.TC2);
+    configure_timer_interrupt(&dp.TC0);
     let mut dac = MCP4922::new(d10);
     dac.shutdown_channel(&mut spi, DacChannel::ChannelB);
 
-    let mut debug_led_value = 0u8;
-    let mut led_pin = pins.d3.into_output();
+    let _ = pins.d3.into_output();
     configure_timer_for_pwm(&dp.TC2);
 
-    // dp.TC2.ocr2a.write(|w| w.bits(10));
+    let mut state = ModuleState { time: 0 };
 
-    loop {
-        // dp.TC2.ocr2a.write(|w| w.bits(debug_led_value));
-        dp.TC2.ocr2b.write(|w| w.bits(debug_led_value));
-        debug_led_value = debug_led_value.wrapping_add(1);
-        arduino_hal::delay_ms(10);
-    }
-
-    /*
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
-
-        let current_time = sys_clock.millis_exact();
-
+        // uwriteln!(&mut serial, "{}, {}", cv[2], cv[3]).unwrap_infallible(); continue;
 
         if !DAC_WRITE_QUEUED.atomic_read() {
-            // let value = update(&mut envelope_state, &input, &cv);
-            let value = 0;
+            let value = update(&mut state, &cv);
+
+            dp.TC2.ocr2b.write(|w| w.bits((value >> 4) as u8));
 
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
             DAC_WRITE_QUEUED.atomic_write(true);
@@ -166,7 +149,88 @@ fn main() -> ! {
             }
         }
     }
-    */
+}
+
+// TODO have unique states and update functions for each mode
+struct ModuleState {
+    time: u32,
+}
+
+fn get_delta_t(cv: u16) -> u32 {
+    // 10 seconds
+    const MAX_PHASE_TIME_MICROS: u32 = 10 * 1000 * 1000;
+    // ~2.27kHz == .48 ms / period
+    const MICROS_PER_STEP: u32 = 480;
+    const MAX_STEPS_PER_CYCLE: u16 = (MAX_PHASE_TIME_MICROS / MICROS_PER_STEP) as u16;
+    let cv_fraction = read_cv::<{ CvType::Exponential }>(cv);
+    let mut actual_steps_per_cycle = (cv_fraction.numerator as u32 * MAX_STEPS_PER_CYCLE as u32)
+        / cv_fraction.denominator as u32;
+    if actual_steps_per_cycle == 0 {
+        actual_steps_per_cycle = 1;
+    }
+
+    u32::MAX / actual_steps_per_cycle
+}
+
+fn update(state: &mut ModuleState, cv: &[u16; 4]) -> u16 {
+    let dt = get_delta_t(cv[2]);
+    state.time = state.time.saturating_add(dt);
+    let rollover = state.time == u32::MAX;
+    let before_rollover = state.time;
+    if rollover {
+        state.time = 0;
+    }
+
+    // Placeholder linear ramp
+    (before_rollover >> 20) as u16
+}
+
+#[derive(Copy, Clone)]
+pub struct Fraction<T> {
+    pub numerator: T,
+    pub denominator: T,
+}
+
+#[derive(PartialEq, Eq)]
+pub enum CvType {
+    Linear,
+    Exponential,
+}
+
+impl core::marker::ConstParamTy for CvType {}
+
+/**
+Transforms a raw cv value into a usable fraction of the maximum.
+- Inverts value to compensate for the inverting amplifier in hardware
+- Shifts values slightly to account for the fact that the input voltage
+    is limited to a slightly smaller range than the DAC can read
+- Applies a simple piecewise exponential curve to make the knobs more usable
+*/
+pub fn read_cv<const CURVE: CvType>(cv: u16) -> Fraction<u16> {
+    let numerator = match CURVE {
+        CvType::Linear => cv,
+        CvType::Exponential => {
+            if cv < 512 {
+                cv / 4
+            } else if cv < 768 {
+                cv - 384
+            } else {
+                3 * cv - 1920
+            }
+        }
+    };
+
+    let denominator = match CURVE {
+        CvType::Linear => 1024,
+        // the piecewise function isn't perfect, the range is a little larger
+        // than the domain. It actually goes to 1011. Round to 1024 for performance
+        CvType::Exponential => 1024,
+    };
+
+    Fraction {
+        numerator: u16::min(numerator, denominator),
+        denominator,
+    }
 }
 
 fn configure_timer_for_pwm(tc2: &arduino_hal::pac::TC2) {
@@ -191,16 +255,31 @@ fn configure_timer_for_pwm(tc2: &arduino_hal::pac::TC2) {
     });
 }
 
-/*
-fn configure_timer(tc2: &arduino_hal::pac::TC2) {
+fn configure_timer_interrupt(tc0: &arduino_hal::pac::TC0) {
     // reset timer counter at TOP set by OCRA
-    tc2.tccr2a.write(|w| w.wgm2().ctc());
+    tc0.tccr0a.write(|w| w.wgm0().ctc());
     // set timer frequency to cycle at ~2.2727kHz
     // (16MHz clock speed / 64 prescale factor / 120 count/reset )
-    tc2.tccr2b.write(|w| w.cs2().prescale_64());
-    tc2.ocr2a.write(|w| w.bits(120));
+    tc0.tccr0b.write(|w| w.cs0().prescale_64());
+    tc0.ocr0a.write(|w| w.bits(120));
 
     // enable interrupt on match to compare register A
-    tc2.timsk2.write(|w| w.ocie2a().set_bit());
+    tc0.timsk0.write(|w| w.ocie0a().set_bit());
 }
-*/
+
+#[avr_device::interrupt(atmega328p)]
+fn TIMER0_COMPA() {
+    let dp = unsafe { arduino_hal::Peripherals::steal() };
+
+    assert_interrupts_disabled(|cs| {
+        if DAC_WRITE_QUEUED.borrow(cs).get() {
+            DAC_WRITE_QUEUED.borrow(cs).set(false);
+            dp.PORTB
+                .portb
+                .modify(|r, w| unsafe { w.bits(r.bits()) }.pb2().set_bit());
+        } else {
+            #[cfg(feature = "debug")]
+            DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).update(|x| x + 1);
+        }
+    });
+}
