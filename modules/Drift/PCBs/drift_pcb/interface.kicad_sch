@@ -7,7 +7,7 @@
 	(title_block
 		(title "Drift")
 		(date "2024-08-13")
-		(rev "v0.2")
+		(rev "v1.0")
 		(company "Free Modular")
 	)
 	(lib_symbols
