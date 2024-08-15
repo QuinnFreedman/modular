@@ -45,7 +45,6 @@ fn bezier_interpolate(x: FixedU16<U12>, a: FixedU16<U12>, b: FixedU16<U12>) -> F
 
 impl DriftModule for BezierModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        // Placeholder linear ramp
         let (t, rollover) = self.step_time(cv[2]);
 
         if rollover {

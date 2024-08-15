@@ -7,11 +7,13 @@
 #![feature(cell_update)]
 
 mod bezier;
+mod lfo;
 mod shared;
 
 use arduino_hal::prelude::*;
 use bezier::BezierModuleState;
 use core::{cell::Cell, panic::PanicInfo};
+use lfo::LfoModuleState;
 use shared::DriftModule;
 
 use avr_device::interrupt::{self, Mutex};
@@ -132,6 +134,7 @@ fn main() -> ! {
     // TODO load different module depending on configuration
     // TODO read floating analog pins to get RNG seed
     let module: &mut dyn DriftModule = &mut BezierModuleState::new(0);
+    // let module: &mut dyn DriftModule = &mut LfoModuleState::new();
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
