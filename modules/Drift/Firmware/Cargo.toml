@@ -1,7 +1,7 @@
 cargo-features = ["profile-rustflags"]
 
 [package]
-name = "fm-envelope"
+name = "fm-drift"
 version = "0.1.0"
 authors = ["Quinn Freedman <quinnfreedman@gmail.com>"]
 edition = "2021"
@@ -10,7 +10,7 @@ edition = "2021"
 debug = []
 
 [[bin]]
-name = "fm-envelope"
+name = "fm-drift"
 test = false
 bench = false
 
@@ -38,7 +38,7 @@ debug = false
 overflow-checks = true
 debug-assertions = true
 rpath = false
-rustflags = ["-Zlocation-detail=line"]
+rustflags = ["-Zlocation-detail=line,file"]
 
 [profile.release]
 panic = "abort"

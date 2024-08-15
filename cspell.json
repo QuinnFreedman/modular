@@ -45,7 +45,9 @@
     "Thonk",
     "JLCPCB",
     "eeprom",
-    "ringbuffer"
+    "ringbuffer",
+    "bezier",
+    "lfsr"
   ],
   "patterns": [
     {

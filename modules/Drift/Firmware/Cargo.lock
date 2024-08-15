@@ -168,7 +168,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "fm-envelope"
+name = "fm-drift"
 version = "0.1.0"
 dependencies = [
  "arduino-hal",

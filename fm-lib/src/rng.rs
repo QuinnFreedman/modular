@@ -77,7 +77,7 @@ impl<const TAPS: LfsrConfig> LFSR<TAPS> {
     pub fn next(&mut self) -> u16 {
         let mut bit = 0;
         for tap in TAPS.0 {
-            bit ^= self.state >> (u16::BITS - tap as u32);
+            bit ^= self.state >> (u16::BITS as u8 - tap as u8) as u16;
         }
         self.state = (self.state >> 1) | (bit << 15);
         self.state

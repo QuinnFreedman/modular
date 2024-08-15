@@ -4,9 +4,15 @@
 #![feature(abi_avr_interrupt)]
 #![feature(asm_experimental_arch)]
 #![feature(adt_const_params)]
+#![feature(cell_update)]
+
+mod bezier;
+mod shared;
 
 use arduino_hal::prelude::*;
+use bezier::BezierModuleState;
 use core::{cell::Cell, panic::PanicInfo};
+use shared::DriftModule;
 
 use avr_device::interrupt::{self, Mutex};
 use fm_lib::asynchronous::{assert_interrupts_disabled, AtomicRead, Borrowable};
@@ -21,6 +27,7 @@ use ufmt::uwriteln;
 #[inline(never)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
+    interrupt::disable();
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let pins = arduino_hal::pins!(dp);
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
@@ -122,14 +129,16 @@ fn main() -> ! {
     let _ = pins.d3.into_output();
     configure_timer_for_pwm(&dp.TC2);
 
-    let mut state = ModuleState { time: 0 };
+    // TODO load different module depending on configuration
+    // TODO read floating analog pins to get RNG seed
+    let module: &mut dyn DriftModule = &mut BezierModuleState::new(0);
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
         // uwriteln!(&mut serial, "{}, {}", cv[2], cv[3]).unwrap_infallible(); continue;
 
         if !DAC_WRITE_QUEUED.atomic_read() {
-            let value = update(&mut state, &cv);
+            let value = module.step(&cv);
 
             dp.TC2.ocr2b.write(|w| w.bits((value >> 4) as u8));
 
@@ -142,94 +151,12 @@ fn main() -> ! {
             use ufmt::uwrite;
             let num_skipped = DEBUG_SKIPPED_WRITE_COUNT.atomic_read();
             if num_skipped != 0 {
-                unsafe_access_mutex(|cs| DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).set(0));
+                DEBUG_SKIPPED_WRITE_COUNT.atomic_write(0);
                 for _ in 0..num_skipped {
                     uwrite!(&mut serial, ".").unwrap_infallible();
                 }
             }
         }
-    }
-}
-
-// TODO have unique states and update functions for each mode
-struct ModuleState {
-    time: u32,
-}
-
-fn get_delta_t(cv: u16) -> u32 {
-    // 10 seconds
-    const MAX_PHASE_TIME_MICROS: u32 = 10 * 1000 * 1000;
-    // ~2.27kHz == .48 ms / period
-    const MICROS_PER_STEP: u32 = 480;
-    const MAX_STEPS_PER_CYCLE: u16 = (MAX_PHASE_TIME_MICROS / MICROS_PER_STEP) as u16;
-    let cv_fraction = read_cv::<{ CvType::Exponential }>(cv);
-    let mut actual_steps_per_cycle = (cv_fraction.numerator as u32 * MAX_STEPS_PER_CYCLE as u32)
-        / cv_fraction.denominator as u32;
-    if actual_steps_per_cycle == 0 {
-        actual_steps_per_cycle = 1;
-    }
-
-    u32::MAX / actual_steps_per_cycle
-}
-
-fn update(state: &mut ModuleState, cv: &[u16; 4]) -> u16 {
-    let dt = get_delta_t(cv[2]);
-    state.time = state.time.saturating_add(dt);
-    let rollover = state.time == u32::MAX;
-    let before_rollover = state.time;
-    if rollover {
-        state.time = 0;
-    }
-
-    // Placeholder linear ramp
-    (before_rollover >> 20) as u16
-}
-
-#[derive(Copy, Clone)]
-pub struct Fraction<T> {
-    pub numerator: T,
-    pub denominator: T,
-}
-
-#[derive(PartialEq, Eq)]
-pub enum CvType {
-    Linear,
-    Exponential,
-}
-
-impl core::marker::ConstParamTy for CvType {}
-
-/**
-Transforms a raw cv value into a usable fraction of the maximum.
-- Inverts value to compensate for the inverting amplifier in hardware
-- Shifts values slightly to account for the fact that the input voltage
-    is limited to a slightly smaller range than the DAC can read
-- Applies a simple piecewise exponential curve to make the knobs more usable
-*/
-pub fn read_cv<const CURVE: CvType>(cv: u16) -> Fraction<u16> {
-    let numerator = match CURVE {
-        CvType::Linear => cv,
-        CvType::Exponential => {
-            if cv < 512 {
-                cv / 4
-            } else if cv < 768 {
-                cv - 384
-            } else {
-                3 * cv - 1920
-            }
-        }
-    };
-
-    let denominator = match CURVE {
-        CvType::Linear => 1024,
-        // the piecewise function isn't perfect, the range is a little larger
-        // than the domain. It actually goes to 1011. Round to 1024 for performance
-        CvType::Exponential => 1024,
-    };
-
-    Fraction {
-        numerator: u16::min(numerator, denominator),
-        denominator,
     }
 }
 
