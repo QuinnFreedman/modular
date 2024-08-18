@@ -8,7 +8,7 @@ Note: this design has 3 PCBs that are stacked into a sandwich. The small one (to
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_front_interactive_bom.html), [middle](https://quinnfreedman.github.io/fm-artifacts/Output/output_middle_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_interactive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_front_interactive_bom.html), [middle](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_middle_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_interactive_bom.html)
 
 | Board | Reference       | Part             | Value                                   | Source  | Comment |
 | ----- | --------------- | ---------------- | --------------------------------------- | ------- | ------- |
