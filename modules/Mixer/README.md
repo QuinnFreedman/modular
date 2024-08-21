@@ -21,6 +21,7 @@
       <li>PCB: <a href="https://quinnfreedman.github.io/fm-artifacts/Mixer/mixer_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Mixer/mixer_pcb_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
+  <li>Parts on Tayda <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/07540677724">cart link</a>, <a href="https://freemodular.org/modules/Mixer/fm_mixer_tayda_bom.csv">quick-order CSV</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Mixer">Source files</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Mixer/mixer_pcb_schematic.pdf">Schematic PDF</a></li>
 </ul>
