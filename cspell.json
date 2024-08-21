@@ -47,7 +47,9 @@
     "eeprom",
     "ringbuffer",
     "bezier",
-    "lfsr"
+    "lfsr",
+    "stdev",
+    "tayda"
   ],
   "patterns": [
     {
