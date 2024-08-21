@@ -2090,7 +2090,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MountingHole"
+		(property "Value" "M3x11mm"
 			(at 53.34 153.6699 0)
 			(effects
 				(font
@@ -2099,7 +2099,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
 			(at 50.8 152.4 0)
 			(effects
 				(font
@@ -2322,7 +2322,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MountingHole"
+		(property "Value" "M3x11mm"
 			(at 53.34 146.0499 0)
 			(effects
 				(font
@@ -2331,7 +2331,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
 			(at 50.8 144.78 0)
 			(effects
 				(font
@@ -2558,7 +2558,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MountingHole"
+		(property "Value" "M3x11mm"
 			(at 73.66 153.6699 0)
 			(effects
 				(font
@@ -2567,7 +2567,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
 			(at 71.12 152.4 0)
 			(effects
 				(font
@@ -2622,7 +2622,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MountingHole"
+		(property "Value" "M3x11mm"
 			(at 73.66 146.0499 0)
 			(effects
 				(font
@@ -2631,7 +2631,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
 			(at 71.12 144.78 0)
 			(effects
 				(font
