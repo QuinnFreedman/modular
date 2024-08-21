@@ -4,6 +4,8 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 ## Components
 
+**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/86940668594), [quick-order CSV](https://freemodular.org/modules/Envelope/fm_envelope_tayda_bom.csv)).
+
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
 Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Envelope/rng_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Envelope/rng_pcb_back_interactive_bom.html)

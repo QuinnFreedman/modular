@@ -22,6 +22,7 @@
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_pcb_back_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
+  <li>Parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/86940668594">cart link</a>, <a href="https://freemodular.org/modules/Envelope/fm_envelope_tayda_bom.csv">quick-order CSV</a> (incomplete; see assembly instructions)</li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/fm-envelope.hex">Firmware HEX</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Envelope">Source code</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_schematic.pdf">Schematic</a></li>

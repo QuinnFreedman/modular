@@ -8,7 +8,7 @@
 
 <p>A basic, 8-channel clock source with adjustable tempo, phase shift, pulse width, and swing.</p>
 
-<p>If you want to do virtually anything with rythm in your modular rack, you will need a clock source to keep all your modules in sync. This module sends out triggers on each of its 8 channels that are all different subdivisions of the same tempo. Use them to trigger samples, ping envelopes, step sequencers, or whatever else you want to happen on beat.</p>
+<p>If you want to do virtually anything with rhythm in your modular rack, you will need a clock source to keep all your modules in sync. This module sends out triggers on each of its 8 channels that are all different subdivisions of the same tempo. Use them to trigger samples, ping envelopes, step sequencers, or whatever else you want to happen on beat.</p>
 
 <h2>Resources</h2>
 
@@ -24,6 +24,7 @@
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
+  <li>Parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/23740663432">cart link</a>, <a href="https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv">quick-order CSV</a> (incomplete; see assembly instructions)</li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/fm-clock.hex">Firmware HEX</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Clock">Source code</a></li>
   <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_schematic.pdf">back panel</a></li>

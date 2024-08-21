@@ -26,6 +26,7 @@
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pcb_back_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
+  <li>Parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/23440666538">cart link</a>, <a href="https://freemodular.org/modules/RNG/fm_rng_tayda_bom.csv">quick-order CSV</a> (incomplete; see assembly instructions)</li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/RNG/fm-rng.hex">Firmware HEX</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/RNG">Source code</a></li>
   <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pcb_front_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pcb_back_schematic.pdf">back panel</a></li>

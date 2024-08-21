@@ -4,6 +4,8 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 ## Components
 
+**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/23740663432), [quick-order CSV](https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv)).
+
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
 Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html)
