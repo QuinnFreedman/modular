@@ -4,7 +4,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 ## Components
 
-All parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/97040674128), [quick-order CSV](https://freemodular.org/modules/OffsetAtten/fm_oa_tayda_bom.csv)).
+All parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/87940674120), [quick-order CSV](https://freemodular.org/modules/OffsetAtten/fm_oa_tayda_bom.csv)).
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 

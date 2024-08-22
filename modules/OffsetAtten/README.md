@@ -22,7 +22,7 @@
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/offset_atten_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/offset_atten_pcb_back_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
-  <li>Parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/97040674128">cart link</a>, <a href="https://freemodular.org/modules/OffsetAtten/fm_oa_tayda_bom.csv">quick-order CSV</a></li>
+  <li>Parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/87940674120">cart link</a>, <a href="https://freemodular.org/modules/OffsetAtten/fm_oa_tayda_bom.csv">quick-order CSV</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/OffsetAtten">Source files</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/offset_atten_schematic.pdf">Schematic PDF</a></li>
 </ul>

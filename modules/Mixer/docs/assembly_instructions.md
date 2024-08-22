@@ -4,7 +4,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 ## Components
 
-All parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/07540677724), [quick-order CSV](https://freemodular.org/modules/Mixer/fm_mixer_tayda_bom.csv)).
+All parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/39240677892), [quick-order CSV](https://freemodular.org/modules/Mixer/fm_mixer_tayda_bom.csv)).
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
