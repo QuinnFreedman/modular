@@ -9,8 +9,8 @@ impl LfoModuleState {
         Self { time: 0 }
     }
 
-    fn step_time(&mut self, cv: u16) -> (u32, bool) {
-        let dt = get_delta_t(cv);
+    fn step_time(&mut self, knob: u16, cv: u16) -> (u32, bool) {
+        let dt = get_delta_t(knob, cv, 0);
         self.time = self.time.saturating_add(dt);
         let rollover = self.time == u32::MAX;
         let before_rollover = self.time;
@@ -23,7 +23,7 @@ impl LfoModuleState {
 
 impl DriftModule for LfoModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        let (t, _) = self.step_time(cv[2]);
+        let (t, _) = self.step_time(cv[2], 0 /* TODO read cv */);
 
         if t < u32::MAX / 2 {
             (t >> 19) as u16
