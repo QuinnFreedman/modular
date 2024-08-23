@@ -1,5 +1,3 @@
-use core::ops::Neg;
-
 use fixed::{types::extra::U12, FixedI16, FixedU16};
 use fm_lib::rng::ParallelLfsr;
 
@@ -12,8 +10,6 @@ pub struct BezierModuleState {
     value_b: FixedU16<U12>,
     rng: ParallelLfsr,
 }
-
-const MAX_RANDOM_SPEED_VARIANCE_FACTOR: u32 = 4;
 
 impl BezierModuleState {
     pub fn new(random_seed: u16) -> Self {
@@ -28,7 +24,7 @@ impl BezierModuleState {
     }
 
     fn step_time(&mut self, knob: u16, cv: u16) -> (u32, bool) {
-        let dt = get_delta_t(knob, cv, 0 /* TODO add speed adjust */);
+        let dt = get_delta_t(knob, cv, self.speed_adjust);
         self.time = self.time.saturating_add(dt);
         let rollover = self.time == u32::MAX;
         let before_rollover = self.time;
@@ -36,6 +32,22 @@ impl BezierModuleState {
             self.time = 0;
         }
         (before_rollover, rollover)
+    }
+
+    fn get_speed_adjust(&mut self, knob: u16, cv: u16) -> i16 {
+        let sum = u16::max(knob + cv, 1023);
+        const HALF: u16 = 1023 / 2;
+        const DEAD_ZONE: u16 = 200;
+        const RANGE: u16 = HALF - DEAD_ZONE;
+        let magnitude =
+            (if sum > HALF { sum - HALF } else { HALF - sum }).saturating_sub(DEAD_ZONE);
+
+        if magnitude == 0 {
+            return 0;
+        }
+
+        let random = bipolar_random(&mut self.rng);
+        ((random as i32 * magnitude as i32) / (RANGE as i32)) as i16
     }
 }
 
@@ -108,7 +120,7 @@ impl DriftModule for BezierModuleState {
         if rollover {
             self.value_a = self.value_b;
             self.value_b = FixedU16::<U12>::from_bits(self.rng.next() >> 4);
-            // TODO set speed_adjust based on texture
+            self.speed_adjust = self.get_speed_adjust(cv[3], 0 /* TODO read cv */);
             return self.value_a.to_bits();
         }
 
@@ -126,6 +138,16 @@ impl DriftModule for BezierModuleState {
         } else {
             result.to_bits()
         }
+    }
+}
+
+fn bipolar_random(rng: &mut ParallelLfsr) -> i16 {
+    let half = u16::MAX / 2;
+    let random = rng.next();
+    if random > half {
+        (random - half) as i16
+    } else {
+        -((half - random) as i16)
     }
 }
 
