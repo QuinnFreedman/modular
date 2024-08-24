@@ -8,6 +8,7 @@
 
 mod bezier;
 mod lfo;
+mod random;
 mod shared;
 
 use arduino_hal::prelude::*;

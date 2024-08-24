@@ -1,7 +1,13 @@
-use fixed::{types::extra::U12, FixedI16, FixedU16};
+use fixed::{
+    types::extra::{U12, U15},
+    FixedI16, FixedU16,
+};
 use fm_lib::rng::ParallelLfsr;
 
-use crate::shared::{get_delta_t, DriftModule};
+use crate::{
+    random::random_from_distribution,
+    shared::{get_delta_t, DriftModule},
+};
 
 pub struct BezierModuleState {
     time: u32,
@@ -35,19 +41,26 @@ impl BezierModuleState {
     }
 
     fn get_speed_adjust(&mut self, knob: u16, cv: u16) -> i16 {
-        let sum = u16::max(knob + cv, 1023);
-        const HALF: u16 = 1023 / 2;
-        const DEAD_ZONE: u16 = 200;
+        const ADC_MAX: u16 = 1023;
+        let sum = u16::min(knob + cv, ADC_MAX);
+        const HALF: u16 = ADC_MAX / 2;
+        const DEAD_ZONE: u16 = 128;
         const RANGE: u16 = HALF - DEAD_ZONE;
-        let magnitude =
+        let mut magnitude =
             (if sum > HALF { sum - HALF } else { HALF - sum }).saturating_sub(DEAD_ZONE);
 
         if magnitude == 0 {
             return 0;
         }
 
-        let random = bipolar_random(&mut self.rng);
-        ((random as i32 * magnitude as i32) / (RANGE as i32)) as i16
+        debug_assert!(magnitude <= RANGE + 1);
+        if magnitude == RANGE + 1 {
+            magnitude = RANGE;
+        }
+
+        let magnitude_scaled =
+            FixedI16::<U15>::from_bits((magnitude as u32 * i16::MAX as u32 / RANGE as u32) as i16);
+        (random_from_distribution(&mut self.rng) * magnitude_scaled).to_bits()
     }
 }
 
@@ -140,37 +153,3 @@ impl DriftModule for BezierModuleState {
         }
     }
 }
-
-fn bipolar_random(rng: &mut ParallelLfsr) -> i16 {
-    let half = u16::MAX / 2;
-    let random = rng.next();
-    if random > half {
-        (random - half) as i16
-    } else {
-        -((half - random) as i16)
-    }
-}
-
-/*
-fn sample_from_distribution<const MEAN: u32, const RANGE: u32>(
-    stdev_frac: FixedU16<U12>,
-    rng: &mut ParallelLfsr,
-) -> u32 {
-    let random = gaussian_random(rng, stdev_frac);
-    if random > 0 {
-        MEAN + RANGE / (1 << 12) * random.to_bits() as u32
-    } else {
-        MEAN - RANGE / (1 << 12) * random.neg().to_bits() as u32
-    }
-}
-
-fn gaussian_random(rng: &mut ParallelLfsr, stdev: FixedU16<U12>) -> FixedI16<U12> {
-    // TODO placeholder
-    // always return a value between -1 and 1
-    debug_assert!(stdev <= 1);
-    let random_uniform = FixedI16::<U12>::from_bits(rng.next() as i16) / 16;
-    debug_assert!(random_uniform > -1);
-    debug_assert!(random_uniform < 1);
-    random_uniform
-}
-*/

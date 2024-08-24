@@ -50,7 +50,7 @@ fn divided_by(num: u32, denom: FixedU32<U16>) -> u32 {
 Gets the time constant for the frequency given by the knob and cv inputs.
 - `knob` is the raw ADC reading of the knob position [0,1023] scaled as if it spanned 12v
 - `cv` is the raw ADC reading of the CV input [0,1023], spanning [0,5] volts
-- `offset` is a signed delta (-2^15,2^15), scaled to represent +/- 2 volts
+- `offset` is a signed delta (-2^15,2^15), scaled to represent +/- 2.5 volts
 
 All inputs are summed, clamped to the 0-12v range, and tract 1v/oct.
 The result is a unit-less number to increment the time counter each sample so that
@@ -62,7 +62,7 @@ pub fn get_delta_t(knob: u16, cv: u16, offset: i16) -> u32 {
     let knob_12v = (knob * 12) / 5;
     const MAX_KNOB_VALUE: u16 = (1023 * 12) / 5;
     let mut sum = knob_12v + cv;
-    sum = sum.saturating_add_signed(offset / 80);
+    sum = sum.saturating_add_signed(offset / 64);
     sum = u16::min(sum, MAX_KNOB_VALUE);
 
     let decihertz = decihertz_from_cv_vpo(sum);
