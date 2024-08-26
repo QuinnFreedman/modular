@@ -46,17 +46,7 @@ fn divided_by(num: u32, denom: FixedU32<U16>) -> u32 {
     (num64 / denom.to_bits() as u64) as u32
 }
 
-/**
-Gets the time constant for the frequency given by the knob and cv inputs.
-- `knob` is the raw ADC reading of the knob position [0,1023] scaled as if it spanned 12v
-- `cv` is the raw ADC reading of the CV input [0,1023], spanning [0,5] volts
-- `offset` is a signed delta (-2^15,2^15), scaled to represent +/- 2.5 volts
-
-All inputs are summed, clamped to the 0-12v range, and tract 1v/oct.
-The result is a unit-less number to increment the time counter each sample so that
-the 32-bit counter will roll over at the given frequency
-*/
-pub fn get_delta_t(knob: u16, cv: u16, offset: i16) -> u32 {
+pub fn get_samples_per_cycle(knob: u16, cv: u16, offset: i16) -> u32 {
     const MICROS_PER_SECOND: u32 = 1_000_000;
     // knob scaled as if it spanned 12v
     let knob_12v = (knob * 12) / 5;
@@ -74,9 +64,22 @@ pub fn get_delta_t(knob: u16, cv: u16, offset: i16) -> u32 {
     // ~2.27kHz sample rate == .48 ms / sample
     const MICROS_PER_SAMPLE: u32 = 480;
 
-    let samples_pre_cycle = micros_per_cycle / MICROS_PER_SAMPLE;
+    micros_per_cycle / MICROS_PER_SAMPLE
+}
 
-    u32::MAX / samples_pre_cycle
+/**
+Gets the time constant for the frequency given by the knob and cv inputs.
+- `knob` is the raw ADC reading of the knob position [0,1023] scaled as if it spanned 12v
+- `cv` is the raw ADC reading of the CV input [0,1023], spanning [0,5] volts
+- `offset` is a signed delta (-2^15,2^15), scaled to represent +/- 2.5 volts
+
+All inputs are summed, clamped to the 0-12v range, and tract 1v/oct.
+The result is a unit-less number to increment the time counter each sample so that
+the 32-bit counter will roll over at the given frequency
+*/
+pub fn get_delta_t(knob: u16, cv: u16, offset: i16) -> u32 {
+    let samples_per_cycle = get_samples_per_cycle(knob, cv, offset);
+    u32::MAX / samples_per_cycle
 }
 
 #[derive(Copy, Clone)]

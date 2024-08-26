@@ -137,8 +137,8 @@ fn main() -> ! {
     // TODO load different module depending on configuration
     // TODO read floating analog pins to get RNG seed
     // let module: &mut dyn DriftModule = &mut BezierModuleState::new(0);
-    // let module: &mut dyn DriftModule = &mut LfoModuleState::new();
-    let module: &mut dyn DriftModule = &mut BrownianModuleState::new(0);
+    let module: &mut dyn DriftModule = &mut LfoModuleState::new();
+    // let module: &mut dyn DriftModule = &mut BrownianModuleState::new(0);
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
