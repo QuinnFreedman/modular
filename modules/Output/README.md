@@ -17,7 +17,7 @@
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_faceplate.svg">Faceplate stencil SVG</a></li>
   <li>GERBER files:
     <ul>
-      <li>Faceplate: <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_faceplate_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_faceplate_pcb_pcbway.zip">PCBway</a></li>
+      <li>Faceplate: <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_faceplate_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_faceplate_pcbway.zip">PCBway</a></li>
       <li>Front panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_front_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_front_pcbway.zip">PCBway</a></li>
       <li>Middle panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_middle_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_middle_pcbway.zip">PCBway</a></li>
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_pcbway.zip">PCBway</a></li>

@@ -17,7 +17,7 @@
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_faceplate.svg">Faceplate stencil SVG</a></li>
   <li>GERBER files:
     <ul>
-      <li>Faceplate: <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_faceplate_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_faceplate_pcb_pcbway.zip">PCBway</a></li>
+      <li>Faceplate: <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_faceplate_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_faceplate_pcbway.zip">PCBway</a></li>
       <li>Front panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_pcb_front_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_pcb_front_pcbway.zip">PCBway</a></li>
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Envelope/envelope_pcb_back_pcbway.zip">PCBway</a></li>
     </ul>
