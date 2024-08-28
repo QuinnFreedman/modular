@@ -4,7 +4,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 ## Components
 
-**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/42640663870), [quick-order CSV](https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv)).
+**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/82040858402), [quick-order CSV](https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv)).
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
