@@ -9,6 +9,7 @@
 mod bezier;
 mod brownian;
 mod lfo;
+mod perlin;
 mod random;
 mod shared;
 
@@ -17,6 +18,7 @@ use bezier::BezierModuleState;
 use brownian::BrownianModuleState;
 use core::{cell::Cell, panic::PanicInfo};
 use lfo::LfoModuleState;
+use perlin::PerlinModuleState;
 use shared::DriftModule;
 
 use avr_device::interrupt::{self, Mutex};
@@ -127,18 +129,16 @@ fn main() -> ! {
     //     (false, false) => AuxMode::FollowGate,
     // };
 
+    // TODO load different module depending on configuration
+    // TODO read floating analog pins to get RNG seed
+    let module: &mut dyn DriftModule = &mut PerlinModuleState::new(0);
+
     configure_timer_interrupt(&dp.TC0);
     let mut dac = MCP4922::new(d10);
     dac.shutdown_channel(&mut spi, DacChannel::ChannelB);
 
     let _ = pins.d3.into_output();
     configure_timer_for_pwm(&dp.TC2);
-
-    // TODO load different module depending on configuration
-    // TODO read floating analog pins to get RNG seed
-    // let module: &mut dyn DriftModule = &mut BezierModuleState::new(0);
-    let module: &mut dyn DriftModule = &mut LfoModuleState::new();
-    // let module: &mut dyn DriftModule = &mut BrownianModuleState::new(0);
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
@@ -195,7 +195,7 @@ fn configure_timer_interrupt(tc0: &arduino_hal::pac::TC0) {
     // set timer frequency to cycle at ~2.2727kHz
     // (16MHz clock speed / 64 prescale factor / 120 count/reset )
     tc0.tccr0b.write(|w| w.cs0().prescale_64());
-    tc0.ocr0a.write(|w| w.bits(120));
+    tc0.ocr0a.write(|w| w.bits(240));
 
     // enable interrupt on match to compare register A
     tc0.timsk0.write(|w| w.ocie0a().set_bit());
