@@ -4,7 +4,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 ## Components
 
-**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/92640666325), [quick-order CSV](https://freemodular.org/modules/RNG/fm_rng_tayda_bom.csv)).
+**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/02840666568), [quick-order CSV](https://freemodular.org/modules/RNG/fm_rng_tayda_bom.csv)).
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
@@ -12,10 +12,10 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pc
 
 |    | Board | Reference | Part             | Value                                   | Source  | Comment |
 | -- | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
-|    | Front | R1, R20   | Resistor         | 100kΩ                                   | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-100k-ohm-1-4w-1-metal-film-pkg-of-10.html) |         |
+|    | Front | R1, R20   | Resistor         | 100kΩ                                   | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-100k-ohm-1-4w-1-metal-film-pkg-of-10.html) | |
 |    | Front | R2, R3    | Resistor         | 1kΩ                                     | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-1k-ohm-1-4w-1-metal-film-pkg-of-10.html) | Determines output impedance. Any value is fine. |
 |    | Front | R4-R7     | Resistor         | 10kΩ                                    | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-10k-ohm-1-4w-1-metal-film-pkg-of-10.html) | Determines LED brightness. You may want to use a different value if you have different LEDs. A lower value means less resistance and brighter LEDs |
-|    | Front | RV1-RV3   | Potentiometer    | B50kΩ                                   | [Tayda](https://www.taydaelectronics.com/potentiometer-variable-resistors/rotary-potentiometer/50k-ohm-linear-taper-potentiometer-d-shaft-pcb-9mm.html), [Thonk](https://www.thonk.co.uk/shop/alpha-9mm-pots-dshaft/) | Linear. Any value is fine. |
+|    | Front | RV1-RV3   | Potentiometer    | B50kΩ                                   | [Tayda](https://www.taydaelectronics.com/potentiometer-variable-resistors/rotary-potentiometer/50k-ohm-linear-taper-potentiometer-d-shaft-pcb-9mm.html), [Thonk](https://www.thonk.co.uk/shop/alpha-9mm-pots-dshaft/) | Linear. Any value is ok -- just match R13. |
 |    | Front | D1-D11    | LED              | 3mm                                     | [Tayda](https://www.taydaelectronics.com/led-3mm-red.html) | Any standard 3mm LED will work here. |
 |    | Front | SW1       | Rotary Encoder   | EC11 series                             | [Tayda](https://www.taydaelectronics.com/rotary-encoder-11mm-20-detents-d-shaft-with-switch-vertical.html), [Amazon](https://www.amazon.com/dp/B07D3DF8TK) | |
 |    | Front | SW2, SW3  | Switch           | TAIWAY 200CWMSP1T3B4M2 or equivalent    | [Tayda](https://www.taydaelectronics.com/sub-mini-toggle-switch-2m-series-spdt-on-on-pcb-pins.html), [Love My Switches](https://lovemyswitches.com/taiway-sub-mini-spdt-on-on-switch-pcb-mount-long-shaft/), [Thonk](https://www.thonk.co.uk/shop/sub-mini-toggle-switches/) | SPDT ON-ON |
@@ -24,7 +24,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pc
 |    | Back  | J7        | -                | -                                       |         | Not used. Expansion points for future features |
 |    | Back  | J12       | IDC connector    | 2x8                                     | [Tayda](https://www.taydaelectronics.com/16-pin-box-header-connector-2-54mm.html) | Eurorack power header. Can use two rows of male pin headers or (recommended) a shrouded connector. |
 |    | Back  | R8-R11, R14-R15 | Resistor   | 100kΩ                                   | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-100k-ohm-1-4w-1-metal-film-pkg-of-10.html) |         |
-|    | Back  | R12, R13, R16   | Resistor   | 50kΩ                                    | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/resistor-5-1k-ohm-1-4w-1-metal-film-pkg-of-10.html) | 5.1k is fine. |
+|    | Back  | R12, R13, R16   | Resistor   | 50kΩ                                    | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/resistor-51k-ohm-1-4w-1-metal-film-pkg-of-10.html) | 51k is fine. R13 should be the same as RV2. |
 |    | Back  | R17       | Resistor         | 1kΩ                                     | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-1k-ohm-1-4w-1-metal-film-pkg-of-10.html) | Determines output impedance. Any value is fine. |
 |    | Back  | R18       | Resistor         | 15kΩ                                    | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-15k-ohm-1-4w-1-metal-film-pkg-of-10.html) | Controls the LED brightness for the 7-LED display. Unlike the bottom LEDs, which are in series with R4-R7 (at 5v), this resistor is just used as a current reference (at 5v) by the TLC5940. To match the current across all the LEDs (and therefore the brightness), R18 is calculated by R18 = 5 / ((5 - V_LED) / R4), where V_LED is the voltage drop across one of the LEDs (at the current they will receive). This can be measured or will probably be in the LED datasheet. Then, round to the nearest available resistor value; it doesn't have to be exact. |
 |    | Back  | R19       | Resistor         | 15kΩ                                    |         | Controls the available current at the -5v ref regulator. You could probably go a little higher to be more power efficient, but if the -5v voltage sags you can decrease the value. |
