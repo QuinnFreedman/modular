@@ -1,15 +1,8 @@
 use std::{fs::File, io::Write};
 
-use fixed::{
-    traits::{Fixed, ToFixed},
-    types::{
-        extra::{U15, U16},
-        I16F16,
-    },
-    FixedI16, FixedI32, FixedU16,
-};
+use fixed::{types::extra::U15, FixedI16};
 use rand::prelude::*;
-use textplots::{AxisBuilder, Chart, Plot, Shape};
+use textplots::{Chart, Plot, Shape};
 
 fn triangle_icdf(u: i16) -> i16 {
     // assert!(u <= i16::MAX as u16);
@@ -79,7 +72,6 @@ fn plot_icdf() {
 }
 
 const LUT_SIZE: usize = 256;
-const I16_BYTES: usize = i16::BITS as usize / 8;
 
 fn rand_icdf(u: u16, lut: &[i16; LUT_SIZE]) -> FixedI16<U15> {
     debug_assert!(u <= i16::MAX as u16);
@@ -94,69 +86,7 @@ fn rand_icdf(u: u16, lut: &[i16; LUT_SIZE]) -> FixedI16<U15> {
 }
 
 fn main() {
-    // plot_hist();
-    // plot_icdf();
+    plot_hist();
+    plot_icdf();
     // save_lut();
-    show_perlin();
-}
-
-use rand::Rng;
-
-fn fade(t: I16F16) -> I16F16 {
-    const SIX: I16F16 = I16F16::from_bits(6 << 16);
-    const FIFTEEN: I16F16 = I16F16::from_bits(15 << 16);
-    const TEN: I16F16 = I16F16::from_bits(10 << 16);
-    t * t * t * (t * (t * SIX - FIFTEEN) + TEN)
-}
-
-fn lerp(t: f32, a: f32, b: f32) -> f32 {
-    a + t * (b - a)
-}
-
-fn grad(hash: u8, x: I16F16) -> I16F16 {
-    let h = hash & 15;
-    let grad = I16F16::from_num(1 + (h & 7));
-    if (h & 8) != 0 {
-        -grad * x
-    } else {
-        grad * x
-    }
-}
-
-fn perlin1d(_x: f32, permutation: &[u8]) -> f32 {
-    let x = I16F16::from_num(_x);
-    let xi = x.int().to_num::<i32>() & 255;
-    let xf = x.frac();
-
-    let u = fade(xf);
-
-    let a = permutation[xi as usize] as usize;
-    let b = permutation[(xi + 1) as usize & 255] as usize;
-
-    u.lerp(
-        grad(permutation[a], xf),
-        grad(permutation[b], xf - I16F16::from_num(1)),
-    )
-    .to_num()
-}
-
-fn generate_permutation_table() -> Vec<u8> {
-    let mut p = (0..=255).collect::<Vec<u8>>();
-    // let mut rng = rand::thread_rng();
-    let mut rng = StdRng::seed_from_u64(0);
-    p.shuffle(&mut rng);
-    // p.extend_from_slice(&p);
-    p
-}
-
-fn show_perlin() {
-    let perm = generate_permutation_table();
-    let mut values = vec![];
-    for i in (0..u32::MAX).step_by(1 << 12) {
-        let x = I16F16::from_bits((i >> 13) as i32).to_num::<f32>();
-        values.push((x, perlin1d(x, &perm)));
-    }
-    return Chart::new(120, 60, 0.0, (u32::MAX / (1 << 29)) as f32)
-        .lineplot(&Shape::Lines(&values))
-        .nice();
 }
