@@ -90,24 +90,24 @@ fn grad(hash: u8, x: I1F15) -> I1F15 {
 //     }
 // }
 
+fn to_signed(x: U0F16) -> I1F15 {
+    I1F15::from_bits((x.to_bits() >> 1) as i16)
+}
+
 fn perlin1d(_x: f32, permutation: &[u8]) -> f32 {
     let x = I16F16::from_num(_x);
     let xi = x.int().to_num::<i32>() & 255;
     let xf = U0F16::from_bits(x.frac().to_bits() as u16);
 
     let u = fade(xf);
-    let u_i16 = I1F15::from_bits((u.to_bits() >> 1) as i16);
 
     let a = permutation[xi as usize];
     let b = permutation[(xi + 1) as usize & 255];
 
-    let xf_signed = I1F15::from_bits(((xf.to_bits() as u16) >> 1) as i16);
-    u_i16
-        .lerp(
-            grad(a, xf_signed),
-            grad(b, xf_signed - I1F15::from_bits(0x7FFF)),
-        )
-        .to_num()
+    let xf_signed = to_signed(xf);
+    const ONE: I1F15 = I1F15::from_bits(0x7FFF);
+    let result = to_signed(u).lerp(grad(a, xf_signed), grad(b, xf_signed - ONE));
+    I1F15::from_bits(result.to_bits() * 4).to_num()
 }
 
 fn generate_permutation_table() -> Vec<u8> {

@@ -1,4 +1,4 @@
-use fixed::types::{I16F16, U16F16};
+use fixed::types::{I16F16, I1F15, U0F16, U16F16};
 use fm_lib::rng::ParallelLfsr;
 
 use crate::shared::{get_delta_t, DriftModule};
@@ -31,29 +31,28 @@ impl DriftModule for PerlinModuleState {
 
         let value = perlin1d(time_fixed, &self.hash_table);
 
-        const HALF: u16 = 1 << 11;
-        debug_assert!(value <= 8);
-        debug_assert!(value >= -8);
-        if value > 0 {
-            let unsigned = u32::min(value.to_bits() as u32, (8 << 16) - 1);
-            HALF + (unsigned >> 8) as u16
-        } else {
-            let unsigned = u32::min(value.abs().to_bits() as u32, (8 << 16) - 1);
-            HALF - (unsigned >> 8) as u16
-        }
+        let scaled = (value.to_bits() / 16) + (1 << 11);
+        // TODO clamp might not be necessary
+        scaled.clamp(0, 4095) as u16
     }
 }
 
-fn fade(t: I16F16) -> I16F16 {
-    const SIX: I16F16 = I16F16::from_bits(6 << 16);
-    const FIFTEEN: I16F16 = I16F16::from_bits(15 << 16);
-    const TEN: I16F16 = I16F16::from_bits(10 << 16);
-    t * t * t * (t * (t * SIX - FIFTEEN) + TEN)
+fn fade(t: U0F16) -> U0F16 {
+    const SIX: U0F16 = U0F16::from_bits(6 << 12);
+    const FIFTEEN: U0F16 = U0F16::from_bits(15 << 12);
+    const TEN: U0F16 = U0F16::from_bits(10 << 12);
+    let t_3 = t * t * t;
+    let t_4 = t_3 * t;
+    let t_5 = t_4 * t;
+    let result = (TEN * t_3).saturating_add(SIX * t_5) - FIFTEEN * t_4;
+    let result_bits = u16::min(result.to_bits(), 4095);
+    U0F16::from_bits(result_bits << 4)
 }
 
-fn grad(hash: u8, x: I16F16) -> I16F16 {
+fn grad(hash: u8, x: I1F15) -> I1F15 {
     let h = hash & 15;
-    let grad = I16F16::from_num(1 + (h & 7));
+    let grad_int = 1 + (h & 7);
+    let grad = I1F15::from_bits(((grad_int as u16) << 11) as i16);
     if (h & 8) != 0 {
         -grad * x
     } else {
@@ -61,20 +60,23 @@ fn grad(hash: u8, x: I16F16) -> I16F16 {
     }
 }
 
-fn perlin1d(x: I16F16, permutation: &[u8]) -> I16F16 {
+fn to_signed(x: U0F16) -> I1F15 {
+    I1F15::from_bits((x.to_bits() >> 1) as i16)
+}
+
+fn perlin1d(x: I16F16, permutation: &[u8]) -> I1F15 {
     let xi = x.int().to_num::<i32>() & 255;
-    let xf = x.frac();
+    let xf = U0F16::from_bits(x.frac().to_bits() as u16);
 
     let u = fade(xf);
 
-    let a = permutation[xi as usize] as usize;
-    let b = permutation[(xi + 1) as usize & 255] as usize;
+    let a = permutation[xi as usize];
+    let b = permutation[(xi + 1) as usize & 255];
 
-    // TODO why is u not in [0,1]?
-    u.saturating_lerp(
-        grad(permutation[a], xf),
-        grad(permutation[b], xf - I16F16::from_num(1)),
-    )
+    let xf_signed = to_signed(xf);
+    const ONE: I1F15 = I1F15::from_bits(0x7FFF);
+    let result = to_signed(u).lerp(grad(a, xf_signed), grad(b, xf_signed - ONE));
+    I1F15::from_bits(result.to_bits() * 4)
 }
 
 fn generate_permutation_table(rng: &mut ParallelLfsr) -> [u8; 256] {
