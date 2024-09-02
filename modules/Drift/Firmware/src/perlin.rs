@@ -5,31 +5,43 @@ use crate::shared::{get_delta_t, DriftModule};
 
 pub struct PerlinModuleState {
     time: u32,
+    last_grad: I1F15,
+    next_grad: I1F15,
     rng: ParallelLfsr,
-    pub hash_table: [u8; 256],
 }
 
 impl PerlinModuleState {
     pub fn new(random_seed: u16) -> Self {
         let mut rng = ParallelLfsr::new(random_seed);
-        let hash_table = generate_permutation_table(&mut rng);
+        let last_grad = random_grad(&mut rng);
+        let next_grad = random_grad(&mut rng);
+
         Self {
             time: 0,
             rng,
-            hash_table,
+            last_grad,
+            next_grad,
+        }
+    }
+
+    fn step_time(&mut self, knob: u16, cv: u16) {
+        let dt = get_delta_t(knob, cv, 0);
+        let (new_time, rollover) = self.time.overflowing_add(dt);
+        self.time = new_time;
+        if rollover {
+            self.last_grad = self.next_grad;
+            self.next_grad = random_grad(&mut self.rng);
         }
     }
 }
 
 impl DriftModule for PerlinModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        // let last_integer_time = self.time >> 16;
-        let dt = u32::max(1, get_delta_t(cv[2], 0, 0) >> 16);
-        self.time = self.time.saturating_add(dt) & 0xFFFFFF;
-        // let integer_time = self.time >> 16;
-        let time_fixed = I16F16::from_bits(self.time as i32);
+        self.step_time(cv[2], 0 /* TODO read cv */);
 
-        let value = perlin1d(time_fixed, &self.hash_table);
+        let time_fixed = U0F16::from_bits((self.time >> 16) as u16);
+
+        let value = perlin_segment(time_fixed, self.last_grad, self.next_grad);
 
         let scaled = (value.to_bits() / 16) + (1 << 11);
         // TODO clamp might not be necessary
@@ -49,14 +61,14 @@ fn fade(t: U0F16) -> U0F16 {
     U0F16::from_bits(result_bits << 4)
 }
 
-fn grad(hash: u8, x: I1F15) -> I1F15 {
-    let h = hash & 15;
+fn random_grad(rng: &mut ParallelLfsr) -> I1F15 {
+    let h = rng.next() & 15;
     let grad_int = 1 + (h & 7);
     let grad = I1F15::from_bits(((grad_int as u16) << 11) as i16);
     if (h & 8) != 0 {
-        -grad * x
+        -grad
     } else {
-        grad * x
+        grad
     }
 }
 
@@ -64,38 +76,14 @@ fn to_signed(x: U0F16) -> I1F15 {
     I1F15::from_bits((x.to_bits() >> 1) as i16)
 }
 
-fn perlin1d(x: I16F16, permutation: &[u8]) -> I1F15 {
-    let xi = x.int().to_num::<i32>() & 255;
-    let xf = U0F16::from_bits(x.frac().to_bits() as u16);
-
-    let u = fade(xf);
-
-    let a = permutation[xi as usize];
-    let b = permutation[(xi + 1) as usize & 255];
-
-    let xf_signed = to_signed(xf);
+fn perlin_segment(x: U0F16, last_grad: I1F15, next_grad: I1F15) -> I1F15 {
     const ONE: I1F15 = I1F15::from_bits(0x7FFF);
-    let result = to_signed(u).lerp(grad(a, xf_signed), grad(b, xf_signed - ONE));
-    I1F15::from_bits(result.to_bits() * 4)
-}
 
-fn generate_permutation_table(rng: &mut ParallelLfsr) -> [u8; 256] {
-    let mut table = [0u8; 256];
-    for i in 0..=255 {
-        table[i as usize] = i;
-    }
-    shuffle(&mut table, rng);
-    table
-}
+    let u = fade(x);
 
-fn shuffle<T>(list: &mut [T], rng: &mut ParallelLfsr)
-where
-    T: Copy,
-{
-    for i in (1..list.len()).rev() {
-        let j = rng.next() as usize & i;
-        let temp = list[i];
-        list[i] = list[j];
-        list[j] = temp;
-    }
+    let xf_signed = to_signed(x);
+    let a = last_grad * xf_signed;
+    let b = next_grad * (xf_signed - ONE);
+
+    to_signed(u).lerp(a, b) * 4
 }

@@ -131,7 +131,7 @@ fn main() -> ! {
 
     // TODO load different module depending on configuration
     // TODO read floating analog pins to get RNG seed
-    let module: &mut dyn DriftModule = &mut PerlinModuleState::new(0);
+    let module: &mut dyn DriftModule = &mut PerlinModuleState::new(0b11010010_00101011);
 
     configure_timer_interrupt(&dp.TC0);
     let mut dac = MCP4922::new(d10);
@@ -195,7 +195,7 @@ fn configure_timer_interrupt(tc0: &arduino_hal::pac::TC0) {
     // set timer frequency to cycle at ~2.2727kHz
     // (16MHz clock speed / 64 prescale factor / 120 count/reset )
     tc0.tccr0b.write(|w| w.cs0().prescale_64());
-    tc0.ocr0a.write(|w| w.bits(240));
+    tc0.ocr0a.write(|w| w.bits(120));
 
     // enable interrupt on match to compare register A
     tc0.timsk0.write(|w| w.ocie0a().set_bit());
