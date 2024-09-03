@@ -71,8 +71,8 @@ pub fn get_delta_t(knob: u16, cv: u16, offset: i16) -> u32 {
     const MIN_HERTZ_RECIP: u32 = 40;
     let micros_per_cycle: u32 = divided_by(MICROS_PER_SECOND * MIN_HERTZ_RECIP, decihertz);
 
-    // ~2.27kHz sample rate == .48 ms / sample
-    const MICROS_PER_SAMPLE: u32 = 480;
+    // 2.5kHz sample rate == .4 ms / sample
+    const MICROS_PER_SAMPLE: u32 = 400;
 
     let samples_per_cycle = micros_per_cycle / MICROS_PER_SAMPLE;
     u32::MAX / samples_per_cycle

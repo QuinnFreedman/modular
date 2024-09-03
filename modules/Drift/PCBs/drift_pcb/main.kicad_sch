@@ -2289,10 +2289,22 @@
 		(uuid "e43b2080-7a65-4c27-8801-f7c8152b033d")
 	)
 	(junction
+		(at 127 96.52)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ebdb918a-0383-4c45-88b4-ef8d8ca673b8")
+	)
+	(junction
 		(at 38.1 58.42)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f1fff16f-e5a3-4734-8a34-b6633d5f9593")
+	)
+	(junction
+		(at 142.24 96.52)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f6d85f81-19c0-40eb-916f-990089897edb")
 	)
 	(no_connect
 		(at 86.36 58.42)
@@ -2410,7 +2422,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 99.06) (xy 142.24 99.06)
+			(xy 138.43 83.82) (xy 142.24 83.82)
 		)
 		(stroke
 			(width 0)
@@ -2517,6 +2529,16 @@
 			(type default)
 		)
 		(uuid "2ec09e26-59d5-452f-a195-806df2cd16e0")
+	)
+	(wire
+		(pts
+			(xy 142.24 96.52) (xy 142.24 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3512d9a4-751a-4b5f-9683-993af3750600")
 	)
 	(wire
 		(pts
@@ -2670,6 +2692,16 @@
 	)
 	(wire
 		(pts
+			(xy 127 96.52) (xy 127 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58fecd72-2432-4e45-b05e-0c097f6c353b")
+	)
+	(wire
+		(pts
 			(xy 53.34 58.42) (xy 60.96 58.42)
 		)
 		(stroke
@@ -2720,13 +2752,23 @@
 	)
 	(wire
 		(pts
-			(xy 127 99.06) (xy 127 111.76)
+			(xy 127 83.82) (xy 127 96.52)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "70974370-be3b-46a3-9a78-3dd2fbe0b6cb")
+	)
+	(wire
+		(pts
+			(xy 127 96.52) (xy 130.81 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "70cd735a-f238-428f-a1be-2d3bba725351")
 	)
 	(wire
 		(pts
@@ -2740,7 +2782,7 @@
 	)
 	(wire
 		(pts
-			(xy 129.54 99.06) (xy 127 99.06)
+			(xy 130.81 83.82) (xy 127 83.82)
 		)
 		(stroke
 			(width 0)
@@ -3120,6 +3162,16 @@
 	)
 	(wire
 		(pts
+			(xy 138.43 96.52) (xy 142.24 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc99dd96-ac1c-4e2b-bc6a-c9cb44e8bcdf")
+	)
+	(wire
+		(pts
 			(xy 68.58 149.86) (xy 68.58 154.94)
 		)
 		(stroke
@@ -3200,7 +3252,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 99.06) (xy 142.24 114.3)
+			(xy 142.24 83.82) (xy 142.24 96.52)
 		)
 		(stroke
 			(width 0)
@@ -3227,6 +3279,16 @@
 			(type default)
 		)
 		(uuid "fc1de34f-3170-4316-9eb6-2c61a0e6b2db")
+	)
+	(text "Cutoff frequency ~ 2.5k sample rate / 2"
+		(exclude_from_sim no)
+		(at 165.354 88.646 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "446bfa10-6836-4f7e-a3f4-b0c6859be9a1")
 	)
 	(label "SPI_SCK"
 		(at 58.42 76.2 180)
@@ -3843,7 +3905,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "24kΩ"
 			(at 120.65 109.22 90)
 			(effects
 				(font
@@ -4254,7 +4316,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 133.35 99.06 90)
+		(at 134.62 83.82 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4262,15 +4324,15 @@
 		(dnp no)
 		(uuid "5859eb27-0d92-4669-a1da-57b337ca046c")
 		(property "Reference" "R3"
-			(at 133.35 93.98 90)
+			(at 134.62 78.74 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "10kΩ"
-			(at 133.35 96.52 90)
+		(property "Value" "24kΩ"
+			(at 134.62 81.28 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4278,7 +4340,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 133.35 100.838 90)
+			(at 134.62 85.598 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4287,7 +4349,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 133.35 99.06 0)
+			(at 134.62 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4296,7 +4358,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 133.35 99.06 0)
+			(at 134.62 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4779,6 +4841,74 @@
 			(project "drift_pcb"
 				(path "/aac2b9ae-0367-4446-b109-7473284ab08d/40810798-1f66-48f1-9b6a-933a1b6f4e7c"
 					(reference "C3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 134.62 96.52 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a750d75d-ebd0-48dd-bdaf-64f80775acaa")
+		(property "Reference" "C8"
+			(at 134.62 88.9 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "4.7nF"
+			(at 134.62 91.44 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+			(at 138.43 95.5548 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 134.62 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 134.62 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "1d40d22e-4e90-4d71-8e11-a19a8bcae513")
+		)
+		(pin "1"
+			(uuid "6d0ff1ce-ea36-48c1-be60-6a684110a5d0")
+		)
+		(instances
+			(project ""
+				(path "/aac2b9ae-0367-4446-b109-7473284ab08d/40810798-1f66-48f1-9b6a-933a1b6f4e7c"
+					(reference "C8")
 					(unit 1)
 				)
 			)

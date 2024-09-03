@@ -192,10 +192,10 @@ fn configure_timer_for_pwm(tc2: &arduino_hal::pac::TC2) {
 fn configure_timer_interrupt(tc0: &arduino_hal::pac::TC0) {
     // reset timer counter at TOP set by OCRA
     tc0.tccr0a.write(|w| w.wgm0().ctc());
-    // set timer frequency to cycle at ~2.2727kHz
-    // (16MHz clock speed / 64 prescale factor / 120 count/reset )
+    // set timer frequency to cycle at 2.5kHz
+    // (16MHz clock speed / 64 prescale factor / 100 count/reset )
     tc0.tccr0b.write(|w| w.cs0().prescale_64());
-    tc0.ocr0a.write(|w| w.bits(120));
+    tc0.ocr0a.write(|w| w.bits(100));
 
     // enable interrupt on match to compare register A
     tc0.timsk0.write(|w| w.ocie0a().set_bit());
