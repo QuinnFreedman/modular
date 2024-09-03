@@ -1061,261 +1061,6 @@
 				)
 			)
 		)
-		(symbol "Connector_Generic:Conn_02x03_Odd_Even"
-			(pin_names
-				(offset 1.016) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "J"
-				(at 1.27 5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_02x03_Odd_Even"
-				(at 1.27 -5.08 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_2x??_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Conn_02x03_Odd_Even_1_1"
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 2.667)
-					(end 0 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 3.81)
-					(end 3.81 -3.81)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(rectangle
-					(start 3.81 -2.413)
-					(end 2.54 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start 3.81 0.127)
-					(end 2.54 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start 3.81 2.667)
-					(end 2.54 2.413)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin passive line
-					(at -5.08 2.54 0)
-					(length 3.81)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 2.54 180)
-					(length 3.81)
-					(name "Pin_2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 0 180)
-					(length 3.81)
-					(name "Pin_4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 7.62 -2.54 180)
-					(length 3.81)
-					(name "Pin_6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Device:C"
 			(pin_numbers hide)
 			(pin_names
@@ -2197,6 +1942,231 @@
 				)
 			)
 		)
+		(symbol "Switch:SW_DIP_x02"
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at 0 6.35 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SW_DIP_x02"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "2x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "dip switch"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "SW?DIP?x2*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SW_DIP_x02_0_0"
+				(circle
+					(center -2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center -2.032 2.54)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 0.127) (xy 2.3622 1.1684)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.524 2.667) (xy 2.3622 3.7084)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 0)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 2.54)
+					(radius 0.508)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SW_DIP_x02_0_1"
+				(rectangle
+					(start -3.81 5.08)
+					(end 3.81 -2.54)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "SW_DIP_x02_1_1"
+				(pin passive line
+					(at -7.62 2.54 0)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -7.62 0 0)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 0 180)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 7.62 2.54 180)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 	)
 	(junction
 		(at 83.82 121.92)
@@ -2215,12 +2185,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "2cd4addb-3d87-4077-9d3c-5756f4fd9d88")
-	)
-	(junction
-		(at 38.1 55.88)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3b6357b5-2d8b-4fb6-aeb3-6f4237b13404")
 	)
 	(junction
 		(at 74.93 86.36)
@@ -2295,7 +2259,7 @@
 		(uuid "ebdb918a-0383-4c45-88b4-ef8d8ca673b8")
 	)
 	(junction
-		(at 38.1 58.42)
+		(at 20.32 55.88)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f1fff16f-e5a3-4734-8a34-b6633d5f9593")
@@ -2325,6 +2289,10 @@
 	(no_connect
 		(at 60.96 66.04)
 		(uuid "4447d81b-9462-46b4-a979-f524306f39ae")
+	)
+	(no_connect
+		(at 60.96 58.42)
+		(uuid "6697baa9-155b-49c6-b27f-dc19683ff52f")
 	)
 	(no_connect
 		(at 60.96 60.96)
@@ -2382,7 +2350,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 55.88) (xy 60.96 55.88)
+			(xy 38.1 55.88) (xy 60.96 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2482,7 +2450,7 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 58.42) (xy 38.1 66.04)
+			(xy 20.32 55.88) (xy 20.32 59.69)
 		)
 		(stroke
 			(width 0)
@@ -2632,16 +2600,6 @@
 	)
 	(wire
 		(pts
-			(xy 40.64 53.34) (xy 38.1 53.34)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4c14d5d2-d562-41f8-8778-4128e99000ba")
-	)
-	(wire
-		(pts
 			(xy 58.42 68.58) (xy 60.96 68.58)
 		)
 		(stroke
@@ -2699,16 +2657,6 @@
 			(type default)
 		)
 		(uuid "58fecd72-2432-4e45-b05e-0c097f6c353b")
-	)
-	(wire
-		(pts
-			(xy 53.34 58.42) (xy 60.96 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5b7381b9-9021-4685-8d42-79e9839f9fb5")
 	)
 	(wire
 		(pts
@@ -2822,7 +2770,7 @@
 	)
 	(wire
 		(pts
-			(xy 40.64 58.42) (xy 38.1 58.42)
+			(xy 22.86 55.88) (xy 20.32 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2832,7 +2780,7 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 55.88) (xy 38.1 58.42)
+			(xy 20.32 53.34) (xy 20.32 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2842,7 +2790,7 @@
 	)
 	(wire
 		(pts
-			(xy 53.34 53.34) (xy 60.96 53.34)
+			(xy 38.1 53.34) (xy 60.96 53.34)
 		)
 		(stroke
 			(width 0)
@@ -2912,16 +2860,6 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 53.34) (xy 38.1 55.88)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9a95717b-79de-4b66-bf46-b6fca2ce10b4")
-	)
-	(wire
-		(pts
 			(xy 226.06 101.6) (xy 228.6 101.6)
 		)
 		(stroke
@@ -2932,7 +2870,7 @@
 	)
 	(wire
 		(pts
-			(xy 40.64 55.88) (xy 38.1 55.88)
+			(xy 22.86 53.34) (xy 20.32 53.34)
 		)
 		(stroke
 			(width 0)
@@ -3580,7 +3518,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 38.1 66.04 270)
+		(at 20.32 59.69 270)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3810,32 +3748,33 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_02x03_Odd_Even")
-		(at 45.72 55.88 0)
+		(lib_id "Switch:SW_DIP_x02")
+		(at 30.48 55.88 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "2c68d90f-4086-4fcf-84b1-9621c4130df1")
-		(property "Reference" "J8"
-			(at 46.736 60.96 0)
+		(fields_autoplaced yes)
+		(uuid "226712b2-f36c-463a-8cd1-e84d3e079954")
+		(property "Reference" "SW1"
+			(at 30.48 45.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "Conn_02x03_Odd_Even"
-			(at 46.736 63.5 0)
+		(property "Value" "SW_DIP_x02"
+			(at 30.48 48.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x03_P2.54mm_Vertical"
-			(at 45.72 55.88 0)
+		(property "Footprint" "Button_Switch_THT:SW_DIP_SPSTx02_Slide_6.7x6.64mm_W7.62mm_P2.54mm_LowProfile"
+			(at 30.48 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3844,7 +3783,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 45.72 55.88 0)
+			(at 30.48 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3852,37 +3791,31 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic connector, double row, 02x03, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 45.72 55.88 0)
+		(property "Description" "2x DIP Switch, Single Pole Single Throw (SPST) switch, small symbol"
+			(at 30.48 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(hide yes)
 			)
-		)
-		(pin "3"
-			(uuid "f63a2249-c095-4ede-b607-10dc6a9122dd")
-		)
-		(pin "4"
-			(uuid "aeafc6db-905d-4e5b-9b9a-d67a66bc629f")
-		)
-		(pin "1"
-			(uuid "97b2d3ae-51a2-4d06-a570-920f5a8295ad")
 		)
 		(pin "2"
-			(uuid "bc2b7323-9f45-4cd9-95de-b98529b3d30d")
+			(uuid "549b189b-197f-4bca-a493-b05e85b8b4b2")
 		)
-		(pin "5"
-			(uuid "ea126e7f-9e53-44ba-a7a9-99ae49249c69")
+		(pin "1"
+			(uuid "183abfd7-eb12-458f-90d2-6c695f4aca3e")
 		)
-		(pin "6"
-			(uuid "5097080a-4260-4235-a66a-b7211ee52539")
+		(pin "4"
+			(uuid "e7129ba9-e419-43b6-b35c-e1b65ab6c8b9")
+		)
+		(pin "3"
+			(uuid "e9c0ce51-bfde-481a-93c9-f2bb619cc401")
 		)
 		(instances
-			(project "drift_pcb"
+			(project ""
 				(path "/aac2b9ae-0367-4446-b109-7473284ab08d/40810798-1f66-48f1-9b6a-933a1b6f4e7c"
-					(reference "J8")
+					(reference "SW1")
 					(unit 1)
 				)
 			)
