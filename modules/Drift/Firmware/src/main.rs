@@ -13,6 +13,7 @@ mod perlin;
 mod random;
 mod shared;
 
+use arduino_hal::adc::channel;
 use arduino_hal::prelude::*;
 use avr_progmem::progmem;
 use bezier::BezierModuleState;
@@ -89,8 +90,27 @@ fn main() -> ! {
 
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
+
+    let a0 = pins.a0.into_analog_input(&mut adc);
+    let a1 = pins.a1.into_analog_input(&mut adc);
+    let a2 = pins.a2.into_analog_input(&mut adc);
+    let a3 = pins.a3.into_analog_input(&mut adc);
     let a4 = pins.a4.into_analog_input(&mut adc);
     let a5 = pins.a5.into_analog_input(&mut adc);
+
+    let random_seed = ((a0.analog_read(&mut adc) & 7) << 13)
+        | ((a1.analog_read(&mut adc) & 7) << 10)
+        | ((a2.analog_read(&mut adc) & 7) << 7)
+        | ((a3.analog_read(&mut adc) & 7) << 4)
+        | ((adc.read_blocking(&channel::ADC6) & 1) << 3)
+        | ((adc.read_blocking(&channel::ADC7) & 1) << 2)
+        | ((adc.read_blocking(&channel::Temperature) & 1) << 1)
+        | ((adc.read_blocking(&channel::Vbg) & 1) << 0);
+
+    a0.into_digital(&mut adc);
+    a1.into_digital(&mut adc);
+    a2.into_digital(&mut adc);
+    a3.into_digital(&mut adc);
 
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -107,6 +127,9 @@ fn main() -> ! {
 
     #[cfg(feature = "debug")]
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+
+    #[cfg(feature = "debug")]
+    uwriteln!(&mut serial, "Random seed: {:x}", random_seed).unwrap_infallible();
 
     unsafe {
         avr_device::interrupt::enable();
@@ -131,8 +154,7 @@ fn main() -> ! {
     // };
 
     // TODO load different module depending on configuration
-    // TODO read floating analog pins to get RNG seed
-    let module: &mut dyn DriftModule = &mut PerlinModuleState::new(0b11010010_00101011);
+    let module: &mut dyn DriftModule = &mut PerlinModuleState::new(random_seed);
 
     configure_timer_interrupt(&dp.TC0);
     let mut dac = MCP4922::new(d10);
@@ -143,7 +165,6 @@ fn main() -> ! {
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
-        // uwriteln!(&mut serial, "{}, {}", cv[2], cv[3]).unwrap_infallible(); continue;
 
         if !DAC_WRITE_QUEUED.atomic_read() {
             let value = module.step(&cv);
