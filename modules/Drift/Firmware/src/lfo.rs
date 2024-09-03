@@ -1,7 +1,4 @@
-use fixed::{
-    types::extra::{U16, U32},
-    FixedU32,
-};
+use fixed::{types::extra::U16, FixedU32};
 
 use crate::shared::{get_delta_t, DriftModule};
 

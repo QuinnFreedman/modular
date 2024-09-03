@@ -8,20 +8,16 @@
 
 mod bezier;
 mod brownian;
+mod drift;
 mod lfo;
 mod perlin;
 mod random;
 mod shared;
 
 use arduino_hal::adc::channel;
-use arduino_hal::prelude::*;
 use avr_progmem::progmem;
-use bezier::BezierModuleState;
-use brownian::BrownianModuleState;
-use core::{cell::Cell, panic::PanicInfo};
-use lfo::LfoModuleState;
-use perlin::PerlinModuleState;
-use shared::DriftModule;
+use core::cell::Cell;
+use drift::DriftAlgorithm;
 
 use avr_device::interrupt::{self, Mutex};
 use fm_lib::asynchronous::{assert_interrupts_disabled, AtomicRead, Borrowable};
@@ -31,46 +27,6 @@ use fm_lib::{
     },
     mcp4922::{DacChannel, MCP4922},
 };
-use ufmt::uwriteln;
-
-#[inline(never)]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    interrupt::disable();
-    let dp = unsafe { arduino_hal::Peripherals::steal() };
-    let pins = arduino_hal::pins!(dp);
-    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-    serial.flush();
-    serial.write_byte(b'\r');
-    serial.write_byte(b'\n');
-    serial.write_byte(b'\r');
-    serial.write_byte(b'\n');
-    if let Some(location) = info.location() {
-        uwriteln!(
-            &mut serial,
-            "Panic occurred in file '{}' at line {}",
-            location.file(),
-            location.line()
-        )
-        .unwrap_infallible();
-    } else {
-        uwriteln!(&mut serial, "Panic occurred").unwrap_infallible();
-    }
-
-    let short = 100;
-    let long = 500;
-    let mut led = pins.d13.into_output();
-    loop {
-        for len in [short, long] {
-            for _ in 0..3u8 {
-                led.set_high();
-                arduino_hal::delay_ms(len);
-                led.set_low();
-                arduino_hal::delay_ms(short);
-            }
-        }
-    }
-}
 
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<4> = new_async_adc_state();
 
@@ -112,6 +68,9 @@ fn main() -> ! {
     a2.into_digital(&mut adc);
     a3.into_digital(&mut adc);
 
+    let config_pin_1 = pins.d5.into_pull_up_input();
+    let config_pin_2 = pins.d4.into_pull_up_input();
+
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
         pins.d13.into_output(),        // Clock
@@ -129,7 +88,7 @@ fn main() -> ! {
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
 
     #[cfg(feature = "debug")]
-    uwriteln!(&mut serial, "Random seed: {:x}", random_seed).unwrap_infallible();
+    ufmt::uwriteln!(&mut serial, "Random seed: {:x}", random_seed).unwrap();
 
     unsafe {
         avr_device::interrupt::enable();
@@ -146,15 +105,8 @@ fn main() -> ! {
         ],
     );
 
-    // let config = match (config_pin_1.is_high(), config_pin_2.is_high()) {
-    //     (true, true) => AuxMode::EndOfRise,
-    //     (false, true) => AuxMode::EndOfFall,
-    //     (true, false) => AuxMode::NonZero,
-    //     (false, false) => AuxMode::FollowGate,
-    // };
-
-    // TODO load different module depending on configuration
-    let module: &mut dyn DriftModule = &mut PerlinModuleState::new(random_seed);
+    let config = [config_pin_1.is_high(), config_pin_2.is_high()];
+    let mut algorithm = DriftAlgorithm::new(config, random_seed);
 
     configure_timer_interrupt(&dp.TC0);
     let mut dac = MCP4922::new(d10);
@@ -167,7 +119,7 @@ fn main() -> ! {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
 
         if !DAC_WRITE_QUEUED.atomic_read() {
-            let value = module.step(&cv);
+            let value = algorithm.step(&cv);
 
             // Update LED PWM
             let pwm_duty = GAMMA_CORRECTION.load_at((value >> 4) as usize);
@@ -180,6 +132,7 @@ fn main() -> ! {
 
         #[cfg(feature = "debug")]
         {
+            use arduino_hal::prelude::*;
             use ufmt::uwrite;
             let num_skipped = DEBUG_SKIPPED_WRITE_COUNT.atomic_read();
             if num_skipped != 0 {

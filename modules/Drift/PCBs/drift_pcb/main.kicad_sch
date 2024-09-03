@@ -3218,6 +3218,16 @@
 		)
 		(uuid "fc1de34f-3170-4316-9eb6-2c61a0e6b2db")
 	)
+	(text "2"
+		(exclude_from_sim no)
+		(at 18.034 53.594 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "13b377aa-617d-45dd-9c74-d2262f4259c6")
+	)
 	(text "Cutoff frequency ~ 2.5k sample rate / 2"
 		(exclude_from_sim no)
 		(at 165.354 88.646 0)
@@ -3227,6 +3237,16 @@
 			)
 		)
 		(uuid "446bfa10-6836-4f7e-a3f4-b0c6859be9a1")
+	)
+	(text "1"
+		(exclude_from_sim no)
+		(at 18.034 56.134 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "b9d0dca5-b969-4adc-8bef-6638840e45b9")
 	)
 	(label "SPI_SCK"
 		(at 58.42 76.2 180)

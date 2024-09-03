@@ -71,7 +71,7 @@ impl BezierModuleState {
 // turning the knob quickly caused a jagged section of output. You could compute
 // the derivative of the bezier curve and then calculate the output incrementally,
 // but I worry about numerical precision and the derivative == 0 endpoints
-fn parametric_bezier_curve(x: FixedU16<U12>, c: FixedU16<U12>) -> FixedU16<U12> {
+fn _parametric_bezier_curve(x: FixedU16<U12>, c: FixedU16<U12>) -> FixedU16<U12> {
     debug_assert!(x <= 1);
     debug_assert!(c <= 2);
     let x_2 = x * x;
