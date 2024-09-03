@@ -135,6 +135,7 @@ dependencies = [
  "avr-progmem",
  "cfg-if 0.1.10",
  "embedded-hal 0.2.7",
+ "ufmt",
 ]
 
 [[package]]

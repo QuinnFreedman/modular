@@ -19,3 +19,6 @@ pub mod nybl_pair;
 pub mod rng;
 pub mod rotary_encoder;
 pub mod system_clock;
+
+// #[cfg(feature = "panic")]
+pub mod panic;
