@@ -1,15 +1,12 @@
 use avr_progmem::{progmem, wrapper::ProgMem};
-use fixed::{
-    types::extra::{U15, U16},
-    FixedI16,
-};
+use fixed::{types::extra::U15, FixedI16};
 use fm_lib::rng::ParallelLfsr;
 
 const LUT_SIZE: usize = 256;
 const I16_BYTES: usize = i16::BITS as usize / 8;
 
 progmem! {
-    pub static progmem ICDF_LUT: [u8; LUT_SIZE * I16_BYTES] = *include_bytes!("../icdf_lut.bin");
+    pub static progmem ICDF_LUT: [u8; LUT_SIZE * I16_BYTES] = *include_bytes!("../luts/icdf_lut.bin");
 }
 
 fn lut_load_i16(i: usize, lut: &ProgMem<[u8; LUT_SIZE * I16_BYTES]>) -> FixedI16<U15> {

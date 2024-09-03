@@ -4,7 +4,7 @@ use fixed::{types::extra::U16, FixedU16, FixedU32};
 const LUT_SIZE: usize = 256;
 const U32_BYTES: usize = u32::BITS as usize / 8;
 progmem! {
-    pub static progmem EXP_LUT: [u8; LUT_SIZE * U32_BYTES] = *include_bytes!("../exp2lut.bin");
+    pub static progmem EXP_LUT: [u8; LUT_SIZE * U32_BYTES] = *include_bytes!("../luts/exp2lut.bin");
 }
 
 fn lut_load_fixed32(i: usize, lut: &ProgMem<[u8; LUT_SIZE * U32_BYTES]>) -> FixedU32<U16> {

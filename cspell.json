@@ -50,7 +50,9 @@
     "lfsr",
     "stdev",
     "tayda",
-    "perlin"
+    "perlin",
+    "icdf",
+    "luts"
   ],
   "patterns": [
     {

@@ -14,6 +14,7 @@ mod random;
 mod shared;
 
 use arduino_hal::prelude::*;
+use avr_progmem::progmem;
 use bezier::BezierModuleState;
 use brownian::BrownianModuleState;
 use core::{cell::Cell, panic::PanicInfo};
@@ -147,8 +148,11 @@ fn main() -> ! {
         if !DAC_WRITE_QUEUED.atomic_read() {
             let value = module.step(&cv);
 
-            dp.TC2.ocr2b.write(|w| w.bits((value >> 4) as u8));
+            // Update LED PWM
+            let pwm_duty = GAMMA_CORRECTION.load_at((value >> 4) as usize);
+            dp.TC2.ocr2b.write(|w| w.bits(pwm_duty));
 
+            // Queue new value for DAC write
             dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
             DAC_WRITE_QUEUED.atomic_write(true);
         }
@@ -216,4 +220,8 @@ fn TIMER0_COMPA() {
             DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).update(|x| x + 1);
         }
     });
+}
+
+progmem! {
+    static progmem GAMMA_CORRECTION: [u8; 256] = *include_bytes!("../luts/gamma_lut.bin");
 }
