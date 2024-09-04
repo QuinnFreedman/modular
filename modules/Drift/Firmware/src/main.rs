@@ -105,7 +105,7 @@ fn main() -> ! {
         ],
     );
 
-    let config = [config_pin_1.is_high(), config_pin_2.is_high()];
+    let config = [config_pin_1.is_low(), config_pin_2.is_low()];
     let mut algorithm = DriftAlgorithm::new(config, random_seed);
 
     configure_timer_interrupt(&dp.TC0);

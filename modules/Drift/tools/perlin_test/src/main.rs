@@ -6,7 +6,8 @@ use rand::prelude::*;
 use textplots::{Chart, Plot, Shape};
 
 fn main() {
-    show_perlin();
+    // show_perlin();
+    make_svg();
     // let mut values = vec![];
     // for i in (0..u16::MAX).step_by(1 << 10) {
     //     let x = i as f32 / u16::MAX as f32;
@@ -127,4 +128,34 @@ fn show_perlin() {
     return Chart::new(120, 60, 0.0, 16.0)
         .lineplot(&Shape::Lines(&values))
         .nice();
+}
+
+fn make_svg() {
+    use std::{fs::File, io::Write};
+
+    let perm = generate_permutation_table();
+    let mut path = String::from("");
+    let mut path2 = String::from("");
+    let num_samples = 300;
+    for i in 0..num_samples {
+        let x = ((i as f32) / (num_samples as f32)) * 8.0;
+        let value = perlin1d(x, &perm) * 3.5;
+        let octave = perlin1d(100.0 + x * 4.0, &perm) * 0.5;
+        let y1 = 4.0 - value;
+        let y2 = 4.0 - (value + octave);
+        if path.len() == 0 {
+            path = format!("M {},{}", x, y1);
+            path2 = format!("M {},{}", x, y2);
+        } else {
+            path += format!("L {},{}", x, y1).as_str();
+            path2 += format!("L {},{}", x, y2).as_str();
+        }
+    }
+
+    let svg = format!(
+        r#"<svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg"><path stroke="black" fill="none" stroke-width="0.1" d="{}" /><path stroke="black" fill="none" stroke-width="0.1" d="{}" /></svg>"#,
+        path, path2
+    );
+    let mut f = File::create("perlin.svg").unwrap();
+    f.write(&svg.into_bytes()).unwrap();
 }

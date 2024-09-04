@@ -13,10 +13,10 @@ pub enum DriftAlgorithm {
 impl DriftAlgorithm {
     pub fn new(config: [bool; 2], random_seed: u16) -> Self {
         match (config[0], config[1]) {
-            (true, true) => Self::Perlin(PerlinModuleState::new(random_seed)),
+            (false, false) => Self::Perlin(PerlinModuleState::new(random_seed)),
             (false, true) => Self::Brownian(BrownianModuleState::new(random_seed)),
             (true, false) => Self::Bezier(BezierModuleState::new(random_seed)),
-            (false, false) => Self::Lfo(LfoModuleState::new()),
+            (true, true) => Self::Lfo(LfoModuleState::new()),
         }
     }
 

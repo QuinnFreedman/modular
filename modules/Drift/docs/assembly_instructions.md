@@ -29,5 +29,6 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/cloc
 | 🔴 | Back  | U1        | DAC              | MCP4922-E/P                             | [DigiKey](https://www.digikey.com/en/products/detail/microchip-technology/MCP4922-E-P/716251), [Mouser](https://mou.sr/4cwtePf) | |
 |    | Back  | U2        | Op-amp           | TL072                                   | [Tayda](https://www.taydaelectronics.com/tl072-low-noise-j-fet-dual-op-amp-ic.html) | TL082 is probably fine too |
 |    | Back  | U3        | Op-amp           | MCP6002                                 | [Tayda](https://www.taydaelectronics.com/mcp6002-single-supply-cmos-ic.html), [Mouser](https://mou.sr/4cwtePf) | |
+|    | Back  | SW1       | DIP switches     | 1x2                                     | [Tayda](https://www.taydaelectronics.com/black-dip-switch-2-positions-gold-plated-contacts-top-actuated.html) | **Optional:** configuration switches to select noise algorithm. Leave unconnected for the default Perlin noise. You can solder a wire to bridge pairs 1 and/or 2 to select a different mode, or use pair of switches if you want to be able to change it later. See the manual for how to select algorithms. |
 
 🔴 = Missing from Tayda BOM
