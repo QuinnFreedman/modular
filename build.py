@@ -75,7 +75,7 @@ def run_kikit_commad(*command):
     # My kicad is installed with flatpak so I have to install and run kikit
     # inside the flatpak environment
     run_command_or_exit_with_error(
-        ["flatpak", "run", "--branch=stable", "--arch=x86_64", "--command=python3", "org.kicad.KiCad", "-c", "from kikit.ui import cli; cli()", *command],
+        ["flatpak", "run", "--branch=stable", "--command=python3", "org.kicad.KiCad", "-c", "from kikit.ui import cli; cli()", *command],
     )
 
 def run_kicad_cli_commad(*command):
@@ -83,7 +83,7 @@ def run_kicad_cli_commad(*command):
     # My kicad is installed with flatpak so I have to install and run kikit
     # inside the flatpak environment
     run_command_or_exit_with_error(
-        ["flatpak", "run", "--branch=stable", "--arch=x86_64", "--command=kicad-cli", "org.kicad.KiCad", *command],
+        ["flatpak", "run", "--branch=stable", "--command=kicad-cli", "org.kicad.KiCad", *command],
     )
 
 
@@ -116,8 +116,17 @@ def run_ibom_commad(*command):
     # my kicad is installed with flatpak so I have to run the script from
     # inside the flatpak environment
     path_to_generate_bom_script = "../InteractiveHtmlBom/InteractiveHtmlBom/generate_interactive_bom.py"
+    if not os.path.exists(path_to_generate_bom_script):
+        log_error()
+        print(f"Missing IBOM script: {path_to_generate_bom_script}")
+        sys.exit(1)
     run_command_or_exit_with_error(
-        ["flatpak", "run", "--branch=stable", "--arch=x86_64", f"--command={path_to_generate_bom_script}", "org.kicad.KiCad", *command],
+        ["flatpak", "run", "--branch=stable", f"--command={path_to_generate_bom_script}", "org.kicad.KiCad", *command],
+    )
+
+def run_inkscape_command(*command):
+    run_command_or_exit_with_error(
+        ["flatpak", "run", "--branch=stable", "org.inkscape.Inkscape", *command],
     )
 
 
@@ -133,8 +142,8 @@ def build_manual(name, output_dir, last_commit):
         return
 
     output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_manual.pdf"))
-    result = run_command_or_exit_with_error(
-        ["inkscape", f"--actions=export-filename:{output_file};export-do", manual_svg],
+    result = run_inkscape_command(
+        manual_svg, "-o", output_file,
     )
     log_ok()
 
