@@ -58,7 +58,7 @@
       <img src="https://quinnfreedman.github.io/modular/modules/Drift/docs/images/drift.svg" />
       <div>
         <h2>Drift</h2>
-        <p>An organically moving, never repeating modulation source with four different algorithms.</p>
+        <p>An organically moving, never repeating modulation source with 4 different algorithms</p>
       </div>
     </div>
   </a>
