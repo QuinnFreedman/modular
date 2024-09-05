@@ -42,25 +42,27 @@ impl BezierModuleState {
 
     fn get_speed_adjust(&mut self, knob: u16, cv: u16) -> i16 {
         const ADC_MAX: u16 = 1023;
-        let sum = u16::min(knob + cv, ADC_MAX);
         const HALF: u16 = ADC_MAX / 2;
         const DEAD_ZONE: u16 = 128;
         const RANGE: u16 = HALF - DEAD_ZONE;
-        let mut magnitude =
-            (if sum > HALF { sum - HALF } else { HALF - sum }).saturating_sub(DEAD_ZONE);
 
-        if magnitude == 0 {
+        let knob_magnitude = (if knob > HALF {
+            knob - HALF
+        } else {
+            HALF - knob
+        })
+        .saturating_sub(DEAD_ZONE);
+        debug_assert!(knob_magnitude <= RANGE + 1);
+
+        let sum = u16::min(knob_magnitude + cv / 2, RANGE);
+
+        if sum == 0 {
             return 0;
         }
 
-        debug_assert!(magnitude <= RANGE + 1);
-        if magnitude == RANGE + 1 {
-            magnitude = RANGE;
-        }
-
-        let magnitude_scaled =
-            FixedI16::<U15>::from_bits((magnitude as u32 * i16::MAX as u32 / RANGE as u32) as i16);
-        (random_from_distribution(&mut self.rng) * magnitude_scaled).to_bits()
+        let scaled =
+            FixedI16::<U15>::from_bits((sum as u32 * i16::MAX as u32 / RANGE as u32) as i16);
+        (random_from_distribution(&mut self.rng) * scaled).to_bits()
     }
 }
 
@@ -128,12 +130,12 @@ fn reverse_bezier_interpolate(
 
 impl DriftModule for BezierModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        let (t, rollover) = self.step_time(cv[2], 0 /* TODO read cv */);
+        let (t, rollover) = self.step_time(cv[2], cv[0]);
 
         if rollover {
             self.value_a = self.value_b;
             self.value_b = FixedU16::<U12>::from_bits(self.rng.next() >> 4);
-            self.speed_adjust = self.get_speed_adjust(cv[3], 0 /* TODO read cv */);
+            self.speed_adjust = self.get_speed_adjust(cv[3], cv[1]);
             return self.value_a.to_bits();
         }
 

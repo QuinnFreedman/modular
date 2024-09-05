@@ -56,7 +56,7 @@ impl PerlinModuleState {
 
 impl DriftModule for PerlinModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        let dt = get_delta_t(cv[2], 0 /* TODO read cv */, 0);
+        let dt = get_delta_t(cv[2], cv[0], 0);
 
         let base_value = self.base.step(&mut self.rng, dt);
         let octave_value = self.octave.step(&mut self.rng, dt * 4);
@@ -66,7 +66,7 @@ impl DriftModule for PerlinModuleState {
         debug_assert!(octave_value <= 0.25);
         debug_assert!(octave_value >= -0.25);
 
-        let blend = I1F15::from_bits((cv[3] << 5) as i16 /* TODO add cv */);
+        let blend = I1F15::from_bits((u16::min(1023, cv[3] + cv[1]) << 5) as i16);
         const ONE: I1F15 = I1F15::from_bits(0x7FFF);
         let value = base_value * 3 + base_value * (ONE - blend) + octave_value * blend;
 

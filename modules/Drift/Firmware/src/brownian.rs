@@ -20,15 +20,13 @@ impl BrownianModuleState {
     }
 
     fn step_target_value(&mut self, cv: u16) {
-        // TODO dial in step size after sample rate is locked in
-        let step_size = 128;
-
-        let random = self.rng.next();
+        let step_size = 256 + cv >> 1;
         let cutoff = cv << 6;
 
+        let random = self.rng.next();
         if random < cutoff {
             const CENTERING_MARGIN: u16 = 5;
-            const CENTERING_STRENGTH: u16 = 256;
+            const CENTERING_STRENGTH: u16 = 64;
             let cutoff2 = if self.target_value < u16::MAX / CENTERING_MARGIN {
                 (cutoff / 2) - (cutoff / CENTERING_STRENGTH)
             } else if self.target_value > u16::MAX - (u16::MAX / CENTERING_MARGIN) {
@@ -69,8 +67,9 @@ impl BrownianModuleState {
 
 impl DriftModule for BrownianModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        self.step_target_value(cv[2] /* TODO read cv*/);
-        self.step_smoothed_value(cv[3]);
+        // TODO: These controls would maybe be more useful if they had an exponential curve (especially texture)
+        self.step_target_value(u16::min(1023, cv[2] + cv[0]));
+        self.step_smoothed_value(u16::min(1023, cv[3] + cv[1]));
         self.current_value >> 4
     }
 }

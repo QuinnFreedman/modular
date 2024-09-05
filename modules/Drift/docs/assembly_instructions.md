@@ -8,7 +8,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_cb_back_pinteractive_bom.html)
 
 |    | Board | Reference | Part             | Value                                   | Source  | Comment |
 | -- | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
@@ -18,7 +18,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/cloc
 |    | Back  | R6, R7    | Resistor         | 100kΩ                                   | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-100k-ohm-1-4w-1-metal-film-pkg-of-10.html) | |
 |    | Back  | C1-C4     | Capacitor        | 100nF                                   | [Tayda](https://www.taydaelectronics.com/capacitors/ceramic-disc-capacitors/a-553-0-1uf-50v-ceramic-disc-capacitor-pkg-of-10.html) | Power filtering and decoupling |
 |    | Back  | C5-C7     | Capacitor        | 10uF                                    | [Tayda](https://www.taydaelectronics.com/10uf-16v-85c-radial-electrolytic-capacitor.html) | Power supply noise filtering capacitor |
-|    | Back  | C8        | Capacitor        | 4.7nF                                   | [Tayda](https://www.taydaelectronics.com/capacitors/ceramic-disc-capacitors/a-553-0-1uf-50v-ceramic-disc-capacitor-pkg-of-10.html) | Power filtering and decoupling |
+|    | Back  | C8        | Capacitor        | 4.7nF                                   | [Tayda](https://www.taydaelectronics.com/capacitors/ceramic-disc-capacitors/a-553-0-1uf-50v-ceramic-disc-capacitor-pkg-of-10.html) | **Optional:** This capacitor creates a 1.25kHz lowpass filter with R3 which is applied to the output to smooth out the relatively slow digital sample rate of this module. You can try different values for a smoother signal or leave this out entirely if you don't mind some high-frequency artifacts. |
 |    | Front | D1        | LED              | 3mm diffuse orange                      | [Tayda](https://www.taydaelectronics.com/leds/round-leds/5mm-leds/led-5mm-yellow.html) | Any standard 5mm LED will work here. |
 |    | Front | J1-J3     | 3.5mm Jack       | THONKICONN (a.k.a PJ398SM or PJ301M-12) | [Tayda](https://www.taydaelectronics.com/pj-3001f-3-5-mm-mono-phone-jack.html) | |
 |    | Both  | J4-J7     | Pin headers      | 1x4, 1x6                                | Tayda ([Male](https://www.taydaelectronics.com/40-pin-2-54-mm-single-row-pin-header-strip.html), [Female](https://www.taydaelectronics.com/40-pin-2-54-mm-single-row-female-pin-header.html)), [Amazon](https://www.amazon.com/gp/product/B074HVBTZ4) | Solder the two boards directly together using the male headers or make them detachable using a male/female pair. |

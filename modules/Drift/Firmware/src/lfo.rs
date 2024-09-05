@@ -29,7 +29,7 @@ impl LfoModuleState {
 
 impl DriftModule for LfoModuleState {
     fn step(&mut self, cv: &[u16; 4]) -> u16 {
-        let (t, rollover) = self.step_time(cv[2], 0 /* TODO read cv */);
+        let (t, rollover) = self.step_time(cv[2], cv[0]);
 
         if rollover {
             // TODO this isn't great
@@ -40,7 +40,7 @@ impl DriftModule for LfoModuleState {
             // do it numerically it messed with the overall cycle time at high freq
             // due to integer precision issues. This is definitely solvable but
             // just doing this as a simple stopgap for now
-            self.apex = (cv[3] as u32) << 22;
+            self.apex = (u16::min(1023, cv[3] + cv[1]) as u32) << 22;
         }
 
         let value = if t < self.apex {

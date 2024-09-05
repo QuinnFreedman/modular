@@ -10979,7 +10979,7 @@
 		(descr "Through hole straight pin header, 1x06, 2.54mm pitch, single row")
 		(tags "Through hole pin header THT 1x06 2.54mm single row")
 		(property "Reference" "J4"
-			(at 0 2.33 90)
+			(at 1.905 1.27 180)
 			(layer "B.SilkS")
 			(uuid "3197d5c6-5159-4c92-92e9-29bb8db2f16b")
 			(effects
@@ -12883,7 +12883,7 @@
 		(descr "2x-dip-switch SPST , Slide, row spacing 7.62 mm (300 mils), body size 6.7x6.64mm (see e.g. https://www.ctscorp.com/wp-content/uploads/209-210.pdf), LowProfile")
 		(tags "DIP Switch SPST Slide 7.62mm 300mil LowProfile")
 		(property "Reference" "SW1"
-			(at 7.61 3.11 360)
+			(at 7.61 3.11 0)
 			(layer "B.SilkS")
 			(uuid "cf376e69-1119-42d1-8295-3a26771bb300")
 			(effects
@@ -12895,7 +12895,7 @@
 			)
 		)
 		(property "Value" "SW_DIP_x02"
-			(at 3.81 -5.65 360)
+			(at 3.81 -5.65 0)
 			(layer "B.Fab")
 			(uuid "c6bb218f-330b-4c6a-904a-27957fa1c0bd")
 			(effects
@@ -13796,7 +13796,7 @@
 			)
 		)
 		(fp_text user "on"
-			(at 4.485 1.3425 360)
+			(at 4.485 1.3425 0)
 			(layer "B.Fab")
 			(uuid "af63ce8d-0be3-494a-8a8a-823b918057fb")
 			(effects
@@ -14161,7 +14161,7 @@
 		(descr "C, Disc series, Radial, pin pitch=5.00mm, , diameter*width=4.7*2.5mm^2, Capacitor, http://www.vishay.com/docs/45233/krseries.pdf")
 		(tags "C Disc series Radial pin pitch 5.00mm  diameter 4.7mm width 2.5mm Capacitor")
 		(property "Reference" "C2"
-			(at 2.46 0 360)
+			(at 2.46 0 0)
 			(layer "B.SilkS")
 			(uuid "37798a81-6da8-4391-a63e-b6d319d21f32")
 			(effects
@@ -14173,7 +14173,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 2.5 -2.5 360)
+			(at 2.5 -2.5 0)
 			(layer "B.Fab")
 			(uuid "07e32a16-4f25-4530-9aba-c2c3e615d867")
 			(effects
@@ -14372,7 +14372,7 @@
 			(uuid "3c7847d4-1146-4680-9f76-452d57b6c786")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 2.5 0 360)
+			(at 2.5 0 0)
 			(layer "B.Fab")
 			(uuid "652b5554-06d9-461d-ae68-8fe1dbfcf123")
 			(effects
