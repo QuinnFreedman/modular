@@ -1027,8 +1027,8 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             PotColor.WHITE: ["#fff", "#ccc"],
             PotColor.RED: ["#e25f62", "#d23e3e"],
             PotColor.GREEN: [lighten("#54ad77", .18), "#379a64"],
-            PotColor.ORANGE: [lighten("#ff947d", .04), "#e55d44"],
-            PotColor.YELLOW: ["#fefe69", "#fef139"],
+            PotColor.ORANGE: ["#fe8f78", "#f15d38"],
+            PotColor.YELLOW: ["#fae98a", "#f7e150"],
             PotColor.BLUE: [lighten("#0bbff2", .18), darken("#0bbff2", .1)],
         }
         cap_color = cap_colors[self.color]
