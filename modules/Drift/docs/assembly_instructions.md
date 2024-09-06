@@ -13,7 +13,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drif
 |    | Board | Reference | Part             | Value                                   | Source  | Comment |
 | -- | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
 |    | Back  | R1        | Resistor         | 1kΩ                                     | [Tayda](https://www.taydaelectronics.com/10-x-resistor-1k-ohm-1-4w-1-metal-film-pkg-of-10.html) | Determines output impedance. Any value is fine. |
-|    | Back  | R2-R4     | Resistor         | 10kΩ                                    | [Tayda](https://www.taydaelectronics.com/10-x-resistor-10k-ohm-1-4w-1-metal-film-pkg-of-10.html) | R4 should be 1/2 RV3. |
+|    | Back  | R2-R4     | Resistor         | 24kΩ                                    | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-24k-ohm-1-4w-1-metal-film-pkg-of-10.html) | R4 should be 1/2 RV3. |
 |    | Back  | R5        | Resistor         | 1kΩ                                     |         | Controls LED brightness. |
 |    | Back  | R6, R7    | Resistor         | 100kΩ                                   | [Tayda](https://www.taydaelectronics.com/resistors/1-4w-metal-film-resistors/10-x-resistor-100k-ohm-1-4w-1-metal-film-pkg-of-10.html) | |
 |    | Back  | C1-C4     | Capacitor        | 100nF                                   | [Tayda](https://www.taydaelectronics.com/capacitors/ceramic-disc-capacitors/a-553-0-1uf-50v-ceramic-disc-capacitor-pkg-of-10.html) | Power filtering and decoupling |
