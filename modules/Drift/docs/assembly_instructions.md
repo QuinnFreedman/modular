@@ -8,7 +8,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_cb_back_pinteractive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_back_pinteractive_bom.html)
 
 |    | Board | Reference | Part             | Value                                   | Source  | Comment |
 | -- | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
@@ -24,7 +24,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drif
 |    | Both  | J4-J7     | Pin headers      | 1x4, 1x6                                | Tayda ([Male](https://www.taydaelectronics.com/40-pin-2-54-mm-single-row-pin-header-strip.html), [Female](https://www.taydaelectronics.com/40-pin-2-54-mm-single-row-female-pin-header.html)), [Amazon](https://www.amazon.com/gp/product/B074HVBTZ4) | Solder the two boards directly together using the male headers or make them detachable using a male/female pair. |
 | 🔴 | Both  | -         | Mounting screw   | M2                                      | [McMaster-Carr](https://www.mcmaster.com/products/screws/socket-head-screws~/system-of-measurement~metric/thread-size~m2/) | **Optional:** add an M2 screw or standoff to hold the two PCBs firmly together. |
 |    | Back  | J9        | IDC connector    | 2x8                                     | [Tayda](https://www.taydaelectronics.com/16-pin-box-header-connector-2-54mm.html) | Eurorack power header. Can use two rows of male pin headers or a shrouded connector (recommended). |
-|    | Front | RV1-RV3   | Arduino Nano     | B50kΩ                                   | [Tayda](https://www.taydaelectronics.com/potentiometer-variable-resistors/rotary-potentiometer/linear/50k-ohm-linear-taper-potentiometer-d-shaft-pcb-9mm.html) | Any value is fine. Just match R4 accordingly. |
+|    | Front | RV1-RV3   | Potentiometer    | B50kΩ                                   | [Tayda](https://www.taydaelectronics.com/potentiometer-variable-resistors/rotary-potentiometer/linear/50k-ohm-linear-taper-potentiometer-d-shaft-pcb-9mm.html) | Any value is fine. Just match R4 accordingly. |
 |    | Back  | A1        | Arduino Nano     | v3.0                                    | [Tayda](https://www.taydaelectronics.com/type-c-nano-3-0-controller-compatible-with-arduino-nano.html) | |
 | 🔴 | Back  | U1        | DAC              | MCP4922-E/P                             | [DigiKey](https://www.digikey.com/en/products/detail/microchip-technology/MCP4922-E-P/716251), [Mouser](https://mou.sr/4cwtePf) | |
 |    | Back  | U2        | Op-amp           | TL072                                   | [Tayda](https://www.taydaelectronics.com/tl072-low-noise-j-fet-dual-op-amp-ic.html) | TL082 is probably fine too |
