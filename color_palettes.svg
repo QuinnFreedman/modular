@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="215.89999mm"
+   height="279.39999mm"
+   viewBox="0 0 215.89999 279.39999"
    version="1.1"
    id="svg5"
    inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
@@ -23,23 +23,73 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.0970362"
-     inkscape:cx="63.352514"
-     inkscape:cy="784.38617"
-     inkscape:window-width="1920"
-     inkscape:window-height="1011"
+     inkscape:zoom="0.31197579"
+     inkscape:cx="-80.134423"
+     inkscape:cy="-75.326357"
+     inkscape:window-width="1500"
+     inkscape:window-height="931"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g31595"
+     inkscape:current-layer="layer1"
      inkscape:showpageshadow="2"
-     inkscape:deskcolor="#d1d1d1" />
+     inkscape:deskcolor="#d1d1d1"
+     showguides="false"
+     inkscape:lockguides="true">
+    <sodipodi:guide
+       position="10.16,279.39998"
+       orientation="-1,0"
+       id="guide1"
+       inkscape:locked="true"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" />
+    <sodipodi:guide
+       position="205.73999,279.39998"
+       orientation="-1,0"
+       id="guide2"
+       inkscape:locked="true"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" />
+    <sodipodi:guide
+       position="102.87,279.39998"
+       orientation="-1,0"
+       id="guide3"
+       inkscape:locked="true"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" />
+    <sodipodi:guide
+       position="113.03,279.39998"
+       orientation="-1,0"
+       id="guide4"
+       inkscape:locked="true"
+       inkscape:label=""
+       inkscape:color="rgb(0,134,229)" />
+    <sodipodi:guide
+       position="12.738796,225.34547"
+       orientation="1,0"
+       id="guide5"
+       inkscape:locked="true" />
+    <sodipodi:guide
+       position="115.57,279.39998"
+       orientation="-1,0"
+       id="guide6"
+       inkscape:label=""
+       inkscape:locked="true"
+       inkscape:color="rgb(0,134,229)" />
+  </sodipodi:namedview>
   <defs
      id="defs2" />
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.05;stroke-linejoin:bevel"
+       id="rect6"
+       width="215.89999"
+       height="279.39999"
+       x="0"
+       y="0" />
     <g
        id="g2"
        transform="translate(5.8848075,15.855014)">
@@ -110,47 +160,67 @@
          id="tspan13">Modular</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,38.923811 H 158.68522"
-       id="path918" />
+       d="m 10.16,38.923811 h 92.71"
+       id="path918"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,65.836653 H 158.68522"
-       id="path918-7" />
+       d="m 113.03,38.923811 h 92.71"
+       id="path918-0"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,92.749506 H 158.68521"
-       id="path918-7-6" />
+       d="m 10.16,65.836653 h 92.71"
+       id="path918-7"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,119.66235 H 158.68521"
-       id="path918-7-6-9" />
+       d="m 113.03,65.836653 h 92.71"
+       id="path918-7-9"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,146.57519 H 158.68521"
-       id="path918-7-6-9-0" />
+       d="m 10.16,92.749506 h 92.70999"
+       id="path918-7-6"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,173.48804 H 158.68521"
-       id="path918-7-6-9-0-0" />
+       d="m 113.03,92.749506 h 92.70999"
+       id="path918-7-6-2"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,200.40088 H 158.68521"
-       id="path918-7-6-9-0-0-2" />
+       d="m 10.16,119.66235 h 92.70999"
+       id="path918-7-6-9"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,227.31374 H 158.68521"
-       id="path918-7-6-9-0-0-2-4" />
+       d="m 10.16,146.57519 h 92.70999"
+       id="path918-7-6-9-0"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,254.22657 H 158.68521"
-       id="path918-7-6-9-0-0-2-4-9" />
+       d="m 10.16,173.48804 h 92.70999"
+       id="path918-7-6-9-0-0"
+       sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 10.41887,281.13943 H 158.68521"
-       id="path918-7-6-9-0-0-2-4-5" />
+       d="m 10.16,200.40088 h 92.70999"
+       id="path918-7-6-9-0-0-2"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.16,227.31374 h 92.70999"
+       id="path918-7-6-9-0-0-2-4"
+       sodipodi:nodetypes="cc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 10.16,254.22657 h 92.70999"
+       id="path918-7-6-9-0-0-2-4-9"
+       sodipodi:nodetypes="cc" />
     <g
        id="g31452"
-       transform="translate(0,1.0519989)">
+       transform="translate(2.7115209e-7,1.0519989)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -160,9 +230,9 @@
          transform="translate(-110.72744,27.064337)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan2"><tspan
+           id="tspan22"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan1">Clock</tspan></tspan></text>
+             id="tspan21">Clock</tspan></tspan></text>
       <g
          id="g13449"
          transform="translate(2.2298602,0.89415446)">
@@ -185,7 +255,7 @@
       </g>
       <g
          id="g11843"
-         transform="translate(13.375887,-0.86668852)">
+         transform="translate(12.84672,-0.86668852)">
         <circle
            style="fill:#38d0fa;fill-opacity:1;stroke-width:2.53799;stroke-linecap:square;stroke-miterlimit:0"
            id="path3610"
@@ -250,7 +320,7 @@
     </g>
     <g
        id="g31493"
-       transform="translate(0,3.0834035)">
+       transform="translate(2.7115209e-7,3.0834035)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -260,9 +330,9 @@
          transform="translate(-110.72744,78.356971)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan5"><tspan
+           id="tspan24"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan4">Output</tspan></tspan></text>
+             id="tspan23">Output</tspan></tspan></text>
       <g
          id="g13454"
          transform="translate(2.1166667,0.55253879)">
@@ -293,7 +363,7 @@
       </g>
       <g
          id="g14091"
-         transform="translate(7.9375002,1.6683762)">
+         transform="translate(7.4083335,1.6683762)">
         <g
            id="g14075">
           <circle
@@ -377,7 +447,7 @@
     </g>
     <g
        id="g31469"
-       transform="translate(0,2.7592954)">
+       transform="translate(2.711521e-7,2.7592954)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -387,9 +457,9 @@
          transform="translate(-110.84597,52.659349)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan7"><tspan
+           id="tspan26"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan6">RNG</tspan></tspan></text>
+             id="tspan25">RNG</tspan></tspan></text>
       <rect
          style="fill:#e14646;fill-opacity:1;stroke-width:1"
          id="rect1-9"
@@ -400,7 +470,7 @@
          width="5" />
       <g
          id="g14175"
-         transform="translate(3.1749992,-2.3924337)">
+         transform="translate(2.6458325,-2.3924337)">
         <g
            id="g11827"
            transform="translate(10.935177)">
@@ -461,7 +531,7 @@
     </g>
     <g
        id="g31506"
-       transform="translate(0,3.4933834)">
+       transform="translate(2.7115209e-7,3.4933834)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -471,12 +541,12 @@
          transform="translate(-110.72744,105.01648)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan9"><tspan
+           id="tspan28"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan8">O/A</tspan></tspan></text>
+             id="tspan27">O/A</tspan></tspan></text>
       <g
          id="g19179"
-         transform="translate(3.7409439,-1.3604913)">
+         transform="translate(3.2117772,-1.3604913)">
         <g
            id="g14063-9"
            transform="translate(4.488701,30.234504)">
@@ -521,7 +591,7 @@
     </g>
     <g
        id="g31518"
-       transform="translate(0,5.0488359)">
+       transform="translate(2.7115209e-7,5.0488359)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -531,9 +601,9 @@
          transform="translate(-110.76554,130.64057)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan11"><tspan
+           id="tspan30"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan10">Mixer</tspan></tspan></text>
+             id="tspan29">Mixer</tspan></tspan></text>
       <rect
          style="fill:#e962b2;fill-opacity:1;stroke-width:1"
          id="rect1-5-93-6"
@@ -544,7 +614,7 @@
          ry="0" />
       <g
          id="g21119"
-         transform="translate(2.6986813,-0.28588836)">
+         transform="translate(2.1695146,-0.28588836)">
         <circle
            style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
            id="path4260-2-0-7-7-1"
@@ -579,7 +649,7 @@
     </g>
     <g
        id="g31539"
-       transform="translate(0,5.323141)">
+       transform="translate(2.7115209e-7,5.323141)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -589,9 +659,9 @@
          transform="translate(-110.84597,156.9976)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan14"><tspan
+           id="tspan32"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan12">Envelope</tspan></tspan></text>
+             id="tspan31">Envelope</tspan></tspan></text>
       <g
          id="g22835"
          transform="translate(6.7976169,0.48889102)">
@@ -630,7 +700,7 @@
       </g>
       <g
          id="g23216"
-         transform="translate(1.8325289,-6.2780063)">
+         transform="translate(1.3033622,-6.2780063)">
         <g
            id="g23204">
           <circle
@@ -690,7 +760,7 @@
     </g>
     <g
        id="g31580"
-       transform="translate(0,5.4651219)">
+       transform="translate(2.7115209e-7,5.4651219)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -700,9 +770,9 @@
          transform="translate(-110.72744,212.71331)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan16"><tspan
+           id="tspan34"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan15">Quantizer</tspan></tspan></text>
+             id="tspan33">Quantizer</tspan></tspan></text>
       <g
          id="g13454-0"
          transform="translate(2.1166667,134.85173)">
@@ -849,7 +919,7 @@
     </g>
     <g
        id="g31595"
-       transform="translate(0,-1.4839534)">
+       transform="translate(102.89894,-216.78675)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -859,9 +929,9 @@
          transform="translate(-110.54964,244.45223)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan18"><tspan
+           id="tspan36"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan17">TrigFX</tspan></tspan></text>
+             id="tspan35">TrigFX</tspan></tspan></text>
       <g
          id="g21119-7"
          transform="translate(4.2546389,114.69631)">
@@ -944,8 +1014,52 @@
       </g>
     </g>
     <g
+       id="g31595-3"
+       transform="translate(102.89894,-189.34473)">
+      <text
+         xml:space="preserve"
+         style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
+         x="123.2215"
+         y="25.874678"
+         id="text1-0-1-3-3-6-5-3-0-6"
+         transform="translate(-110.54964,244.45223)"><tspan
+           x="123.2215"
+           y="25.874678"
+           id="tspan38"><tspan
+             style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
+             id="tspan37">Boost</tspan></tspan></text>
+      <g
+         id="g21119-7-2"
+         transform="translate(3.1963055,115.22548)">
+        <circle
+           style="fill:#e962b2;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
+           id="path4260-2-0-7-7-1-2-6"
+           cx="93.45433"
+           cy="147.09904"
+           r="1.4" />
+        <circle
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
+           id="path4260-2-0-7-7-1-0-72-1"
+           cx="93.45433"
+           cy="152.56186"
+           r="1.4" />
+      </g>
+      <g
+         id="g27025-3"
+         transform="translate(1.131708,3.9945815)">
+        <rect
+           style="fill:#e962b2;fill-opacity:1;stroke-width:1"
+           id="rect1-5-93-4-7"
+           width="5"
+           height="5"
+           x="49.029133"
+           y="262.67239"
+           ry="0" />
+      </g>
+    </g>
+    <g
        id="g31553"
-       transform="translate(0,2.9907574)">
+       transform="translate(2.7115209e-7,2.9907574)">
       <text
          xml:space="preserve"
          style="font-weight:bold;font-size:4.23333px;line-height:1;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans Bold';white-space:pre;inline-size:54.5472;display:inline;fill:#000000;stroke:#b2b2b2;stroke-width:1"
@@ -955,9 +1069,9 @@
          transform="translate(-110.84597,186.61115)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan20"><tspan
+           id="tspan40"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan19">Drift</tspan></tspan></text>
+             id="tspan39">Drift</tspan></tspan></text>
       <g
          id="g27278"
          transform="translate(0.30838193,2.5187489)">
@@ -988,7 +1102,7 @@
       </g>
       <g
          id="g27486"
-         transform="translate(1.3806114,1.0957337)">
+         transform="translate(0.85144473,1.0957337)">
         <circle
            style="fill:#e14646;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-miterlimit:0;stroke-dasharray:none;stroke-opacity:1"
            id="path4260-2-0-7-7-1-0-7-4"
