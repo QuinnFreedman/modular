@@ -1,4 +1,0 @@
-(sym_lib_table
-  (version 7)
-  (lib (name "simplex_pcb_back-rescue")(type "KiCad")(uri "${KIPRJMOD}/simplex_pcb_back-rescue.kicad_sym")(options "")(descr ""))
-)
