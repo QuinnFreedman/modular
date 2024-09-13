@@ -6,7 +6,7 @@
 
 <h1>Drift</h1>
 
-<p>A modulation source for creating organic, always changing, never repeating control voltagles. The main algorithm is based on Perlin noise, but there are three other algorithms to choose from if you want a different flavor.</p>
+<p>A modulation source for creating organic, always changing, never repeating control voltages. The main algorithm is based on Perlin noise, but there are three other algorithms to choose from if you want a different flavor.</p>
 
 <h2>Resources</h2>
 

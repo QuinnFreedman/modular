@@ -8,7 +8,7 @@ See [general assembly instructions](https://quinnfreedman.github.io/modular/docs
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_back_pinteractive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Drift/drift_pcb_back_interactive_bom.html)
 
 |    | Board | Reference | Part             | Value                                   | Source  | Comment |
 | -- | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
