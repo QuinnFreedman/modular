@@ -1932,7 +1932,7 @@
 		(layer "B.Cu")
 		(uuid "15e7e498-604e-4382-aa15-2321d0599fdd")
 		(at 35.56 38.1 90)
-		(property "Reference" "REF**"
+		(property "Reference" "G1"
 			(at 0 2.1 -90)
 			(unlocked yes)
 			(layer "B.SilkS")
