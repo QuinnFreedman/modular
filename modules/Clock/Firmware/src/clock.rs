@@ -12,6 +12,8 @@ pub struct ClockChannelConfig {
 pub struct ClockConfig {
     pub channels: [ClockChannelConfig; 8],
     pub bpm: u8,
+    // This isn't used right now, but reserving the space for a future feature
+    pub _is_follower: bool,
 }
 
 impl ClockConfig {
@@ -26,6 +28,7 @@ impl ClockConfig {
                 pulse_width: 50,
                 phase_shift: 0,
             }),
+            _is_follower: false,
         }
     }
 }
