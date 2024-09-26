@@ -6,7 +6,7 @@ pub fn u8_to_str_b10<'a>(buffer: &'a mut [u8], mut n: u8) -> &'a mut [u8] {
         let power_value = POWERS[i as usize];
         let digit = n / power_value;
         let remainder = n % power_value;
-        buffer[i as usize] = ('0' as u8) + digit;
+        buffer[i as usize] = b'0' + digit;
         if digit != 0 && cursor == 2u8 {
             cursor = i
         }
@@ -18,11 +18,11 @@ pub fn u8_to_str_b10<'a>(buffer: &'a mut [u8], mut n: u8) -> &'a mut [u8] {
 pub fn i8_to_str_b10<'a>(buffer: &'a mut [u8], n: i8) -> &'a mut [u8] {
     debug_assert!(buffer.len() >= 4);
     if n == 0 {
-        buffer[0] = '0' as u8;
+        buffer[0] = b'0';
         return &mut buffer[..1];
     }
 
-    let sign = if n < 0 { '-' as u8 } else { '+' as u8 };
+    let sign = if n < 0 { b'-' } else { b'+' };
 
     let mut n: u8 = n.abs() as u8;
     const POWERS: [u8; 3] = [100, 10, 1];
@@ -31,7 +31,7 @@ pub fn i8_to_str_b10<'a>(buffer: &'a mut [u8], n: i8) -> &'a mut [u8] {
         let power_value = POWERS[i as usize];
         let digit = n / power_value;
         let remainder = n % power_value;
-        buffer[(i + 1) as usize] = ('0' as u8) + digit;
+        buffer[(i + 1) as usize] = (b'0') + digit;
         if digit != 0 && cursor == 0xffu8 {
             cursor = i
         }
@@ -46,15 +46,15 @@ pub fn tempo_to_str<'a>(buffer: &'a mut [u8], n: i8) -> &'a [u8] {
     debug_assert!(n != 0);
 
     if n < -64 {
-        buffer[0] = 'O' as u8;
-        buffer[1] = 'N' as u8;
-        buffer[2] = 'C' as u8;
-        buffer[3] = 'E' as u8;
+        buffer[0] = b'O';
+        buffer[1] = b'N';
+        buffer[2] = b'C';
+        buffer[3] = b'E';
         return buffer;
     }
 
     // Using custom code page to save space, '^' is mapped to '%'
-    let symbol = if n < 0 { b'_' as u8 } else { b'x' as u8 };
+    let symbol = if n < 0 { b'_' } else { b'x' };
     let text = i8_to_str_b10(buffer, n);
     text[0] = symbol;
     text

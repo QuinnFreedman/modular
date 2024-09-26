@@ -4,7 +4,10 @@ use arduino_hal::Eeprom;
 use avr_device::atmega328p::EEPROM;
 use fm_lib::debug_unwrap::DebugUnwrap;
 
-use crate::clock::{ClockChannelConfig, ClockConfig};
+use crate::{
+    clock::{ClockChannelConfig, ClockConfig},
+    menu::{MAX_BPM, MIN_BPM},
+};
 
 struct EepromWrite {
     offset: u8,
@@ -17,9 +20,38 @@ pub struct PersistanceManager {
     queued_write: EepromWrite,
 }
 
+fn is_valid_clock_config(data: &[u8; mem::size_of::<ClockConfig>()]) -> bool {
+    let config: &ClockConfig = unsafe { mem::transmute(data) };
+    if config.bpm < MIN_BPM || config.bpm > MAX_BPM {
+        return false;
+    }
+
+    for channel in &config.channels {
+        if channel.division > 64 || channel.division < -65 {
+            return false;
+        }
+
+        if channel.pulse_width > 100 {
+            return false;
+        }
+
+        if channel.phase_shift > 32 || channel.phase_shift < -32 {
+            return false;
+        }
+
+        if channel.swing > 32 {
+            return false;
+        }
+    }
+
+    true
+}
+
 impl PersistanceManager {
     #[inline(never)]
-    pub fn new(eeprom: EEPROM, data: &mut [u8; mem::size_of::<ClockConfig>()]) -> Self {
+    pub fn new(eeprom: EEPROM, clock_config: &mut ClockConfig) -> Self {
+        let raw_data: &mut [u8; mem::size_of::<ClockConfig>()] =
+            unsafe { mem::transmute(clock_config) };
         let mut eep = arduino_hal::Eeprom::new(eeprom);
 
         const BLOCK_SIZE: u16 = mem::size_of::<ClockConfig>() as u16 + 1;
@@ -39,7 +71,7 @@ impl PersistanceManager {
 
         if latest_version == 0xFF {
             eep.write_byte(new_index, 0);
-            eep.write(new_index + 1, data).assert_ok();
+            eep.write(new_index + 1, raw_data).assert_ok();
         } else {
             let mut new_version = latest_version + 1;
             if new_version == 0xFF {
@@ -52,9 +84,20 @@ impl PersistanceManager {
             if new_index + BLOCK_SIZE > eep.capacity() {
                 new_index = 0;
             }
-            eep.read(latest_version_index + 1, data).assert_ok();
+            eep.read(latest_version_index + 1, raw_data).assert_ok();
+
+            if !is_valid_clock_config(&raw_data) {
+                // If the loaded clock state is invalid (either because of a bug in
+                // this code or because the EEPROM has been corrupted somehow, or
+                // because it was modified before loading this firmware) the config
+                // should be reset to default
+
+                // TODO indicate to user somehow that this has happened
+                *raw_data = unsafe { mem::transmute(ClockConfig::new()) }
+            }
+
             eep.write_byte(new_index, new_version);
-            eep.write(new_index + 1, data).assert_ok();
+            eep.write(new_index + 1, raw_data).assert_ok();
         }
 
         Self {

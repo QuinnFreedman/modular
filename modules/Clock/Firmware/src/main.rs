@@ -22,7 +22,6 @@ mod render_numbers;
 use arduino_hal::hal::port::{PC3, PC4};
 use avr_device::interrupt;
 use clock::{ClockConfig, ClockState};
-use core::mem;
 use core::panic::PanicInfo;
 use eeprom::PersistanceManager;
 use fm_lib::button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
@@ -80,8 +79,7 @@ fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().assert_ok();
 
     let mut clock_config = ClockConfig::new();
-    let mut persistance_manager =
-        PersistanceManager::new(dp.EEPROM, unsafe { mem::transmute(&mut clock_config) });
+    let mut persistance_manager = PersistanceManager::new(dp.EEPROM, &mut clock_config);
 
     // start system clock
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
