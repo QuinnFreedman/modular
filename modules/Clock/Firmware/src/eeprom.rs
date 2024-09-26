@@ -14,6 +14,20 @@ struct EepromWrite {
     value: u8,
 }
 
+/**
+On module startup, the previous clock config is loaded from EEPROM, if it was saved.
+Then, the whole config is copied to another spot in EEPROM in order to spread out
+the writes since each EEPROM bit can only take a limited number of writes in its
+lifetime. All subsequent changes to clock state are written to the new location.
+
+To save writes and clock cycles, updates are not written to EEPROM immediately.
+Instead, one update at a time can be queued. Queue is flushed after a short delay
+or when a change to a different field is queued.
+
+This is very similar to `WearLevelledEepromWriter` in `fm-lib`, but because both
+flash storage and memory are *very* constrained in this module, this is a slightly
+simplified and specialized version to address only the needs of this module.
+*/
 pub struct PersistanceManager {
     eeprom: Eeprom,
     offset: u16,
