@@ -10,6 +10,7 @@ use super::{
     utils::{single_step_clock_division, step_clock_division},
 };
 
+#[inline(never)]
 pub fn update_menu<BtnPin, const BTN_DEBOUNCE: u32, const BTN_LONG_PRESS: u32>(
     menu_or_ss_state: &mut MenuOrScreenSaverState,
     clock_state: &mut ClockConfig,

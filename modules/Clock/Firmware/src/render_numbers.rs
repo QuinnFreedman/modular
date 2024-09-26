@@ -53,7 +53,7 @@ pub fn tempo_to_str<'a>(buffer: &'a mut [u8], n: i8) -> &'a [u8] {
         return buffer;
     }
 
-    let symbol = if n < 0 { '/' as u8 } else { 'x' as u8 };
+    let symbol = if n < 0 { b'?' as u8 } else { b'x' as u8 };
     let text = i8_to_str_b10(buffer, n);
     text[0] = symbol;
     text

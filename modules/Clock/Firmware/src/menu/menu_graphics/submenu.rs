@@ -181,7 +181,7 @@ fn draw_submenu_item_value<DI, SIZE>(
                 let text = u8_to_str_b10(&mut text_buffer, pulse_width);
                 // This could be done by appending '%' to the text buffer but
                 // this is a little easier
-                (text, Some(PRO_FONT_22.get_glyph(b'%')))
+                (text, Some(PRO_FONT_22.get_glyph(b'?')))
             }
         },
         SubMenuItem::PhaseShift => (
