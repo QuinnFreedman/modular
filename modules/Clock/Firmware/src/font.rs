@@ -26,14 +26,14 @@ pub const fn get_glyph_size_bytes(glyph_width: u8, glyph_height: u8) -> usize {
 pub const fn get_font_buffer_size(glyph_width: u8, glyph_height: u8, charset: CharSet) -> usize {
     let num_characters = match charset {
         CharSet::VisibleAscii => 96,
-        CharSet::AlphanumericOnly => 75,
+        CharSet::CustomLimitedCodePage => 75,
         CharSet::NumeralsOnly => 10,
     };
     return get_glyph_size_bytes(glyph_width, glyph_height) * num_characters;
 }
 
 progmem! {
-    static progmem PRO_FONT_22_RAW_BYTES:  [u8; get_font_buffer_size(12, 22, CharSet::AlphanumericOnly)] = *include_bytes!("../assets/profont_22_alphanum.bin");
+    static progmem PRO_FONT_22_RAW_BYTES:  [u8; get_font_buffer_size(12, 22, CharSet::CustomLimitedCodePage)] = *include_bytes!("../assets/profont_22_alphanum.bin");
     static progmem PRO_FONT_29_RAW_BYTES:  [u8; get_font_buffer_size(16, 29, CharSet::NumeralsOnly)] = *include_bytes!("../assets/profont_29_numeric.bin");
 }
 
@@ -41,7 +41,7 @@ progmem! {
 #[derive(PartialEq, Eq, ConstParamTy)]
 pub enum CharSet {
     VisibleAscii,
-    AlphanumericOnly,
+    CustomLimitedCodePage,
     NumeralsOnly,
 }
 
@@ -63,7 +63,7 @@ where
     pub fn get_glyph(&self, c: u8) -> [u8; get_glyph_size_bytes(GLYPH_WIDTH, GLYPH_HEIGHT)] {
         let (char_idx_start, char_idx_end) = match CHARSET {
             CharSet::VisibleAscii => (32u8, 127u8),
-            CharSet::AlphanumericOnly => (48u8, 122u8),
+            CharSet::CustomLimitedCodePage => (48u8, 122u8),
             CharSet::NumeralsOnly => (48u8, 57u8),
         };
         debug_assert!(c >= char_idx_start && c <= char_idx_end);
@@ -80,8 +80,8 @@ where
     }
 }
 
-pub static PRO_FONT_22: ProgmemBitmapFont<12, 22, { CharSet::AlphanumericOnly }> =
-    ProgmemBitmapFont::<12, 22, { CharSet::AlphanumericOnly }>::new(PRO_FONT_22_RAW_BYTES);
+pub static PRO_FONT_22: ProgmemBitmapFont<12, 22, { CharSet::CustomLimitedCodePage }> =
+    ProgmemBitmapFont::<12, 22, { CharSet::CustomLimitedCodePage }>::new(PRO_FONT_22_RAW_BYTES);
 
 pub static PRO_FONT_29_NUMERIC: ProgmemBitmapFont<16, 29, { CharSet::NumeralsOnly }> =
     ProgmemBitmapFont::<16, 29, { CharSet::NumeralsOnly }>::new(PRO_FONT_29_RAW_BYTES);
