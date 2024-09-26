@@ -13,6 +13,7 @@ pub mod bit_ops;
 pub mod button_debouncer;
 pub mod const_traits;
 pub mod debug_unwrap;
+pub mod eeprom;
 pub mod mcp4922;
 pub mod number_utils;
 pub mod nybl_pair;
@@ -20,5 +21,5 @@ pub mod rng;
 pub mod rotary_encoder;
 pub mod system_clock;
 
-// #[cfg(feature = "panic")]
+#[cfg(feature = "panic")]
 pub mod panic;

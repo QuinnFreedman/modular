@@ -1,6 +1,6 @@
-// TOOD maybe have candidate value in menu state for actively edited field so
+// TODO maybe have candidate value in menu state for actively edited field so
 // changes aren't applied until commit
-#[repr(packed)]
+#[repr(C)]
 pub struct ClockChannelConfig {
     pub division: i8,
     pub swing: u8,
@@ -8,7 +8,7 @@ pub struct ClockChannelConfig {
     pub phase_shift: i8,
 }
 
-#[repr(packed)]
+#[repr(C)]
 pub struct ClockConfig {
     pub channels: [ClockChannelConfig; 8],
     pub bpm: u8,

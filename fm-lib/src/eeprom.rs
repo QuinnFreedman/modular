@@ -1,7 +1,8 @@
 use core::mem::MaybeUninit;
 
-use arduino_hal::Eeprom;
+use arduino_hal::{prelude::_unwrap_infallible_UnwrapInfallible, Eeprom};
 use avr_device::atmega328p::EEPROM;
+use ufmt::uwriteln;
 
 /**
 Every time the writer is initialized (i.e. on device startup) the full object is
@@ -19,7 +20,16 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
     const DATA_SIZE: u16 = SIZE as u16;
     const TOTAL_SIZE: u16 = 2 + Self::DATA_SIZE;
 
-    pub fn init_and_advance(eeprom: EEPROM, memory: &mut [u8; SIZE], clear: bool) -> Self {
+    #[inline(never)]
+    pub fn init_and_advance<Validator>(
+        eeprom: EEPROM,
+        memory: &mut [u8; SIZE],
+        clear: bool,
+        is_valid: Validator,
+    ) -> Self
+    where
+        Validator: Fn(&[u8; SIZE]) -> bool,
+    {
         let mut eep = arduino_hal::Eeprom::new(eeprom);
 
         if clear {
@@ -35,14 +45,24 @@ impl<const SIZE: usize> WearLevelledEepromWriter<SIZE> {
         };
 
         if version == 0xFFFF {
-            // This is a first time boot, or eeprom was corrupted in last write
-            // (and/or our invariants about eeprom layout were violated)
-            // TODO: in this case, maybe it's worth doing a slow scan of the full
-            // eeprom to find the most recent valid save
+            writer.address = 0;
             writer.version = 0;
             writer.write_data(memory);
         } else {
-            *memory = writer.advance_and_copy();
+            let temp = writer.advance_and_copy();
+            if !is_valid(&temp) {
+                let dp = unsafe { arduino_hal::Peripherals::steal() };
+                let pins = arduino_hal::pins!(dp);
+                let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+                uwriteln!(&mut serial, "invalid EEPROM; resetting").unwrap_infallible();
+
+                Self::clear_all(&mut writer.eeprom);
+                writer.address = 0;
+                writer.version = 0;
+                writer.write_data(memory);
+            } else {
+                *memory = temp;
+            }
         }
 
         writer

@@ -24,13 +24,14 @@ use envelope::{
     ui_show_mode, ui_show_stage, update, AcrcLoopState, AcrcState, AdsrState, AhrdState,
     EnvelopeMode,
 };
-use fm_lib::asynchronous::{AtomicRead, Borrowable};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
     },
     asynchronous::{assert_interrupts_disabled, unsafe_access_mutex},
+    asynchronous::{AtomicRead, Borrowable},
     button_debouncer::ButtonDebouncer,
+    eeprom::WearLevelledEepromWriter,
     handle_system_clock_interrupt,
     mcp4922::{DacChannel, MCP4922},
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
@@ -38,11 +39,9 @@ use fm_lib::{
 use ufmt::uwriteln;
 
 use crate::aux::{update_aux, AuxMode};
-use crate::eeprom::WearLevelledEepromWriter;
 use crate::envelope::{EnvelopeState, GateState, Input};
 
 mod aux;
-mod eeprom;
 mod envelope;
 mod exponential_curves;
 

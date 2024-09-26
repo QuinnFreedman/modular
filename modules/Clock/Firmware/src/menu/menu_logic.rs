@@ -3,6 +3,7 @@ use fm_lib::button_debouncer::{ButtonWithLongPress, LongPressButtonState};
 use fm_lib::rotary_encoder::RotaryEncoderHandler;
 
 use crate::clock::{ClockChannelConfig, ClockConfig};
+use crate::eeprom::PersistanceManager;
 
 use super::{
     menu_state::*,
@@ -16,6 +17,7 @@ pub fn update_menu<BtnPin, const BTN_DEBOUNCE: u32, const BTN_LONG_PRESS: u32>(
     rotary_encoder: &RotaryEncoderHandler,
     current_time_ms: u32,
     did_rollover: bool,
+    persistance_manager: &mut PersistanceManager,
 ) -> MenuUpdate
 where
     BtnPin: PinOps,
@@ -103,11 +105,17 @@ where
             let rotary_encoder_delta = rotary_encoder.sample_and_reset();
             if rotary_encoder_delta != 0 {
                 menu_state.last_input_time_ms = current_time_ms;
-                return handle_rotary_knob_change(menu_state, clock_state, rotary_encoder_delta);
+                return handle_rotary_knob_change(
+                    menu_state,
+                    clock_state,
+                    rotary_encoder_delta,
+                    persistance_manager,
+                );
             }
 
             const SCREENSAVER_TIMEOUT_MS: u32 = 5000;
             if current_time_ms > menu_state.last_input_time_ms + SCREENSAVER_TIMEOUT_MS {
+                persistance_manager.flush();
                 *menu_or_ss_state =
                     MenuOrScreenSaverState::ScreenSaver(ScreenSaverState::new(current_time_ms));
                 return MenuUpdate::SwitchScreens;
@@ -169,10 +177,14 @@ fn handle_short_press(menu_state: &mut MenuState, _clock_state: &mut ClockConfig
     }
 }
 
+pub const MIN_BPM: u8 = 30;
+pub const MAX_BPM: u8 = 250;
+
 fn handle_rotary_knob_change(
     menu_state: &mut MenuState,
     clock_state: &mut ClockConfig,
     rotary_encoder_delta: i8,
+    persistance_manager: &mut PersistanceManager,
 ) -> MenuUpdate {
     match menu_state.page {
         MenuPage::Bpm => match menu_state.editing {
@@ -180,7 +192,8 @@ fn handle_rotary_knob_change(
                 clock_state.bpm = clock_state
                     .bpm
                     .saturating_add_signed(rotary_encoder_delta)
-                    .clamp(30, 250);
+                    .clamp(MIN_BPM, MAX_BPM);
+                persistance_manager.set_bpm(clock_state.bpm);
                 MenuUpdate::UpdateValueAtCursor
             }
             EditingState::Navigating => {
@@ -208,24 +221,28 @@ fn handle_rotary_knob_change(
                 }
             }
             EditingState::Editing => {
-                clock_state.channels[(*cursor) as usize].division = step_clock_division(
+                let new_value = step_clock_division(
                     clock_state.channels[(*cursor) as usize].division,
                     rotary_encoder_delta,
                 );
+                clock_state.channels[(*cursor) as usize].division = new_value;
+                persistance_manager.set_division(*cursor, new_value);
                 MenuUpdate::UpdateValueAtCursor
             }
         },
         MenuPage::SubMenu {
-            channel,
+            channel: channel_idx,
             ref mut cursor,
             ref mut scroll,
         } => match menu_state.editing {
             EditingState::Editing => {
-                let channel: &mut ClockChannelConfig = &mut clock_state.channels[channel as usize];
+                let channel: &mut ClockChannelConfig =
+                    &mut clock_state.channels[channel_idx as usize];
                 match SubMenuItem::from(*cursor) {
                     SubMenuItem::Division => {
                         channel.division =
                             single_step_clock_division(channel.division, rotary_encoder_delta);
+                        persistance_manager.set_division(channel_idx, channel.division);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::PulseWidth => {
@@ -233,6 +250,7 @@ fn handle_rotary_knob_change(
                             .pulse_width
                             .saturating_add_signed(rotary_encoder_delta)
                             .clamp(0, 100);
+                        persistance_manager.set_pulse_width(channel_idx, channel.pulse_width);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::PhaseShift => {
@@ -240,6 +258,7 @@ fn handle_rotary_knob_change(
                             .phase_shift
                             .saturating_add(rotary_encoder_delta)
                             .clamp(-32, 32);
+                        persistance_manager.set_phase_shift(channel_idx, channel.phase_shift);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::Swing => {
@@ -247,6 +266,7 @@ fn handle_rotary_knob_change(
                             .swing
                             .saturating_add_signed(rotary_encoder_delta)
                             .min(32);
+                        persistance_manager.set_swing(channel_idx, channel.swing);
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::Exit => MenuUpdate::NoUpdate,

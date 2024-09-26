@@ -4,8 +4,8 @@ use avr_progmem::progmem;
 use avr_progmem::wrapper::ProgMem;
 
 /**
-Rendering text using ebeded_graphics with standard fonts is way too slow and memory intensive. I created a custom font
-format to make it possible using the following optimiations:
+Rendering text using embedded_graphics with standard fonts is way too slow and memory intensive. I created a custom font
+format to make it possible using the following optimizations:
 
 1. Only include ASCII characters 32-127. The first 32 ASCII values aren't renderable (except TAB) to leaving these out
    saves room. All text rendering is done in ASCII (for performance), so no unicode.
@@ -26,27 +26,30 @@ pub const fn get_glyph_size_bytes(glyph_width: u8, glyph_height: u8) -> usize {
 pub const fn get_font_buffer_size(glyph_width: u8, glyph_height: u8, charset: CharSet) -> usize {
     let num_characters = match charset {
         CharSet::VisibleAscii => 96,
+        CharSet::AlphanumericOnly => 75,
         CharSet::NumeralsOnly => 10,
     };
     return get_glyph_size_bytes(glyph_width, glyph_height) * num_characters;
 }
 
 progmem! {
-    static progmem PRO_FONT_22_RAW_BYTES:  [u8; get_font_buffer_size(12, 22, CharSet::VisibleAscii)] = *include_bytes!("../assets/profont_22.bin");
+    static progmem PRO_FONT_22_RAW_BYTES:  [u8; get_font_buffer_size(12, 22, CharSet::AlphanumericOnly)] = *include_bytes!("../assets/profont_22_alphanum.bin");
     static progmem PRO_FONT_29_RAW_BYTES:  [u8; get_font_buffer_size(16, 29, CharSet::NumeralsOnly)] = *include_bytes!("../assets/profont_29_numeric.bin");
 }
 
+#[allow(dead_code)]
 #[derive(PartialEq, Eq, ConstParamTy)]
 pub enum CharSet {
     VisibleAscii,
+    AlphanumericOnly,
     NumeralsOnly,
 }
 
-pub struct ProgmemBitmapFont<const GLPYPH_WIDTH: u8, const GLYPH_HEIGHT: u8, const CHARSET: CharSet>
+pub struct ProgmemBitmapFont<const GLYPH_WIDTH: u8, const GLYPH_HEIGHT: u8, const CHARSET: CharSet>
 where
-    [(); get_font_buffer_size(GLPYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]: Sized,
+    [(); get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]: Sized,
 {
-    raw_bytes: ProgMem<[u8; get_font_buffer_size(GLPYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]>,
+    raw_bytes: ProgMem<[u8; get_font_buffer_size(GLYPH_WIDTH, GLYPH_HEIGHT, CHARSET)]>,
 }
 
 trait HasGlyphSizeBytes<const GLYPH_WIDTH: u8, const GLYPH_HEIGHT: u8> {}
@@ -60,6 +63,7 @@ where
     pub fn get_glyph(&self, c: u8) -> [u8; get_glyph_size_bytes(GLYPH_WIDTH, GLYPH_HEIGHT)] {
         let (char_idx_start, char_idx_end) = match CHARSET {
             CharSet::VisibleAscii => (32u8, 127u8),
+            CharSet::AlphanumericOnly => (48u8, 122u8),
             CharSet::NumeralsOnly => (48u8, 57u8),
         };
         debug_assert!(c >= char_idx_start && c <= char_idx_end);
@@ -76,8 +80,8 @@ where
     }
 }
 
-pub static PRO_FONT_22: ProgmemBitmapFont<12, 22, { CharSet::VisibleAscii }> =
-    ProgmemBitmapFont::<12, 22, { CharSet::VisibleAscii }>::new(PRO_FONT_22_RAW_BYTES);
+pub static PRO_FONT_22: ProgmemBitmapFont<12, 22, { CharSet::AlphanumericOnly }> =
+    ProgmemBitmapFont::<12, 22, { CharSet::AlphanumericOnly }>::new(PRO_FONT_22_RAW_BYTES);
 
 pub static PRO_FONT_29_NUMERIC: ProgmemBitmapFont<16, 29, { CharSet::NumeralsOnly }> =
     ProgmemBitmapFont::<16, 29, { CharSet::NumeralsOnly }>::new(PRO_FONT_29_RAW_BYTES);

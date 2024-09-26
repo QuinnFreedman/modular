@@ -21,6 +21,7 @@ display-interface-spi = "0.4.1"
 avr-progmem = { version = "0.3.3", default-features = false }
 avr-device = { version = "0.5.3", features = ["atmega328p"] }
 fm-lib = { path = "../../../fm-lib" }
+ufmt = "0.2.0"
 
 [dependencies.arduino-hal]
 git = "https://github.com/rahix/avr-hal"

@@ -9,17 +9,22 @@
 #![feature(const_trait_impl)]
 #![feature(adt_const_params)]
 #![feature(effects)]
+#![feature(offset_of)]
 
 mod clock;
 mod display_buffer;
+mod eeprom;
 mod font;
 mod menu;
 mod random;
 mod render_numbers;
 
 use arduino_hal::hal::port::{PC3, PC4};
+use avr_device::interrupt;
 use clock::{ClockConfig, ClockState};
+use core::mem;
 use core::panic::PanicInfo;
+use eeprom::PersistanceManager;
 use fm_lib::button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
 use fm_lib::debug_unwrap::DebugUnwrap;
 use fm_lib::handle_system_clock_interrupt;
@@ -35,25 +40,21 @@ handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 #[inline(never)]
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
-    unsafe {
-        let spcr: *mut u8 = 0x4C as *mut u8;
-        let spe_mask = 1u8 << 6u8;
-        *spcr = *spcr & !spe_mask;
-    }
+    interrupt::disable();
 
     let dp = unsafe { arduino_hal::Peripherals::steal() };
     let pins = arduino_hal::pins!(dp);
 
-    let short = 100;
-    let long = 500;
+    const SHORT: u16 = 100;
+    const LONG: u16 = 500;
     let mut led = pins.d13.into_output();
     loop {
-        for len in [short, long] {
+        for len in [SHORT, LONG] {
             for _ in 0..3u8 {
                 led.set_high();
                 arduino_hal::delay_ms(len);
                 led.set_low();
-                arduino_hal::delay_ms(short);
+                arduino_hal::delay_ms(SHORT);
             }
         }
     }
@@ -77,6 +78,10 @@ fn PCINT0() {
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().assert_ok();
+
+    let mut clock_config = ClockConfig::new();
+    let mut persistance_manager =
+        PersistanceManager::new(dp.EEPROM, unsafe { mem::transmute(&mut clock_config) });
 
     // start system clock
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
@@ -132,7 +137,6 @@ fn main() -> ! {
     let mut encoder_button = ButtonWithLongPress::<PC4, 32, 500>::new(pins.a4.into_pull_up_input());
     let mut pause_button = ButtonDebouncer::<PC3, 32>::new(pins.a3.into_pull_up_input());
     let mut menu_state = MenuOrScreenSaverState::new();
-    let mut clock_config = ClockConfig::new();
     let mut clock_state = ClockState::new();
     let mut is_paused = false;
     let mut start_time: u64 = 0;
@@ -188,6 +192,7 @@ fn main() -> ! {
             &ROTARY_ENCODER,
             current_time_ms,
             did_rollover,
+            &mut persistance_manager,
         );
 
         // Only re-render the part of the screen that needs to be updated, if any

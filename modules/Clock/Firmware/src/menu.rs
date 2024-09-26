@@ -4,5 +4,5 @@ mod menu_state;
 mod utils;
 
 pub use menu_graphics::render_menu;
-pub use menu_logic::update_menu;
+pub use menu_logic::{update_menu, MAX_BPM, MIN_BPM};
 pub use menu_state::{MenuOrScreenSaverState, MenuUpdate};
