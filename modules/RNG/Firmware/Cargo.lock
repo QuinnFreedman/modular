@@ -13,7 +13,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
- "ufmt 0.2.0",
+ "ufmt",
 ]
 
 [[package]]
@@ -61,7 +61,7 @@ dependencies = [
  "nb 1.1.0",
  "paste",
  "rustversion",
- "ufmt 0.2.0",
+ "ufmt",
  "unwrap-infallible",
 ]
 
@@ -135,6 +135,7 @@ dependencies = [
  "avr-progmem",
  "cfg-if 0.1.10",
  "embedded-hal 0.2.7",
+ "ufmt",
 ]
 
 [[package]]
@@ -147,7 +148,6 @@ dependencies = [
  "embedded-hal 0.2.7",
  "fm-lib",
  "nb 0.1.3",
- "ufmt 0.1.2",
 ]
 
 [[package]]
@@ -170,12 +170,6 @@ name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
-
-[[package]]
-name = "proc-macro-hack"
-version = "0.5.20+deprecated"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc375e1527247fe1a97d8b7156678dfe7c1af2fc075c9a4db3690ecd2a148068"
 
 [[package]]
 name = "proc-macro2"
@@ -214,35 +208,12 @@ dependencies = [
 
 [[package]]
 name = "ufmt"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31d3c0c63312dfc9d8e5c71114d617018a19f6058674003c0da29ee8d8036cdd"
-dependencies = [
- "proc-macro-hack",
- "ufmt-macros 0.2.0",
- "ufmt-write",
-]
-
-[[package]]
-name = "ufmt"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a64846ec02b57e9108d6469d98d1648782ad6bb150a95a9baac26900bbeab9d"
 dependencies = [
- "ufmt-macros 0.3.0",
+ "ufmt-macros",
  "ufmt-write",
-]
-
-[[package]]
-name = "ufmt-macros"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e4ab6c92f30c996394a8bd525aef9f03ce01d0d7ac82d81902968057e37dd7d9"
-dependencies = [
- "proc-macro-hack",
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]

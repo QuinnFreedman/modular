@@ -11,7 +11,7 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
-use core::{cell::Cell, panic::PanicInfo};
+use core::cell::Cell;
 
 use arduino_hal::{
     hal::port,
@@ -19,7 +19,6 @@ use arduino_hal::{
         mode::{Floating, Input, Output},
         Pin, PinOps,
     },
-    prelude::*,
     Peripherals,
 };
 
@@ -37,7 +36,6 @@ use fm_lib::{
 };
 use fm_lib::{handle_system_clock_interrupt, system_clock::SystemClock};
 use rng::{RngModuleInputShort, RngModuleOutput};
-use ufmt::uwriteln;
 
 use crate::{
     led_driver::TLC5940,
@@ -50,42 +48,6 @@ mod rng;
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
 handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
-
-#[inline(never)]
-#[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
-    let dp = unsafe { arduino_hal::Peripherals::steal() };
-    let pins = arduino_hal::pins!(dp);
-    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-    serial.flush();
-    serial.write_byte(b'\n');
-    serial.write_byte(b'\n');
-    if let Some(location) = info.location() {
-        uwriteln!(
-            &mut serial,
-            "Panic occurred in file '{}' at line {}",
-            location.file(),
-            location.line()
-        )
-        .unwrap_infallible();
-    } else {
-        uwriteln!(&mut serial, "Panic occurred").unwrap_infallible();
-    }
-
-    let short = 100;
-    let long = 500;
-    let mut led = pins.d13.into_output();
-    loop {
-        for len in [short, long] {
-            for _ in 0..3u8 {
-                led.set_high();
-                arduino_hal::delay_ms(len);
-                led.set_low();
-                arduino_hal::delay_ms(short);
-            }
-        }
-    }
-}
 
 static ROTARY_ENCODER: RotaryEncoderHandler = RotaryEncoderHandler::new();
 
