@@ -232,8 +232,8 @@ fn main() -> ! {
     let led_driver =
         TLC5940::<{ NUM_LEDS as usize }>::new(&mut spi, pwm_ref, d10, xlatch, dp.TC1, dp.TC2);
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
-    let mut prng = ParallelLfsr::new(seed);
-    let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(&mut prng);
+    let prng = ParallelLfsr::new(seed);
+    let mut rng_module = RngModule::<MAX_BUFFER_SIZE, NUM_LEDS>::new(prng);
     let mut dac = MCP4922::new(pins.d8.into_output_high());
 
     let mut output_pins = OutputPins {

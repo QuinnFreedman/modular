@@ -53,7 +53,9 @@
     "perlin",
     "icdf",
     "luts",
-    "UART"
+    "UART",
+    "prng",
+    "timestep"
   ],
   "patterns": [
     {

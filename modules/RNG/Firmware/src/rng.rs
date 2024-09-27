@@ -1,15 +1,13 @@
 //! This module abstracts the core functionality of the RNG module in a
-//! more-or-less hardare-independent way.
+//! more-or-less hardware-independent way.
 
-use core::{cell::Cell, fmt::Write};
+use core::cell::Cell;
 
-use arduino_hal::hal::{usart::Usart0, Atmega};
 use fm_lib::{
     bit_ops::BitOps,
     number_utils::{step_in_powers_of_2, ModulusSubtraction},
     rng::ParallelLfsr,
 };
-use ufmt::uWrite;
 
 pub enum SizeAdjustment {
     PowersOfTwo(i8),
@@ -90,6 +88,7 @@ where
     current_output: Option<CurrentOutputState>,
     display_mode: DisplayMode,
     last_rendered_led_display: Cell<u8>,
+    prng: ParallelLfsr,
 }
 
 impl<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8> RngModule<MAX_BUFFER_SIZE, NUM_LEDS>
@@ -97,9 +96,8 @@ where
     [(); MAX_BUFFER_SIZE as usize]: Sized,
     [(); NUM_LEDS as usize]: Sized,
 {
-    pub fn new(prng: &mut ParallelLfsr) -> Self {
-        let buffer: [u16; MAX_BUFFER_SIZE as usize] =
-            core::array::from_fn(|_| prng.next() % SCALE_MAX);
+    pub fn new(mut prng: ParallelLfsr) -> Self {
+        let buffer: [u16; MAX_BUFFER_SIZE as usize] = core::array::from_fn(|_| prng.next() >> 4);
         Self {
             buffer,
             forward_backward: false,
@@ -108,12 +106,13 @@ where
             display_mode: DisplayMode::ShowBuffer,
             current_output: None,
             last_rendered_led_display: Cell::new(0),
+            prng,
         }
     }
 
     pub fn adjust_buffer_size(&mut self, change: SizeAdjustment, current_time: u32) {
         // TODO maybe only edit a candidate value and lock it in after a delay so
-        // cusor position doesn't get messed up when hovering a small buffer size
+        // cursor position doesn't get messed up when hovering a small buffer size
         match change {
             SizeAdjustment::PowersOfTwo(delta) => {
                 if delta == 0 {
@@ -218,6 +217,9 @@ where
         let is_enabled = input.enable_cv && input.chance_cv > 0;
 
         self.cursor = (self.cursor + 1) % self.buffer_size;
+        if is_enabled && (self.prng.next() >> 6) < input.chance_cv {
+            self.buffer[self.cursor as usize] = self.prng.next() >> 4
+        }
 
         let is_channel_b = self.buffer[self.cursor as usize] <= input.bias_cv;
         let analog_out = self.buffer[self.cursor as usize];
