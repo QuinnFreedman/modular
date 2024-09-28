@@ -2108,12 +2108,6 @@
 		)
 	)
 	(junction
-		(at 74.93 116.84)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3ab6d445-bc03-4dc6-a45d-d23f831fc728")
-	)
-	(junction
 		(at 114.3 157.48)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2124,12 +2118,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7d2e8bcd-d0fb-4de0-a36e-3210df95dc84")
-	)
-	(junction
-		(at 74.93 50.8)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "80554560-2d4a-4002-90b7-c2ccdc54a333")
 	)
 	(no_connect
 		(at 132.08 139.7)
@@ -2231,16 +2219,6 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 50.8) (xy 96.52 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "13d4be0e-71ae-4a65-b0cf-bec55a596905")
-	)
-	(wire
-		(pts
 			(xy 36.83 77.47) (xy 40.64 77.47)
 		)
 		(stroke
@@ -2261,13 +2239,13 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 116.84) (xy 96.52 116.84)
+			(xy 88.9 50.8) (xy 96.52 50.8)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "2e6d3a2a-6094-426d-8d1c-d2de5dd9449f")
+		(uuid "31c9bc14-9fbd-4aec-ba1e-3d931cb478e0")
 	)
 	(wire
 		(pts
@@ -2291,7 +2269,7 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 111.76) (xy 74.93 116.84)
+			(xy 74.93 111.76) (xy 74.93 118.11)
 		)
 		(stroke
 			(width 0)
@@ -2301,7 +2279,7 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 50.8) (xy 74.93 52.07)
+			(xy 74.93 45.72) (xy 74.93 52.07)
 		)
 		(stroke
 			(width 0)
@@ -2361,6 +2339,16 @@
 	)
 	(wire
 		(pts
+			(xy 88.9 116.84) (xy 96.52 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f66b91f-1b37-45b9-b754-f1415e8ab65a")
+	)
+	(wire
+		(pts
 			(xy 132.08 45.72) (xy 137.16 45.72)
 		)
 		(stroke
@@ -2368,6 +2356,16 @@
 			(type default)
 		)
 		(uuid "81832a11-f6bf-459a-b30f-cf5d74b4ad67")
+	)
+	(wire
+		(pts
+			(xy 88.9 109.22) (xy 88.9 116.84)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "821cf4e3-3c67-4c07-8772-0d152daf890b")
 	)
 	(wire
 		(pts
@@ -2391,13 +2389,13 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 45.72) (xy 74.93 50.8)
+			(xy 88.9 43.18) (xy 88.9 50.8)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "954caef8-671c-4913-9170-d85e7f288620")
+		(uuid "a621ad54-88cf-4c41-b0e3-9fd7404f7511")
 	)
 	(wire
 		(pts
@@ -2468,16 +2466,6 @@
 			(type default)
 		)
 		(uuid "e8685998-ec02-4241-80bb-54b7e4cfb577")
-	)
-	(wire
-		(pts
-			(xy 74.93 116.84) (xy 74.93 118.11)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "eb8250f2-7f4b-40df-b9bf-aa3afae3f5b5")
 	)
 	(wire
 		(pts
@@ -3388,6 +3376,72 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+5V")
+		(at 88.9 109.22 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b1e60b48-2d8f-4cf3-8a19-f865ea099926")
+		(property "Reference" "#PWR048"
+			(at 88.9 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 88.9 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 88.9 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 88.9 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 88.9 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "36527d44-d8e7-4105-b006-735e1a74fb44")
+		)
+		(instances
+			(project "rng_pcb_back"
+				(path "/92d63849-2602-44c9-baaa-01c9094be14f/5cf0a259-bdf3-44a9-9c89-339d20abf95a"
+					(reference "#PWR048")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 74.93 118.11 0)
 		(unit 1)
@@ -3515,6 +3569,72 @@
 			(project "rng_pcb_back"
 				(path "/92d63849-2602-44c9-baaa-01c9094be14f/5cf0a259-bdf3-44a9-9c89-339d20abf95a"
 					(reference "R2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 88.9 43.18 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c51195b3-df7c-4c05-8f98-6b3cb1e87725")
+		(property "Reference" "#PWR049"
+			(at 88.9 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 88.9 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 88.9 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 88.9 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 88.9 43.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e730b9e6-f99d-4864-8b64-291f45c896d8")
+		)
+		(instances
+			(project "rng_pcb_back"
+				(path "/92d63849-2602-44c9-baaa-01c9094be14f/5cf0a259-bdf3-44a9-9c89-339d20abf95a"
+					(reference "#PWR049")
 					(unit 1)
 				)
 			)
