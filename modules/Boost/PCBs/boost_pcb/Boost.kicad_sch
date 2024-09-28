@@ -3370,7 +3370,7 @@
 		)
 		(uuid "c512a39e-e4c0-4ae3-b61d-296080eed51f")
 	)
-	(text "Scale-down Amp\nGain 1/10 to 2x"
+	(text "Scale-down Amp\nVariable gain 1/10x to 2x"
 		(exclude_from_sim no)
 		(at 91.44 36.83 0)
 		(effects
