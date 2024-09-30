@@ -76,19 +76,32 @@ struct CurrentOutputState {
     clock_trigger_time_ms: u32,
 }
 
+#[allow(dead_code)]
+#[derive(PartialEq, Eq)]
+enum AlternateDirectionsMode {
+    /// The sequence alternates between forward and backward playback
+    PingPong,
+    /// Similar to ping pong, but without repeating the first and last steps when switching directions
+    Pendulum,
+}
+
+/// Configuration option to set how "negative length"/reversed sequences work
+const REVERSE_MODE: AlternateDirectionsMode = AlternateDirectionsMode::Pendulum;
+
 pub struct RngModule<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8>
 where
     [(); MAX_BUFFER_SIZE as usize]: Sized,
     [(); NUM_LEDS as usize]: Sized,
 {
     pub buffer: [u16; MAX_BUFFER_SIZE as usize],
-    forward_backward: bool,
+    alternate_directions: bool,
     buffer_size: u8,
     cursor: u8,
     current_output: Option<CurrentOutputState>,
     display_mode: DisplayMode,
     last_rendered_led_display: Cell<u8>,
     prng: ParallelLfsr,
+    is_backwards_loop: bool,
 }
 
 impl<const MAX_BUFFER_SIZE: u8, const NUM_LEDS: u8> RngModule<MAX_BUFFER_SIZE, NUM_LEDS>
@@ -100,13 +113,14 @@ where
         let buffer: [u16; MAX_BUFFER_SIZE as usize] = core::array::from_fn(|_| prng.next() >> 4);
         Self {
             buffer,
-            forward_backward: false,
+            alternate_directions: false,
             buffer_size: 8,
             cursor: 0,
             display_mode: DisplayMode::ShowBuffer,
             current_output: None,
             last_rendered_led_display: Cell::new(0),
             prng,
+            is_backwards_loop: false,
         }
     }
 
@@ -118,20 +132,23 @@ where
                 if delta == 0 {
                     return;
                 }
-                let n = if self.forward_backward {
+                let n = if self.alternate_directions {
                     -(self.buffer_size as i8)
                 } else {
                     self.buffer_size as i8
                 };
                 let result = step_in_powers_of_2(n, delta);
                 self.buffer_size = result.unsigned_abs().min(MAX_BUFFER_SIZE);
-                self.forward_backward = result < 0;
+                self.alternate_directions = result < 0;
+                if !self.alternate_directions {
+                    self.is_backwards_loop = false;
+                }
             }
             SizeAdjustment::ExactDelta(delta) => {
                 if delta == 0 {
                     return;
                 }
-                let mut n: i8 = if self.forward_backward {
+                let mut n: i8 = if self.alternate_directions {
                     -(self.buffer_size as i8)
                 } else {
                     self.buffer_size as i8
@@ -144,7 +161,10 @@ where
                     n += 2;
                 }
                 self.buffer_size = n.unsigned_abs().min(MAX_BUFFER_SIZE);
-                self.forward_backward = n < 0;
+                self.alternate_directions = n < 0;
+                if !self.alternate_directions {
+                    self.is_backwards_loop = false;
+                }
             }
         }
         // Should this be mod or max? or just reset to 0?
@@ -181,7 +201,7 @@ where
                 result
             }
             DisplayMode::ShowBufferLengthSince(_) => {
-                Self::binary_representation_as_display_buffer(if self.forward_backward {
+                Self::binary_representation_as_display_buffer(if self.alternate_directions {
                     -(self.buffer_size as i8)
                 } else {
                     self.buffer_size as i8
@@ -216,7 +236,30 @@ where
     ) -> RngModuleOutput {
         let is_enabled = input.enable_cv && input.chance_cv > 0;
 
-        self.cursor = (self.cursor + 1) % self.buffer_size;
+        if !self.alternate_directions || self.buffer_size == 1 {
+            self.cursor = (self.cursor + 1) % self.buffer_size;
+        } else {
+            if !self.is_backwards_loop {
+                if self.cursor < self.buffer_size - 1 {
+                    self.cursor += 1;
+                } else {
+                    if REVERSE_MODE == AlternateDirectionsMode::Pendulum {
+                        self.cursor = self.buffer_size - 2;
+                    }
+                    self.is_backwards_loop = true;
+                }
+            } else {
+                if self.cursor > 0 {
+                    self.cursor -= 1;
+                } else {
+                    if REVERSE_MODE == AlternateDirectionsMode::Pendulum {
+                        self.cursor = 1;
+                    }
+                    self.is_backwards_loop = false;
+                }
+            }
+        }
+
         if is_enabled && (self.prng.next() >> 6) < input.chance_cv {
             self.buffer[self.cursor as usize] = self.prng.next() >> 4
         }
