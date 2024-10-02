@@ -61,6 +61,9 @@ fn is_valid_clock_config(data: &[u8; mem::size_of::<ClockConfig>()]) -> bool {
     true
 }
 
+const NULL_OFFSET: u8 = u8::MAX;
+const UNINITIALIZED: u8 = u8::MAX;
+
 impl PersistanceManager {
     #[inline(never)]
     pub fn new(eeprom: EEPROM, clock_config: &mut ClockConfig) -> Self {
@@ -70,12 +73,14 @@ impl PersistanceManager {
 
         const BLOCK_SIZE: u16 = mem::size_of::<ClockConfig>() as u16 + 1;
 
-        let mut latest_version: u8 = 0xFF;
+        let mut latest_version: u8 = UNINITIALIZED;
         let mut latest_version_index: u16 = 0;
 
         for i in (0..eep.capacity()).step_by(BLOCK_SIZE as usize) {
             let version = eep.read_byte(i);
-            if version != 0xFF && (version > latest_version || latest_version == 0xFF) {
+            if version != UNINITIALIZED
+                && (version > latest_version || latest_version == UNINITIALIZED)
+            {
                 latest_version = version;
                 latest_version_index = i;
             }
@@ -83,12 +88,12 @@ impl PersistanceManager {
 
         let mut new_index = 0;
 
-        if latest_version == 0xFF {
+        if latest_version == UNINITIALIZED {
             eep.write_byte(new_index, 0);
             eep.write(new_index + 1, raw_data).assert_ok();
         } else {
             let mut new_version = latest_version + 1;
-            if new_version == 0xFF {
+            if new_version == UNINITIALIZED {
                 new_version = 0;
                 for i in (0..eep.capacity()).step_by(BLOCK_SIZE as usize) {
                     eep.erase_byte(i);
@@ -118,25 +123,31 @@ impl PersistanceManager {
             eeprom: eep,
             offset: new_index + 1,
             queued_write: EepromWrite {
-                offset: 0xFF,
+                offset: NULL_OFFSET,
                 value: 0,
             },
         }
     }
 
+    pub fn overwrite(&mut self, new_config: &ClockConfig) {
+        let raw_data: &[u8; mem::size_of::<ClockConfig>()] = unsafe { mem::transmute(new_config) };
+        self.eeprom.write(self.offset, raw_data).assert_ok();
+        self.queued_write.offset = NULL_OFFSET;
+    }
+
     pub fn flush(&mut self) {
-        if self.queued_write.offset != 0xFF {
+        if self.queued_write.offset != NULL_OFFSET {
             self.eeprom.write_byte(
                 self.offset + self.queued_write.offset as u16,
                 self.queued_write.value,
             );
-            self.queued_write.offset = 0xFF;
+            self.queued_write.offset = NULL_OFFSET;
         }
     }
 
     #[inline(always)]
     fn queue_write(&mut self, offset: u8, value: u8) {
-        if self.queued_write.offset != 0xFF && self.queued_write.offset != offset {
+        if self.queued_write.offset != NULL_OFFSET && self.queued_write.offset != offset {
             self.eeprom.write_byte(
                 self.offset + self.queued_write.offset as u16,
                 self.queued_write.value,

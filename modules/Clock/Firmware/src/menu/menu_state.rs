@@ -20,8 +20,8 @@ pub struct MenuState {
 }
 
 impl MenuOrScreenSaverState {
-    pub fn new() -> Self {
-        MenuOrScreenSaverState::Menu(MenuState::new(0))
+    pub fn new(current_time_ms: u32) -> Self {
+        MenuOrScreenSaverState::Menu(MenuState::new(current_time_ms))
     }
 }
 

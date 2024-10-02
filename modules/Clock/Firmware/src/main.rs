@@ -24,7 +24,7 @@ use avr_device::interrupt;
 use clock::{ClockConfig, ClockState};
 use core::panic::PanicInfo;
 use eeprom::PersistanceManager;
-use fm_lib::button_debouncer::{ButtonDebouncer, ButtonState, ButtonWithLongPress};
+use fm_lib::button_debouncer::{ButtonWithLongPress, LongPressButtonState};
 use fm_lib::debug_unwrap::DebugUnwrap;
 use fm_lib::handle_system_clock_interrupt;
 use fm_lib::rotary_encoder::RotaryEncoderHandler;
@@ -133,8 +133,8 @@ fn main() -> ! {
 
     // set up app state
     let mut encoder_button = ButtonWithLongPress::<PC4, 32, 500>::new(pins.a4.into_pull_up_input());
-    let mut pause_button = ButtonDebouncer::<PC3, 32>::new(pins.a3.into_pull_up_input());
-    let mut menu_state = MenuOrScreenSaverState::new();
+    let mut pause_button = ButtonWithLongPress::<PC3, 32, 2500>::new(pins.a3.into_pull_up_input());
+    let mut menu_state = MenuOrScreenSaverState::new(0);
     let mut clock_state = ClockState::new();
     let mut is_paused = false;
     let mut start_time: u64 = 0;
@@ -159,17 +159,43 @@ fn main() -> ! {
         let current_time_ms = (current_time_us / 1000) as u32;
         // Handle pause button
         let pause_button_state = pause_button.sample(current_time_ms);
-        if pause_button_state == ButtonState::ButtonJustPressed {
-            is_paused = !is_paused;
-            if is_paused {
-                unsafe_peripherals
-                    .PORTD
-                    .portd
-                    .write(|w| unsafe { w.bits(0x00) });
-            } else {
+        match pause_button_state {
+            LongPressButtonState::ButtonJustDown => {
+                is_paused = !is_paused;
+                if is_paused {
+                    unsafe_peripherals
+                        .PORTD
+                        .portd
+                        .write(|w| unsafe { w.bits(0x00) });
+                } else {
+                    clock_state.reset();
+                    start_time = current_time_us;
+                }
+                menu_state = MenuOrScreenSaverState::new(current_time_ms);
+                render_menu(
+                    &menu_state,
+                    &clock_config,
+                    // TODO this causes a slight flicker. Calculate what the actual
+                    // update should be
+                    &MenuUpdate::SwitchScreens,
+                    &mut display,
+                );
+            }
+            LongPressButtonState::ButtonJustClickedLong => {
+                clock_config = ClockConfig::new();
                 clock_state.reset();
                 start_time = current_time_us;
+                menu_state = MenuOrScreenSaverState::new(current_time_ms);
+                is_paused = false;
+                render_menu(
+                    &menu_state,
+                    &clock_config,
+                    &MenuUpdate::SwitchScreens,
+                    &mut display,
+                );
+                persistance_manager.overwrite(&clock_config);
             }
+            _ => {}
         }
 
         // Handle clock logic and write clock state to output pins
