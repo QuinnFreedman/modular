@@ -1,4 +1,5 @@
 <div class="fm-readme-container">
+<div class="fm-row">
 
 <img class="fm-readme-module-image" src="docs/images/mixer_faceplate_display.svg" />
 
@@ -26,6 +27,7 @@
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Mixer/mixer_pcb_schematic.pdf">Schematic PDF</a></li>
 </ul>
 
+</div>
 </div>
 
 <b>HP:</b> 8<br>

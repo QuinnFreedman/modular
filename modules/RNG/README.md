@@ -1,4 +1,5 @@
 <div class="fm-readme-container">
+<div class="fm-row">
 
 <img class="fm-readme-module-image" src="docs/images/rng_faceplate_display.svg" />
 
@@ -32,6 +33,7 @@
   <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pcb_front_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/RNG/rng_pcb_back_schematic.pdf">back panel</a></li>
 </ul>
 
+</div>
 </div>
 
 <b>HP:</b> 10<br>

@@ -1,4 +1,5 @@
 <div class="fm-readme-container">
+<div class="fm-row">
 
 <img class="fm-readme-module-image" src="docs/images/drift.svg" />
 
@@ -28,6 +29,7 @@
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Drift/drift_schematic.pdf">Schematic</a></li>
 </ul>
 
+</div>
 </div>
 
 <b>HP:</b> 4<br>

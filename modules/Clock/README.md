@@ -1,4 +1,5 @@
 <div class="fm-readme-container">
+<div class="fm-row">
 
 <img class="fm-readme-module-image" src="docs/images/clock_faceplate_display.svg" />
 
@@ -30,6 +31,7 @@
   <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_schematic.pdf">back panel</a></li>
 </ul>
 
+</div>
 </div>
 
 <b>HP:</b> 8<br>

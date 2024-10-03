@@ -1,4 +1,5 @@
 <div class="fm-readme-container">
+<div class="fm-row">
 
 <img class="fm-readme-module-image" src="docs/images/offset_atten_faceplate.svg" />
 
@@ -27,6 +28,7 @@
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/offset_atten_schematic.pdf">Schematic PDF</a></li>
 </ul>
 
+</div>
 </div>
 
 <b>HP:</b> 4<br>
