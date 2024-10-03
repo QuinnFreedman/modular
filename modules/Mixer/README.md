@@ -27,4 +27,30 @@
 </ul>
 
 </div>
+
+<b>HP:</b> 8<br>
+<b>Power usage:</b>
+<table class="fm-current-table">
+  <tr>
+    <th></th>
+    <th>Typical</th>
+    <th>Maximum</th>
+  </tr>
+  <tr>
+    <td>+5V</td>
+    <td>NC</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>+12V</td>
+    <td>4mA</td>
+    <td>5mA</td>
+  </tr>
+  <tr>
+    <td>-12V</td>
+    <td>4mA</td>
+    <td>5mA</td>
+  </tr>
+</table>
+
 </div>

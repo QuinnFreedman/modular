@@ -129,3 +129,11 @@ ul.fm-index-links-container {
     min-width:50%;
   }
 }
+
+table.fm-current-table {
+  max-width: 600px;
+
+  td:first-child {
+    font-weight: bold;
+  }
+}

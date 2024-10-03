@@ -28,4 +28,34 @@
 </ul>
 
 </div>
+
+<b>HP:</b> 4<br>
+<b>Power usage:</b>
+<table class="fm-current-table">
+  <tr>
+    <th></th>
+    <th>Typical</th>
+    <th>Maximum with typical connections</th>
+    <th>Absolute maximum (all outputs shorted to ground)</th>
+  </tr>
+  <tr>
+    <td>+5V</td>
+    <td>NC</td>
+    <td>-</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>+12V</td>
+    <td>17mA</td>
+    <td>25mA</td>
+    <td>41mA</td>
+  </tr>
+  <tr>
+    <td>-12V</td>
+    <td>17mA</td>
+    <td>24mA</td>
+    <td>37mA</td>
+  </tr>
+</table>
+
 </div>

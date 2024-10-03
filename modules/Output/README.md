@@ -29,4 +29,26 @@
 </ul>
 
 </div>
+
+<b>HP:</b> 8<br>
+<b>Power usage:</b>
+<table class="fm-current-table">
+  <tr>
+    <th></th>
+    <th>Current draw</th>
+  </tr>
+  <tr>
+    <td>+5V</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>+12V</td>
+    <td>100mA</td>
+  </tr>
+  <tr>
+    <td>-12V</td>
+    <td>95mA</td>
+  </tr>
+</table>
+
 </div>
