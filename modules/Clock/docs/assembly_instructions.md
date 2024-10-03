@@ -2,6 +2,12 @@
 
 See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
 
+The only non-standard part of this module is the screen. The screen module is intended to bolt to the faceplate and then be connected to the PCB with wires. If your screen comes without pin headers pre-soldered, then it is easy to just solder seven lengths of insulated wire connecting the screen directly to the board. If your screen came with pin headers already installed, you could try to de-solder them, but it is probably easier to use a set of jumper wires wires with a female end. I cut the wires in half, strip the bare end and solder it to the board, then just plug the female ends into the screen. But look out for loose connections. If you get weird visual artifacts on the screen, it is probably because one of the wires is not seated correctly. You may want to use a dab of hot glue to keep everything in place. I find it is easiest to have the wires coming out of the back side of the PCB and looping around to plug into the screen.
+
+Keep in mind that the display modules come from a third party and are not well standardized. They may not line up perfectly with the faceplate. It should fit well enough, but if your screen doesn't line up you can attach it to the faceplate with hot glue.
+
+The pins on the screen might also be labelled differently than the PCB. Refer to this [guide to SPI protocol signal names](https://www.sparkfun.com/spi_signal_names) to make sure you connect the right pins.
+
 ## Components
 
 **Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/82040858402), [quick-order CSV](https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv)).
