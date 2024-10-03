@@ -30,5 +30,34 @@
   <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_schematic.pdf">back panel</a></li>
 </ul>
 
+<b>HP:</b> 8<br>
+<b>Power usage:</b>
+<table>
+  <tr>
+    <th></th>
+    <th>Typical</th>
+    <th>Maximum (typical connections)</th>
+    <th>Theoretical maximum (all outputs shorted to ground)</th>
+  </tr>
+  <tr>
+    <td>+5V</td>
+    <td>25mA</td>
+    <td>45mA</td>
+    <td>85mA</td>
+  </tr>
+  <tr>
+    <td>+12V</td>
+    <td>NC</td>
+    <td>-</td>
+    <td>-</td>
+  </tr>
+  <tr>
+    <td>+12V</td>
+    <td>NC</td>
+    <td>-</td>
+    <td>-</td>
+  </tr>
+</table>
+
 </div>
 </div>
