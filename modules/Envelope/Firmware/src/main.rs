@@ -285,7 +285,7 @@ fn main() -> ! {
     let mut dac = MCP4922::new(d10);
     dac.shutdown_channel(&mut spi, DacChannel::ChannelB);
 
-    let mut aux_output_pin = pins.d9.into_output();
+    let mut aux_output_pin = pins.a3.into_output();
 
     const LED_BLINK_INTERVAL_MS: u32 = 100;
     let mut led_blink_timer: u32 = 0;

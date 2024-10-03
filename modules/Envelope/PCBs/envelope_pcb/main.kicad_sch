@@ -2376,6 +2376,10 @@
 		(uuid "1a06c1e0-83c5-44a6-9cca-914221c70e5d")
 	)
 	(no_connect
+		(at 66.04 63.5)
+		(uuid "22aed9c1-1a0d-4be8-b6dc-8cb30d8f984a")
+	)
+	(no_connect
 		(at 76.2 30.48)
 		(uuid "295c28f9-1068-4a6e-a8f9-41a5d01c4f48")
 	)
@@ -3231,16 +3235,6 @@
 	)
 	(wire
 		(pts
-			(xy 55.88 63.5) (xy 66.04 63.5)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cdfc7fde-54c1-4474-82a4-e87d90d64ccb")
-	)
-	(wire
-		(pts
 			(xy 149.86 177.8) (xy 152.4 177.8)
 		)
 		(stroke
@@ -4044,18 +4038,6 @@
 			(justify right)
 		)
 		(uuid "c3eebd38-412c-4a55-9372-e63860589771")
-	)
-	(hierarchical_label "OUT_AUX"
-		(shape output)
-		(at 55.88 63.5 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "cb3541ca-502d-46dd-9712-371b30b91de2")
 	)
 	(hierarchical_label "GND"
 		(shape input)
