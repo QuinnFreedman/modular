@@ -5814,7 +5814,7 @@
 				)
 			)
 		)
-		(property "Value" "1uF"
+		(property "Value" "10nF"
 			(at 208.28 93.98 90)
 			(effects
 				(font
