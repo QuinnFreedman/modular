@@ -23,13 +23,13 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.31197579"
-     inkscape:cx="-80.134423"
-     inkscape:cy="-75.326357"
-     inkscape:window-width="1500"
-     inkscape:window-height="931"
+     inkscape:zoom="0.47105647"
+     inkscape:cx="364.07524"
+     inkscape:cy="580.60979"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="32"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
      inkscape:showpageshadow="2"
@@ -230,9 +230,9 @@
          transform="translate(-110.72744,27.064337)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan22"><tspan
+           id="tspan2"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan21">Clock</tspan></tspan></text>
+             id="tspan1">Clock</tspan></tspan></text>
       <g
          id="g13449"
          transform="translate(2.2298602,0.89415446)">
@@ -330,9 +330,9 @@
          transform="translate(-110.72744,78.356971)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan24"><tspan
+           id="tspan5"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan23">Output</tspan></tspan></text>
+             id="tspan4">Output</tspan></tspan></text>
       <g
          id="g13454"
          transform="translate(2.1166667,0.55253879)">
@@ -457,9 +457,9 @@
          transform="translate(-110.84597,52.659349)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan26"><tspan
+           id="tspan7"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan25">RNG</tspan></tspan></text>
+             id="tspan6">RNG</tspan></tspan></text>
       <rect
          style="fill:#e14646;fill-opacity:1;stroke-width:1"
          id="rect1-9"
@@ -541,9 +541,9 @@
          transform="translate(-110.72744,105.01648)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan28"><tspan
+           id="tspan9"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan27">O/A</tspan></tspan></text>
+             id="tspan8">O/A</tspan></tspan></text>
       <g
          id="g19179"
          transform="translate(3.2117772,-1.3604913)">
@@ -601,11 +601,11 @@
          transform="translate(-110.76554,130.64057)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan30"><tspan
+           id="tspan11"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan29">Mixer</tspan></tspan></text>
+             id="tspan10">Mixer</tspan></tspan></text>
       <rect
-         style="fill:#e962b2;fill-opacity:1;stroke-width:1"
+         style="fill:#0cc081;fill-opacity:1;stroke-width:1"
          id="rect1-5-93-6"
          width="5"
          height="5"
@@ -640,7 +640,7 @@
            cy="161.90002"
            r="1.4" />
         <circle
-           style="fill:#e962b2;fill-opacity:1;stroke-width:2.53798;stroke-linecap:square;stroke-miterlimit:0"
+           style="fill:#0cc081;fill-opacity:1;stroke-width:2.53798;stroke-linecap:square;stroke-miterlimit:0"
            id="path3610-5-3-5-1-2-3-7-8-2"
            cx="94.935188"
            cy="164.58067"
@@ -659,9 +659,9 @@
          transform="translate(-110.84597,156.9976)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan32"><tspan
+           id="tspan14"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan31">Envelope</tspan></tspan></text>
+             id="tspan12">Envelope</tspan></tspan></text>
       <g
          id="g22835"
          transform="translate(6.7976169,0.48889102)">
@@ -770,9 +770,9 @@
          transform="translate(-110.72744,212.71331)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan34"><tspan
+           id="tspan16"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan33">Quantizer</tspan></tspan></text>
+             id="tspan15">Quantizer</tspan></tspan></text>
       <g
          id="g13454-0"
          transform="translate(2.1166667,134.85173)">
@@ -929,9 +929,9 @@
          transform="translate(-110.54964,244.45223)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan36"><tspan
+           id="tspan18"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan35">TrigFX</tspan></tspan></text>
+             id="tspan17">TrigFX</tspan></tspan></text>
       <g
          id="g21119-7"
          transform="translate(4.2546389,114.69631)">
@@ -1025,9 +1025,9 @@
          transform="translate(-110.54964,244.45223)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan38"><tspan
+           id="tspan20"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan37">Boost</tspan></tspan></text>
+             id="tspan19">Boost</tspan></tspan></text>
       <g
          id="g21119-7-2"
          transform="translate(3.1963055,115.22548)">
@@ -1069,9 +1069,9 @@
          transform="translate(-110.84597,186.61115)"><tspan
            x="123.2215"
            y="25.874678"
-           id="tspan40"><tspan
+           id="tspan22"><tspan
              style="font-weight:normal;font-family:Ubuntu;-inkscape-font-specification:Ubuntu;stroke:none"
-             id="tspan39">Drift</tspan></tspan></text>
+             id="tspan21">Drift</tspan></tspan></text>
       <g
          id="g27278"
          transform="translate(0.30838193,2.5187489)">

@@ -932,6 +932,7 @@ class PotColor(Enum):
     YELLOW = 4
     GREEN = 5
     BLUE = 6
+    MAGENTA = 7
 
 
 class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
@@ -1030,6 +1031,7 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             PotColor.ORANGE: ["#fe8f78", "#f15d38"],
             PotColor.YELLOW: ["#fae98a", "#f7e150"],
             PotColor.BLUE: [lighten("#0bbff2", .18), darken("#0bbff2", .1)],
+            PotColor.MAGENTA: ["#ff85be", "#e8538c"],
         }
         cap_color = cap_colors[self.color]
         if self.color in [PotColor.WHITE, PotColor.BLUE, PotColor.YELLOW]:
