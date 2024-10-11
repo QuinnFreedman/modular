@@ -16,19 +16,19 @@
 <ul>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_manual.pdf">Manual</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/Clock/docs/assembly_instructions">Assembly instructions and BOM</a></li>
-  <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html">back panel</a></li>
+  <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_interactive_bom.html">back panel</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate.svg">Faceplate stencil SVG</a></li>
   <li>GERBER files:
     <ul>
-      <li>Faceplate: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate_pcb_pcbway.zip">PCBway</a></li>
-      <li>Front panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_pcbway.zip">PCBway</a></li>
-      <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_pcbway.zip">PCBway</a></li>
+      <li>Faceplate: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate_pcbway.zip">PCBway</a></li>
+      <li>Front panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcbway.zip">PCBway</a></li>
+      <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
   <li>(Most) parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/82040858402">cart link</a>, <a href="https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv">quick-order CSV</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/fm-clock.hex">Firmware HEX</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Clock">Source code</a></li>
-  <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_schematic.pdf">back panel</a></li>
+  <li>Schematic: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_schematic.pdf">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_schematic.pdf">back panel</a></li>
 </ul>
 
 </div>

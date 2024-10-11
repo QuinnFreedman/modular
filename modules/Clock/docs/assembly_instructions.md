@@ -14,7 +14,7 @@ The pins on the screen might also be labelled differently than the PCB. Refer to
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_interactive_bom.html)
 
 |    | Board | Reference | Part             | Value                                   | Source  | Comment |
 | -- | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
