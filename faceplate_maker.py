@@ -796,7 +796,7 @@ class SmallLED(BasicCircle(0, inches(.05), 1.55)):
         ]
 
 
-class LED(BasicCircle(0, inches(.05), 2.5)):
+class LED(BasicCircle(0, inches(.05), 2.55)):
     def __init__(self, x, y, rotation=0, font_size=None, color="red"):
         super().__init__(x, y, rotation)
         self.color = color
@@ -876,7 +876,7 @@ Button = BasicCircle(0, 0, 4)
 setattr(Button, 'draw_cosmetics', draw_button_cosmetic)
 
 
-TL1265 = BasicCircle(3.0, 4.5/2, 2.5)
+TL1265 = BasicCircle(3.0, 4.5/2, 2.55)
 setattr(TL1265, 'draw_cosmetics', draw_button_cosmetic)
 
 
@@ -898,7 +898,7 @@ class TL1105SP(BasicCircle(0, 0, 5.1/2)):
             context.circle(center=self.rotated(( w/2,  h/2)), r=0.25),
         ]
 
-class D6R30(BasicCircle(0, 0, 9/2)):
+class D6R30(BasicCircle(0, 0, 9/2 + HOLE_ALLOWANCE)):
     def __init__(self, x, y, rotation):
         super().__init__(x, y, rotation)
         self.cosmetic_holes = False

@@ -223,19 +223,19 @@ def to_snake_case(text):
 
 def build_faceplate(name, output_dir, last_commit):
     build_script = path.join("modules", name, "Faceplate", f"make_{to_snake_case(name)}_faceplate.py")
-    if not has_changed_since(build_script, last_commit):
+    output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_faceplate.svg"))
+    if path.exists(output_file) and not has_changed_since(build_script, last_commit):
         return
     log(1, "🤖", "Building faceplate SVG", True)
     if not path.isfile(build_script):
         log_skip()
         return
-    faceplate_file = to_snake_case(name)
     run_command_or_exit_with_error(
         [
             "python3",
             path.basename(build_script),
             "-o",
-            path.abspath(path.join(output_dir, f"{to_snake_case(name)}_faceplate.svg")),
+            output_file,
         ],
         cwd=path.dirname(build_script)
     )
