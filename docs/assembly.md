@@ -1,12 +1,21 @@
 # Assembly
 
-The assembly process is very similar for most modules, so I will describe the general procedure here. Specific information for each module can found in the documentation for that module. Basically, you'll need to:
+The general assembly process is more or less the same for all modules:
 
-1. **Download** the GERBER files from each module's page
-2. **Upload** the files to a PCB manufacturer like JLCPCB
-3. **Buy** the parts listed in the module's **bill of materials**
+1. Aquire PCBs/Faceplate
+  1. Download the GERBER files from each module's page
+  2. Upload the files to a PCB manufacturer like JLCPCB
+  3. **OR** buy boards from my [Etsy shop](https://www.etsy.com/shop/freemodular/)
+2. Aquire components
+  1. Download the Tayda bill of materials CSV from each module's page
+  2. Upload them to [Tayda quick order](https://www.taydaelectronics.com/quick-order/)
+  3. Get any parts Tayda doesn't carry from [Mouser](https://www.mouser.com/) or [DigiKey](https://www.digikey.com/)
+  4. **OR** buy complete kits from my [Etsy shop](https://www.etsy.com/shop/freemodular/)
 4. **Solder** everything together
+  1. See the notes in each module's bill of materials for specific instructions for some components
 5. **Flash** the firmware onto the Arduino by USB (if applicable)
+
+ Specific information for each module can found in the documentation for that module.
 
 ## What you will need
 
@@ -56,8 +65,10 @@ If the project you are assembling involves an Arduino, then you will need to loa
 
 Each module's documentation should link to a HEX file. That file is the program that needs to be uploaded to the arduino. There are multiple ways to do that, but none of them are especially user friendly. 
 
-At some point in the future, I will probably make a dedicated tool for flashing firmware. Until then, I recommend using [avrdudess](https://github.com/ZakKemble/AVRDUDESS). If you are on windows, you can download the latest release from the [releases page](https://github.com/ZakKemble/AVRDUDESS/releases) and it should just work. If you are on Mac or Linux, refer to the documentation.
+At some point in the future, I will probably make a dedicated tool for flashing firmware, but until then I recommend using [avrdudess](https://github.com/ZakKemble/AVRDUDESS). If you are on windows, you can download the latest release from the [releases page](https://github.com/ZakKemble/AVRDUDESS/releases) and it should just work. If you are on Mac or Linux, refer to the documentation.
 
-Select "Arduino Nano (ATmega328P)" from the presets dropdown. Select the HEX file you downloaded in the in the "Flash" section. To pick the right Port, check the ports list, then plug in your Arduino to a USB port and see if any new ports appear. On Windows, it should be something like `COM1`. On Linux, it will probably be `/dev/ttyUSB0`. Just try all the available ports in ascending order until something works. If you think you have the right port but it still isn't working, you could also try reducing the Baud rate to something like 9600.
+Select "Arduino Nano (ATmega328P)" from the presets dropdown. Select the HEX file you downloaded in the in the "Flash" section. Set the baud rate to 115200 and select "new bootloader" or none as the bootloader option, if you have a choice. The "port" option literally just describes which USB port the device is plugged into. To pick the right Port, check the ports list, then plug in your Arduino and see if any new ports appear. On Windows, it should be something like `COM1`. On Linux, it will probably be `/dev/ttyUSB0`. Just try all the available ports in ascending order until something works. If you think you have the right port but it still isn't working, you could try a different bootloader or reduced Baud rate. Some old or third party Arduinos will come pre installed with an older version of the Arduino bootloader. Most modules should work fine if you just select the corresponding options when flashing, but the Clock module needs the new bootloader to work properly. In that case, you can use a second Arduino as is an ISP device to [burn a new bootloader onto the board](https://support.arduino.cc/hc/en-us/articles/4841602539164-Burn-the-bootloader-on-UNO-Mega-and-classic-Nano-using-another-Arduino). That could also fix things if your Arduino seems unresponsive or won't flash.
 
-If you are comfortable with the command line, you can also use [avrdude](https://github.com/avrdudes/avrdude) or [ravedude](https://github.com/Rahix/avr-hal/blob/main/ravedude/README.md). Or, just google "How to flash hex file to Arduino" for your operating system and seeing if any of the results are helpful.
+If your Arduino does not show up when you plug it in, you may need to [install a driver](https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all) (some 3rd-party clone boards use a different USB chip).
+
+If you run into issues, just search for "How to flash hex file to Arduino" for your operating system and see if any of the results are helpful. Or open a GitHub issue. I'm happy to help!

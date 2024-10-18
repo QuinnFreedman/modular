@@ -2,7 +2,7 @@
 
 Each module will list the specific components required to build it in a **bill of materials**, which is in the **assembly instructions** for that module.
 
-Most components can be bought from [Tayda Electronics](https://www.taydaelectronics.com/). Where specific components are missing from Tayda, they can usually be found on [Mouser](https://www.mouser.com/) or [DigiKey](https://www.digikey.com/). [Thonk](https://www.thonk.co.uk/) also carries a lot of DIY-synth specific parts, like knobs. Some generic components like capacitors and resistors can also be bought in bulk kits. Depending on how many modules you want to make, or if you want to customize them, this may or may not be a better value.
+Most components can be bought from [Tayda Electronics](https://www.taydaelectronics.com/). Where specific components are missing from Tayda, they can usually be found on [Mouser](https://www.mouser.com/) or [DigiKey](https://www.digikey.com/). [Thonk](https://www.thonk.co.uk/) also carries a lot of DIY-synth specific parts, like knobs. Some generic components like capacitors and resistors can also be bought in bulk kits. Depending on how many modules you want to make, or if you want to customize them, this may be a better value.
 
 Each module will have a Tayda quick-order CSV BoM, which you can [upload to Tayda](https://www.taydaelectronics.com/quick-order/). That will contain **most** of the parts needed. Parts not included in that list are marked in the **assembly instructions** for that module, and will need to be purchased elsewhere.
 
@@ -56,7 +56,7 @@ If they don't have the potentiometer values you need in stock, most designs are 
 
 ### Knobs
 
-I personally use [black Sifam/Selco skirted knobs (small and large)](https://www.thonk.co.uk/shop/intellijel-black-knobs/) for everything and design my modules with those in mind. For these knobs, you need to buy the [colored end caps](https://www.thonk.co.uk/shop/sifam-caps/) separately and press them in. I use the colors Red, Orange, Yellow, Green, Bright Aqua, Magenta, and White.
+I personally use [black Sifam/Selco skirted knobs (small skirted and large skirted)](https://www.thonk.co.uk/shop/intellijel-black-knobs/) for everything and design my modules with those in mind. For these knobs, you need to buy the [colored end caps](https://www.thonk.co.uk/shop/sifam-caps/) separately and press them in. I use the colors Red, Orange, Yellow, Green, Bright Aqua, Magenta, and White.
 
 If you want to customize the look of your modules, just look at any DIY supply store like [Thonk](https://www.thonk.co.uk/product-category/parts/knobs/), [Modular Addict](https://modularaddict.com/parts/synth-diy-parts/knob), [Amplified Parts](https://www.amplifiedparts.com/products/knobs), or [Love My Switches](https://lovemyswitches.com/knobs/), or [Tayda](https://www.taydaelectronics.com/potentiometer-variable-resistors/knobs.html). Or, get cheap lots on amazon or ebay (like [this](https://www.amazon.com/gp/product/B073BCR8T6), or [this](https://www.amazon.com/gp/product/B073BCR8T6)) Any knobs should be compatible as long as you match the shaft type to the potentiometers you are using.
 
