@@ -33,16 +33,30 @@ LOGO_PATH = "M 23.273995,0 C 10.46956,0 0,10.46956 0,23.273995 0,36.078431 10.46
 
 HOLE_ALLOWANCE = .15  # mm 
 
-try:
-    import urllib.request
-    import base64
+from os import path
 
-    with urllib.request.urlopen("https://fonts.gstatic.com/s/ubuntu/v14/4iCv6KVjbNBYlgoCjC3jsGyN.woff2") as response:
-        font_b64 = base64.b64encode(response.read())
-        font_string = "url(\"data:application/font-woff;charset=utf-8;base64,{}\")".format(font_b64.decode('utf-8'))
-except Exception as e:
-    print("Warning: Unable to download font")
-    font_string = "local('Ubuntu Medium'), local('Ubuntu-Medium')"
+FONT_CACHE_PATH = path.join(
+    path.dirname(path.abspath(__file__)),
+    "_faceplate_font_cache.txt")
+
+if path.exists(FONT_CACHE_PATH):
+    with open(FONT_CACHE_PATH) as f:
+        font_string = f.read()
+else:
+    try:
+        import urllib.request
+        import base64
+
+        with urllib.request.urlopen("https://fonts.gstatic.com/s/ubuntu/v14/4iCv6KVjbNBYlgoCjC3jsGyN.woff2") as response:
+            font_b64 = base64.b64encode(response.read())
+            font_string = "url(\"data:application/font-woff;charset=utf-8;base64,{}\")".format(font_b64.decode('utf-8'))
+
+        with open(FONT_CACHE_PATH, "w") as f:
+            font_string = f.write(font_string)
+
+    except Exception as e:
+        print("Warning: Unable to download font")
+        font_string = "local('Ubuntu Medium'), local('Ubuntu-Medium')"
 
 import math
 from math import sqrt
