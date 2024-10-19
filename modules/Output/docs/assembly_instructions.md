@@ -6,7 +6,7 @@ Note: this design has 3 PCBs that are stacked into a sandwich. The small one (to
 
 ## Components
 
-**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/97340692406), [quick-order CSV](https://freemodular.org/modules/Output/fm_output_tayda_bom.csv)).
+**Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/50242216928), [quick-order CSV](https://freemodular.org/modules/Output/fm_output_tayda_bom.csv)).
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
@@ -19,7 +19,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Output/out
 |    | Back  | R4-R6, R12-R14, R21-R26 | Resistor         | 10kΩ                                    |         | See above |
 |    | Back  | R7-R10, R15-R18         | Resistor         | 10Ω                                     |         | Adds output impedance to headphone output; protects against shorts when plugging in headphones. |
 |    | Back  | R27-R30                 | Resistor         | 100Ω                                    |         | Output impedance for line level output. |
-|    | Middle| R31, R32                | Resistor         | 22kΩ                                    |         | Controls the decay of the peak detector display. A lower value will make the display follow the audio signal more closely. A higher value will show signal peaks for longer. |
+|    | Middle| R31, R32                | Resistor         | 22kΩ                                    |         | Controls the decay of the peak detector display. A lower value will make the display follow the audio signal more closely. A higher value will show signal peaks for longer. 20kΩ is fine here. |
 |    | Middle| R33                     | Resistor         | 33kΩ                                    |         | R33-R38 provide the voltage reference for the volume meter. To get an accurate meter, they all must be the exact values given at 1% tolerance. But, if you don't have all the correct values, only the display will be effected; not the audio. Alternatively, if you want to use a different scale for the meters, you could use your own choice of values here. They are arranged as a voltage divider ladder from 12v to 0v. |
 |    | Middle| R34                     | Resistor         | 2.2kΩ                                   |         |         |
 |    | Middle| R35                     | Resistor         | 1.5kΩ                                   |         |         |

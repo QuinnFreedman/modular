@@ -24,7 +24,7 @@
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_pcb_back_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
-  <li>(Most) parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/97340692406">cart link</a>, <a href="https://freemodular.org/modules/Output/fm_output_tayda_bom.csv">quick-order CSV</a></li>
+  <li>(Most) parts on Tayda: <a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/50242216928">cart link</a>, <a href="https://freemodular.org/modules/Output/fm_output_tayda_bom.csv">quick-order CSV</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Output">Source files</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Output/output_schematic.pdf">Schematic</a></li>
 </ul>
