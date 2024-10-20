@@ -3,16 +3,16 @@
 The general assembly process is more or less the same for all modules:
 
 1. Aquire PCBs/Faceplate
-  1. Download the GERBER files from each module's page
-  2. Upload the files to a PCB manufacturer like JLCPCB
-  3. **OR** buy boards from my [Etsy shop](https://www.etsy.com/shop/freemodular/)
+    - Download the GERBER files from each module's page
+    - Upload the files to a PCB manufacturer like JLCPCB
+    - **OR** buy boards from my [Etsy shop](https://www.etsy.com/shop/freemodular/)
 2. Aquire components
-  1. Download the Tayda bill of materials CSV from each module's page
-  2. Upload them to [Tayda quick order](https://www.taydaelectronics.com/quick-order/)
-  3. Get any parts Tayda doesn't carry from [Mouser](https://www.mouser.com/) or [DigiKey](https://www.digikey.com/)
-  4. **OR** buy complete kits from my [Etsy shop](https://www.etsy.com/shop/freemodular/)
+    - Download the Tayda bill of materials CSV from each module's page
+    - Upload them to [Tayda quick order](https://www.taydaelectronics.com/quick-order/)
+    - Get any parts Tayda doesn't carry from [Mouser](https://www.mouser.com/) or [DigiKey](https://www.digikey.com/)
+    - **OR** buy complete kits from my [Etsy shop](https://www.etsy.com/shop/freemodular/)
 4. **Solder** everything together
-  1. See the notes in each module's bill of materials for specific instructions for some components
+    - See the notes in each module's bill of materials for specific instructions for some components
 5. **Flash** the firmware onto the Arduino by USB (if applicable)
 
  Specific information for each module can found in the documentation for that module.
