@@ -7,7 +7,7 @@
 	(title_block
 		(title "Boost")
 		(date "2024-09-14")
-		(rev "1.0")
+		(rev "1.1")
 		(company "Free Modular")
 	)
 	(lib_symbols
@@ -2336,6 +2336,12 @@
 		(uuid "7719d22f-6197-449c-a5e2-2a4779ab22c5")
 	)
 	(junction
+		(at 104.14 58.42)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8784bc49-7f45-476b-94a8-6b587f78e579")
+	)
+	(junction
 		(at 52.07 64.77)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2358,12 +2364,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b42db077-c55e-4c74-a305-79717b90ec2f")
-	)
-	(junction
-		(at 96.52 53.34)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b6007bd7-ac91-405a-a455-01d75546286c")
 	)
 	(junction
 		(at 41.91 156.21)
@@ -2447,7 +2447,7 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 53.34) (xy 104.14 67.31)
+			(xy 104.14 53.34) (xy 104.14 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2525,6 +2525,16 @@
 		)
 		(uuid "1b843033-03e7-497d-a7ca-e752ac0baf4c")
 	)
+	(polyline
+		(pts
+			(xy 22.86 129.54) (xy 22.86 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1c220dde-6aa5-44ad-9ec3-830fd0976dea")
+	)
 	(wire
 		(pts
 			(xy 189.23 96.52) (xy 189.23 90.17)
@@ -2574,6 +2584,16 @@
 			(type default)
 		)
 		(uuid "26dd8389-60b2-48aa-8d49-35a3d9059a24")
+	)
+	(wire
+		(pts
+			(xy 104.14 58.42) (xy 104.14 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "28c82e2b-4ebe-4c90-9fee-db391e5b2c9d")
 	)
 	(wire
 		(pts
@@ -2797,16 +2817,6 @@
 	)
 	(wire
 		(pts
-			(xy 96.52 58.42) (xy 100.33 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5ce163c0-fe9f-4454-8c60-ba316991d78d")
-	)
-	(wire
-		(pts
 			(xy 168.91 85.09) (xy 215.9 85.09)
 		)
 		(stroke
@@ -2914,6 +2924,16 @@
 			(type default)
 		)
 		(uuid "8008e582-b8f3-4da9-bb73-307082e38a1b")
+	)
+	(wire
+		(pts
+			(xy 100.33 58.42) (xy 104.14 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "814c348e-569a-4883-8ecd-8cc1447453ac")
 	)
 	(wire
 		(pts
@@ -3185,6 +3205,16 @@
 		)
 		(uuid "d06b46e0-b9aa-4e17-a6fd-7ff9da3bb37b")
 	)
+	(polyline
+		(pts
+			(xy 22.86 128.27) (xy 102.87 128.27)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d592de81-148e-4c3d-97d4-f6f4e4b9bf43")
+	)
 	(wire
 		(pts
 			(xy 30.48 63.5) (xy 40.64 63.5)
@@ -3214,16 +3244,6 @@
 			(type default)
 		)
 		(uuid "dbb69c1a-3368-4f23-814f-b8ab607ed4a5")
-	)
-	(wire
-		(pts
-			(xy 96.52 53.34) (xy 96.52 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dde11ca3-d0ea-42d9-bf10-8620cadc4bda")
 	)
 	(wire
 		(pts
@@ -3264,6 +3284,16 @@
 			(type default)
 		)
 		(uuid "f1cf1ff9-09fc-4862-b765-f60b6772362c")
+	)
+	(polyline
+		(pts
+			(xy 102.87 128.27) (xy 102.87 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f4091313-3658-4171-ab40-cc571e5f96c3")
 	)
 	(polyline
 		(pts
@@ -3383,7 +3413,7 @@
 	)
 	(text "Power"
 		(exclude_from_sim no)
-		(at 54.61 124.46 0)
+		(at 57.15 127 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4251,7 +4281,8 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer_US")
-		(at 179.07 64.77 270)
+		(at 179.07 64.77 90)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4259,7 +4290,7 @@
 		(dnp no)
 		(uuid "3974fad0-7e81-4e66-84b6-0bdbbf540270")
 		(property "Reference" "RV2"
-			(at 181.61 58.928 90)
+			(at 176.53 58.928 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4268,7 +4299,7 @@
 			)
 		)
 		(property "Value" "50k"
-			(at 181.61 61.468 90)
+			(at 176.53 61.468 90)
 			(effects
 				(font
 					(size 1.27 1.27)
