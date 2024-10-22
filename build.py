@@ -29,7 +29,7 @@ def get_last_commit(dir):
 
 
 def run_command_or_exit_with_error(command: List[str], **kwargs):
-    error_msg = f"\n⛔ Error running command:\n\n    {' '.join(command)}\n"
+    error_msg = f"\n⛔ Error running command:\n\n    {' '.join(str(x) for x in command)}\n"
 
     try:
         result = subprocess.run(command, capture_output=True, **kwargs)
@@ -130,7 +130,7 @@ def run_inkscape_command(*command):
     )
 
 
-def build_manual(name, output_dir, last_commit):
+def build_manual(name, output_dir, last_commit, manual_pages):
     manual_svg = path.abspath(path.join("modules", name, "docs", f"{to_snake_case(name)}_manual.svg"))
     if not has_changed_since(manual_svg, last_commit):
         return
@@ -142,9 +142,24 @@ def build_manual(name, output_dir, last_commit):
         return
 
     output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_manual.pdf"))
-    result = run_inkscape_command(
+    run_inkscape_command(
         manual_svg, "-o", output_file,
     )
+
+    for i in range(manual_pages):
+        suffix = "" if manual_pages == 1 else f"_page_{i+1}"
+        output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_manual{suffix}.png"))
+        command = [
+            manual_svg,
+            "--export-type=png",
+            f"--export-filename={output_file}",
+            "--export-dpi=150",
+            "--export-background=#ffffff",
+        ]
+        if manual_pages > 1:
+            command.append(f"--export-page={i+1}")
+        run_inkscape_command(*command)
+    
     log_ok()
 
 
@@ -224,7 +239,10 @@ def to_snake_case(text):
 def build_faceplate(name, output_dir, last_commit):
     build_script = path.join("modules", name, "Faceplate", f"make_{to_snake_case(name)}_faceplate.py")
     output_file = path.abspath(path.join(output_dir, f"{to_snake_case(name)}_faceplate.svg"))
-    if path.exists(output_file) and not has_changed_since(build_script, last_commit):
+    output_file_2 = path.abspath(path.join(output_dir, f"{to_snake_case(name)}.svg"))
+    output_file_png = path.abspath(path.join(output_dir, f"{to_snake_case(name)}.png"))
+    if path.exists(output_file) and path.exists(output_file_2) and path.exists(output_file_png) \
+        and not has_changed_since(build_script, last_commit):
         return
     log(1, "🤖", "Building faceplate SVG", True)
     if not path.isfile(build_script):
@@ -238,6 +256,22 @@ def build_faceplate(name, output_dir, last_commit):
             output_file,
         ],
         cwd=path.dirname(build_script)
+    )
+    run_command_or_exit_with_error(
+        [
+            "python3",
+            path.basename(build_script),
+            "-o",
+            output_file_2,
+            "--mode=display",
+            "--outline",
+        ],
+        cwd=path.dirname(build_script)
+    )
+    run_inkscape_command(
+        output_file_2,
+        "--export-type=png",
+        f"--export-filename={output_file_png}",
     )
     log_ok()
 
@@ -266,7 +300,7 @@ def build_rust_firmware(name: str, output_dir: str, last_commit: str):
     log_ok()
 
 
-def build(name, output_dir, multiboard_refs=None):
+def build(name, output_dir, multiboard_refs=None, manual_pages=1):
     dir = path.join("modules", name)
     output_dir = path.join(output_dir, name)
     last_commit = get_last_commit(output_dir)
@@ -312,7 +346,7 @@ def build(name, output_dir, multiboard_refs=None):
     if path.exists(cargo_toml):
         build_rust_firmware(name, output_dir, last_commit)
 
-    build_manual(name, output_dir, last_commit)
+    build_manual(name, output_dir, last_commit, manual_pages)
 
     rev_file_name = path.join(output_dir, "last_modified.txt")
     with open(rev_file_name, "w") as f:
@@ -328,5 +362,5 @@ if __name__ == "__main__":
     build("devboard", output_dir)
     build("OffsetAtten", output_dir, [("front", "B1"), ("back", "B2")])
     build("Envelope", output_dir, [("front", "B1"), ("back", "B2")])
-    build("Drift", output_dir, [("front", "B1"), ("back", "B2")])
+    build("Drift", output_dir, [("front", "B1"), ("back", "B2")], manual_pages=2)
 

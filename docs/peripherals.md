@@ -21,7 +21,9 @@ If you want to buy a case, here are some ideas:
 Modules need power. Some cases come with power supplies builtin while others require you to buy dedicated power modules. 
 I personally use [Synthrotek's Case Power (Green)](https://www.synthrotek.com/products/modular-circuits/case-power/) for my larger case and this much cheaper [Frequency Central DIY kit](https://frequencycentral.co.uk/product/fc-power/) for my test bench. Both work excellently for me, but do a little research to find a power supply that meets your needs. Here is a much more in-depth guide from [Perfect Circuit](https://www.perfectcircuit.com/signal/eurorack-modular-power-basics).
 
-I don't give power consumption ratings for my modules. Maybe I will figure that out at some point. None of them should draw unusually much, though. I recommend getting a power supply that is suited to the approximate size of case you want to build plus a little head room.
+Make sure your power supply can output enough current to power all your modules, plus a little headroom since some modules occasionally draw an extra spike of power above their rated draw.
+
+Many DIY modules/power supplies only have +/-12V power rails, but my digital modules also make use of the 5V rail, so make sure whatever you choose has a decent 5V supply.
 
 ## Power Cables
 

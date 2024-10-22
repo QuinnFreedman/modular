@@ -47,3 +47,9 @@ fp-info-cache
 
 # photographs
 /images/photos
+
+# Faceplate builder cache
+_faceplate_font_cache.txt
+
+# Packing labels and inserts
+/packaging/

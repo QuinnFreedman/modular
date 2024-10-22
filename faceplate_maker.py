@@ -72,25 +72,37 @@ def inches(n):
     return n * 25.4
 
 class Module:
-    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, outline=None, title_size=5, hide_logo=False, title_offset=0):
+    def __init__(self, hp, global_y_offset=0, title=None, filename="output.svg", debug=False, cosmetics=False, drill_markers=True, outline=None, title_size=5, hide_logo=False, title_offset=0):
         assert isinstance(global_y_offset, (int, float))
         assert isinstance(hp, int)
         HP = inches(0.2)
         self.height = 128.5
         self.width = math.floor((hp * HP) * 10 - 3) / 10
 
-        self.d = svgwrite.Drawing(filename=filename.replace(" ", "_"), size=(self.width * mm, self.height * mm))
+        if outline == 3:
+            svg_size = ((self.width + 1) * mm, (self.height + 1) * mm)
+        else:
+            svg_size = (self.width * mm, self.height * mm)
+
+        self.d = svgwrite.Drawing(filename=filename.replace(" ", "_"), size=svg_size)
 
         self.d.add(
             self.d.rect(size=(self.width, self.height), fill="white", id="background"))
         
         self.d.defs.add(self.d.style(id="font-style", content="@font-face {{ font-family: 'Ubuntu'; font-style: normal; font-weight: 500; src: {}; }}".format(font_string)))
-        self.d.viewbox(width=self.width, height=self.height)
+        if outline == 3:
+            self.d.viewbox(-.5, -.5, self.width+1, self.height+1)
+        else:
+            self.d.viewbox(0, 0, self.width, self.height)
         self.outline = self.d.add(self.d.g(id="outline", fill="none", stroke="black"))
         self.stencil = self.d.add(self.d.g(id="stencil", font_family="Ubuntu", font_size=3))
         self.holes = self.d.add(self.d.g(id="throughholes", fill="black", stroke="none"))
         self.inkscape_actions = []
         self.post_process = []
+
+        self.drill_markers = None
+        if drill_markers:
+            self.drill_markers = self.d.add(self.d.g(id="drill_markers", stroke="white"))
         
         self.debug = None
         if debug:
@@ -110,6 +122,9 @@ class Module:
             self.holes.add(
                 self.d.circle(center=(x, y), r=screw_hole_d/2,
                               stroke="none"))
+            if self.drill_markers:
+                self.drill_markers.add(
+                    draw_drill_marker(self.d, x, y))
             
         # draw left mounting holes
         screw_hole(screw_hole_x1, screw_hole_y)
@@ -156,14 +171,11 @@ class Module:
                 outline = 2
             else:
                 outline = 1
-        elif outline not in [0, 1, 2]:
-                raise ValueError("outline must be 0, 1, 2, or None (default)")
+        elif outline not in [0, 1, 2, 3]:
+                raise ValueError("outline must be 0, 1, 2, 3, or None (default)")
             
         if outline == 0:
             pass
-        elif outline == 2:
-            self.outline.add(
-                self.d.rect(size=(self.width, self.height), stroke_width=1))
         elif outline == 1:
             length = 3
             lines = [
@@ -178,6 +190,12 @@ class Module:
                 ]
             for start, end in lines:
                 self.outline.add(self.d.line(start, end, stroke_width=1, stroke="black"))
+        elif outline == 2:
+            self.outline.add(
+                self.d.rect(size=(self.width, self.height), stroke_width=1))
+        elif outline == 3:
+            self.outline.add(
+                self.d.rect((-.25, -.25), size=(self.width+.5, self.height+.5), stroke_width=.5))
 
         if self.debug:
             center = self.width / 2
@@ -200,6 +218,9 @@ class Module:
         global_offset = (self.width / 2, global_y_offset)
         self.holes = self.holes.add(self.d.g(id="throughholes_offset"))
         self.holes.translate(global_offset)
+        if self.drill_markers:
+            self.drill_markers = self.drill_markers.add(self.d.g(id="drill_markers_offset"))
+            self.drill_markers.translate(global_offset)
         self.stencil = self.stencil.add(self.d.g(id="stencil_offset"))
         self.stencil.translate(global_offset)
         if self.debug:
@@ -215,6 +236,12 @@ class Module:
             group = self.holes.add(self.d.g())
             group.translate(*component.position)
             for x in component.draw_holes(self.d):
+                group.add(x)
+
+        if self.drill_markers:
+            group = self.drill_markers.add(self.d.g())
+            group.translate(*component.position)
+            for x in component.draw_drill_markers(self.d):
                 group.add(x)
             
         group = self.stencil.add(self.d.g())
@@ -295,6 +322,7 @@ class Module:
         parser = argparse.ArgumentParser(description="Script to make faceplate SVGs for FM modules")
         parser.add_argument("--mode", choices=["stencil", "display", "debug"], default="stencil", help="which features should be included in the image")
         parser.add_argument("-o", "--output", metavar="FILE", help="path to svg file to output")
+        parser.add_argument("--outline", action="store_true", help="Add outline")
         args = parser.parse_args()
         return Module(
             hp,
@@ -305,6 +333,8 @@ class Module:
             filename=args.output or f"{title}.svg",
             debug=args.mode == "debug",
             cosmetics=args.mode == "display",
+            drill_markers=args.mode == "stencil",
+            outline=3 if args.outline else None,
             **kwargs
         )
 
@@ -353,6 +383,9 @@ class Component:
     def draw_holes(self, context: Group):
         return []
 
+    def draw_drill_markers(self, context: Group):
+        return []
+
     def draw_stencil(self, context: Group):
         return []
         
@@ -375,9 +408,11 @@ def BasicCircle(offset_x: float, offset_y: float, r: float):
         def draw_holes(self, context):
             return [context.circle(center=self.offset, r=self.radius)]
             
+        def draw_drill_markers(self, context):
+            return [draw_drill_marker(context, *self.offset)]
+            
         def draw_debug(self, context):
-            # return [context.circle(center=(0,0), r=.6)]
-            return [draw_x(context, 0, 0),]
+            return [draw_x(context, 0, 0)]
 
         def rotated(self, point: Tuple[float, float]) -> Tuple[float, float]:
             x, y = point
@@ -393,15 +428,21 @@ def BasicCircle(offset_x: float, offset_y: float, r: float):
             
     return BasicCircle
 
+def draw_drill_marker(context, x, y, size=1, stroke_width=.2):
+    return context.path([
+        f"M {x} {y-size}",
+        f"L {x} {y+size}",
+        f"M {x-size} {y}",
+        f"L {x+size} {y}",
+    ], stroke_width=stroke_width)
 
-def draw_x(context, x, y):
-    size = 1
+def draw_x(context, x, y, size=1, stroke_width=.1):
     return context.path([
         f"M {x-size} {y-size}",
         f"L {x+size} {y+size}",
         f"M {x-size} {y+size}",
         f"L {x+size} {y-size}",
-    ], stroke_width=.1)
+    ], stroke_width=stroke_width)
 
 # The datasheet says this should be an offset of 4.92mm for the "Thonkicon" but it
 # the distance between the throughholes is 8.3mm (.33 inches) so I kept the ratio and scaled
@@ -1424,6 +1465,15 @@ class OLED(Component):
             draw_x(context, 0, 0),
             *[context.circle(center=self.rotated((inches(i * .1), 0)), r=.25) for i in range(4)],
         ]
+        
+    def draw_drill_markers(self, context):
+        screw_hole_d = inches(3/32)
+
+        elements = []
+        for p in self._get_hole_locations():
+            elements.append(draw_drill_marker(context, *p))
+
+        return elements
 
     def draw_cosmetics(self, context):
         clip_path = context.defs.add(context.clipPath())
