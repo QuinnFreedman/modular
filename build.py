@@ -271,6 +271,7 @@ def build_faceplate(name, output_dir, last_commit):
     run_inkscape_command(
         output_file_2,
         "--export-type=png",
+        "--export-dpi=300",
         f"--export-filename={output_file_png}",
     )
     log_ok()
