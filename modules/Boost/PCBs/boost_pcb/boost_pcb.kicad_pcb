@@ -1928,8 +1928,6 @@
 			)
 		)
 	)
-<<<<<<<< HEAD:modules/Boost/PCBs/boost_pcb/Boost.kicad_pcb
-========
 	(footprint "FreeModular:logo_very_small"
 		(layer "B.Cu")
 		(uuid "15e7e498-604e-4382-aa15-2321d0599fdd")
@@ -2144,7 +2142,6 @@
 			)
 		)
 	)
->>>>>>>> c110f11 (Fix boost format):modules/Boost/PCBs/boost_pcb/boost_pcb.kicad_pcb
 	(footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
 		(layer "B.Cu")
 		(uuid "1823391d-f0de-48fa-8f55-2f62e9d7035a")
