@@ -3250,7 +3250,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "77de8cdb-186b-4096-8fa6-8eecab63501b")
-		(property "Reference" "R1"
+		(property "Reference" "R21"
 			(at 35.56 74.93 0)
 			(effects
 				(font
@@ -3304,7 +3304,7 @@
 		(instances
 			(project "rng_pcb_back"
 				(path "/92d63849-2602-44c9-baaa-01c9094be14f/5cf0a259-bdf3-44a9-9c89-339d20abf95a"
-					(reference "R1")
+					(reference "R21")
 					(unit 1)
 				)
 			)
@@ -3516,7 +3516,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c41e272e-94e7-480f-b2ea-35ce8eb4a26a")
-		(property "Reference" "R2"
+		(property "Reference" "R18"
 			(at 35.56 86.36 90)
 			(effects
 				(font
@@ -3568,7 +3568,7 @@
 		(instances
 			(project "rng_pcb_back"
 				(path "/92d63849-2602-44c9-baaa-01c9094be14f/5cf0a259-bdf3-44a9-9c89-339d20abf95a"
-					(reference "R2")
+					(reference "R18")
 					(unit 1)
 				)
 			)
