@@ -22,7 +22,8 @@ pub fn i8_to_str_b10<'a>(buffer: &'a mut [u8], n: i8) -> &'a mut [u8] {
         return &mut buffer[..1];
     }
 
-    let sign = if n < 0 { b'-' } else { b'+' };
+    // Using custom code page to save space, ';' is mapped to '-'; '`' => '+'
+    let sign = if n < 0 { b';' } else { b'`' };
 
     let mut n: u8 = n.abs() as u8;
     const POWERS: [u8; 3] = [100, 10, 1];
@@ -53,7 +54,7 @@ pub fn tempo_to_str<'a>(buffer: &'a mut [u8], n: i8) -> &'a [u8] {
         return buffer;
     }
 
-    // Using custom code page to save space, '^' is mapped to '%'
+    // Using custom code page to save space, '_' is mapped to '%'
     let symbol = if n < 0 { b'_' } else { b'x' };
     let text = i8_to_str_b10(buffer, n);
     text[0] = symbol;
