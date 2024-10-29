@@ -16,7 +16,7 @@
 <ul>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_manual.pdf">Manual</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/Clock/docs/assembly_instructions">Assembly instructions and BOM</a></li>
-  <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_interactive_bom.html">back panel</a></li>
+  <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_front_pcb_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_back_pcb_interactive_bom.html">back panel</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Clock/clock_faceplate.svg">Faceplate stencil SVG</a></li>
   <li>GERBER files:
     <ul>
