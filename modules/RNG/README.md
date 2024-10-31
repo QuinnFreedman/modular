@@ -36,6 +36,7 @@
 </div>
 </div>
 
+<b>DIY difficulty:</b> Hard (this module requires a little bit of surface-mount soldering, unless you pay more for a discontinued part. See <a href="docs/assembly_instructions">assembly instructions</a>)<br>
 <b>HP:</b> 10<br>
 <b>Power usage:</b>
 <table class="fm-current-table">

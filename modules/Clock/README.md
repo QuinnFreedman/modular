@@ -34,6 +34,7 @@
 </div>
 </div>
 
+<b>DIY difficulty:</b> Easy (attaching the screen is the only slightly tricky part)<br>
 <b>HP:</b> 8<br>
 <b>Power usage:</b>
 <table class="fm-current-table">

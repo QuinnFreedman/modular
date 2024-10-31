@@ -32,6 +32,7 @@
 </div>
 </div>
 
+<b>DIY difficulty:</b> Easy (adding a flying ground buss to the bottom 4 jacks is slightly finicky)<br>
 <b>HP:</b> 8<br>
 <b>Power usage:</b>
 <table class="fm-current-table">

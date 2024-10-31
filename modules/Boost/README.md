@@ -1,7 +1,7 @@
 <div class="fm-readme-container">
 <div class="fm-row">
 
-<img class="fm-readme-module-image" src="docs/images/mixer_faceplate_display.svg" />
+<img class="fm-readme-module-image" src="docs/images/boost.svg" />
 
 <div class="fm-readme-text">
 
@@ -30,6 +30,8 @@
 </div>
 </div>
 
+<b>DIY difficulty:</b> Very easy<br>
 <b>HP:</b> 4<br>
+<b>Power usage:</b> not tested yet (but probably quite low)
 
 </div>

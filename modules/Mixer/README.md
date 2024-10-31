@@ -30,6 +30,7 @@
 </div>
 </div>
 
+<b>DIY difficulty:</b> Very easy<br>
 <b>HP:</b> 8<br>
 <b>Power usage:</b>
 <table class="fm-current-table">
