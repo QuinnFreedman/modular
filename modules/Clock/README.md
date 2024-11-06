@@ -67,8 +67,7 @@
 </table>
 
 <a class="fm-etsy-link" href="https://www.etsy.com/listing/1802835077">
-  <img src="docs/images/00-clock-front.jpg" />
-  <img src="docs/images/01-clock-back.jpg" />
+  <img src="docs/images/00-clock-front.jpg" /><img src="docs/images/01-clock-back.jpg" />
   <h3>Available on Etsy</h3>
   <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
 </a>
