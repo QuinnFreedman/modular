@@ -141,3 +141,22 @@ table.fm-current-table {
     font-weight: bold;
   }
 }
+
+.fm-etsy-link {
+  border: 2px solid black;
+  padding: 10px;
+  color: black;
+  display: block;
+
+  &::after {
+    content: " ";
+    display: block;
+    height: 0;
+    clear: both;
+  }
+
+  img {
+    height: 180px;
+    margin-right: 10px;
+  }
+}

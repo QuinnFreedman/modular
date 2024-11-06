@@ -34,6 +34,8 @@
 </div>
 </div>
 
+<h2>Details</h2>
+
 <b>DIY difficulty:</b> Easy (attaching the screen is the only slightly tricky part)<br>
 <b>HP:</b> 8<br>
 <b>Power usage:</b>
@@ -63,5 +65,12 @@
     <td>-</td>
   </tr>
 </table>
+
+<a class="fm-etsy-link" href="https://www.etsy.com/listing/1802835077">
+  <img src="docs/images/00-clock-front.jpg" />
+  <img src="docs/images/01-clock-back.jpg" />
+  <h3>Available on Etsy</h3>
+  <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
+</a>
 
 </div>
