@@ -31,6 +31,8 @@
 </div>
 </div>
 
+<h2>Details</h2>
+
 <b>DIY difficulty:</b> Very easy<br>
 <b>HP:</b> 4<br>
 <b>Power usage:</b>
@@ -60,5 +62,11 @@
     <td>37mA</td>
   </tr>
 </table>
+
+<a class="fm-etsy-link" href="https://www.etsy.com/listing/1788670334">
+  <img src="docs/images/00-offsetatten-front.jpg" /><img src="docs/images/01-offsetatten-back.jpg" />
+  <h3>Available on Etsy</h3>
+  <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
+</a>
 
 </div>

@@ -30,6 +30,8 @@
 </div>
 </div>
 
+<h2>Details</h2>
+
 <b>DIY difficulty:</b> Very easy<br>
 <b>HP:</b> 4<br>
 <b>Power usage:</b> not tested yet (but probably quite low)

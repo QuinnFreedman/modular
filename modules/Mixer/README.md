@@ -30,6 +30,8 @@
 </div>
 </div>
 
+<h2>Details</h2>
+
 <b>DIY difficulty:</b> Very easy<br>
 <b>HP:</b> 8<br>
 <b>Power usage:</b>
@@ -55,5 +57,11 @@
     <td>5mA</td>
   </tr>
 </table>
+
+<a class="fm-etsy-link" href="https://www.etsy.com/listing/1804937947">
+  <img src="docs/images/00-mixer-front.jpg" /><img src="docs/images/01-mixer-back.jpg" />
+  <h3>Available on Etsy</h3>
+  <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
+</a>
 
 </div>

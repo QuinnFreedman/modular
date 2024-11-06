@@ -36,6 +36,8 @@
 </div>
 </div>
 
+<h2>Details</h2>
+
 <b>DIY difficulty:</b> Hard (this module requires a little bit of surface-mount soldering, unless you pay more for a discontinued part. See <a href="docs/assembly_instructions">assembly instructions</a>)<br>
 <b>HP:</b> 10<br>
 <b>Power usage:</b>
@@ -61,5 +63,11 @@
     <td>8mA</td>
   </tr>
 </table>
+
+<a class="fm-etsy-link" href="https://www.etsy.com/listing/1804957539">
+  <img src="docs/images/00-rng-front.jpg" /><img src="docs/images/01-rng-back.jpg" />
+  <h3>Available on Etsy</h3>
+  <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
+</a>
 
 </div>
