@@ -66,11 +66,16 @@ I use the THONKICONN style jacks from Thonk (a.k.a PJ301M-12 or PJ398SM). Buy th
 
 ### Rotary encoders
 
-A few of my modules use rotary encoders in addition to potentiometers. I use EC11M D-type encoders. I have had trouble finding them from suppliers, but you can get them on amazon [here](https://www.amazon.com/DIYhz-Rotary-Encoder-Digital-Potentiometer/dp/B07D3DF8TK/).
+A few of my modules use rotary encoders in addition to potentiometers. I have not been able to find a model of encoder that I am totally happy with. I either use the Alpha [RE111F-41B3-15F-20P](https://www.taydaelectronics.com/rotary-encoder-11mm-20-detents-d-shaft-with-switch-vertical.html), which has a very clicky action and is frustratingly a little shorter than the alpha potentiometers, or I use EC11M D-type encoders, which have a much smoother feeling click and are a bit too tall.
+I have had trouble finding the EC11M from suppliers, but you can get them on amazon [here](https://www.amazon.com/DIYhz-Rotary-Encoder-Digital-Potentiometer/dp/B07D3DF8TK/).
+
+In my experience, any rotary encoders you can buy online in the same rought form factor are totally interchangeable. The only think you need to look out for is the number of pulses per detent. My firmware expects a 1:1 relationship (i.e. 20 pulses and 20 detents per rotation) but some encoders use a half-time encoding.
 
 ### Switches
 
 When I use switches in my projects, I use the Taiway Sub-Mini SPDT's -- both the ON/ON's (two position) and the ON/OFF/ON's (three position). You can get them from [Love My Switches](https://lovemyswitches.com/taiway-sub-mini-spdt-on-on-switch-pcb-mount-long-shaft/), [Thonk](https://www.thonk.co.uk/shop/sub-mini-toggle-switches/), or [Amplified Parts](https://www.amplifiedparts.com/products/switch-carling-submini-toggle-spdt-2-position-pc-pins). I use Sub-mini switches, which are smaller than the "mini" switches in many DIY modules. Make sure you get the "PCB mount" version so they can solder directly into the PCB.
+
+These switches are sold under a lot of different brands but all seem to be identical and made in the same factory.
 
 ## IC chips
 
