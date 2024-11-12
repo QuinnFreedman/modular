@@ -3395,7 +3395,7 @@
 			(type solid)
 		)
 		(fill solid)
-		(layer "B.Mask")
+		(layer "F.Mask")
 		(uuid "5a28f4ff-3a13-445e-801b-b8eadc1c8cd5")
 	)
 	(gr_poly
