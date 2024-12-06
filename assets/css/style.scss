@@ -30,6 +30,12 @@ a {
   box-shadow: calc((var(--width) + var(--margin)) * 1) 0 #fd8b45, calc((var(--width) + var(--margin)) * 2) 0 #f7e51a, calc((var(--width) + var(--margin)) * 3) 0 #0cc081, calc((var(--width) + var(--margin)) * 4) 0 #38d0fa, calc((var(--width) + var(--margin)) * 5) 0 #e962b2;
 }
 
+.markdown-body img {
+  display: block;
+  margin: 0 auto;
+  max-height: 550px;
+}
+
 .fm-container {
   display: flex;
   flex-direction: row;

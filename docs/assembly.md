@@ -67,7 +67,7 @@ Each module's documentation should link to a HEX file. That file is the program 
 
 Make sure your module is not connected to your Eurorack case (or remove the Arduino completely from the module) before plugging it into your computer via USB.
 
-![AVRDUDESS instructions](images/avrdudess_instructions.svg)
+<img alt="AVRDUDESS instructions" src="images/avrdudess_instructions.svg" style="max-height:unset"/>
 
 If your Arduino does not show up when you plug it in (or if AVRDUDE is unable to write to it), you may need to [install a driver](https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all) (some 3rd-party clone boards use a different USB chip).
 
