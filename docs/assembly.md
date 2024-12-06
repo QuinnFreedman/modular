@@ -65,8 +65,10 @@ If the project you are assembling involves an Arduino, then you will need to loa
 
 Each module's documentation should link to a HEX file. That file is the program that needs to be uploaded to the Arduino. There are multiple ways to do that and none of them are as user friendly as I would like. Until I find a better tool, I recommend using [avrdudess](https://github.com/ZakKemble/AVRDUDESS). If you are on Windows, you can download the latest release from the [releases page](https://github.com/ZakKemble/AVRDUDESS/releases) and it should just work. If you are on Mac or Linux, refer to the documentation.
 
+Make sure your module is not connected to your Eurorack case (or remove the Arduino completely from the module) before plugging it into your computer via USB.
+
 ![AVRDUDESS instructions](images/avrdudess_instructions.svg)
 
-If your Arduino does not show up when you plug it in, you may need to [install a driver](https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all) (some 3rd-party clone boards use a different USB chip).
+If your Arduino does not show up when you plug it in (or if AVRDUDE is unable to write to it), you may need to [install a driver](https://learn.sparkfun.com/tutorials/how-to-install-ch340-drivers/all) (some 3rd-party clone boards use a different USB chip).
 
 Note that most firmware will work on any Arduino Nano, but if a module's firmware uses all of the available space (like the Clock firmware), then it will only work properly with an Arduino running the newer Arduino bootloader. If your Arduino is running the old bootloader, you will need to burn a new one. This is a little more involved than uploading firmware and requires a second Arduino (of any type) to use as a programmer. See [this article](https://support.arduino.cc/hc/en-us/articles/4841602539164-Burn-the-bootloader-on-UNO-Mega-and-classic-Nano-using-another-Arduino) for detailed instructions. If your Arduino isn't working for any reason or seems bricked, re-burning the bootloader will often fix whatever is going on.

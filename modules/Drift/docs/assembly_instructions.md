@@ -1,7 +1,5 @@
 # Drift Assembly Instructions
 
-See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
-
 ## Components
 
 **Most** parts are available on Tayda ([quick-order CSV](https://freemodular.org/modules/Drift/fm_drift_tayda_bom.csv)).
@@ -32,3 +30,63 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drif
 |    | Back  | SW1       | DIP switches     | 1x2                                     | [Tayda](https://www.taydaelectronics.com/black-dip-switch-2-positions-gold-plated-contacts-top-actuated.html) | **Optional:** configuration switches to select noise algorithm. Leave unconnected for the default Perlin noise. You can solder a wire to bridge pairs 1 and/or 2 to select a different mode, or use pair of switches if you want to be able to change it later. See the manual for how to select algorithms. |
 
 🔴 = Missing from Tayda BOM
+
+## Tutorial
+
+Once you have gathered all the components and the PCBs, I reccomend you start with the resistors on the rear PCB.
+
+![](images/tutorial_01.jpg)
+
+Bend the resistor legs back to hold them in place while you solder, then snip off the extra wire. Repeat for all resistors. 
+
+![](images/tutorial_02.jpg)
+
+Next, add the sockets for the IC chips. If you don't have sockets, you can solder the chips directly to the PCB, but then you won't be able to move or swap them later if there is an error.
+
+![](images/tutorial_03.jpg)
+
+Optionally, add the DIP switch to be able to select differnt modes.
+
+![](images/tutorial_04.jpg)
+
+Add the ceramic capacitors in the same way as the resistors.
+
+![](images/tutorial_05.jpg)
+
+Cut the pin headers to size. There should be one strip of 4 pins, one of 6 pins, and two of 15 pins. Each strip should have a male and female side. You can put the male and female parts together now.
+
+![](images/tutorial_06.jpg)
+
+Add the Arduino to the opposite side of the rear PCB. Start by ballancing the Arduino on the pin headers to solder the Arduino side. Then, flip the whole thing over and solder the PCB side. You may need to support the PCB so everything will sit flush. After everything is soldered, you can remove the Arduino to make the next steps easier.
+
+![](images/tutorial_07.jpg)
+
+Add the power header and the electrolytic capacitors to the same side as the Arduino. Match the notch on the power header to the notch on the PCB silkscreen. The notch should face right with -12v at the bottom.
+
+![](images/tutorial_08.jpg)
+
+Put the two PCB boards together using the remaining two sets of pin headers. The ICs should be facing inward with the Arduino and the power header exposed on the back.
+
+![](images/tutorial_09.jpg)
+
+After the headers are soldered in place, you can separate them to work on the front PCB. Start by adding the resistors.
+
+![](images/tutorial_10.jpg)
+
+Add all the through-hole components. Before you solder them, screw everything tightly into the faceplate to make sure everything lines up. Make sure the long leg of the LED goes in the hole marked with the + sign and make sure the LED bulb is protruding the amount you want from the faceplate. Then flip the whole thing over and solder everything.
+
+![](images/tutorial_11.jpg)
+
+Put the IC chips in their sockets.
+
+![](images/tutorial_12.jpg)
+
+Then put the two boards back together and fasten them with the M2 bolts.
+
+![](images/tutorial_13.jpg)
+
+Lastly, put the Arduino back in its socket and put the knobs on the potentiometers.
+
+![](../../../docs/images/avrdudess_instructions.svg)
+
+The last step is to flash the firmware to the Arduino. I recommend using [Avrdudess](https://github.com/ZakKemble/AVRDUDESS). See more details in the [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly).
