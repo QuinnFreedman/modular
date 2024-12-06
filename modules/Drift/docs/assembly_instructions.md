@@ -77,7 +77,7 @@ Add all the through-hole components. Before you solder them, screw everything ti
 
 ![](images/tutorial_11.jpg)
 
-Put the IC chips in their sockets.
+Put the IC chips in their sockets. You may need to straighten the legs a little bit to make them fit, then press hard till they are firmly seated.
 
 ![](images/tutorial_12.jpg)
 
@@ -87,6 +87,10 @@ Then put the two boards back together and fasten them with the M2 bolts.
 
 Lastly, put the Arduino back in its socket and put the knobs on the potentiometers.
 
+You might want to use a multimeter to check for short circuits between any of the power rails and ground. It's especially easy to make accidental solder bridges on the electrolytic capacitors since their legs are so narrowly spaced.
+
 ![](../../../docs/images/avrdudess_instructions.svg)
 
 The last step is to flash the firmware to the Arduino. I recommend using [Avrdudess](https://github.com/ZakKemble/AVRDUDESS). See more details in the [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly).
+
+As soon as you flash the Arduino, the big front LED should come on and should start fluctuating. Turning the knobs should control the behavior of the LED. Once you plug the module into the case, you should see the same fluctuation in the output CV.
