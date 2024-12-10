@@ -249,6 +249,11 @@ class Module:
         for x in component.draw_stencil(self.d):
             group.add(x)
 
+        # if self.debug and hasattr(component, "debug_center"):
+        #     offset_x, offset_y = component.debug_center
+        #     x, y = component.position
+        #     print(f"{component.__class__.__name__}: ({offset_x+x}mm, {offset_y+y}mm) ({(offset_x+x)/25.4}in, {(offset_y+y)/25.4}in)")
+
         if self.debug and hasattr(component, "draw_debug"):
             group = self.debug.add(self.d.g())
             group.translate(*component.position)
@@ -402,6 +407,7 @@ def BasicCircle(offset_x: float, offset_y: float, r: float):
                 raise ValueError("rotation must be 0...3")
 
             self.offset = self.rotated((offset_x, offset_y))
+            self.debug_center = self.offset
                 
             self.radius = r
             

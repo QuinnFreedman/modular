@@ -9,6 +9,13 @@ from svgwrite.path import Path
 
 module = Module.from_cli(10, global_y_offset=12, title="Quantizer")
 
+def draw_line(p1, p2):
+    (x1, y1), (x2, y2) = p1, p2
+    path = Path(stroke="black", fill="none", stroke_width=.5)
+    path.push(f"M {x1} {y1}")
+    path.push(f"L {x2}, {y2}")
+    module.draw(lambda _: path)
+
 circle_center = inches(.9)
 
 black_keys = [True, False, False, True, False, True, False, True, False, False, True, False]
@@ -50,57 +57,9 @@ for i in range(12):
 
     module.draw(add_icon)
 
-    # dodecagon_ring_width = inches(.25)
-    # dodecagon_outer_r = (r1 + dodecagon_ring_width / 2) * 1.0353
-    # dodecagon_inner_r = (r1 - dodecagon_ring_width / 2) * 1.0353
-    dodecagon_ring_width = inches(.25)
-    dodecagon_outer_r = (r1 + inches(.125)) * 1.0353
-    dodecagon_inner_r = r2 * 1.0353
-
-    if black_keys[i]:
-        path = Path(stroke="none", fill="black")
-        path.push(f"M {math.cos(theta - math.pi / 12) * dodecagon_outer_r} {math.sin(theta - math.pi / 12) * dodecagon_outer_r + circle_center}")
-        path.push(f"L {math.cos(theta + math.pi / 12) * dodecagon_outer_r} {math.sin(theta + math.pi / 12) * dodecagon_outer_r + circle_center}")
-        path.push(f"L {math.cos(theta + math.pi / 12) * dodecagon_inner_r} {math.sin(theta + math.pi / 12) * dodecagon_inner_r + circle_center}")
-        path.push(f"L {math.cos(theta - math.pi / 12) * dodecagon_inner_r} {math.sin(theta - math.pi / 12) * dodecagon_inner_r + circle_center}")
-        module.draw(lambda _: path)
-
-outer_ring = Path(stroke="black", fill="none", stroke_width=.3)
-inner_ring = Path(stroke="black", fill="none", stroke_width=.3)
-outer_ring.push(f"M {math.cos(-math.pi / 12) * dodecagon_outer_r} {math.sin(-math.pi / 12) * dodecagon_outer_r + circle_center}")
-inner_ring.push(f"M {math.cos(-math.pi / 12) * dodecagon_inner_r} {math.sin(-math.pi / 12) * dodecagon_inner_r + circle_center}")
-for i in range(1, 12):
-    theta = math.pi * 2 * i / 12
-    x = math.cos(theta - math.pi / 12) * dodecagon_outer_r
-    y = math.sin(theta - math.pi / 12) * dodecagon_outer_r + circle_center
-    outer_ring.push(f"L {x} {y}")
-    x = math.cos(theta - math.pi / 12) * dodecagon_inner_r
-    y = math.sin(theta - math.pi / 12) * dodecagon_inner_r + circle_center
-    inner_ring.push(f"L {x} {y}")
-outer_ring.push("z")
-inner_ring.push("z")
-module.draw(lambda _: outer_ring)
-module.draw(lambda _: inner_ring)
-
-path = Path(stroke="black", fill="none", stroke_width=.3)
-theta = -math.pi * 6 / 12
-x = math.cos(theta - math.pi / 12) * dodecagon_outer_r
-y = math.sin(theta - math.pi / 12) * dodecagon_outer_r + circle_center
-path.push(f"M {x} {y}")
-x = math.cos(theta - math.pi / 12) * dodecagon_inner_r
-y = math.sin(theta - math.pi / 12) * dodecagon_inner_r + circle_center
-path.push(f"L {x} {y}")
-module.draw(lambda _: path)
-
-path = Path(stroke="black", fill="none", stroke_width=.3)
-theta = math.pi * 4 / 12
-x = math.cos(theta - math.pi / 12) * dodecagon_outer_r
-y = math.sin(theta - math.pi / 12) * dodecagon_outer_r + circle_center
-path.push(f"M {x} {y}")
-x = math.cos(theta - math.pi / 12) * dodecagon_inner_r
-y = math.sin(theta - math.pi / 12) * dodecagon_inner_r + circle_center
-path.push(f"L {x} {y}")
-module.draw(lambda _: path)
+    circle_r = inches(.15)
+    module.draw(lambda g: g.circle(center=(x*r1, y*r1+circle_center), r=circle_r, stroke_width=.4, stroke="black", fill="black" if black_keys[i] else "none"))
+    draw_line((x*(r1-circle_r), y*(r1-circle_r) + circle_center), (x*r2, y*r2 + circle_center))
     
 path = Path(stroke="none", fill="black")
 path.push(f"M {0} {inches(2.6)}")
@@ -109,13 +68,6 @@ module.draw(lambda _: path)
 
 def draw_text(text, x, y, **text_props):
     module.draw(lambda ctx: ctx.text(text, insert=(x, y), **text_props))
-
-def draw_line(p1, p2):
-    (x1, y1), (x2, y2) = p1, p2
-    path = Path(stroke="black", fill="none", stroke_width=.5)
-    path.push(f"M {x1} {y1}")
-    path.push(f"L {x2}, {y2}")
-    module.draw(lambda _: path)
 
 menu_button_y = inches(2.05)
 button_label_y = menu_button_y + inches(.25)
