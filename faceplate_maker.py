@@ -1349,7 +1349,9 @@ def draw_regular_polygon(context: Group, center:Tuple[float, float], n: int, r: 
     ], **kwargs)
 
 def draw_m2_bolt_head(context: Group, point: Tuple[float, float]):
-    r = 3.5/2
+    return draw_hex_bolt_head(context, point, 3.5/2, 1)
+
+def draw_hex_bolt_head(context: Group, point: Tuple[float, float], head_radius: float, hex_radius: float):
     edge_gradient = context.linearGradient(
         (1, 0),
         (0, 1),
@@ -1360,7 +1362,7 @@ def draw_m2_bolt_head(context: Group, point: Tuple[float, float]):
     elements = []
     elements.append(context.circle(
         point,
-        r,
+        head_radius,
         fill=edge_gradient.get_paint_server()
     ))
     top_gradient = context.radialGradient(
@@ -1374,7 +1376,7 @@ def draw_m2_bolt_head(context: Group, point: Tuple[float, float]):
     context.defs.add(top_gradient)
     elements.append(context.circle(
         point,
-        r,
+        head_radius,
         fill=top_gradient.get_paint_server()
     ))
     hex_gradient = context.linearGradient(
@@ -1384,7 +1386,7 @@ def draw_m2_bolt_head(context: Group, point: Tuple[float, float]):
     hex_gradient.add_stop_color(0, "#111")
     hex_gradient.add_stop_color(1, "#444")
     context.defs.add(hex_gradient)
-    elements.append(draw_regular_polygon(context, point, 6, 1, fill=hex_gradient.get_paint_server()))
+    elements.append(draw_regular_polygon(context, point, 6, hex_radius, fill=hex_gradient.get_paint_server()))
 
     return elements
     
@@ -1507,3 +1509,11 @@ class OLEDSPI(OLED):
             draw_x(context, 0, 0),
             *[context.circle(center=self.rotated((inches(i * .1), 0)), r=.25) for i in range(7)],
         ]
+
+class M3Bolt(BasicCircle(0, 0, 3.45/2)):
+    def __init__(self, x, y, rotation=0):
+        super().__init__(x, y, rotation)
+        self.cosmetic_holes = False
+
+    def draw_cosmetics(self, context):
+        return draw_hex_bolt_head(context, (0, 0), 5.5/2, 2.887/2)
