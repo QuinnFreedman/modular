@@ -1,7 +1,5 @@
 # Boost Assembly Instructions
 
-See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
-
 ## Components
 
 Parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/19841852897), [quick-order CSV](https://freemodular.org/modules/Boost/fm_boost_tayda_bom.csv)).
@@ -33,3 +31,47 @@ See [general components notes](https://quinnfreedman.github.io/modular/docs/comp
 | C4, C5    | Capacitor        | 100nF                                   | [Tayda](https://www.taydaelectronics.com/capacitors/ceramic-disc-capacitors/a-553-0-1uf-50v-ceramic-disc-capacitor-pkg-of-10.html) | |
 | C6-C7     | Capacitor        | 10uF                                    | [Tayda](https://www.taydaelectronics.com/10uf-16v-85c-radial-electrolytic-capacitor.html) | **Optional.** Power supply noise filtering capacitors |
 | U1        | Op-amp           | TL074                                   | [Tayda](https://www.taydaelectronics.com/tl074-quad-operational-amplifier-j-fet-pdip-14-tl074cn.html) | When the boost is turned all the way up and the tone control is also boosting high frequencies, you can get some op-amp clipping on this module. The TL074 doesn't clip the way you might expect -- it will give a very harsh asymmetrical wave-wrapping effect when the voltage is pushed high enough. You could replace this with any rail-to-rail capable op-amp, but I chose to keep the TL074 because I like having a super harsh sound when you turn it all the way up. The cheaper TL084 would probably also be fine here. |
+
+## Build Guide
+
+See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
+
+![](images/tutorial_01.jpg)
+
+This module only has one PCB. It should be a very fast build.
+
+![](images/tutorial_02.jpg)
+
+Start with the resistors. Bend the resistor legs back to hold them in place while you solder, then snip off the extra wire.
+
+![](images/tutorial_03.jpg)
+
+Repeat for all resistors. See bill of materials or the [interactive BOM](https://quinnfreedman.github.io/fm-artifacts/Boost/boost_pcb_interactive_bom.html) for which resistor goes where.
+
+![](images/tutorial_04.jpg)
+
+Add IC socket. Flip the board over and ballance it on the socket, then solder. If you don't have a socket, you can solder the chip directly to the board instead.
+
+![](images/tutorial_05.jpg)
+
+Add all the ceramic capacitors in the same way as the resistors.
+
+![](images/tutorial_06.jpg)
+
+Add transistor. If you don't care about having a high-impedance input, you can omit the transistor. Instead, use a cutoff leg from one of the resistors to bridge pins 1 and 2 (the square pad and the middle hole). If you do, leave off R1 as well.
+
+![](images/tutorial_07.jpg)
+
+Add power header. Flip the board over and support the opposite end so it lays flat, then solder in the header. Add the large capacitors in the same way.
+
+![](images/tutorial_08.jpg)
+
+Add the jack sockets and potentiometers. Screw them tightly into the faceplate and make sure everything lines up squarely before soldering.
+
+![](images/tutorial_09.jpg)
+
+Lastly, put the op-amp IC into its socket. You may need to straighten the legs a little first to get it to fit. Make sure it is seated firmly.
+
+Optionally, use a multimeter in continuity mode to check for short circuits. Probe the power connector and confirm that there is no continuity between +12V and GND, -12V and GND, or +12V and -12V.
+
+Then you're good to go! Plug it into your rack and start boosting!
