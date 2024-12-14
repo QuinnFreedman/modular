@@ -48,6 +48,8 @@ Start with the resistors. Bend the resistor legs back to hold them in place whil
 
 Repeat for all resistors. See bill of materials or the [interactive BOM](https://quinnfreedman.github.io/fm-artifacts/Boost/boost_pcb_interactive_bom.html) for which resistor goes where.
 
+Add the diodes as well. The black line on the diode should align with the hole labelled "k".
+
 ![](images/tutorial_04.jpg)
 
 Add IC socket. Flip the board over and ballance it on the socket, then solder. If you don't have a socket, you can solder the chip directly to the board instead.
