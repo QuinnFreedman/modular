@@ -1,0 +1,1722 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "827d49e1-3b8d-4b64-8b47-ab3af8e7db97")
+	(paper "A4")
+	(lib_symbols
+		(symbol "FreeModular:THONKICONN"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at -1.27 4.445 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "THONKICONN"
+				(at 1.27 -2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Footprint" "FreeModular:THONKICONN"
+				(at 6.35 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 6.35 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "audio jack receptable mono headphones phone TS connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "THONKICONN_0_1"
+				(rectangle
+					(start -4.699 3.175)
+					(end 2.54 -0.635)
+					(stroke
+						(width 0.254)
+						(type solid)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -4.445 0)
+					(end -5.207 2.54)
+					(stroke
+						(width 0)
+						(type solid)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy -0.635 2.413) (xy -0.254 1.651)
+					)
+					(stroke
+						(width 0)
+						(type solid)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 0) (xy -0.635 0) (xy -0.635 2.413) (xy -1.016 1.651)
+					)
+					(stroke
+						(width 0)
+						(type solid)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.54 2.54) (xy -1.905 2.54) (xy -2.54 1.905) (xy -3.175 2.54)
+					)
+					(stroke
+						(width 0.254)
+						(type solid)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "THONKICONN_1_1"
+				(pin passive line
+					(at -5.08 -2.54 90)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 2.54 180)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(junction
+		(at 66.04 114.3)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "05a46f30-6e69-4096-bd52-c36c82ea24e7")
+	)
+	(junction
+		(at 66.04 68.58)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "92b4e455-e19d-4cde-9bdd-e51822433aba")
+	)
+	(junction
+		(at 66.04 99.06)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c8659a70-142f-4a99-9c81-6363f30699e6")
+	)
+	(junction
+		(at 66.04 83.82)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e6701f34-e03e-4207-9527-7435b80076fb")
+	)
+	(no_connect
+		(at 128.27 66.04)
+		(uuid "029bddda-bf55-499c-aed8-863656a93106")
+	)
+	(no_connect
+		(at 179.07 111.76)
+		(uuid "171ed17f-f01b-4823-9015-30bea6440964")
+	)
+	(no_connect
+		(at 179.07 96.52)
+		(uuid "4e970a61-3b2a-420a-a9bc-85cd8ab22479")
+	)
+	(no_connect
+		(at 179.07 81.28)
+		(uuid "74cd3dcc-735f-4c05-93d7-8bc8d4d455e9")
+	)
+	(no_connect
+		(at 128.27 111.76)
+		(uuid "d45724ac-c716-4f4b-b5ad-2d1fc752710f")
+	)
+	(no_connect
+		(at 179.07 66.04)
+		(uuid "d52a0dd1-d464-442a-a579-3d4dbc068e2b")
+	)
+	(no_connect
+		(at 128.27 96.52)
+		(uuid "f4123148-5367-4557-9b33-a4aa60261bb0")
+	)
+	(no_connect
+		(at 128.27 81.28)
+		(uuid "f7614925-6aef-4ba8-a025-0089336e87d4")
+	)
+	(wire
+		(pts
+			(xy 189.23 68.58) (xy 189.23 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0450aa94-282d-4461-ad9c-13863fbf2388")
+	)
+	(wire
+		(pts
+			(xy 76.2 114.3) (xy 76.2 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a0106a1-62cd-426f-ad7d-1d2c71cdf01f")
+	)
+	(wire
+		(pts
+			(xy 66.04 68.58) (xy 66.04 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10bbeed2-1757-40a0-8e41-111d655fc625")
+	)
+	(wire
+		(pts
+			(xy 138.43 99.06) (xy 138.43 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "16c2bfd0-8a38-4548-af4f-37ab67b3b709")
+	)
+	(wire
+		(pts
+			(xy 128.27 93.98) (xy 125.73 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2762a3df-9f4f-4f7b-9c21-e9697e54a32a")
+	)
+	(wire
+		(pts
+			(xy 66.04 68.58) (xy 76.2 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "298870f1-5a69-4d4d-9d84-6882a944a5d4")
+	)
+	(wire
+		(pts
+			(xy 138.43 114.3) (xy 138.43 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2b7225b0-f2d8-4dcc-8e76-70a75484b38e")
+	)
+	(wire
+		(pts
+			(xy 138.43 83.82) (xy 138.43 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "371aed0a-f412-4cf5-b3e5-608e755c9a47")
+	)
+	(wire
+		(pts
+			(xy 128.27 78.74) (xy 125.73 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39e17143-ea4f-43a4-9bf0-ec3c12d44b27")
+	)
+	(wire
+		(pts
+			(xy 66.04 83.82) (xy 66.04 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3c4acdbf-c8a7-4754-9af3-1ae1e5f75539")
+	)
+	(wire
+		(pts
+			(xy 66.04 114.3) (xy 66.04 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "41c924c3-d007-4924-b7c9-e3ab33ef92cc")
+	)
+	(wire
+		(pts
+			(xy 189.23 114.3) (xy 189.23 115.57)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52c921f8-6bec-4ade-a23c-efd1f4588457")
+	)
+	(wire
+		(pts
+			(xy 76.2 63.5) (xy 78.74 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "57979ea9-67d6-4477-8c0e-74ee93bde1b9")
+	)
+	(wire
+		(pts
+			(xy 76.2 93.98) (xy 78.74 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58aac80b-a437-434a-a970-ef8809d3e334")
+	)
+	(wire
+		(pts
+			(xy 76.2 83.82) (xy 76.2 81.28)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5b88c3f3-e3cb-4b68-9278-a8966735763e")
+	)
+	(wire
+		(pts
+			(xy 138.43 68.58) (xy 138.43 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "61f37445-c048-458c-8d70-c66b5a13ae70")
+	)
+	(wire
+		(pts
+			(xy 66.04 83.82) (xy 76.2 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "699b3957-bb6d-4af8-8129-ea8d1ec9da04")
+	)
+	(wire
+		(pts
+			(xy 66.04 114.3) (xy 76.2 114.3)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6bec1360-8d30-411d-a4d6-c8313dca322a")
+	)
+	(wire
+		(pts
+			(xy 189.23 83.82) (xy 189.23 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6da0b6bb-9939-402c-9622-012018fcdc32")
+	)
+	(wire
+		(pts
+			(xy 189.23 99.06) (xy 189.23 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c1af89d-bd36-46c7-83a0-729fb59c1b4f")
+	)
+	(wire
+		(pts
+			(xy 76.2 68.58) (xy 76.2 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fc1f1f4-3fdd-4bc3-b519-b52802474d85")
+	)
+	(wire
+		(pts
+			(xy 76.2 109.22) (xy 78.74 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a008028b-124f-4254-abfe-11c5aac4e94f")
+	)
+	(wire
+		(pts
+			(xy 128.27 109.22) (xy 125.73 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a1aefa74-9212-457f-98d4-f20cc8c456f2")
+	)
+	(wire
+		(pts
+			(xy 128.27 63.5) (xy 125.73 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b74394ee-d1ce-434a-bd51-9885e2f300a5")
+	)
+	(wire
+		(pts
+			(xy 179.07 63.5) (xy 176.53 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bdb5ddc5-3b10-48e7-8b2f-ebd3ae006d7a")
+	)
+	(wire
+		(pts
+			(xy 76.2 78.74) (xy 78.74 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d307b7cc-2e6f-4171-ac73-b299a8f0dbe8")
+	)
+	(wire
+		(pts
+			(xy 66.04 99.06) (xy 66.04 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e436c6f9-167b-4a6a-a9ff-63220707d83e")
+	)
+	(wire
+		(pts
+			(xy 179.07 78.74) (xy 176.53 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e56b14b9-4616-4df6-8b62-1a407d5c8571")
+	)
+	(wire
+		(pts
+			(xy 76.2 99.06) (xy 76.2 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f0c7fcb7-dd88-4930-8303-0dd514a7597e")
+	)
+	(wire
+		(pts
+			(xy 66.04 99.06) (xy 76.2 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fb99fa4c-1669-4321-9af0-e9af12ad7ac1")
+	)
+	(wire
+		(pts
+			(xy 179.07 93.98) (xy 176.53 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fc2dc189-b7dd-42bf-80ac-8496338dbea4")
+	)
+	(wire
+		(pts
+			(xy 179.07 109.22) (xy 176.53 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fcf10eea-c56e-4d6b-8c0e-9aa54ba58491")
+	)
+	(hierarchical_label "XOR_OUT"
+		(shape output)
+		(at 125.73 109.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "029f9472-7f8e-46ff-8f4d-63255df900d2")
+	)
+	(hierarchical_label "OR_OUT"
+		(shape output)
+		(at 125.73 63.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "131ff2e0-339f-41c0-b1c2-73636aab48a2")
+	)
+	(hierarchical_label "ABS_A-B_OUT"
+		(shape output)
+		(at 176.53 78.74 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "1833e780-b651-40a1-a8ca-c44ae9a0d3c1")
+	)
+	(hierarchical_label "GATE_INPUT_B"
+		(shape output)
+		(at 78.74 78.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "204c8e0a-9e98-4e33-b149-9d3ea7b6b6c8")
+	)
+	(hierarchical_label "MAX_OUT"
+		(shape output)
+		(at 176.53 109.22 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2de56f0c-2190-4883-b1c2-2bd69060fbb9")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 66.04 115.57 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2f8cd3e8-b29b-4f75-b7fd-e9950a461f00")
+	)
+	(hierarchical_label "ANALOG_INPUT_B"
+		(shape output)
+		(at 78.74 109.22 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3eb115d5-eb7f-4ebe-a0c3-d4b84c690897")
+	)
+	(hierarchical_label "ANALOG_INPUT_A"
+		(shape output)
+		(at 78.74 93.98 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "45d83965-d778-43dd-a5c5-422ac44ed296")
+	)
+	(hierarchical_label "AND_OUT"
+		(shape output)
+		(at 125.73 78.74 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "465ef1d9-cc2b-4702-8f31-19d7f75d4705")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 66.04 85.09 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "530eeb71-2592-4aec-8cac-f234a5de58a4")
+	)
+	(hierarchical_label "GATE_INPUT_A"
+		(shape output)
+		(at 78.74 63.5 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "53c2582f-e9f7-47e2-87e2-44fef339d041")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 66.04 100.33 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "73fa3eca-e7ee-40d2-a355-e1fc1275f466")
+	)
+	(hierarchical_label "A+B_OUT"
+		(shape output)
+		(at 176.53 93.98 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "80bd27e2-4f7e-4d8a-bc90-83cc908dd347")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 138.43 115.57 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8425acb6-6d45-4acb-85a4-3948e9d4aea7")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 66.04 69.85 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9d2391a7-ee15-46a5-936b-74b50055e513")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 138.43 69.85 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ae6ed80f-d4b1-4509-a334-ca4c28d90ac4")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 189.23 115.57 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b1749ac2-f509-4ae7-bcd5-ed118602d639")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 138.43 100.33 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b38b4a25-599d-47ee-beec-089d2a79b294")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 189.23 85.09 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "b3e8a611-ca73-441a-9ad0-1943a1e395c3")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 189.23 100.33 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "bb43c07f-7701-4b1a-a1c8-bef8d630f873")
+	)
+	(hierarchical_label "NOR_OUT"
+		(shape output)
+		(at 125.73 93.98 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "bbcbd5c6-25b9-4540-8726-d71ab59189ce")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 189.23 69.85 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "cb85a048-e555-4a31-b90d-ada82e500a78")
+	)
+	(hierarchical_label "A-B_OUT"
+		(shape output)
+		(at 176.53 63.5 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "ea2753fb-d78d-46b9-aca5-adbbd8943856")
+	)
+	(hierarchical_label "GND"
+		(shape input)
+		(at 138.43 85.09 270)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "f6f7ff00-4719-4cc7-8b71-992d8cf2170d")
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 71.12 96.52 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "018d4ff4-7f03-46e1-bc1a-f7cfb9abe1a1")
+		(property "Reference" "J7"
+			(at 69.85 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 72.39 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 77.47 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 77.47 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "c9419492-0a80-459e-b8a2-58df66f7d2ef")
+		)
+		(pin "3"
+			(uuid "857212dc-2eb5-4357-943f-eb77c5d30ac9")
+		)
+		(pin "1"
+			(uuid "efbf2d9d-2b8b-4d7f-8f5f-63f182be340d")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 71.12 81.28 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "43aa9cb0-1443-46cf-af5e-93ef28b5dfdc")
+		(property "Reference" "J2"
+			(at 69.85 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 72.39 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 77.47 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 77.47 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "e25047d2-52a4-4850-83e2-f26b5749417d")
+		)
+		(pin "3"
+			(uuid "3151d154-35d9-4326-8ad0-7d58612760de")
+		)
+		(pin "1"
+			(uuid "93ad15a8-a088-4432-933a-5fda7f10c19e")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 184.15 81.28 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5311a457-28b1-449f-ab69-a28f1c23c5b9")
+		(property "Reference" "J10"
+			(at 185.42 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 182.88 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 177.8 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 177.8 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "c1c083f7-ffec-4b03-b67b-3a988ad83a3f")
+		)
+		(pin "3"
+			(uuid "3636dc5d-7f27-45a2-98d4-0a40f9418843")
+		)
+		(pin "1"
+			(uuid "5fc9423b-b9c6-4042-a23a-2838a1b88860")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 184.15 111.76 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "77b2440c-1cc8-4628-914e-c4ab9d4bfb60")
+		(property "Reference" "J12"
+			(at 185.42 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 182.88 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 177.8 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 177.8 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "28544680-1bab-4676-ae80-0644c4918f26")
+		)
+		(pin "3"
+			(uuid "fc2997d8-3c79-43ef-a02d-cbe83abc4bfb")
+		)
+		(pin "1"
+			(uuid "b101f296-2f1b-411c-8ab3-2ec8b0fb21d4")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 133.35 66.04 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "84a822ce-14f0-4d28-bef5-924c1ad5045d")
+		(property "Reference" "J3"
+			(at 134.62 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 132.08 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 133.35 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "39dc43a3-2067-4b17-b9f0-2fba7183a1a3")
+		)
+		(pin "3"
+			(uuid "f68ee671-5f02-42e6-8962-c849e5d7299e")
+		)
+		(pin "1"
+			(uuid "f6eff1f6-4d76-457e-9220-6e073d1bc7d3")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 133.35 96.52 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "a8af5b5c-75a2-4e25-b131-48720d2296e4")
+		(property "Reference" "J5"
+			(at 134.62 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 132.08 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 127 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 127 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 133.35 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "8d683fa4-2776-4685-9d77-2468901a2bc1")
+		)
+		(pin "3"
+			(uuid "4220f286-086e-454d-830a-a7a9fd2c51bc")
+		)
+		(pin "1"
+			(uuid "4d881c4c-81d5-47c0-97ba-9a8a72551fa5")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 133.35 111.76 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b1ee3069-aebf-4999-a171-ec216f838b06")
+		(property "Reference" "J6"
+			(at 134.62 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 132.08 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 127 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 127 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 133.35 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "2dbc507e-7418-44cb-b435-a37f1d66239e")
+		)
+		(pin "3"
+			(uuid "a0758c6e-888e-4e43-b6eb-916c64103783")
+		)
+		(pin "1"
+			(uuid "1cee3434-68aa-452e-aac6-d3788ec33f74")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 184.15 96.52 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "bc89420d-6f22-40b2-840a-a99286e43758")
+		(property "Reference" "J11"
+			(at 185.42 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 182.88 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 177.8 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 177.8 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "e608d741-ac73-452b-b726-207f19be5e13")
+		)
+		(pin "3"
+			(uuid "e50b14c8-26a2-4457-ab8a-41bd7c211947")
+		)
+		(pin "1"
+			(uuid "8b7e0ca1-e618-434d-8106-ab5edc5094c6")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 133.35 81.28 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d2e8e099-e705-4ab3-951c-658d66f3afcd")
+		(property "Reference" "J4"
+			(at 134.62 76.2 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 132.08 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 127 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 127 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 133.35 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "611541d3-52ee-4bfd-9728-872c1aadc9d0")
+		)
+		(pin "3"
+			(uuid "01e9f617-27cd-41b4-8c21-c80dc4ea3270")
+		)
+		(pin "1"
+			(uuid "1696d1a3-3f62-4bfc-a65f-086eba8036fd")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 71.12 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d890bb48-df04-4dc1-9ba8-62d934f0f185")
+		(property "Reference" "J8"
+			(at 69.85 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 72.39 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 77.47 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 77.47 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "366128ed-6a8b-47f5-9f53-d61d336285db")
+		)
+		(pin "3"
+			(uuid "40708c40-f2eb-4953-bd0a-e135d2013e89")
+		)
+		(pin "1"
+			(uuid "0ec714b6-8c22-49de-85ae-3c207553cc54")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 71.12 66.04 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e26c6c52-0536-48c3-aaec-5fa6d120ee9a")
+		(property "Reference" "J1"
+			(at 69.85 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 72.39 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 77.47 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 77.47 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "d667f571-63e6-4fc9-9cf9-cf159eaafeaf")
+		)
+		(pin "3"
+			(uuid "49cf2633-154e-452c-9047-59b2f6b203dc")
+		)
+		(pin "1"
+			(uuid "933ff3a7-15d8-407c-98fb-2fc119e507bc")
+		)
+		(instances
+			(project ""
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "FreeModular:THONKICONN")
+		(at 184.15 66.04 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f06cfdf7-3e2b-41a6-b85a-423f5ce9611a")
+		(property "Reference" "J9"
+			(at 185.42 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "THONKICONN"
+			(at 182.88 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "FreeModular:THONKICONN"
+			(at 177.8 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 177.8 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "d835c7bf-c976-495e-8035-e19996d2c0ec")
+		)
+		(pin "3"
+			(uuid "a1dfbf81-08fe-4cce-b407-a3b2746f2093")
+		)
+		(pin "1"
+			(uuid "2f34c2b7-3a7a-4b3b-9616-3c1c22305e41")
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9/8baabe6d-3c2d-44a5-b497-d93f3fd34a48"
+					(reference "J9")
+					(unit 1)
+				)
+			)
+		)
+	)
+)
