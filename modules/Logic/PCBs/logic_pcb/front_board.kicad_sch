@@ -585,7 +585,7 @@
 	)
 	(hierarchical_label "ABS_A-B_OUT"
 		(shape output)
-		(at 176.53 78.74 180)
+		(at 176.53 109.22 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -609,7 +609,7 @@
 	)
 	(hierarchical_label "MAX_OUT"
 		(shape output)
-		(at 176.53 109.22 180)
+		(at 176.53 93.98 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -705,7 +705,7 @@
 	)
 	(hierarchical_label "A+B_OUT"
 		(shape output)
-		(at 176.53 93.98 180)
+		(at 176.53 63.5 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -825,7 +825,7 @@
 	)
 	(hierarchical_label "A-B_OUT"
 		(shape output)
-		(at 176.53 63.5 180)
+		(at 176.53 78.74 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
