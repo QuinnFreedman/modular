@@ -6720,7 +6720,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "Conn_01x06_Pin"
+		(property "Value" "Conn_01x08_Pin"
 			(at 78.74 163.195 0)
 			(effects
 				(font
