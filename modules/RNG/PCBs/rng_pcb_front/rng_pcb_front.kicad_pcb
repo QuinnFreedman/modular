@@ -10214,7 +10214,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "Conn_01x06_Pin"
+		(property "Value" "Conn_01x08_Pin"
 			(at 0 -20.11 0)
 			(layer "B.Fab")
 			(uuid "cf9f990d-49a5-4f72-a2ca-d99d2bd9f337")
