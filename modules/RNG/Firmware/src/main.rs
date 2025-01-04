@@ -7,8 +7,6 @@
 #![feature(adt_const_params)]
 #![feature(generic_const_exprs)]
 #![feature(const_trait_impl)]
-#![feature(effects)]
-#![feature(inline_const)]
 #![feature(cell_update)]
 
 use core::cell::Cell;
