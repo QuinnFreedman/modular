@@ -2,7 +2,6 @@
 #![no_std]
 #![feature(const_trait_impl)]
 #![feature(inline_const_pat)]
-#![feature(effects)]
 #![feature(asm_experimental_arch)]
 #![feature(adt_const_params)]
 #![feature(abi_avr_interrupt)]
