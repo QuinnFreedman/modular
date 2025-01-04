@@ -1,4 +1,5 @@
 use fixed::{types::extra::U16, FixedU16};
+use core::marker::ConstParamTy;
 
 #[derive(Copy, Clone)]
 pub struct Fraction<T> {
@@ -6,13 +7,11 @@ pub struct Fraction<T> {
     pub denominator: T,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, ConstParamTy)]
 pub enum CvType {
     Linear,
     Exponential,
 }
-
-impl core::marker::ConstParamTy for CvType {}
 
 /**
 Transforms a raw cv value into a usable fraction of the maximum.
