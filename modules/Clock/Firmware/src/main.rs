@@ -3,13 +3,10 @@
 #![no_main]
 #![feature(generic_const_exprs)]
 #![feature(int_roundings)]
-#![feature(panic_info_message)]
 #![feature(abi_avr_interrupt)]
 #![feature(inline_const_pat)]
 #![feature(const_trait_impl)]
 #![feature(adt_const_params)]
-#![feature(effects)]
-#![feature(offset_of)]
 
 mod clock;
 mod display_buffer;
