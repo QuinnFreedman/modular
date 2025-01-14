@@ -36,4 +36,11 @@
 <b>HP:</b> 4<br>
 <b>Power usage:</b> not tested yet (but probably quite low)
 
+
+<a class="fm-etsy-link" href="https://www.etsy.com/listing/1858893361">
+  <img src="docs/images/00-boost-front.jpg" /><img src="docs/images/01-boost-back.jpg" />
+  <h3>Available on Etsy</h3>
+  <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
+</a>
+
 </div>
