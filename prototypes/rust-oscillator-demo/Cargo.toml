@@ -1,0 +1,15 @@
+[package]
+name = "rust-oscillator-demo"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.93"
+atomic_float = "1.1.0"
+cpal = { version = "0.15.3", features = ["jack"] }
+eframe = "0.29.1"
+egui_extras = "0.29.1"
+opensimplex2 = "1.1.0"
+rand = "0.8.5"
