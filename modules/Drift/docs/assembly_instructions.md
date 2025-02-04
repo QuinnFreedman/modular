@@ -31,7 +31,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Drift/drif
 
 🔴 = Missing from Tayda BOM
 
-## Tutorial
+## Build Guide
 
 Once you have gathered all the components and the PCBs, I reccomend you start with the resistors on the rear PCB.
 
