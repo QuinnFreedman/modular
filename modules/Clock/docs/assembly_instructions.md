@@ -78,13 +78,13 @@ Make sure to trim the tips extra flush so they don't short out against the facep
 
 | PCB marking | Other abbreviations | Function            |
 | ----------- | ------------------- | ------------------- |
-| GND         | 0V, PWR, Vss        | ground              |
+| GND         | 0V, Vss             | ground              |
 | +5V         | 5V, PWR, Vcc        | power               |
 | SCK         | CLK, SCLK, CK, SLK  | serial clock        |
 | SDA         | MOSI, PICO, DATA    | serial data         |
 | RES         | RESET               | reset (optional*)   |
 | DC          | D/C, MODE, DATA     | data/command toggle |
-| CS          | SS, /SS, /DC        | chip select         |
+| CS          | SS, /SS, /CS        | chip select         |
 
 \* The reset pin may not exist on the screen sub-module. If not, just leave it unconnected. If it does exist, then you need to connect it.
 
