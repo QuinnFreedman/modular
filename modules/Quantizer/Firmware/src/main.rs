@@ -34,7 +34,6 @@ use fm_lib::{
 };
 use ufmt::uwriteln;
 
-
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
 handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
@@ -51,18 +50,18 @@ fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
-    // let (mut spi, d10) = arduino_hal::spi::Spi::new(
-    //     dp.SPI,
-    //     pins.d13.into_output(),        // Clock
-    //     pins.d11.into_output(),        // MOSI
-    //     pins.d12.into_pull_up_input(), // MISO
-    //     pins.d10.into_output(),        // CS
-    //     arduino_hal::spi::Settings {
-    //         data_order: arduino_hal::spi::DataOrder::MostSignificantFirst,
-    //         clock: arduino_hal::spi::SerialClockRate::OscfOver2,
-    //         mode: embedded_hal::spi::MODE_0,
-    //     },
-    // );
+    let (mut spi, mut d10) = arduino_hal::spi::Spi::new(
+        dp.SPI,
+        pins.d13.into_output(),        // Clock
+        pins.d11.into_output(),        // MOSI
+        pins.d12.into_pull_up_input(), // MISO
+        pins.d10.into_output(),        // CS
+        arduino_hal::spi::Settings {
+            data_order: arduino_hal::spi::DataOrder::MostSignificantFirst,
+            clock: arduino_hal::spi::SerialClockRate::OscfOver2,
+            mode: embedded_hal::spi::MODE_0,
+        },
+    );
 
     unsafe {
         avr_device::interrupt::enable();
@@ -79,12 +78,25 @@ fn main() -> ! {
         ],
     );
 
-    let mut d13 = pins.d13.into_output();
+    let mut data = [0u8; 36];
 
+    let mut led_driver_cs_pin = pins.d9.into_output_high();
+    delay_ms(1);
     loop {
-        d13.set_high();
-        delay_ms(200);
-        d13.set_low();
-        delay_ms(600);
+        for byte in data.iter_mut() {
+            *byte = 255;
+        }
+        led_driver_cs_pin.set_low();
+        spi.transfer(&mut data).unwrap_infallible();
+        led_driver_cs_pin.set_high();
+        delay_ms(1000);
+
+        for byte in data.iter_mut() {
+            *byte = 0;
+        }
+        led_driver_cs_pin.set_low();
+        spi.transfer(&mut data).unwrap_infallible();
+        led_driver_cs_pin.set_high();
+        delay_ms(1000);
     }
 }
