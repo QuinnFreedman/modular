@@ -2248,7 +2248,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 156.21 95.25 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2260,7 +2259,6 @@
 	(hierarchical_label "INPUT_A"
 		(shape input)
 		(at 46.99 26.67 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2272,7 +2270,6 @@
 	(hierarchical_label "ABS_A-B_OUT"
 		(shape output)
 		(at 198.12 80.01 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2284,7 +2281,6 @@
 	(hierarchical_label "A-B_OUT"
 		(shape output)
 		(at 125.73 49.53 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2296,7 +2292,6 @@
 	(hierarchical_label "MAX_OUT"
 		(shape output)
 		(at 132.08 182.88 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2308,7 +2303,6 @@
 	(hierarchical_label "A+B_OUT"
 		(shape output)
 		(at 147.32 130.81 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2320,7 +2314,6 @@
 	(hierarchical_label "INPUT_B"
 		(shape input)
 		(at 46.99 46.99 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2332,7 +2325,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 95.25 66.04 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2344,7 +2336,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 119.38 134.62 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2356,7 +2347,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 90.17 142.24 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -2392,7 +2382,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 177.8 82.55 0)
 			(effects
 				(font
@@ -2411,6 +2401,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 179.07 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 179.07 80.01 0)
 			(effects
 				(font
@@ -2497,7 +2496,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 96.52 163.83 0)
 			(effects
 				(font
@@ -2516,6 +2515,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 97.79 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 97.79 161.29 0)
 			(effects
 				(font
@@ -2602,7 +2610,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 96.52 185.42 0)
 			(effects
 				(font
@@ -2621,6 +2629,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 97.79 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 97.79 182.88 0)
 			(effects
 				(font
@@ -2706,7 +2723,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 118.11 51.308 90)
 			(effects
 				(font
@@ -2725,6 +2742,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 118.11 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17513"
 			(at 118.11 49.53 0)
 			(effects
 				(font
@@ -2774,7 +2800,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 109.22 38.4048 0)
 			(effects
 				(font
@@ -2793,6 +2819,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 105.41 39.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C376974"
 			(at 105.41 39.37 0)
 			(effects
 				(font
@@ -2842,7 +2877,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 93.472 60.96 90)
 			(effects
 				(font
@@ -2861,6 +2896,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 95.25 60.96 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 95.25 60.96 0)
 			(effects
 				(font
@@ -2910,7 +2954,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 146.05 82.55 0)
 			(effects
 				(font
@@ -2947,6 +2991,15 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 146.05 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C5443965"
 			(at 146.05 82.55 0)
 			(effects
 				(font
@@ -2996,7 +3049,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-8_W7.62mm"
+		(property "Footprint" "Package_SO:SOP-8_3.9x4.9mm_P1.27mm"
 			(at 57.15 44.45 0)
 			(effects
 				(font
@@ -3015,6 +3068,15 @@
 			)
 		)
 		(property "Description" "Dual Low-Noise JFET-Input Operational Amplifiers, DIP-8/SOIC-8"
+			(at 57.15 44.45 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C5310783"
 			(at 57.15 44.45 0)
 			(effects
 				(font
@@ -3082,7 +3144,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 110.49 161.29 0)
 			(effects
 				(font
@@ -3119,6 +3181,15 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 110.49 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C5443965"
 			(at 110.49 161.29 0)
 			(effects
 				(font
@@ -3168,7 +3239,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 133.35 119.6848 0)
 			(effects
 				(font
@@ -3187,6 +3258,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 129.54 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C376974"
 			(at 129.54 120.65 0)
 			(effects
 				(font
@@ -3236,7 +3316,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 140.97 132.588 90)
 			(effects
 				(font
@@ -3255,6 +3335,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 140.97 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17513"
 			(at 140.97 130.81 0)
 			(effects
 				(font
@@ -3304,7 +3393,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 161.29 84.328 90)
 			(effects
 				(font
@@ -3323,6 +3412,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 161.29 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17513"
 			(at 161.29 82.55 0)
 			(effects
 				(font
@@ -3372,7 +3470,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 162.56 58.928 90)
 			(effects
 				(font
@@ -3391,6 +3489,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 162.56 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 162.56 57.15 0)
 			(effects
 				(font
@@ -3440,7 +3547,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 90.17 50.292 90)
 			(effects
 				(font
@@ -3459,6 +3566,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 90.17 52.07 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 90.17 52.07 0)
 			(effects
 				(font
@@ -3508,7 +3624,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-8_W7.62mm"
+		(property "Footprint" "Package_SO:SOP-8_3.9x4.9mm_P1.27mm"
 			(at 57.15 24.13 0)
 			(effects
 				(font
@@ -3527,6 +3643,15 @@
 			)
 		)
 		(property "Description" "Dual Low-Noise JFET-Input Operational Amplifiers, DIP-8/SOIC-8"
+			(at 57.15 24.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C5310783"
 			(at 57.15 24.13 0)
 			(effects
 				(font
@@ -3594,7 +3719,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 90.17 48.768 90)
 			(effects
 				(font
@@ -3613,6 +3738,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 90.17 46.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 90.17 46.99 0)
 			(effects
 				(font
@@ -3662,7 +3796,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
+		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 110.49 182.88 0)
 			(effects
 				(font
@@ -3699,6 +3833,15 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
+			(at 110.49 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C5443965"
 			(at 110.49 182.88 0)
 			(effects
 				(font
@@ -3748,7 +3891,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 87.63 117.348 90)
 			(effects
 				(font
@@ -3767,6 +3910,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 87.63 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 87.63 115.57 0)
 			(effects
 				(font
@@ -3816,7 +3968,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 100.33 117.348 90)
 			(effects
 				(font
@@ -3835,6 +3987,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 100.33 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 100.33 115.57 0)
 			(effects
 				(font
@@ -3884,7 +4045,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 129.54 109.728 90)
 			(effects
 				(font
@@ -3903,6 +4064,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 129.54 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 129.54 107.95 0)
 			(effects
 				(font
@@ -3953,7 +4123,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 100.33 130.81 0)
 			(effects
 				(font
@@ -3972,6 +4142,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 101.6 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 101.6 128.27 0)
 			(effects
 				(font
@@ -4057,7 +4236,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 177.8 58.928 90)
 			(effects
 				(font
@@ -4076,6 +4255,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 177.8 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 177.8 57.15 0)
 			(effects
 				(font
@@ -4125,7 +4313,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 114.3 130.048 90)
 			(effects
 				(font
@@ -4144,6 +4332,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 114.3 128.27 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 114.3 128.27 0)
 			(effects
 				(font
@@ -4193,7 +4390,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 181.61 68.8848 0)
 			(effects
 				(font
@@ -4212,6 +4409,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 177.8 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C376974"
 			(at 177.8 69.85 0)
 			(effects
 				(font
@@ -4261,7 +4467,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 105.41 28.448 90)
 			(effects
 				(font
@@ -4280,6 +4486,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 105.41 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 105.41 26.67 0)
 			(effects
 				(font
@@ -4330,7 +4545,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 132.08 85.09 0)
 			(effects
 				(font
@@ -4349,6 +4564,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 133.35 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 133.35 82.55 0)
 			(effects
 				(font
@@ -4434,7 +4658,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 119.38 163.068 90)
 			(effects
 				(font
@@ -4453,6 +4677,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 119.38 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17513"
 			(at 119.38 161.29 0)
 			(effects
 				(font
@@ -4501,7 +4734,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 87.63 127.508 90)
 			(effects
 				(font
@@ -4520,6 +4753,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 87.63 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 87.63 125.73 0)
 			(effects
 				(font
@@ -4569,7 +4811,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 105.41 52.07 0)
 			(effects
 				(font
@@ -4588,6 +4830,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 106.68 49.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 106.68 49.53 0)
 			(effects
 				(font
@@ -4673,7 +4924,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 190.5 81.788 90)
 			(effects
 				(font
@@ -4692,6 +4943,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 190.5 80.01 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17513"
 			(at 190.5 80.01 0)
 			(effects
 				(font
@@ -4743,7 +5003,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 88.392 137.16 90)
 			(effects
 				(font
@@ -4762,6 +5022,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 90.17 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17414"
 			(at 90.17 137.16 0)
 			(effects
 				(font
@@ -4811,7 +5080,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 154.432 90.17 90)
 			(effects
 				(font
@@ -4830,6 +5099,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 156.21 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C57246"
 			(at 156.21 90.17 0)
 			(effects
 				(font
@@ -4880,7 +5158,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 127 133.35 0)
 			(effects
 				(font
@@ -4899,6 +5177,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 128.27 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 128.27 130.81 0)
 			(effects
 				(font
@@ -4984,7 +5271,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
+		(property "Footprint" "Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder"
 			(at 119.38 184.658 90)
 			(effects
 				(font
@@ -5003,6 +5290,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 119.38 182.88 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C17513"
 			(at 119.38 182.88 0)
 			(effects
 				(font

@@ -2455,6 +2455,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 107.95 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "6"
 			(uuid "69beab93-7fab-412c-ae88-5cc900f5a64c")
 		)
@@ -2539,6 +2548,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 107.95 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "1c9534b5-6528-4ef1-ad07-fe63dc840750")
 		)
@@ -2585,7 +2603,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MountingHole"
+		(property "Value" "M2.5"
 			(at 78.74 161.2899 0)
 			(effects
 				(font
@@ -2594,7 +2612,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
 			(at 76.2 160.02 0)
 			(effects
 				(font
@@ -2613,6 +2631,15 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
+			(at 76.2 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 76.2 160.02 0)
 			(effects
 				(font
@@ -2682,6 +2709,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 109.22 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "4"
 			(uuid "916f593f-b309-476d-a3ad-1cb25bc256ee")
 		)
@@ -2707,6 +2743,79 @@
 			(project ""
 				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9"
 					(reference "J14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 102.87 160.02 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "748de75b-869a-4c45-8000-89d9f87dbc6c")
+		(property "Reference" "H4"
+			(at 105.41 158.7499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "M2.5"
+			(at 105.41 161.2899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+			(at 102.87 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 102.87 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 102.87 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
+			(at 102.87 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9"
+					(reference "H4")
 					(unit 1)
 				)
 			)
@@ -2764,6 +2873,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 109.22 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "5"
 			(uuid "249a05f6-8265-4138-b75f-01b1277c84dd")
 		)
@@ -2810,7 +2928,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MountingHole"
+		(property "Value" "M2.5"
 			(at 78.74 153.6699 0)
 			(effects
 				(font
@@ -2819,7 +2937,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
 			(at 76.2 152.4 0)
 			(effects
 				(font
@@ -2846,10 +2964,92 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 76.2 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(instances
 			(project ""
 				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9"
 					(reference "H1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Mechanical:MountingHole")
+		(at 102.87 152.4 0)
+		(unit 1)
+		(exclude_from_sim yes)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d45ca7e4-02cd-4ad3-98a8-ae4d9e2a3bf6")
+		(property "Reference" "H3"
+			(at 105.41 151.1299 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "M2.5"
+			(at 105.41 153.6699 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MountingHole:MountingHole_2.7mm_M2.5"
+			(at 102.87 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 102.87 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Mounting Hole without connection"
+			(at 102.87 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
+			(at 102.87 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "logic_pcb"
+				(path "/168f4ad8-33e1-474c-9a87-d60c55f0b4e9"
+					(reference "H3")
 					(unit 1)
 				)
 			)

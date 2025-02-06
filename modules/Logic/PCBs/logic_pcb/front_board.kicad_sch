@@ -562,7 +562,6 @@
 	(hierarchical_label "XOR_OUT"
 		(shape output)
 		(at 125.73 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -574,7 +573,6 @@
 	(hierarchical_label "OR_OUT"
 		(shape output)
 		(at 125.73 63.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -586,7 +584,6 @@
 	(hierarchical_label "ABS_A-B_OUT"
 		(shape output)
 		(at 176.53 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -598,7 +595,6 @@
 	(hierarchical_label "GATE_INPUT_B"
 		(shape output)
 		(at 78.74 78.74 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -610,7 +606,6 @@
 	(hierarchical_label "MAX_OUT"
 		(shape output)
 		(at 176.53 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -622,7 +617,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 66.04 115.57 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -634,7 +628,6 @@
 	(hierarchical_label "ANALOG_INPUT_B"
 		(shape output)
 		(at 78.74 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -646,7 +639,6 @@
 	(hierarchical_label "ANALOG_INPUT_A"
 		(shape output)
 		(at 78.74 93.98 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -658,7 +650,6 @@
 	(hierarchical_label "AND_OUT"
 		(shape output)
 		(at 125.73 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -670,7 +661,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 66.04 85.09 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -682,7 +672,6 @@
 	(hierarchical_label "GATE_INPUT_A"
 		(shape output)
 		(at 78.74 63.5 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -694,7 +683,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 66.04 100.33 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -706,7 +694,6 @@
 	(hierarchical_label "A+B_OUT"
 		(shape output)
 		(at 176.53 63.5 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -718,7 +705,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 138.43 115.57 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -730,7 +716,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 66.04 69.85 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -742,7 +727,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 138.43 69.85 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -754,7 +738,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 189.23 115.57 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -766,7 +749,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 138.43 100.33 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -778,7 +760,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 189.23 85.09 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -790,7 +771,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 189.23 100.33 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -802,7 +782,6 @@
 	(hierarchical_label "NOR_OUT"
 		(shape output)
 		(at 125.73 93.98 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -814,7 +793,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 189.23 69.85 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -826,7 +804,6 @@
 	(hierarchical_label "A-B_OUT"
 		(shape output)
 		(at 176.53 78.74 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -838,7 +815,6 @@
 	(hierarchical_label "GND"
 		(shape input)
 		(at 138.43 85.09 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -893,6 +869,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 71.12 96.52 0)
 			(effects
 				(font
@@ -965,6 +950,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 71.12 81.28 0)
 			(effects
 				(font
@@ -1046,6 +1040,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 184.15 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "c1c083f7-ffec-4b03-b67b-3a988ad83a3f")
 		)
@@ -1111,6 +1114,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 184.15 111.76 0)
 			(effects
 				(font
@@ -1192,6 +1204,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 133.35 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "39dc43a3-2067-4b17-b9f0-2fba7183a1a3")
 		)
@@ -1257,6 +1278,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 133.35 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 133.35 96.52 0)
 			(effects
 				(font
@@ -1338,6 +1368,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 133.35 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "2dbc507e-7418-44cb-b435-a37f1d66239e")
 		)
@@ -1403,6 +1442,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 184.15 96.52 0)
 			(effects
 				(font
@@ -1484,6 +1532,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 133.35 81.28 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "611541d3-52ee-4bfd-9728-872c1aadc9d0")
 		)
@@ -1548,6 +1605,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 71.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 71.12 111.76 0)
 			(effects
 				(font
@@ -1628,6 +1694,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" ""
+			(at 71.12 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "2"
 			(uuid "d667f571-63e6-4fc9-9cf9-cf159eaafeaf")
 		)
@@ -1693,6 +1768,15 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
+			(at 184.15 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 184.15 66.04 0)
 			(effects
 				(font

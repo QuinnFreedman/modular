@@ -2567,6 +2567,12 @@
 		(uuid "5e216918-eca2-414f-a6cb-f771b020de92")
 	)
 	(junction
+		(at 198.12 104.14)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "5fec9480-f7fb-4a5d-931e-3290a2f60220")
+	)
+	(junction
 		(at 113.03 59.69)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2613,6 +2619,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c6321f54-0662-4605-ae4c-c4d5ea9c8b45")
+	)
+	(junction
+		(at 198.12 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "d9035afa-2a13-4a56-8afc-4a857db6a2b1")
 	)
 	(junction
 		(at 138.43 96.52)
@@ -2691,6 +2703,16 @@
 			(type default)
 		)
 		(uuid "258985bd-ae45-4ee6-b861-93afe4cde1dc")
+	)
+	(wire
+		(pts
+			(xy 200.66 104.14) (xy 198.12 104.14)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "385f45c5-0344-4083-8aa4-5cf8796b8974")
 	)
 	(wire
 		(pts
@@ -2904,6 +2926,16 @@
 	)
 	(wire
 		(pts
+			(xy 198.12 88.9) (xy 200.66 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "adffa330-c954-4e80-8be4-af0111924f57")
+	)
+	(wire
+		(pts
 			(xy 146.05 85.09) (xy 146.05 67.31)
 		)
 		(stroke
@@ -3032,10 +3064,29 @@
 		)
 		(uuid "f54dbe44-caab-4772-af74-f0bc97e6bdd1")
 	)
+	(label "-12V"
+		(at 200.66 104.14 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a136aa9a-144a-4e61-b188-6369ccc0d8c3")
+	)
+	(label "+12V"
+		(at 200.66 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "acf3cba7-b00a-4752-a71e-af82697e1967")
+	)
 	(hierarchical_label "GND"
 		(shape output)
 		(at 187.96 85.09 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3047,7 +3098,6 @@
 	(hierarchical_label "+5V"
 		(shape output)
 		(at 187.96 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3101,6 +3151,15 @@
 			)
 		)
 		(property "Description" "Generic connector, double row, 02x08, odd/even pin numbering scheme (row 1 odd numbers, row 2 even numbers), script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 92.71 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" ""
 			(at 92.71 93.98 0)
 			(effects
 				(font
@@ -3194,7 +3253,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 153.3652 104.14 0)
 			(effects
 				(font
@@ -3213,6 +3272,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 152.4 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 152.4 100.33 0)
 			(effects
 				(font
@@ -3264,7 +3332,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 158.75 72.39 0)
 			(effects
 				(font
@@ -3283,6 +3351,15 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
+			(at 158.75 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C484714"
 			(at 158.75 72.39 0)
 			(effects
 				(font
@@ -3370,7 +3447,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D4.0mm_P1.50mm"
+		(property "Footprint" "Capacitor_SMD:CP_Elec_4x5.4"
 			(at 111.76 100.33 0)
 			(effects
 				(font
@@ -3389,6 +3466,15 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
+			(at 111.76 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C3343"
 			(at 111.76 100.33 0)
 			(effects
 				(font
@@ -3440,7 +3526,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D4.0mm_P1.50mm"
+		(property "Footprint" "Capacitor_SMD:CP_Elec_4x5.4"
 			(at 111.76 92.71 0)
 			(effects
 				(font
@@ -3459,6 +3545,15 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
+			(at 111.76 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C3343"
 			(at 111.76 92.71 0)
 			(effects
 				(font
@@ -3510,7 +3605,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 139.3952 104.14 0)
 			(effects
 				(font
@@ -3529,6 +3624,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 138.43 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 138.43 100.33 0)
 			(effects
 				(font
@@ -3580,7 +3684,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 153.3652 96.52 0)
 			(effects
 				(font
@@ -3599,6 +3703,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 152.4 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 152.4 92.71 0)
 			(effects
 				(font
@@ -3650,7 +3763,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-8_W7.62mm"
+		(property "Footprint" "Package_SO:SOP-8_3.9x4.9mm_P1.27mm"
 			(at 200.66 96.52 0)
 			(effects
 				(font
@@ -3669,6 +3782,15 @@
 			)
 		)
 		(property "Description" "Dual Low-Noise JFET-Input Operational Amplifiers, DIP-8/SOIC-8"
+			(at 200.66 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C5310783"
 			(at 200.66 96.52 0)
 			(effects
 				(font
@@ -3738,7 +3860,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 185.42 72.39 0)
 			(effects
 				(font
@@ -3757,6 +3879,15 @@
 			)
 		)
 		(property "Description" "quad 2-input NAND gate"
+			(at 185.42 72.39 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C484714"
 			(at 185.42 72.39 0)
 			(effects
 				(font
@@ -3844,7 +3975,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 139.3952 96.52 0)
 			(effects
 				(font
@@ -3863,6 +3994,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 138.43 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 138.43 92.71 0)
 			(effects
 				(font
@@ -3914,7 +4054,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 185.42 93.98 0)
 			(effects
 				(font
@@ -3933,6 +4073,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 186.69 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 186.69 96.52 0)
 			(effects
 				(font
@@ -4020,7 +4169,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 125.4252 96.52 0)
 			(effects
 				(font
@@ -4039,6 +4188,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 124.46 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 124.46 92.71 0)
 			(effects
 				(font
@@ -4090,7 +4248,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:CP_Radial_D4.0mm_P1.50mm"
+		(property "Footprint" "Capacitor_SMD:CP_Elec_4x5.4"
 			(at 113.03 63.5 0)
 			(effects
 				(font
@@ -4109,6 +4267,15 @@
 			)
 		)
 		(property "Description" "Polarized capacitor, US symbol"
+			(at 113.03 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C3343"
 			(at 113.03 63.5 0)
 			(effects
 				(font
@@ -4160,7 +4327,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Package_DIP:DIP-14_W7.62mm"
+		(property "Footprint" "Package_SO:SOIC-14_3.9x8.7mm_P1.27mm"
 			(at 170.18 93.98 0)
 			(effects
 				(font
@@ -4179,6 +4346,15 @@
 			)
 		)
 		(property "Description" "Low-Power, Quad-Operational Amplifiers, DIP-14/SOIC-14/SSOP-14"
+			(at 171.45 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C7943"
 			(at 171.45 96.52 0)
 			(effects
 				(font
@@ -4266,7 +4442,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 125.4252 104.14 0)
 			(effects
 				(font
@@ -4285,6 +4461,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 124.46 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 124.46 100.33 0)
 			(effects
 				(font
@@ -4336,7 +4521,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 141.9352 67.31 0)
 			(effects
 				(font
@@ -4355,6 +4540,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 140.97 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 140.97 63.5 0)
 			(effects
 				(font
@@ -4406,7 +4600,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_THT:C_Disc_D4.7mm_W2.5mm_P5.00mm"
+		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 			(at 127.9652 67.31 0)
 			(effects
 				(font
@@ -4425,6 +4619,15 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
+			(at 127 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLC" "C29926"
 			(at 127 63.5 0)
 			(effects
 				(font
