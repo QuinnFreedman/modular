@@ -2,7 +2,7 @@ use rand::random;
 
 use crate::{
     interface::{ParamType, SoundAlgorithm, SoundParameter},
-    utils::{lerp, SinWaveVoice},
+    utils::{lerp, FirstOrderIIRLowpassFilter, SinWaveVoice},
 };
 
 const TWO_PI: f32 = 2.0 * std::f32::consts::PI;
@@ -10,13 +10,12 @@ const TWO_PI: f32 = 2.0 * std::f32::consts::PI;
 pub struct ComplexOscillator {
     carrier: Voice,
     modulator: Voice,
-    vibrato: SinWaveVoice,
-    alpha_slew_state: [f32; 10],
-    alpha_slew_idx: usize,
+    osc_c: SinWaveVoice,
     last_noise_sample: f32,
     sample_rate: u32,
     sync_counter: u32,
     debug_cycle_flag: bool,
+    lpf: FirstOrderIIRLowpassFilter,
 
     carrier_freq: f32,
     carrier_morph: f32,
@@ -25,9 +24,11 @@ pub struct ComplexOscillator {
     mod_sync: SyncMode,
     alpha: f32,
     mode: ComplexMode,
-    vib_freq: f32,
-    vib_depth: f32,
+    osc_c_freq: f32,
+    osc_c_amp: f32,
+    osc_c_mode: OscCMode,
     noise_level: f32,
+    lowpass_freq: f32,
 }
 
 impl ComplexOscillator {
@@ -35,9 +36,7 @@ impl ComplexOscillator {
         Self {
             carrier: Voice::new(),
             modulator: Voice::new(),
-            alpha_slew_state: [0.0; 10],
-            alpha_slew_idx: 0,
-            vibrato: SinWaveVoice::new(),
+            osc_c: SinWaveVoice::new(),
             last_noise_sample: 0.0,
             sync_counter: 0,
             sample_rate: 0,
@@ -48,10 +47,13 @@ impl ComplexOscillator {
             mod_sync: SyncMode::Free,
             alpha: 0.0,
             mode: ComplexMode::Crossfade,
-            vib_freq: 0.0,
-            vib_depth: 0.0,
+            osc_c_freq: 0.0,
+            osc_c_amp: 0.0,
+            osc_c_mode: OscCMode::Vibrato,
             noise_level: 0.0,
             debug_cycle_flag: false,
+            lpf: FirstOrderIIRLowpassFilter::new(),
+            lowpass_freq: 22000.0,
         }
     }
 }
@@ -78,16 +80,39 @@ impl SoundAlgorithm for ComplexOscillator {
     fn generate_sample(&mut self) -> f32 {
         debug_assert_ne!(self.sample_rate, 0);
 
-        self.alpha_slew_state[self.alpha_slew_idx] = self.alpha;
-        self.alpha_slew_idx = (self.alpha_slew_idx + 1) % self.alpha_slew_state.len();
-        let alpha =
-            self.alpha_slew_state.iter().sum::<f32>() / (self.alpha_slew_state.len() as f32);
+        let osc_freq = match self.osc_c_mode {
+            OscCMode::Vibrato => lerp(0.1..=220.0, self.osc_c_freq),
+            OscCMode::Sub => {
+                let osc_c_freq_coeff = if self.osc_c_freq > 0.5 {
+                    ((self.osc_c_freq - 0.5) * 14.0).round() + 1.0
+                } else {
+                    1.0 / (((0.5 - self.osc_c_freq) * 14.0).round() + 1.0)
+                };
+                self.carrier_freq * osc_c_freq_coeff
+            }
+            _ => {
+                let osc_c_freq_coeff = if self.osc_c_freq > 0.5 {
+                    (self.osc_c_freq - 0.5) * 14.0 + 1.0
+                } else {
+                    1.0 / ((0.5 - self.osc_c_freq) * 14.0 + 1.0)
+                };
+                self.carrier_freq * osc_c_freq_coeff
+            }
+        };
+
+        let osc_c_value = self.osc_c.next_sample(osc_freq, self.sample_rate) * self.osc_c_amp;
 
         const MAX_VIB_DEPTH: f32 = 0.2;
-        let vibrato_coeff = 1.0
-            + self.vibrato.next_sample(self.vib_freq, self.sample_rate)
-                * self.vib_depth
-                * MAX_VIB_DEPTH;
+        let vibrato_coeff = match self.osc_c_mode {
+            OscCMode::Vibrato | OscCMode::FM => 1.0 + osc_c_value * MAX_VIB_DEPTH,
+            _ => 1.0,
+        };
+
+        let alpha = if self.osc_c_mode == OscCMode::Alpha {
+            (self.alpha + osc_c_value).clamp(0.0, 1.0)
+        } else {
+            self.alpha
+        };
 
         let mod_freq_coeff = if self.mod_freq_ratio > 0.0 {
             let quantized = if self.mod_sync == SyncMode::Quantize {
@@ -108,35 +133,33 @@ impl SoundAlgorithm for ComplexOscillator {
 
         let b_freq = self.carrier_freq * mod_freq_coeff * vibrato_coeff;
 
-        let b = self
-            .modulator
-            .step(b_freq, self.mod_morph, self.sample_rate)
-            .0;
+        let b_morph = if self.osc_c_mode == OscCMode::OscBWt {
+            (self.mod_morph + osc_c_value).clamp(0.0, 1.0)
+        } else {
+            self.mod_morph
+        };
+
+        let b = self.modulator.step(b_freq, b_morph, self.sample_rate).0;
 
         let a_freq = if self.mode == ComplexMode::FM {
             self.carrier_freq + b * self.carrier_freq * alpha * 2.0
         } else {
             self.carrier_freq * vibrato_coeff
         };
-        let (a, did_rollover) = self
-            .carrier
-            .step(a_freq, self.carrier_morph, self.sample_rate);
+
+        let a_morph = if self.osc_c_mode == OscCMode::OscAWt {
+            (self.carrier_morph + osc_c_value).clamp(0.0, 1.0)
+        } else {
+            self.carrier_morph
+        };
+
+        let (a, did_rollover) = self.carrier.step(a_freq, a_morph, self.sample_rate);
 
         if did_rollover {
             self.debug_cycle_flag = true;
         }
 
         if did_rollover && self.mod_sync == SyncMode::Sync {
-            // self.sync_counter += 1;
-            // let target_sync_ctr = if b_freq <= a_freq * 2.0 {
-            //     1
-            // } else {
-            //     (b_freq / a_freq).round() as u32
-            // };
-            // if self.sync_counter >= target_sync_ctr {
-            //     self.sync_counter = 0;
-            //     self.modulator.phase = 0.0;
-            // }
             self.modulator.phase = 0.0;
         }
 
@@ -146,12 +169,7 @@ impl SoundAlgorithm for ComplexOscillator {
                 true => 1.0,
                 false => -1.0,
             },
-
             ComplexMode::AM => ((1.0 - alpha) * a) + (alpha * a * b),
-            // ComplexMode::PM => {
-            //     let a = (self.carrier.closed_form)((b + 1.0) / 2.0, self.carrier_morph);
-            //     a
-            // }
             ComplexMode::PWM => {
                 if self.carrier.phase > alpha {
                     a
@@ -168,7 +186,17 @@ impl SoundAlgorithm for ComplexOscillator {
 
         self.last_noise_sample = noise;
 
-        return noisy;
+        let filtered = self
+            .lpf
+            .process_sample(noisy, self.lowpass_freq, self.sample_rate);
+
+        let with_sub = if self.osc_c_mode == OscCMode::Sub {
+            filtered + osc_c_value
+        } else {
+            filtered
+        };
+
+        return with_sub;
     }
 
     fn parameters(&self) -> Vec<SoundParameter> {
@@ -184,7 +212,7 @@ impl SoundAlgorithm for ComplexOscillator {
             SoundParameter {
                 name: "Carrier table",
                 value: self.carrier.table.into(),
-                param_type: ParamType::Select(&[SIN_SAW, ODD_HARMONICS, SIN_SHAPED, SIN_DETUNE]),
+                param_type: ParamType::Select(&[SIN_SAW, ODD_HARMONICS, SIN_SHAPED, SIN_FOLDED]),
             },
             SoundParameter {
                 name: "Carrier morph",
@@ -195,8 +223,8 @@ impl SoundAlgorithm for ComplexOscillator {
                 name: "Mod freq ratio",
                 value: self.mod_freq_ratio,
                 param_type: ParamType::Float {
-                    min: -8.0,
-                    max: 8.0,
+                    min: -7.0,
+                    max: 7.0,
                 },
             },
             SoundParameter {
@@ -207,7 +235,7 @@ impl SoundAlgorithm for ComplexOscillator {
             SoundParameter {
                 name: "Mod table",
                 value: self.modulator.table.into(),
-                param_type: ParamType::Select(&[SIN_SAW, ODD_HARMONICS, SIN_SHAPED, SIN_DETUNE]),
+                param_type: ParamType::Select(&[SIN_SAW, ODD_HARMONICS, SIN_SHAPED, SIN_FOLDED]),
             },
             SoundParameter {
                 name: "Mod morph",
@@ -225,22 +253,32 @@ impl SoundAlgorithm for ComplexOscillator {
                 param_type: ParamType::Float { min: 0.0, max: 1.0 },
             },
             SoundParameter {
-                name: "Vib freq",
-                value: self.vib_freq,
-                param_type: ParamType::Float {
-                    min: 1.0,
-                    max: 440.0,
-                },
+                name: "Osc C freq",
+                value: self.osc_c_freq,
+                param_type: ParamType::Float { min: 0.0, max: 1.0 },
             },
             SoundParameter {
-                name: "Vib depth",
-                value: self.vib_depth,
+                name: "Osc C amp",
+                value: self.osc_c_amp,
                 param_type: ParamType::Float { min: 0.0, max: 1.0 },
+            },
+            SoundParameter {
+                name: "Osc C mode",
+                value: self.osc_c_mode.into(),
+                param_type: ParamType::Select(&[VIBRATO, FM, BLEND, OSC_A_WT, OSC_B_WT, SUB]),
             },
             SoundParameter {
                 name: "Noise level",
                 value: self.noise_level,
                 param_type: ParamType::Float { min: 0.0, max: 1.0 },
+            },
+            SoundParameter {
+                name: "Low pass filter",
+                value: self.lowpass_freq,
+                param_type: ParamType::Float {
+                    min: 0.0,
+                    max: 21000.0,
+                },
             },
         ]
     }
@@ -262,11 +300,11 @@ impl SoundAlgorithm for ComplexOscillator {
             "Alpha" => {
                 self.alpha = value;
             }
-            "Vib freq" => {
-                self.vib_freq = value;
+            "Osc C freq" => {
+                self.osc_c_freq = value;
             }
-            "Vib depth" => {
-                self.vib_depth = value;
+            "Osc C amp" => {
+                self.osc_c_amp = value;
             }
             "Noise level" => {
                 self.noise_level = value;
@@ -283,6 +321,13 @@ impl SoundAlgorithm for ComplexOscillator {
             }
             "Carrier table" => {
                 self.carrier.table = value.into();
+            }
+            "Osc C mode" => {
+                self.osc_c_mode = value.into();
+                self.osc_c.phase = 0.0;
+            }
+            "Low pass filter" => {
+                self.lowpass_freq = value;
             }
             _ => panic!("Unexpected parameter name: {}", name),
         }
@@ -374,13 +419,13 @@ pub enum WaveTable {
     SinSaw,
     OddHarmonics,
     SinEnveloped,
-    Detune,
+    FoldedSin,
 }
 
 const SIN_SAW: &str = &"sin/saw";
 const ODD_HARMONICS: &str = &"odd harmonics";
 const SIN_SHAPED: &str = &"shaped sin";
-const SIN_DETUNE: &str = &"detuned sins";
+const SIN_FOLDED: &str = &"folded sins";
 
 impl Into<f32> for WaveTable {
     fn into(self) -> f32 {
@@ -388,7 +433,7 @@ impl Into<f32> for WaveTable {
             WaveTable::SinSaw => 0.0,
             WaveTable::OddHarmonics => 1.0,
             WaveTable::SinEnveloped => 2.0,
-            WaveTable::Detune => 3.0,
+            WaveTable::FoldedSin => 3.0,
         }
     }
 }
@@ -402,12 +447,61 @@ impl From<f32> for WaveTable {
         } else if value == 2.0 {
             WaveTable::SinEnveloped
         } else if value == 3.0 {
-            WaveTable::Detune
+            WaveTable::FoldedSin
         } else {
             panic!()
         }
     }
 }
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum OscCMode {
+    Vibrato,
+    FM,
+    Alpha,
+    OscAWt,
+    OscBWt,
+    Sub,
+}
+
+impl Into<f32> for OscCMode {
+    fn into(self) -> f32 {
+        match self {
+            OscCMode::Vibrato => 0.0,
+            OscCMode::FM => 1.0,
+            OscCMode::Alpha => 2.0,
+            OscCMode::OscAWt => 3.0,
+            OscCMode::OscBWt => 4.0,
+            OscCMode::Sub => 5.0,
+        }
+    }
+}
+
+impl From<f32> for OscCMode {
+    fn from(value: f32) -> Self {
+        if value == 0.0 {
+            OscCMode::Vibrato
+        } else if value == 1.0 {
+            OscCMode::FM
+        } else if value == 2.0 {
+            OscCMode::Alpha
+        } else if value == 3.0 {
+            OscCMode::OscAWt
+        } else if value == 4.0 {
+            OscCMode::OscBWt
+        } else if value == 5.0 {
+            OscCMode::Sub
+        } else {
+            panic!()
+        }
+    }
+}
+
+const VIBRATO: &str = &"Vibrato";
+const BLEND: &str = &"Blend";
+const OSC_A_WT: &str = &"Osc A WT";
+const OSC_B_WT: &str = &"Osc B WT";
+const SUB: &str = &"Sub";
 
 struct Voice {
     phase: f32,
@@ -449,7 +543,7 @@ impl Voice {
             WaveTable::SinSaw => self.sin_saw_addative_wavetable(morph),
             WaveTable::OddHarmonics => self.odd_harmonics_wavetable(morph),
             WaveTable::SinEnveloped => self.sin_enveloped(morph),
-            WaveTable::Detune => self.detune_sin(morph),
+            WaveTable::FoldedSin => self.folded_sin(morph),
         };
 
         (result, did_rollover)
@@ -526,16 +620,32 @@ impl Voice {
         f32::sin(TWO_PI * (morph * 9.0 + 1.0) * x) * envelope
     }
 
-    fn detune_sin(&self, morph: f32) -> f32 {
-        let x = self.phase * TWO_PI;
-        let num_voices = 6;
-        let mut result = f32::sin(x);
-        for i in 1..=num_voices {
-            result += f32::sin(x * (1.0 + (i as f32 / num_voices as f32) * morph * 0.5));
-            result += f32::sin(x * (1.0 - (i as f32 / num_voices as f32) * morph * 0.5));
+    fn folded_sin(&self, morph: f32) -> f32 {
+        fn sigmoid(x: f32) -> f32 {
+            let f = |x: f32| 2.0 * x - x.powi(2);
+            if x < -1.0 {
+                -1.0
+            } else if x < 0.0 {
+                -f(-x)
+            } else if x < 1.0 {
+                f(x)
+            } else {
+                1.0
+            }
         }
-
-        result / ((num_voices * 2 + 1) as f32)
+        const MAX_FOLDS: u32 = 3;
+        let mut result = f32::sin(self.phase * TWO_PI);
+        result *= lerp(1.0..=10.0, morph);
+        for _ in 0..MAX_FOLDS {
+            if result > 1.0 {
+                result = 1.0 - (result - 1.0);
+            } else if result < -1.0 {
+                result = -1.0 - (result + 1.0);
+            } else {
+                break;
+            }
+        }
+        sigmoid(result)
     }
 }
 

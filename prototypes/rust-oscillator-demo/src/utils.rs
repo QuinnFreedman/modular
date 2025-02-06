@@ -4,7 +4,7 @@ use rand::{thread_rng, RngCore};
 
 #[derive(Copy, Clone)]
 pub struct SinWaveVoice {
-    phase: f32,
+    pub phase: f32,
     pub debug_overflow_flag: bool,
 }
 
@@ -93,4 +93,22 @@ pub fn lerp(range: impl Into<RangeInclusive<f32>>, t: f32) -> f32 {
     let from: f32 = *range.start();
     let to: f32 = *range.end();
     from + t * (to - from)
+}
+
+pub struct FirstOrderIIRLowpassFilter {
+    last_sample: f32,
+}
+
+impl FirstOrderIIRLowpassFilter {
+    pub fn new() -> Self {
+        Self { last_sample: 0.0 }
+    }
+
+    pub fn process_sample(&mut self, sample: f32, cutoff_freq: f32, sample_rate: u32) -> f32 {
+        let alpha = 1.0 / (1.0 + (sample_rate as f32) / (2.0 * std::f32::consts::PI * cutoff_freq));
+        // let alpha = 0.01;
+        let result = alpha * sample + (1.0 - alpha) * self.last_sample;
+        self.last_sample = result;
+        result
+    }
 }
