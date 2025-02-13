@@ -11,7 +11,6 @@ pub struct ComplexOscillator {
     carrier: Voice,
     modulator: Voice,
     osc_c: SinWaveVoice,
-    last_noise_sample: f32,
     sample_rate: u32,
     sync_counter: u32,
     debug_cycle_flag: bool,
@@ -27,7 +26,6 @@ pub struct ComplexOscillator {
     osc_c_freq: f32,
     osc_c_amp: f32,
     osc_c_mode: OscCMode,
-    noise_level: f32,
     lowpass_freq: f32,
 }
 
@@ -37,7 +35,6 @@ impl ComplexOscillator {
             carrier: Voice::new(),
             modulator: Voice::new(),
             osc_c: SinWaveVoice::new(),
-            last_noise_sample: 0.0,
             sync_counter: 0,
             sample_rate: 0,
             carrier_freq: 220.0,
@@ -50,7 +47,6 @@ impl ComplexOscillator {
             osc_c_freq: 0.0,
             osc_c_amp: 0.0,
             osc_c_mode: OscCMode::Vibrato,
-            noise_level: 0.0,
             debug_cycle_flag: false,
             lpf: FirstOrderIIRLowpassFilter::new(),
             lowpass_freq: 22000.0,
@@ -180,15 +176,9 @@ impl SoundAlgorithm for ComplexOscillator {
             ComplexMode::FM => a,
         };
 
-        let noise = random::<f32>();
-
-        let noisy = result * (1.0 - (noise + self.last_noise_sample) / 2.0 * self.noise_level);
-
-        self.last_noise_sample = noise;
-
         let filtered = self
             .lpf
-            .process_sample(noisy, self.lowpass_freq, self.sample_rate);
+            .process_sample(result, self.lowpass_freq, self.sample_rate);
 
         let with_sub = if self.osc_c_mode == OscCMode::Sub {
             filtered + osc_c_value
@@ -212,7 +202,13 @@ impl SoundAlgorithm for ComplexOscillator {
             SoundParameter {
                 name: "Carrier table",
                 value: self.carrier.table.into(),
-                param_type: ParamType::Select(&[SIN_SAW, ODD_HARMONICS, SIN_SHAPED, SIN_FOLDED]),
+                param_type: ParamType::Select(&[
+                    SIN_SAW,
+                    ODD_HARMONICS,
+                    SIN_SHAPED,
+                    SIN_FOLDED,
+                    NOISE,
+                ]),
             },
             SoundParameter {
                 name: "Carrier morph",
@@ -235,7 +231,13 @@ impl SoundAlgorithm for ComplexOscillator {
             SoundParameter {
                 name: "Mod table",
                 value: self.modulator.table.into(),
-                param_type: ParamType::Select(&[SIN_SAW, ODD_HARMONICS, SIN_SHAPED, SIN_FOLDED]),
+                param_type: ParamType::Select(&[
+                    SIN_SAW,
+                    ODD_HARMONICS,
+                    SIN_SHAPED,
+                    SIN_FOLDED,
+                    NOISE,
+                ]),
             },
             SoundParameter {
                 name: "Mod morph",
@@ -266,11 +268,6 @@ impl SoundAlgorithm for ComplexOscillator {
                 name: "Osc C mode",
                 value: self.osc_c_mode.into(),
                 param_type: ParamType::Select(&[VIBRATO, FM, BLEND, OSC_A_WT, OSC_B_WT, SUB]),
-            },
-            SoundParameter {
-                name: "Noise level",
-                value: self.noise_level,
-                param_type: ParamType::Float { min: 0.0, max: 1.0 },
             },
             SoundParameter {
                 name: "Low pass filter",
@@ -305,9 +302,6 @@ impl SoundAlgorithm for ComplexOscillator {
             }
             "Osc C amp" => {
                 self.osc_c_amp = value;
-            }
-            "Noise level" => {
-                self.noise_level = value;
             }
             "Blend Mode" => {
                 self.mode = value.into();
@@ -420,12 +414,14 @@ pub enum WaveTable {
     OddHarmonics,
     SinEnveloped,
     FoldedSin,
+    Noise,
 }
 
 const SIN_SAW: &str = &"sin/saw";
 const ODD_HARMONICS: &str = &"odd harmonics";
 const SIN_SHAPED: &str = &"shaped sin";
 const SIN_FOLDED: &str = &"folded sins";
+const NOISE: &str = &"noise";
 
 impl Into<f32> for WaveTable {
     fn into(self) -> f32 {
@@ -434,6 +430,7 @@ impl Into<f32> for WaveTable {
             WaveTable::OddHarmonics => 1.0,
             WaveTable::SinEnveloped => 2.0,
             WaveTable::FoldedSin => 3.0,
+            WaveTable::Noise => 4.0,
         }
     }
 }
@@ -448,6 +445,8 @@ impl From<f32> for WaveTable {
             WaveTable::SinEnveloped
         } else if value == 3.0 {
             WaveTable::FoldedSin
+        } else if value == 4.0 {
+            WaveTable::Noise
         } else {
             panic!()
         }
@@ -544,6 +543,7 @@ impl Voice {
             WaveTable::OddHarmonics => self.odd_harmonics_wavetable(morph),
             WaveTable::SinEnveloped => self.sin_enveloped(morph),
             WaveTable::FoldedSin => self.folded_sin(morph),
+            WaveTable::Noise => self.square_to_noise(morph),
         };
 
         (result, did_rollover)
@@ -646,6 +646,22 @@ impl Voice {
             }
         }
         sigmoid(result)
+    }
+
+    fn square_to_noise(&self, morph: f32) -> f32 {
+        let x = self.phase * TWO_PI;
+
+        let mut result = 0.0;
+        for i in 1..=6 {
+            let n = 2 * i - 1;
+            result += (1.0 / n as f32) * (n as f32 * x).sin();
+        }
+
+        result *= 2.0 / std::f32::consts::PI;
+
+        let noise = (random::<f32>() - 0.5) * 2.0;
+
+        (1.0 - morph) * result + morph * noise
     }
 }
 
