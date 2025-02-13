@@ -7,11 +7,11 @@ import math
 from faceplate_maker import *
 from svgwrite.path import Path
 
-module = Module.from_cli(6, global_y_offset=12, title="ALU")
+module = Module.from_cli(4, global_y_offset=12, title="ALU")
 
 y_spacing = inches(.65)
 y_start = inches(.3)
-x_offset = inches(.275)
+x_offset = inches(.19)
 
 module.add(JackSocketCentered(-x_offset, y_start, "A", False, rotation=2))
 module.add(JackSocketCentered(x_offset, y_start, "B", False, rotation=2))
