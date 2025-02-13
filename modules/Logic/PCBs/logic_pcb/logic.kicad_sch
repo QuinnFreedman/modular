@@ -1645,12 +1645,6 @@
 		(uuid "2e8cf64a-c10a-47e1-affb-5050b620459b")
 	)
 	(junction
-		(at 128.27 95.25)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "45f1222c-0ee5-4929-bac2-f1c123ab57b5")
-	)
-	(junction
 		(at 54.61 49.53)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1661,6 +1655,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "75297c18-0e60-4d6a-b0cb-db7bc51d968d")
+	)
+	(junction
+		(at 120.65 86.36)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "761bd4c0-a925-4e34-80bc-d6614ac07eaa")
 	)
 	(junction
 		(at 102.87 92.71)
@@ -1962,7 +1962,7 @@
 	)
 	(wire
 		(pts
-			(xy 115.57 76.2) (xy 128.27 76.2)
+			(xy 115.57 76.2) (xy 120.65 76.2)
 		)
 		(stroke
 			(width 0)
@@ -2082,6 +2082,16 @@
 	)
 	(wire
 		(pts
+			(xy 120.65 76.2) (xy 120.65 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fed3cdb-1864-4d0f-97fa-86972d27963c")
+	)
+	(wire
+		(pts
 			(xy 119.38 59.69) (xy 118.11 59.69)
 		)
 		(stroke
@@ -2189,16 +2199,6 @@
 			(type default)
 		)
 		(uuid "b920b912-63a7-4ebf-bace-7d38194da2cb")
-	)
-	(wire
-		(pts
-			(xy 128.27 95.25) (xy 128.27 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c8bfe4a6-42af-41a7-ac49-4c37938053a7")
 	)
 	(wire
 		(pts
@@ -2486,7 +2486,7 @@
 				)
 			)
 		)
-		(property "Value" "1kΩ"
+		(property "Value" "5.1kΩ"
 			(at 146.05 135.89 90)
 			(effects
 				(font
@@ -2521,7 +2521,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C17513"
+		(property "JLC" "C27834"
 			(at 146.05 139.7 0)
 			(effects
 				(font
@@ -3282,7 +3282,7 @@
 				)
 			)
 		)
-		(property "Value" "1kΩ"
+		(property "Value" "5.1kΩ"
 			(at 123.19 55.88 90)
 			(effects
 				(font
@@ -3317,7 +3317,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C17513"
+		(property "JLC" "C27834"
 			(at 123.19 59.69 0)
 			(effects
 				(font
@@ -3359,7 +3359,7 @@
 				)
 			)
 		)
-		(property "Value" "1kΩ"
+		(property "Value" "5.1kΩ"
 			(at 124.46 91.44 90)
 			(effects
 				(font
@@ -3394,7 +3394,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C17513"
+		(property "JLC" "C27834"
 			(at 124.46 95.25 0)
 			(effects
 				(font
@@ -3894,7 +3894,7 @@
 				)
 			)
 		)
-		(property "Value" "1kΩ"
+		(property "Value" "5.1kΩ"
 			(at 106.68 39.37 90)
 			(effects
 				(font
@@ -3929,7 +3929,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLC" "C17513"
+		(property "JLC" "C27834"
 			(at 106.68 43.18 0)
 			(effects
 				(font
