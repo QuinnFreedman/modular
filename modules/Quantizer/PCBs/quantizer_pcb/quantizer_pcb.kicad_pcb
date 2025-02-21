@@ -34138,6 +34138,18 @@
 			)
 		)
 	)
+	(gr_rect
+		(start 181.502913 58.276167)
+		(end 181.802632 58.625475)
+		(stroke
+			(width 0.2)
+			(type default)
+		)
+		(fill none)
+		(layer "B.Cu")
+		(net 89)
+		(uuid "5d32dc03-b718-40a0-b0c7-bb1172c4aecc")
+	)
 	(gr_line
 		(start 174.351553 57.633085)
 		(end 175.441542 57.633085)
