@@ -2,12 +2,6 @@
 
 See [general assembly instructions](https://quinnfreedman.github.io/modular/docs/assembly)
 
-The only non-standard part of this module is the screen. The screen module is intended to bolt to the faceplate and then be connected to the PCB with wires. If your screen comes without pin headers pre-soldered, then it is easy to just solder seven lengths of insulated wire connecting the screen directly to the board. If your screen came with pin headers already installed, you could try to de-solder them, but it is probably easier to use a set of jumper wires wires with a female end. I cut the wires in half, strip the bare end and solder it to the board, then just plug the female ends into the screen. But look out for loose connections. If you get weird visual artifacts on the screen, it is probably because one of the wires is not seated correctly. You may want to use a dab of hot glue to keep everything in place. I find it is easiest to have the wires coming out of the back side of the PCB and looping around to plug into the screen.
-
-Keep in mind that the display modules come from a third party and are not well standardized. They may not line up perfectly with the faceplate. It should fit well enough, but if your screen doesn't line up you can attach it to the faceplate with hot glue.
-
-The pins on the screen might also be labelled differently than the PCB. Refer to this [guide to SPI protocol signal names](https://www.sparkfun.com/spi_signal_names) to make sure you connect the right pins.
-
 ## Components
 
 **Most** parts are available on Tayda ([cart link](https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/82040858402), [quick-order CSV](https://freemodular.org/modules/Clock/fm_clock_tayda_bom.csv)).
@@ -40,7 +34,7 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Clock/cloc
 
 ![](images/tutorial_01.jpg)
 
-Once you have gathered all the components and the PCBs, I reccomend starting with the resistors.
+Once you have gathered all the components and the PCBs, I recommend starting with the resistors.
 
 ![](images/tutorial_02.jpg)
 
@@ -60,17 +54,17 @@ If you prefer, you can solder the boards together permanently using only the mal
 
 ![](images/tutorial_05.jpg)
 
-Repeat the same process for attatching the Arduino to the rear board.
+Repeat the same process for attaching the Arduino to the rear board.
 
 ![](images/tutorial_06.jpg)
 
-Attatch the power header and capacitor to the rear board. Make sure to align the notch in the power header with the silkscreen. Looking from the back of the module, the notch should be on the right when the module is upright.
+Attach the power header and capacitor to the rear board. Make sure to align the notch in the power header with the silkscreen. Looking from the back of the module, the notch should be on the right when the module is upright.
 
 ![](images/tutorial_07.jpg)
 
-Attatch the wires to the screen. If you want, you can use a DuPont connector or a JST XH-2.54 connector to make the screen detachable. Or just solder the wires straight to the screen.
+Attach the wires to the screen. If you want, you can use a DuPont connector or a JST XH-2.54 connector to make the screen detachable. Or just solder the wires straight to the screen.
 
-Make sure to trim the tips extra flush so they don't short out against the faceplate when the screen is attatched.
+Make sure to trim the tips extra flush so they don't short out against the faceplate when the screen is attached.
 
 ![](images/tutorial_08.jpg)
 
@@ -90,7 +84,7 @@ Make sure to trim the tips extra flush so they don't short out against the facep
 
 ![](images/tutorial_09.jpg)
 
-Attatch the screen to the faceplate with M2 bolts. Don't tighten them enough to bend the PCB, just get them gently snug all around.
+Attach the screen to the faceplate with M2 bolts. Don't tighten them enough to bend the PCB, just get them gently snug all around.
 
 The connections should be at the top of the module.
 
