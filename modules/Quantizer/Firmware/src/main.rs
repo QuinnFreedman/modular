@@ -78,25 +78,75 @@ fn main() -> ! {
         ],
     );
 
-    let mut data = [0u8; 36];
-
+    let mut leds = [LedColor::OFF; 12];
     let mut led_driver_cs_pin = pins.d9.into_output_high();
+
+    let mut update_leds = |leds: &[LedColor; 12]| {
+        led_driver_cs_pin.set_low();
+        for led in leds {
+            let mut bytes = led.to_bytes();
+            spi.transfer(&mut bytes).unwrap_infallible();
+        }
+        led_driver_cs_pin.set_high();
+    };
+
     delay_ms(1);
     loop {
-        for byte in data.iter_mut() {
-            *byte = 255;
+        for led in leds.iter_mut() {
+            *led = LedColor::GREEN;
         }
-        led_driver_cs_pin.set_low();
-        spi.transfer(&mut data).unwrap_infallible();
-        led_driver_cs_pin.set_high();
-        delay_ms(1000);
+        update_leds(&leds);
+        delay_ms(500);
 
-        for byte in data.iter_mut() {
-            *byte = 0;
+        for led in leds.iter_mut() {
+            *led = LedColor::RED;
         }
-        led_driver_cs_pin.set_low();
-        spi.transfer(&mut data).unwrap_infallible();
-        led_driver_cs_pin.set_high();
-        delay_ms(1000);
+        update_leds(&leds);
+        delay_ms(500);
+
+        for led in leds.iter_mut() {
+            *led = LedColor::AMBER;
+        }
+        update_leds(&leds);
+        delay_ms(500);
+
+        for led in leds.iter_mut() {
+            *led = LedColor::OFF;
+        }
+        update_leds(&leds);
+        delay_ms(500);
+
+        for i in 0..12 {
+            leds[i] = LedColor::AMBER;
+            update_leds(&leds);
+            delay_ms(200);
+        }
     }
+}
+
+#[derive(Clone, Copy)]
+enum LedColor {
+    GREEN,
+    RED,
+    AMBER,
+    OFF,
+}
+
+const RED_LEVEL: u16 = 0xFFF;
+const GREEN_LEVEL: u16 = 0x04F;
+
+impl LedColor {
+    const fn to_bytes(&self) -> [u8; 3] {
+        match self {
+            LedColor::GREEN => concat_u12s(0, GREEN_LEVEL),
+            LedColor::RED => concat_u12s(RED_LEVEL, 0),
+            LedColor::AMBER => concat_u12s(RED_LEVEL, GREEN_LEVEL),
+            LedColor::OFF => concat_u12s(0, 0),
+        }
+    }
+}
+
+const fn concat_u12s(left: u16, right: u16) -> [u8; 3] {
+    let bytes = ((right as u32) | ((left as u32) << 12)).to_be_bytes();
+    [bytes[1], bytes[2], bytes[3]]
 }
