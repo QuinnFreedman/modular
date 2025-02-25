@@ -10,6 +10,8 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
+mod resistor_ladder_buttons;
+
 use core::arch::asm;
 use core::{cell::Cell, panic::PanicInfo};
 
@@ -32,13 +34,14 @@ use fm_lib::{
     mcp4922::{DacChannel, MCP4922},
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
+use resistor_ladder_buttons::{ButtonEvent, ButtonLadderState};
 use ufmt::uwriteln;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
 handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
-static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<2> = new_async_adc_state();
+static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3> = new_async_adc_state();
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
@@ -49,6 +52,7 @@ fn ADC() {
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
+    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
     let (mut spi, mut d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -62,6 +66,7 @@ fn main() -> ! {
             mode: embedded_hal::spi::MODE_0,
         },
     );
+    let a5 = pins.a5.into_analog_input(&mut adc);
 
     unsafe {
         avr_device::interrupt::enable();
@@ -71,8 +76,7 @@ fn main() -> ! {
         adc,
         &GLOBAL_ASYNC_ADC_STATE,
         [
-            // a4.into_channel(),
-            // a5.into_channel(),
+            a5.into_channel(),
             arduino_hal::adc::channel::ADC6.into_channel(),
             arduino_hal::adc::channel::ADC7.into_channel(),
         ],
@@ -83,44 +87,42 @@ fn main() -> ! {
 
     let mut update_leds = |leds: &[LedColor; 12]| {
         led_driver_cs_pin.set_low();
-        for led in leds {
+        for led in leds[6..12].iter().chain(leds[0..6].iter()) {
             let mut bytes = led.to_bytes();
             spi.transfer(&mut bytes).unwrap_infallible();
         }
         led_driver_cs_pin.set_high();
     };
-
     delay_ms(1);
+
+    let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
+    let mut button_state = ButtonLadderState::new();
+
     loop {
-        for led in leds.iter_mut() {
-            *led = LedColor::GREEN;
+        let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
+        let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
+        match button_event {
+            ButtonEvent::NoEvent | ButtonEvent::ButtonHeld(_) => {}
+            ButtonEvent::ButtonJustReleased => {
+                for led in leds.iter_mut() {
+                    *led = LedColor::OFF;
+                }
+            }
+            ButtonEvent::ButtonJustPressed(n) => {
+                for led in leds.iter_mut() {
+                    *led = LedColor::OFF;
+                }
+                leds[n as usize] = LedColor::AMBER;
+            }
+        }
+
+        if let ButtonEvent::ButtonHeld(idx) =
+            button_state.sample_adc_value(sys_clock.millis(), cv[0])
+        {
+            leds[idx as usize] = LedColor::AMBER;
         }
         update_leds(&leds);
-        delay_ms(500);
-
-        for led in leds.iter_mut() {
-            *led = LedColor::RED;
-        }
-        update_leds(&leds);
-        delay_ms(500);
-
-        for led in leds.iter_mut() {
-            *led = LedColor::AMBER;
-        }
-        update_leds(&leds);
-        delay_ms(500);
-
-        for led in leds.iter_mut() {
-            *led = LedColor::OFF;
-        }
-        update_leds(&leds);
-        delay_ms(500);
-
-        for i in 0..12 {
-            leds[i] = LedColor::AMBER;
-            update_leds(&leds);
-            delay_ms(200);
-        }
+        delay_ms(1);
     }
 }
 
