@@ -55,7 +55,9 @@
     "luts",
     "UART",
     "prng",
-    "timestep"
+    "timestep",
+    "quantizer",
+    "OscfOver"
   ],
   "patterns": [
     {
