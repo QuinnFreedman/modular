@@ -10,6 +10,8 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
+mod menu;
+mod quantizer;
 mod resistor_ladder_buttons;
 
 use core::arch::asm;
@@ -34,6 +36,8 @@ use fm_lib::{
     mcp4922::{DacChannel, MCP4922},
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
+use menu::{LedColor, MenuState};
+use quantizer::QuantizerState;
 use resistor_ladder_buttons::{ButtonEvent, ButtonLadderState};
 use ufmt::uwriteln;
 
@@ -67,6 +71,11 @@ fn main() -> ! {
         },
     );
     let a5 = pins.a5.into_analog_input(&mut adc);
+    let mut led_driver_cs_pin = pins.d9.into_output_high();
+    led_driver_cs_pin.set_low();
+    spi.transfer(&mut [0x00u8; 36]).unwrap_infallible();
+    led_driver_cs_pin.set_high();
+    delay_ms(1);
 
     unsafe {
         avr_device::interrupt::enable();
@@ -82,8 +91,8 @@ fn main() -> ! {
         ],
     );
 
-    let mut leds = [LedColor::OFF; 12];
-    let mut led_driver_cs_pin = pins.d9.into_output_high();
+    let mut quantizer_state = QuantizerState::new();
+    let mut menu_state = MenuState::new();
 
     let mut update_leds = |leds: &[LedColor; 12]| {
         led_driver_cs_pin.set_low();
@@ -93,7 +102,6 @@ fn main() -> ! {
         }
         led_driver_cs_pin.set_high();
     };
-    delay_ms(1);
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
@@ -102,36 +110,17 @@ fn main() -> ! {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
         let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
         match button_event {
-            ButtonEvent::NoEvent | ButtonEvent::ButtonHeld(_) => {}
-            ButtonEvent::ButtonJustReleased => {
-                for led in leds.iter_mut() {
-                    *led = LedColor::OFF;
-                }
-            }
             ButtonEvent::ButtonJustPressed(n) => {
-                for led in leds.iter_mut() {
-                    *led = LedColor::OFF;
-                }
-                leds[n as usize] = LedColor::AMBER;
+                uwriteln!(&mut serial, "Pressed {}", n).unwrap_infallible();
+                quantizer_state.notes[n as usize] = !quantizer_state.notes[n as usize];
             }
+            _ => {}
         }
+        let leds = menu_state.handle_input_and_render(&quantizer_state, false);
 
-        if let ButtonEvent::ButtonHeld(idx) =
-            button_state.sample_adc_value(sys_clock.millis(), cv[0])
-        {
-            leds[idx as usize] = LedColor::AMBER;
-        }
         update_leds(&leds);
         delay_ms(1);
     }
-}
-
-#[derive(Clone, Copy)]
-enum LedColor {
-    GREEN,
-    RED,
-    AMBER,
-    OFF,
 }
 
 const RED_LEVEL: u16 = 0xFFF;
