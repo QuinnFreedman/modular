@@ -46,9 +46,14 @@ impl MenuState {
         quantizer_state: &mut QuantizerState,
         button_index: u8,
     ) {
+        let active_channel = &mut quantizer_state.channels[self.selected_channel.index()];
         match button_index {
-            0 => {}
-            1 => {}
+            0 => {
+                active_channel.notes.rotate_left(1);
+            }
+            1 => {
+                active_channel.notes.rotate_right(1);
+            }
             2 => {}
             3 => {}
             4 => {}
