@@ -23,7 +23,7 @@ use arduino_hal::port::mode::Output;
 use arduino_hal::port::Pin;
 use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
 use avr_device::interrupt::{self, Mutex};
-use embedded_hal::digital::v2::OutputPin;
+use embedded_hal::digital::v2::{InputPin, OutputPin};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
@@ -72,6 +72,7 @@ fn main() -> ! {
     );
     let a5 = pins.a5.into_analog_input(&mut adc);
     let mut led_driver_cs_pin = pins.d9.into_output_high();
+    // TODO replace this with pullup resistor to BLANK pin
     led_driver_cs_pin.set_low();
     spi.transfer(&mut [0x00u8; 36]).unwrap_infallible();
     led_driver_cs_pin.set_high();
@@ -91,6 +92,8 @@ fn main() -> ! {
         ],
     );
 
+    let shift_btn_pin = pins.d8.into_pull_up_input();
+
     let mut quantizer_state = QuantizerState::new();
     let mut menu_state = MenuState::new();
 
@@ -109,14 +112,11 @@ fn main() -> ! {
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
         let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
-        match button_event {
-            ButtonEvent::ButtonJustPressed(n) => {
-                uwriteln!(&mut serial, "Pressed {}", n).unwrap_infallible();
-                quantizer_state.notes[n as usize] = !quantizer_state.notes[n as usize];
-            }
-            _ => {}
-        }
-        let leds = menu_state.handle_input_and_render(&quantizer_state, false);
+        let leds = menu_state.handle_button_input_and_render_display(
+            &mut quantizer_state,
+            &button_event,
+            shift_btn_pin.is_low(),
+        );
 
         update_leds(&leds);
         delay_ms(1);
@@ -138,6 +138,8 @@ impl LedColor {
 }
 
 const fn concat_u12s(left: u16, right: u16) -> [u8; 3] {
+    assert!(left <= 0xFFF);
+    assert!(right <= 0xFFF);
     let bytes = ((right as u32) | ((left as u32) << 12)).to_be_bytes();
     [bytes[1], bytes[2], bytes[3]]
 }
