@@ -5,7 +5,7 @@ pub struct ButtonLadderState {
     debouncing: bool,
 }
 
-const DEBOUNCE_TIME_MS: u32 = 20;
+const DEBOUNCE_TIME_MS: u32 = 32;
 
 impl ButtonLadderState {
     pub fn new() -> Self {
