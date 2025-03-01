@@ -1,4 +1,9 @@
 pub struct QuantizerState {
+    pub channels_linked: bool,
+    pub channels: [QuantizerChannel; 2],
+}
+
+pub struct QuantizerChannel {
     pub notes: [bool; 12],
     pub sample_mode: SampleMode,
     pub glide_amount: u8,
@@ -7,7 +12,6 @@ pub struct QuantizerState {
     pub scale_shift: i8,
     pub post_shift: i8,
     pub channel_b_mode: PitchMode,
-    pub channels_linked: bool,
 }
 
 pub enum PitchMode {
@@ -20,8 +24,8 @@ pub enum SampleMode {
     SampleAndHold,
 }
 
-impl QuantizerState {
-    pub fn new() -> Self {
+impl QuantizerChannel {
+    pub const fn new() -> Self {
         Self {
             notes: [false; 12],
             sample_mode: SampleMode::TrackAndHold,
@@ -31,6 +35,14 @@ impl QuantizerState {
             scale_shift: 0,
             post_shift: 0,
             channel_b_mode: PitchMode::Absolute,
+        }
+    }
+}
+
+impl QuantizerState {
+    pub const fn new() -> Self {
+        Self {
+            channels: [const { QuantizerChannel::new() }; 2],
             channels_linked: false,
         }
     }
