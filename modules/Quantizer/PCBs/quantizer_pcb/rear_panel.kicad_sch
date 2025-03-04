@@ -6723,6 +6723,26 @@
 		)
 		(uuid "4a41072e-f4c1-4368-a4f3-f82ae8624da8")
 	)
+	(label "+12V"
+		(at 227.33 137.16 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5610f36b-627d-4685-b371-939d7a258099")
+	)
+	(label "-12V"
+		(at 227.33 154.94 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "66df8a17-516d-4515-ab3e-bf9d06f81cf4")
+	)
 	(label "sdi_data"
 		(at 86.36 73.66 180)
 		(effects
@@ -6773,6 +6793,16 @@
 		)
 		(uuid "adb6bca2-0c98-428a-a1df-a2a10b3386cb")
 	)
+	(label "-12V"
+		(at 209.55 123.19 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "b18cc248-9b38-4cf8-8dc1-2188e7c7d82e")
+	)
 	(label "sdi_dac_cs"
 		(at 184.15 68.58 180)
 		(effects
@@ -6792,6 +6822,16 @@
 			(justify right bottom)
 		)
 		(uuid "cc0f10bb-2ab6-46c8-b5a8-c894ec2d671e")
+	)
+	(label "+12V"
+		(at 209.55 105.41 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e6a9d81e-2b21-4c04-881c-f9249aa1b9bb")
 	)
 	(label "sdi_data"
 		(at 63.5 157.48 180)
@@ -6912,28 +6952,6 @@
 		)
 		(uuid "22e4d0cc-77b0-43cd-99ac-f7d0b95a8388")
 	)
-	(hierarchical_label "+12V"
-		(shape output)
-		(at 227.33 137.16 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "2839e2e7-9d37-4455-8a7a-35c3c578d7e9")
-	)
-	(hierarchical_label "-12V"
-		(shape output)
-		(at 227.33 154.94 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "28a75396-3e3f-4819-8c1d-9f20159c8db6")
-	)
 	(hierarchical_label "GND"
 		(shape output)
 		(at 87.63 191.77 270)
@@ -6988,17 +7006,6 @@
 			(justify left)
 		)
 		(uuid "493edd0a-bee9-4f87-9e0c-4f5b94912661")
-	)
-	(hierarchical_label "+12V"
-		(shape output)
-		(at 209.55 105.41 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "4d95a045-c756-4acb-96e1-0376446c0c78")
 	)
 	(hierarchical_label "+5V"
 		(shape output)
@@ -7065,17 +7072,6 @@
 			(justify right)
 		)
 		(uuid "7293a3be-0737-40cf-b1a3-00f1ffddacb5")
-	)
-	(hierarchical_label "-12V"
-		(shape output)
-		(at 209.55 123.19 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "77332e00-7b2d-4328-b929-496d5242edd0")
 	)
 	(hierarchical_label "+5V"
 		(shape output)
