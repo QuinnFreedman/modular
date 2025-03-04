@@ -1,5 +1,6 @@
 pub struct QuantizerState {
     pub channels_linked: bool,
+    pub channel_b_mode: PitchMode,
     pub channels: [QuantizerChannel; 2],
 }
 
@@ -11,7 +12,6 @@ pub struct QuantizerChannel {
     pub pre_shift: i8,
     pub scale_shift: i8,
     pub post_shift: i8,
-    pub channel_b_mode: PitchMode,
 }
 
 pub enum PitchMode {
@@ -34,7 +34,6 @@ impl QuantizerChannel {
             pre_shift: 0,
             scale_shift: 0,
             post_shift: 0,
-            channel_b_mode: PitchMode::Absolute,
         }
     }
 }
@@ -44,6 +43,7 @@ impl QuantizerState {
         Self {
             channels: [const { QuantizerChannel::new() }; 2],
             channels_linked: false,
+            channel_b_mode: PitchMode::Absolute,
         }
     }
 }
