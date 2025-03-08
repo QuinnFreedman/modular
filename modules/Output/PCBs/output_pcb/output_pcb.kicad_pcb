@@ -6246,7 +6246,7 @@
 				)
 			)
 		)
-		(property "Value" "2k2Ω"
+		(property "Value" "2.2kΩ"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "6f9164a4-2bfd-42de-94d5-452132f4fde0")

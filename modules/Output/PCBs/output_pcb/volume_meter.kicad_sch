@@ -6313,7 +6313,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2Ω"
+		(property "Value" "2.2kΩ"
 			(at 218.44 116.2049 0)
 			(effects
 				(font
