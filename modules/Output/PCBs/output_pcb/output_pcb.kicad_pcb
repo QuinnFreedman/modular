@@ -2897,7 +2897,7 @@
 				)
 			)
 		)
-		(property "Value" "2k4Ω"
+		(property "Value" "2.4kΩ"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "1bd3c01e-8195-4a5d-99b5-3ab2a7f3be96")
@@ -5441,7 +5441,7 @@
 				)
 			)
 		)
-		(property "Value" "1k5Ω"
+		(property "Value" "1.5kΩ"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "edfbb97a-a7a0-466e-abc5-c8489872ee85")
@@ -6246,7 +6246,7 @@
 				)
 			)
 		)
-		(property "Value" "2k2Ω"
+		(property "Value" "2.2kΩ"
 			(at 5.08 2.37 150)
 			(layer "F.Fab")
 			(uuid "6f9164a4-2bfd-42de-94d5-452132f4fde0")

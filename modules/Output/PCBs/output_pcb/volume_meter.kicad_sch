@@ -3629,7 +3629,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k4Ω"
+		(property "Value" "2.4kΩ"
 			(at 218.44 131.4449 0)
 			(effects
 				(font
@@ -6313,7 +6313,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "2k2Ω"
+		(property "Value" "2.2kΩ"
 			(at 218.44 116.2049 0)
 			(effects
 				(font
@@ -6383,7 +6383,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "1k5Ω"
+		(property "Value" "1.5kΩ"
 			(at 218.44 123.8249 0)
 			(effects
 				(font
