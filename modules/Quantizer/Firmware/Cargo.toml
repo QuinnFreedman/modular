@@ -31,9 +31,9 @@ lto = true
 codegen-units = 1
 opt-level = 3
 debug = false
-# strip = "symbols"
+strip = "symbols"
 overflow-checks = true
-debug-assertions = true
+debug-assertions = false
 rpath = false
 rustflags = ["-Zlocation-detail=none"]
 
