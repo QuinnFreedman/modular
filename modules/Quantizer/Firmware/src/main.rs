@@ -14,31 +14,21 @@ mod menu;
 mod quantizer;
 mod resistor_ladder_buttons;
 
-use core::arch::asm;
-use core::{cell::Cell, panic::PanicInfo};
-
 use arduino_hal::delay_ms;
-use arduino_hal::hal::port;
-use arduino_hal::port::mode::Output;
-use arduino_hal::port::Pin;
-use arduino_hal::{hal::port::PB0, prelude::*, Peripherals};
-use avr_device::interrupt::{self, Mutex};
-use embedded_hal::digital::v2::{InputPin, OutputPin};
+use arduino_hal::prelude::*;
+use avr_device::interrupt;
+use fixed::types::{I16F0, I1F15};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
     },
-    asynchronous::{assert_interrupts_disabled, unsafe_access_mutex},
-    asynchronous::{AtomicRead, Borrowable},
-    button_debouncer::ButtonDebouncer,
-    eeprom::WearLevelledEepromWriter,
+    asynchronous::Borrowable,
     handle_system_clock_interrupt,
-    mcp4922::{DacChannel, MCP4922},
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
 use menu::{LedColor, MenuState};
 use quantizer::QuantizerState;
-use resistor_ladder_buttons::{ButtonEvent, ButtonLadderState};
+use resistor_ladder_buttons::ButtonLadderState;
 use ufmt::uwriteln;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
@@ -109,15 +99,28 @@ fn main() -> ! {
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
 
+    // loop {
+    //     let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
+    //     let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
+    //     let leds = menu_state.handle_button_input_and_render_display(
+    //         &mut quantizer_state,
+    //         &button_event,
+    //         shift_btn_pin.is_low(),
+    //     );
+
+    //     update_leds(&leds);
+    //     delay_ms(1);
+    // }
+
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
-        let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
-        let leds = menu_state.handle_button_input_and_render_display(
-            &mut quantizer_state,
-            &button_event,
-            shift_btn_pin.is_low(),
-        );
+        let adc_value = I1F15::from_bits((cv[1] << 5) as i16);
 
+        let volts_100 = adc_value.lerp(I16F0::from_bits(0), I16F0::from_bits(1000));
+        let note = get_nearest_note(adc_value);
+
+        let mut leds = [LedColor::OFF; 12];
+        leds[(note % 12) as usize] = LedColor::AMBER;
         update_leds(&leds);
         delay_ms(1);
     }
@@ -142,4 +145,12 @@ const fn concat_u12s(left: u16, right: u16) -> [u8; 3] {
     assert!(right <= 0xFFF);
     let bytes = ((right as u32) | ((left as u32) << 12)).to_be_bytes();
     [bytes[1], bytes[2], bytes[3]]
+}
+
+fn get_nearest_note(raw_adc_value: I1F15) -> u8 {
+    // NOTE: this assumes readings can go all the way from 0 to 0x7FFF but in fact
+    // the scale max is 0x7FE0. Idk if there any accuracy to be gained from
+    // including that at this level of precision
+    let note = raw_adc_value.lerp(I16F0::ZERO, I16F0::from_bits(120));
+    note.to_num::<u8>()
 }
