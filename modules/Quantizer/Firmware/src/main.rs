@@ -17,6 +17,7 @@ mod resistor_ladder_buttons;
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use avr_device::interrupt;
+use fixed::types::I8F8;
 use fixed::types::{I16F0, I1F15};
 use fm_lib::{
     async_adc::{
@@ -27,6 +28,7 @@ use fm_lib::{
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
 use menu::{LedColor, MenuState};
+use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
 use resistor_ladder_buttons::ButtonLadderState;
 use ufmt::uwriteln;
@@ -99,28 +101,22 @@ fn main() -> ! {
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
 
-    // loop {
-    //     let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
-    //     let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
-    //     let leds = menu_state.handle_button_input_and_render_display(
-    //         &mut quantizer_state,
-    //         &button_event,
-    //         shift_btn_pin.is_low(),
-    //     );
-
-    //     update_leds(&leds);
-    //     delay_ms(1);
-    // }
-
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
-        let adc_value = I1F15::from_bits((cv[1] << 5) as i16);
+        let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
 
-        let volts_100 = adc_value.lerp(I16F0::from_bits(0), I16F0::from_bits(1000));
-        let note = get_nearest_note(adc_value);
+        let adc_value_a = I1F15::from_bits((cv[1] << 5) as i16);
+        let adc_value_b = I1F15::from_bits((cv[2] << 5) as i16);
+        let result =
+            quantizer_state.step(adc_to_semitones(adc_value_a), adc_to_semitones(adc_value_b));
 
-        let mut leds = [LedColor::OFF; 12];
-        leds[(note % 12) as usize] = LedColor::AMBER;
+        let leds = menu_state.handle_button_input_and_render_display(
+            &mut quantizer_state,
+            &button_event,
+            shift_btn_pin.is_low(),
+            &result,
+        );
+
         update_leds(&leds);
         delay_ms(1);
     }
@@ -147,10 +143,9 @@ const fn concat_u12s(left: u16, right: u16) -> [u8; 3] {
     [bytes[1], bytes[2], bytes[3]]
 }
 
-fn get_nearest_note(raw_adc_value: I1F15) -> u8 {
+fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
     // NOTE: this assumes readings can go all the way from 0 to 0x7FFF but in fact
     // the scale max is 0x7FE0. Idk if there any accuracy to be gained from
     // including that at this level of precision
-    let note = raw_adc_value.lerp(I16F0::ZERO, I16F0::from_bits(120));
-    note.to_num::<u8>()
+    raw_adc_value.lerp(I8F8::ZERO, I8F8::from_bits(120 << 8))
 }

@@ -1,7 +1,7 @@
 use core::panic;
 
 use crate::{
-    quantizer::{PitchMode, QuantizerChannel, QuantizerState, SampleMode},
+    quantizer::{PitchMode, QuantizationResult, QuantizerChannel, QuantizerState, SampleMode},
     resistor_ladder_buttons::ButtonEvent,
 };
 
@@ -150,6 +150,7 @@ impl MenuState {
         quantizer_state: &mut QuantizerState,
         button_event: &ButtonEvent,
         shift_pressed: bool,
+        active_notes: &QuantizationResult,
     ) -> [LedColor; 12] {
         if self.shift_was_pressed && !shift_pressed {
             if let MenuPage::ScalarSubMenu(ref mut menu_status, _) = self.menu_page {
@@ -204,7 +205,7 @@ impl MenuState {
         }
 
         match self.menu_page {
-            MenuPage::MainMenu => self.render_notes_display(quantizer_state),
+            MenuPage::MainMenu => self.render_notes_display(quantizer_state, active_notes),
             MenuPage::ScalarSubMenu(_, ref menu) => {
                 let selected_channel = &quantizer_state.channels[self.selected_channel.index()];
                 render_sub_menu(menu, &selected_channel)
@@ -215,7 +216,11 @@ impl MenuState {
         }
     }
 
-    fn render_notes_display(&self, quantizer_state: &QuantizerState) -> [LedColor; 12] {
+    fn render_notes_display(
+        &self,
+        quantizer_state: &QuantizerState,
+        active_notes: &QuantizationResult,
+    ) -> [LedColor; 12] {
         let selected_channel = &quantizer_state.channels[self.selected_channel.index()];
         let color = match self.selected_channel {
             Channel::A => LedColor::GREEN,
@@ -227,6 +232,12 @@ impl MenuState {
                 leds[i] = color;
             }
         }
+
+        match self.selected_channel {
+            Channel::A => leds[(active_notes.channel_a as usize) % 12] = LedColor::AMBER,
+            Channel::B => leds[(active_notes.channel_b as usize) % 12] = LedColor::AMBER,
+        }
+
         leds
     }
 }
