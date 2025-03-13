@@ -37,8 +37,7 @@ pub enum SampleMode {
 }
 
 struct HysteresisState {
-    last_input: I8F8,
-    last_output: i8,
+    last_output: u8,
 }
 
 impl QuantizerChannel {
@@ -51,10 +50,7 @@ impl QuantizerChannel {
             pre_shift: 0,
             scale_shift: 0,
             post_shift: 0,
-            state: HysteresisState {
-                last_input: I8F8::ZERO,
-                last_output: 0,
-            },
+            state: HysteresisState { last_output: 0 },
         }
     }
 
@@ -80,32 +76,91 @@ impl HysteresisState {
             return 0;
         }
 
-        assert!(input_semitones >= I8F8::ZERO);
+        debug_assert!(input_semitones >= I8F8::ZERO);
 
-        // TODO save hysteresis bounds to state, short-circuit if within bounds; otherwise update bounds on quantize
+        if let Some((upper_thresh, lower_thresh)) = self.calculate_hysteresis_thresholds(notes) {
+            if input_semitones <= upper_thresh && input_semitones >= lower_thresh {
+                return self.last_output;
+            }
+        }
 
-        let mut delta = 0u8;
+        let floor = input_semitones.int();
+        let should_round_up = input_semitones.frac() >= I8F8::ONE / 2;
+        let mut upper_bound = (floor + I8F8::ONE).to_num::<u8>();
+        let mut lower_bound = floor.to_num::<u8>();
         loop {
-            let floor = input_semitones.int();
-            let upper_bound = (floor + I8F8::ONE)
-                .to_num::<u8>()
-                .saturating_add(delta)
-                .min(120);
-            let lower_bound = floor.to_num::<u8>().saturating_sub(delta);
             let mut bounds = [lower_bound, upper_bound];
-            if input_semitones.frac() >= I8F8::ONE / 2 {
+            if should_round_up {
                 bounds.reverse();
             }
 
             for bound in bounds {
                 if notes[(bound % 12) as usize] {
+                    self.last_output = bound;
                     return bound;
                 }
             }
 
-            delta += 1;
+            upper_bound = (upper_bound + 1).min(120);
+            lower_bound = lower_bound.saturating_sub(1);
         }
     }
+
+    fn calculate_hysteresis_thresholds(&self, notes: &[bool; 12]) -> Option<(I8F8, I8F8)> {
+        if !notes[(self.last_output % 12) as usize] {
+            return None;
+        }
+
+        let next_note_up = I8F8::from_num(get_next_selected_note(
+            notes,
+            self.last_output,
+            Direction::Positive,
+        ));
+        let next_note_down = I8F8::from_num(get_next_selected_note(
+            notes,
+            self.last_output,
+            Direction::Negative,
+        ));
+
+        let decimal_note = I8F8::from_num(self.last_output);
+
+        let hysteresis_amount = I8F8::from_num(0.2);
+
+        let upper_hyst_thresh = decimal_note / 2 + next_note_up / 2 + hysteresis_amount;
+        let lower_hyst_thresh = decimal_note / 2 + next_note_down / 2 - hysteresis_amount;
+
+        Some((upper_hyst_thresh, lower_hyst_thresh))
+    }
+}
+
+fn get_next_selected_note(notes: &[bool; 12], starting_note: u8, direction: Direction) -> u8 {
+    let mut note = starting_note;
+
+    loop {
+        match direction {
+            Direction::Positive => {
+                note += 1;
+                if note == 120 {
+                    return 120;
+                }
+            }
+            Direction::Negative => match note.checked_sub(1) {
+                Some(new_note) => {
+                    note = new_note;
+                }
+                None => return 0,
+            },
+        }
+
+        if notes[(note % 12) as usize] {
+            return note;
+        }
+    }
+}
+
+enum Direction {
+    Positive,
+    Negative,
 }
 
 pub struct QuantizationResult {

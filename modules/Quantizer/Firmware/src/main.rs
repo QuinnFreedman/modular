@@ -17,8 +17,8 @@ mod resistor_ladder_buttons;
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use avr_device::interrupt;
+use fixed::types::I1F15;
 use fixed::types::I8F8;
-use fixed::types::{I16F0, I1F15};
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
@@ -28,7 +28,6 @@ use fm_lib::{
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
 use menu::{LedColor, MenuState};
-use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
 use resistor_ladder_buttons::ButtonLadderState;
 use ufmt::uwriteln;
