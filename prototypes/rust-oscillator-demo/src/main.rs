@@ -1,6 +1,7 @@
 mod complex_osc;
 mod harmonic_wt_osc;
 mod interface;
+mod oversample_antialiasing;
 mod simplex_terrain;
 mod sin_oscillator;
 mod utils;
@@ -13,6 +14,7 @@ use eframe::emath::{pos2, vec2, Pos2};
 use eframe::epaint::{self, Color32, PathStroke, Rect};
 use harmonic_wt_osc::HarmonicWtOsc;
 use interface::SoundAlgorithm;
+use oversample_antialiasing::Antialiased;
 use simplex_terrain::SimplexOscillator;
 use sin_oscillator::SinOscillator;
 use std::sync::{mpsc, Arc, Mutex};
@@ -47,7 +49,7 @@ impl AppState {
                 algorithms: vec![
                     Box::new(SinOscillator::new()),
                     Box::new(HarmonicWtOsc::new()),
-                    Box::new(ComplexOscillator::new()),
+                    Box::new(Antialiased::new(ComplexOscillator::new())),
                     Box::new(SimplexOscillator::new()),
                 ],
                 volume: 0.25,
