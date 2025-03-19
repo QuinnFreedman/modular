@@ -126,7 +126,7 @@ fn main() -> ! {
             dp.TC2.ocr2b.write(|w| w.bits(pwm_duty));
 
             // Queue new value for DAC write
-            dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
+            dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, &Default::default());
             DAC_WRITE_QUEUED.atomic_write(true);
         }
 

@@ -354,7 +354,7 @@ fn main() -> ! {
             });
             let input = Input { gate, trigger };
             let (value, did_change_phase) = update(&mut envelope_state, &input, &cv);
-            dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, Default::default());
+            dac.write_keep_cs_pin_low(&mut spi, DacChannel::ChannelA, value, &Default::default());
             unsafe_access_mutex(|cs| DAC_WRITE_QUEUED.borrow(cs).set(true));
 
             if did_change_phase {
