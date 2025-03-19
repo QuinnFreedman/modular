@@ -16,9 +16,15 @@ mod resistor_ladder_buttons;
 
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
+use arduino_hal::Spi;
 use avr_device::interrupt;
+use fixed::traits::Fixed;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
+use fixed::types::U16F16;
+use fm_lib::mcp4922::ChannelConfig;
+use fm_lib::mcp4922::DacChannel;
+use fm_lib::mcp4922::MCP4922;
 use fm_lib::{
     async_adc::{
         handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
@@ -28,6 +34,7 @@ use fm_lib::{
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
 use menu::{LedColor, MenuState};
+use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
 use resistor_ladder_buttons::ButtonLadderState;
 use ufmt::uwriteln;
@@ -88,7 +95,7 @@ fn main() -> ! {
     let mut quantizer_state = QuantizerState::new();
     let mut menu_state = MenuState::new();
 
-    let mut update_leds = |leds: &[LedColor; 12]| {
+    let mut update_leds = |spi: &mut Spi, leds: &[LedColor; 12]| {
         led_driver_cs_pin.set_low();
         for led in leds[6..12].iter().chain(leds[0..6].iter()) {
             let mut bytes = led.to_bytes();
@@ -99,6 +106,14 @@ fn main() -> ! {
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
+
+    let mut last_output = QuantizationResult {
+        channel_a: 0,
+        channel_b: 0,
+    };
+
+    let mut dac = MCP4922::new(d10);
+    let dac_config = Default::default();
 
     loop {
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
@@ -116,7 +131,32 @@ fn main() -> ! {
             &result,
         );
 
-        update_leds(&leds);
+        let mut wrote_data = false;
+        if result.channel_a != last_output.channel_a {
+            wrote_data = true;
+            dac.write_keep_cs_pin_low(
+                &mut spi,
+                DacChannel::ChannelA,
+                semitones_to_dac(result.channel_a),
+                &dac_config,
+            );
+        }
+        if result.channel_b != last_output.channel_b {
+            wrote_data = true;
+            dac.write_keep_cs_pin_low(
+                &mut spi,
+                DacChannel::ChannelB,
+                semitones_to_dac(result.channel_b),
+                &dac_config,
+            );
+        }
+
+        if wrote_data {
+            last_output = result;
+            dac.end_write();
+        }
+
+        update_leds(&mut spi, &leds);
         delay_ms(1);
     }
 }
@@ -147,4 +187,14 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
     // the scale max is 0x7FE0. Idk if there any accuracy to be gained from
     // including that at this level of precision
     raw_adc_value.lerp(I8F8::ZERO, I8F8::from_bits(120 << 8))
+}
+
+fn semitones_to_dac(semitones: u8) -> u16 {
+    let int_volts = semitones / 12;
+    let frac_volts = U16F16::from_num(semitones % 12) / U16F16::from_num(12);
+    assert!(frac_volts < 1);
+    let volts = U16F16::from_num(int_volts) + frac_volts;
+    let bits = (volts / U16F16::from_num(10)).to_bits();
+    assert!(bits < u16::MAX as u32);
+    (bits as u16) >> 4
 }
