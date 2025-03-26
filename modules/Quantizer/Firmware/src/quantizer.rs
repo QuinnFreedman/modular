@@ -1,4 +1,9 @@
-use fixed::types::I8F8;
+use arduino_hal::prelude::*;
+use fixed::{
+    traits::ToFixed,
+    types::{I16F16, I8F8, U8F8},
+};
+use ufmt::{uwrite, uwriteln};
 
 pub struct QuantizerState {
     pub channels_linked: bool,
@@ -37,6 +42,7 @@ pub enum SampleMode {
 }
 
 struct HysteresisState {
+    // TODO put LPF on v/oct input (jitter when many LEDs are light up)
     last_output: u8,
 }
 
@@ -54,9 +60,13 @@ impl QuantizerChannel {
         }
     }
 
-    fn step(&mut self, input_semitones: I8F8) -> u8 {
+    fn step(&mut self, input_semitones: I8F8) -> ChannelOutput {
         // TODO use channel parameters
-        self.state.quantize(input_semitones, &self.notes)
+        let semitones = self.state.quantize(input_semitones, &self.notes);
+        ChannelOutput {
+            nominal_semitones: semitones,
+            actual_semitones: U8F8::from_num(semitones),
+        }
     }
 }
 
@@ -78,11 +88,24 @@ impl HysteresisState {
 
         debug_assert!(input_semitones >= I8F8::ZERO);
 
+        // let dp = unsafe { arduino_hal::Peripherals::steal() };
+        // let pins = arduino_hal::pins!(dp);
+        // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+        // uwrite!(
+        //     &mut serial,
+        //     "{}",
+        //     (input_semitones.to_fixed::<I16F16>() * 1000).to_num::<u16>()
+        // )
+        // .unwrap_infallible();
+
         if let Some((upper_thresh, lower_thresh)) = self.calculate_hysteresis_thresholds(notes) {
             if input_semitones <= upper_thresh && input_semitones >= lower_thresh {
+                // uwriteln!(&mut serial, " <").unwrap_infallible();
                 return self.last_output;
             }
         }
+
+        // uwriteln!(&mut serial, "").unwrap_infallible();
 
         let floor = input_semitones.int();
         let should_round_up = input_semitones.frac() >= I8F8::ONE / 2;
@@ -124,10 +147,13 @@ impl HysteresisState {
 
         let decimal_note = I8F8::from_num(self.last_output);
 
-        let hysteresis_amount = I8F8::from_num(0.2);
+        let hysteresis_amount = I8F8::from_num(0.4);
 
-        let upper_hyst_thresh = decimal_note / 2 + next_note_up / 2 + hysteresis_amount;
-        let lower_hyst_thresh = decimal_note / 2 + next_note_down / 2 - hysteresis_amount;
+        let delta_up = (next_note_up - decimal_note) / 2 + hysteresis_amount;
+        let delta_down = (decimal_note - next_note_down) / 2 + hysteresis_amount;
+
+        let upper_hyst_thresh = decimal_note + delta_up;
+        let lower_hyst_thresh = decimal_note - delta_down;
 
         Some((upper_hyst_thresh, lower_hyst_thresh))
     }
@@ -164,6 +190,26 @@ enum Direction {
 }
 
 pub struct QuantizationResult {
-    pub channel_a: u8,
-    pub channel_b: u8,
+    pub channel_a: ChannelOutput,
+    pub channel_b: ChannelOutput,
+}
+
+impl QuantizationResult {
+    pub const fn zero() -> Self {
+        Self {
+            channel_a: ChannelOutput {
+                nominal_semitones: 0,
+                actual_semitones: U8F8::ZERO,
+            },
+            channel_b: ChannelOutput {
+                nominal_semitones: 0,
+                actual_semitones: U8F8::ZERO,
+            },
+        }
+    }
+}
+
+pub struct ChannelOutput {
+    pub nominal_semitones: u8,
+    pub actual_semitones: U8F8,
 }
