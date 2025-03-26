@@ -188,11 +188,12 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
     raw_adc_value.lerp(I8F8::ZERO, I8F8::from_bits(120 << 8))
 }
 
-fn semitones_to_dac(semitones: U8F8) -> u16 {
+fn semitones_to_dac(semitones: I8F8) -> u16 {
     // let int_volts = semitones.div_euclid_int(12);
     // let frac_volts = U16F16::from_num(semitones.rem_euclid_int(12)) / 12;
     // assert!(frac_volts < 1);
     // let volts = U16F16::from_num(int_volts) + frac_volts;
+    assert!(semitones >= 0);
     let volts = U16F16::from_num(semitones / 12);
     let bits = (volts / U16F16::from_num(10)).to_bits();
     assert!(bits < u16::MAX as u32);

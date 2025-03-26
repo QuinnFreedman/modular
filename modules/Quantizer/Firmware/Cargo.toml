@@ -35,7 +35,7 @@ strip = "symbols"
 overflow-checks = true
 debug-assertions = false
 rpath = false
-rustflags = ["-Zlocation-detail=none"]
+rustflags = ["-Zlocation-detail=file,line"]
 
 [profile.release]
 panic = "abort"

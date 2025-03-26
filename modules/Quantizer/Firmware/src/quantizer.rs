@@ -42,8 +42,7 @@ pub enum SampleMode {
 }
 
 struct HysteresisState {
-    // TODO put LPF on v/oct input (jitter when many LEDs are light up)
-    last_output: u8,
+    last_output: i8,
 }
 
 impl QuantizerChannel {
@@ -65,7 +64,7 @@ impl QuantizerChannel {
         let semitones = self.state.quantize(input_semitones, &self.notes);
         ChannelOutput {
             nominal_semitones: semitones,
-            actual_semitones: U8F8::from_num(semitones),
+            actual_semitones: I8F8::from_num(semitones),
         }
     }
 }
@@ -81,12 +80,12 @@ impl QuantizerState {
 }
 
 impl HysteresisState {
-    fn quantize(&mut self, input_semitones: I8F8, notes: &[bool; 12]) -> u8 {
+    fn quantize(&mut self, input_semitones: I8F8, notes: &[bool; 12]) -> i8 {
         if notes.iter().all(|x| !x) {
             return 0;
         }
 
-        debug_assert!(input_semitones >= I8F8::ZERO);
+        debug_assert!(input_semitones >= 0);
 
         // let dp = unsafe { arduino_hal::Peripherals::steal() };
         // let pins = arduino_hal::pins!(dp);
@@ -109,8 +108,8 @@ impl HysteresisState {
 
         let floor = input_semitones.int();
         let should_round_up = input_semitones.frac() >= I8F8::ONE / 2;
-        let mut upper_bound = (floor + I8F8::ONE).to_num::<u8>();
-        let mut lower_bound = floor.to_num::<u8>();
+        let mut upper_bound = (floor + I8F8::ONE).to_num::<i8>();
+        let mut lower_bound = floor.to_num::<i8>();
         loop {
             let mut bounds = [lower_bound, upper_bound];
             if should_round_up {
@@ -125,7 +124,7 @@ impl HysteresisState {
             }
 
             upper_bound = (upper_bound + 1).min(120);
-            lower_bound = lower_bound.saturating_sub(1);
+            lower_bound = (lower_bound - 1).max(0);
         }
     }
 
@@ -159,23 +158,23 @@ impl HysteresisState {
     }
 }
 
-fn get_next_selected_note(notes: &[bool; 12], starting_note: u8, direction: Direction) -> u8 {
+fn get_next_selected_note(notes: &[bool; 12], starting_note: i8, direction: Direction) -> i8 {
     let mut note = starting_note;
 
     loop {
         match direction {
             Direction::Positive => {
                 note += 1;
-                if note == 120 {
+                if note >= 120 {
                     return 120;
                 }
             }
-            Direction::Negative => match note.checked_sub(1) {
-                Some(new_note) => {
-                    note = new_note;
+            Direction::Negative => {
+                note -= 1;
+                if note <= 0 {
+                    return 0;
                 }
-                None => return 0,
-            },
+            }
         }
 
         if notes[(note % 12) as usize] {
@@ -199,17 +198,17 @@ impl QuantizationResult {
         Self {
             channel_a: ChannelOutput {
                 nominal_semitones: 0,
-                actual_semitones: U8F8::ZERO,
+                actual_semitones: I8F8::ZERO,
             },
             channel_b: ChannelOutput {
                 nominal_semitones: 0,
-                actual_semitones: U8F8::ZERO,
+                actual_semitones: I8F8::ZERO,
             },
         }
     }
 }
 
 pub struct ChannelOutput {
-    pub nominal_semitones: u8,
-    pub actual_semitones: U8F8,
+    pub nominal_semitones: i8,
+    pub actual_semitones: I8F8,
 }
