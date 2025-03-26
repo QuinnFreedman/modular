@@ -29,10 +29,11 @@ use avr_device::interrupt::Mutex;
 
 use crate::asynchronous::{assert_interrupts_disabled, unsafe_access_mutex, Borrowable as _};
 
-pub struct AsyncAdcState<const N: usize> {
-    channels: MaybeUninit<[Channel; N]>,
-    values: [u16; N],
-    cursor: u8,
+pub struct AsyncAdcState<const CHANNELS: usize, const WINDOW: usize = 1> {
+    channels: MaybeUninit<[Channel; CHANNELS]>,
+    values: [[u16; WINDOW]; CHANNELS],
+    channel_cursor: u8,
+    time_cursor: u8,
 }
 
 /**
@@ -46,9 +47,15 @@ to read a value unsafely, it could be updated by the ADC interrupt mid read, whi
 could cause spikes e.g. when going from 255 -> 256 would actually register as 0 or
 273 depending on write order.
  */
-pub type AsyncAdc<const N: usize> = Mutex<UnsafeCell<Option<AsyncAdcState<N>>>>;
+pub type AsyncAdc<const CHANNELS: usize, const WINDOW: usize = 1> =
+    Mutex<UnsafeCell<Option<AsyncAdcState<CHANNELS, WINDOW>>>>;
 
-pub const fn new_async_adc_state<const N: usize>() -> AsyncAdc<N> {
+pub const fn new_async_adc_state<const N: usize>() -> AsyncAdc<N, 1> {
+    Mutex::new(UnsafeCell::new(None))
+}
+
+pub const fn new_averaging_async_adc_state<const CHANNELS: usize, const WINDOW: usize>(
+) -> AsyncAdc<CHANNELS, WINDOW> {
     Mutex::new(UnsafeCell::new(None))
 }
 
@@ -59,7 +66,9 @@ pub trait Indexable {
         T: Into<usize>;
 }
 
-impl<const N: usize> Indexable for Option<AsyncAdcState<N>> {
+impl<const CHANNELS: usize, const WINDOW: usize> Indexable
+    for Option<AsyncAdcState<CHANNELS, WINDOW>>
+{
     type Result = u16;
     /**
     Get the value at `index`. This is checked in debug mode but unchecked in release
@@ -70,22 +79,39 @@ impl<const N: usize> Indexable for Option<AsyncAdcState<N>> {
         T: Into<usize>,
     {
         let i: usize = index.into();
-        debug_assert!(i < N);
+        debug_assert!(i < CHANNELS);
         debug_assert!(self.is_some());
         let adc = unsafe { self.as_ref().unwrap_unchecked() };
-        unsafe { *adc.values.get_unchecked(i as usize) }
+        unsafe { average(adc.values.get_unchecked(i as usize)) }
     }
+}
+
+fn average<const N: usize>(values: &[u16; N]) -> u16 {
+    if N == 1 {
+        return values[0];
+    }
+
+    let mut sorted = values.clone();
+    for i in 1..sorted.len() {
+        let mut j = i;
+        while j > 0 && sorted[j - 1] > sorted[j] {
+            sorted.swap(j - 1, j);
+            j -= 1;
+        }
+    }
+
+    sorted[N / 2]
 }
 
 pub trait GetAdcValues<const N: usize> {
     fn get_all(&self) -> [u16; N];
 }
 
-impl<const N: usize> GetAdcValues<N> for Option<AsyncAdcState<N>> {
+impl<const N: usize, const W: usize> GetAdcValues<N> for Option<AsyncAdcState<N, W>> {
     fn get_all(&self) -> [u16; N] {
         debug_assert!(self.is_some());
         let adc = unsafe { self.as_ref().unwrap_unchecked() };
-        adc.values
+        adc.values.map(|x| average(&x))
     }
 }
 
@@ -93,17 +119,19 @@ impl<const N: usize> GetAdcValues<N> for Option<AsyncAdcState<N>> {
 Creates the ADC state struct and stores it as a static global. Also initializes
 the hardware ADC, enabling free running mode and starting the conversion.
  */
-pub fn init_async_adc<const N: usize>(
+pub fn init_async_adc<const CHANNELS: usize, const WINDOW: usize>(
     mut adc: Adc,
-    async_adc_state: &AsyncAdc<N>,
-    channels: [Channel; N],
+    async_adc_state: &AsyncAdc<CHANNELS, WINDOW>,
+    channels: [Channel; CHANNELS],
 ) {
     let ch1 = channels[0].channel();
     let ch2 = channels[1].channel();
 
-    let mut values = unsafe { MaybeUninit::<[u16; N]>::uninit().assume_init() };
-    for i in 0..N {
-        values[i] = adc.read_blocking(&channels[i]);
+    let mut values = unsafe { MaybeUninit::<[[u16; WINDOW]; CHANNELS]>::uninit().assume_init() };
+    for j in 0..WINDOW {
+        for i in 0..CHANNELS {
+            values[i][j] = adc.read_blocking(&channels[i]);
+        }
     }
 
     unsafe_access_mutex(|cs| {
@@ -112,7 +140,8 @@ pub fn init_async_adc<const N: usize>(
         *inner = Some(AsyncAdcState {
             channels: MaybeUninit::new(channels),
             values,
-            cursor: 0,
+            channel_cursor: 0,
+            time_cursor: 0,
         });
     });
 
@@ -133,13 +162,26 @@ pub fn init_async_adc<const N: usize>(
         .modify(|r, w| unsafe { w.bits(r.bits()) }.mux().variant(ch2));
 }
 
+fn advance_cursor<const N: usize, const W: usize>(adc: &AsyncAdcState<N, W>) -> (u8, u8) {
+    let mut next_channel = adc.channel_cursor + 1;
+    let mut next_time_step = adc.time_cursor;
+    if next_channel >= N as u8 {
+        next_channel = 0;
+        next_time_step += 1;
+        if next_time_step >= W as u8 {
+            next_time_step = 0;
+        }
+    }
+    (next_channel, next_time_step)
+}
+
 /**
 This function must be called after an ADC conversion completes, in the ADC
 interrupt handler. It reads the most recent ADC conversion result and stores it,
 then advances the ADC input channel by one.
 */
 #[inline(always)]
-pub fn handle_conversion_result<const N: usize>(adc: &AsyncAdc<N>) {
+pub fn handle_conversion_result<const N: usize, const W: usize>(adc: &AsyncAdc<N, W>) {
     assert_interrupts_disabled(|cs| {
         let inner = adc.get_inner_mut(cs).as_mut();
         debug_assert!(inner.is_some());
@@ -147,16 +189,18 @@ pub fn handle_conversion_result<const N: usize>(adc: &AsyncAdc<N>) {
         let dp = unsafe { arduino_hal::Peripherals::steal() };
 
         let result = dp.ADC.adc.read().bits();
-        debug_assert!(adc.cursor < N as u8);
+        debug_assert!(adc.channel_cursor < N as u8);
         unsafe {
-            *adc.values.get_unchecked_mut(adc.cursor as usize) = result;
+            *adc.values
+                .get_unchecked_mut(adc.channel_cursor as usize)
+                .get_unchecked_mut(adc.time_cursor as usize) = result;
         };
 
-        adc.cursor = (adc.cursor + 1) % N as u8;
+        (adc.channel_cursor, adc.time_cursor) = advance_cursor(&adc);
         // original cursor + 1 is already being read once the interrupt is called,
         // and setting ADMUX won't take effect until the current conversion is done,
         // so we have to look 2 ahead when setting the next channel
-        let next_channel_index = (adc.cursor + 1) % N as u8;
+        let next_channel_index = (adc.channel_cursor + 1) % N as u8;
         let next_channel = unsafe {
             adc.channels
                 .assume_init_ref()
