@@ -22,6 +22,8 @@ use fixed::traits::Fixed;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
 use fixed::types::U16F16;
+use fixed::types::U8F8;
+use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::mcp4922::ChannelConfig;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
@@ -43,7 +45,7 @@ static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
 handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
-static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3> = new_async_adc_state();
+static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3, 3> = new_averaging_async_adc_state();
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
@@ -107,10 +109,7 @@ fn main() -> ! {
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
 
-    let mut last_output = QuantizationResult {
-        channel_a: 0,
-        channel_b: 0,
-    };
+    let mut last_output = QuantizationResult::zero();
 
     let mut dac = MCP4922::new(d10);
     let dac_config = Default::default();
@@ -132,21 +131,21 @@ fn main() -> ! {
         );
 
         let mut wrote_data = false;
-        if result.channel_a != last_output.channel_a {
+        if result.channel_a.actual_semitones != last_output.channel_a.actual_semitones {
             wrote_data = true;
             dac.write_keep_cs_pin_low(
                 &mut spi,
                 DacChannel::ChannelA,
-                semitones_to_dac(result.channel_a),
+                semitones_to_dac(result.channel_a.actual_semitones),
                 &dac_config,
             );
         }
-        if result.channel_b != last_output.channel_b {
+        if result.channel_b.actual_semitones != last_output.channel_b.actual_semitones {
             wrote_data = true;
             dac.write_keep_cs_pin_low(
                 &mut spi,
                 DacChannel::ChannelB,
-                semitones_to_dac(result.channel_b),
+                semitones_to_dac(result.channel_b.actual_semitones),
                 &dac_config,
             );
         }
@@ -189,11 +188,12 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
     raw_adc_value.lerp(I8F8::ZERO, I8F8::from_bits(120 << 8))
 }
 
-fn semitones_to_dac(semitones: u8) -> u16 {
-    let int_volts = semitones / 12;
-    let frac_volts = U16F16::from_num(semitones % 12) / U16F16::from_num(12);
-    assert!(frac_volts < 1);
-    let volts = U16F16::from_num(int_volts) + frac_volts;
+fn semitones_to_dac(semitones: U8F8) -> u16 {
+    // let int_volts = semitones.div_euclid_int(12);
+    // let frac_volts = U16F16::from_num(semitones.rem_euclid_int(12)) / 12;
+    // assert!(frac_volts < 1);
+    // let volts = U16F16::from_num(int_volts) + frac_volts;
+    let volts = U16F16::from_num(semitones / 12);
     let bits = (volts / U16F16::from_num(10)).to_bits();
     assert!(bits < u16::MAX as u32);
     (bits as u16) >> 4

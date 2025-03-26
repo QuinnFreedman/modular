@@ -234,8 +234,12 @@ impl MenuState {
         }
 
         match self.selected_channel {
-            Channel::A => leds[(active_notes.channel_a as usize) % 12] = LedColor::AMBER,
-            Channel::B => leds[(active_notes.channel_b as usize) % 12] = LedColor::AMBER,
+            Channel::A => {
+                leds[(active_notes.channel_a.nominal_semitones as usize) % 12] = LedColor::AMBER
+            }
+            Channel::B => {
+                leds[(active_notes.channel_b.nominal_semitones as usize) % 12] = LedColor::AMBER
+            }
         }
 
         leds
