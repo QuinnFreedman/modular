@@ -27,6 +27,11 @@ impl QuantizerState {
 }
 
 pub struct QuantizerChannel {
+    pub config: ChannelConfig,
+    ephemeral: ChannelState,
+}
+
+pub struct ChannelConfig {
     pub notes: [bool; 12],
     pub sample_mode: SampleMode,
     pub glide_amount: u8,
@@ -34,9 +39,12 @@ pub struct QuantizerChannel {
     pub pre_shift: i8,
     pub scale_shift: i8,
     pub post_shift: i8,
-    state: HysteresisState,
+}
+
+struct ChannelState {
     last_output: Option<ChannelOutput>,
     last_trigger_input: bool,
+    hysteresis_state: HysteresisState,
 }
 
 pub enum PitchMode {
@@ -57,43 +65,50 @@ struct HysteresisState {
 impl QuantizerChannel {
     pub const fn new() -> Self {
         Self {
-            notes: [false; 12],
-            sample_mode: SampleMode::TrackAndHold,
-            glide_amount: 0,
-            trigger_delay_amount: 0,
-            pre_shift: 0,
-            scale_shift: 0,
-            post_shift: 0,
-            last_output: None,
-            last_trigger_input: false,
-            state: HysteresisState { last_output: 0 },
+            config: ChannelConfig {
+                notes: [false; 12],
+                sample_mode: SampleMode::TrackAndHold,
+                glide_amount: 0,
+                trigger_delay_amount: 0,
+                pre_shift: 0,
+                scale_shift: 0,
+                post_shift: 0,
+            },
+            ephemeral: ChannelState {
+                last_output: None,
+                last_trigger_input: false,
+                hysteresis_state: HysteresisState { last_output: 0 },
+            },
         }
     }
 
     fn step(&mut self, input_semitones: I8F8, sample_trigger: bool) -> ChannelOutput {
-        let should_update = self.last_output.is_none()
-            || match self.sample_mode {
+        let should_update = self.ephemeral.last_output.is_none()
+            || match self.config.sample_mode {
                 SampleMode::TrackAndHold => sample_trigger,
-                SampleMode::SampleAndHold => !self.last_trigger_input && sample_trigger,
+                SampleMode::SampleAndHold => !self.ephemeral.last_trigger_input && sample_trigger,
             };
-        self.last_trigger_input = sample_trigger;
+        self.ephemeral.last_trigger_input = sample_trigger;
 
         if should_update {
-            self.last_output = Some(self._calculate_output(input_semitones))
+            self.ephemeral.last_output = Some(self._calculate_output(input_semitones))
         }
 
         // TODO set trigger output here correctly once I add that
         // (won't be the same as last output)
-        self.last_output.clone().unwrap()
+        self.ephemeral.last_output.clone().unwrap()
     }
 
     fn _calculate_output(&mut self, input_semitones: I8F8) -> ChannelOutput {
         // TODO use all channel parameters
-        let pre_shifted = (input_semitones + I8F8::from_num(self.pre_shift))
+        let pre_shifted = (input_semitones + I8F8::from_num(self.config.pre_shift))
             .clamp(I8F8::ZERO, I8F8::from_num(120));
-        let quantized = self.state.quantize(pre_shifted, &self.notes);
-        let scale_shifted = step_in_scale(&self.notes, quantized, self.scale_shift);
-        let post_shifted = (scale_shifted + self.post_shift).clamp(0, 120);
+        let quantized = self
+            .ephemeral
+            .hysteresis_state
+            .quantize(pre_shifted, &self.config.notes);
+        let scale_shifted = step_in_scale(&self.config.notes, quantized, self.config.scale_shift);
+        let post_shifted = (scale_shifted + self.config.post_shift).clamp(0, 120);
         ChannelOutput {
             nominal_semitones: scale_shifted,
             actual_semitones: I8F8::from_num(post_shifted),
