@@ -18,6 +18,7 @@ use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use arduino_hal::Spi;
 use avr_device::interrupt;
+use embedded_hal::digital::v2::InputPin;
 use fixed::traits::Fixed;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
@@ -93,6 +94,8 @@ fn main() -> ! {
     );
 
     let shift_btn_pin = pins.d8.into_pull_up_input();
+    let trig_input_pin_a = pins.d2.into_floating_input();
+    let trig_input_pin_b = pins.d3.into_floating_input();
 
     let mut quantizer_state = QuantizerState::new();
     let mut menu_state = MenuState::new();
@@ -120,8 +123,12 @@ fn main() -> ! {
 
         let adc_value_a = I1F15::from_bits((cv[1] << 5) as i16);
         let adc_value_b = I1F15::from_bits((cv[2] << 5) as i16);
-        let result =
-            quantizer_state.step(adc_to_semitones(adc_value_a), adc_to_semitones(adc_value_b));
+        let result = quantizer_state.step(
+            adc_to_semitones(adc_value_a),
+            adc_to_semitones(adc_value_b),
+            trig_input_pin_a.is_high(),
+            trig_input_pin_b.is_high(),
+        );
 
         let leds = menu_state.handle_button_input_and_render_display(
             &mut quantizer_state,
