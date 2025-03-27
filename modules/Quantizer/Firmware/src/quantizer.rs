@@ -163,18 +163,14 @@ impl HysteresisState {
 }
 
 fn step_in_scale(notes: &[bool; 12], starting_note: i8, num_steps: i8) -> i8 {
+    let direction = if num_steps < 0 {
+        Direction::Negative
+    } else {
+        Direction::Positive
+    };
+
     let mut note = starting_note;
-    let mut steps_remaining = num_steps;
-
-    while steps_remaining != 0 {
-        let direction = if steps_remaining < 0 {
-            steps_remaining += 1;
-            Direction::Negative
-        } else {
-            steps_remaining -= 1;
-            Direction::Positive
-        };
-
+    for _ in 0..num_steps {
         note = get_next_selected_note(notes, note, direction);
     }
 
@@ -206,6 +202,7 @@ fn get_next_selected_note(notes: &[bool; 12], starting_note: i8, direction: Dire
     }
 }
 
+#[derive(Clone, Copy)]
 enum Direction {
     Positive,
     Negative,
