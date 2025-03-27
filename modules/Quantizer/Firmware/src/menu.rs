@@ -82,10 +82,10 @@ impl MenuState {
         let active_channel = &mut quantizer_state.channels[self.selected_channel.index()];
         match button_index {
             0 => {
-                active_channel.notes.rotate_left(1);
+                active_channel.config.notes.rotate_left(1);
             }
             1 => {
-                active_channel.notes.rotate_right(1);
+                active_channel.config.notes.rotate_right(1);
             }
             2 => {
                 self.menu_page = MenuPage::ScalarSubMenu(
@@ -100,7 +100,7 @@ impl MenuState {
                 )
             }
             4 => {
-                active_channel.sample_mode = match active_channel.sample_mode {
+                active_channel.config.sample_mode = match active_channel.config.sample_mode {
                     SampleMode::TrackAndHold => SampleMode::SampleAndHold,
                     SampleMode::SampleAndHold => SampleMode::TrackAndHold,
                 };
@@ -187,7 +187,8 @@ impl MenuState {
                     } else {
                         let selected_channel =
                             &mut quantizer_state.channels[self.selected_channel.index()];
-                        selected_channel.notes[*n as usize] = !selected_channel.notes[*n as usize];
+                        selected_channel.config.notes[*n as usize] =
+                            !selected_channel.config.notes[*n as usize];
                     }
                 }
                 MenuPage::ShowChangedBoolOption(_) => {}
@@ -228,7 +229,7 @@ impl MenuState {
         };
         let mut leds = [LedColor::OFF; 12];
         for i in 0..12 {
-            if selected_channel.notes[i] {
+            if selected_channel.config.notes[i] {
                 leds[i] = color;
             }
         }
@@ -255,7 +256,7 @@ fn render_bool_option(
     match option {
         BoolOption::TrackAndHold => {
             let channel = &quantizer_state.channels[selected_channel.index()];
-            leds[4] = match channel.sample_mode {
+            leds[4] = match channel.config.sample_mode {
                 SampleMode::TrackAndHold => LedColor::GREEN,
                 SampleMode::SampleAndHold => LedColor::RED,
             };
@@ -293,19 +294,19 @@ fn handle_sub_menu_button_press(
 
     match menu {
         ScalarSubMenu::Glide => {
-            channel_state.glide_amount = button_idx;
+            channel_state.config.glide_amount = button_idx;
         }
         ScalarSubMenu::Delay => {
-            channel_state.trigger_delay_amount = button_idx;
+            channel_state.config.trigger_delay_amount = button_idx;
         }
         ScalarSubMenu::PreShift => {
-            channel_state.pre_shift = button_idx_to_i8(button_idx);
+            channel_state.config.pre_shift = button_idx_to_i8(button_idx);
         }
         ScalarSubMenu::ScaleShift => {
-            channel_state.scale_shift = button_idx_to_i8(button_idx);
+            channel_state.config.scale_shift = button_idx_to_i8(button_idx);
         }
         ScalarSubMenu::PostShift => {
-            channel_state.post_shift = button_idx_to_i8(button_idx);
+            channel_state.config.post_shift = button_idx_to_i8(button_idx);
         }
     }
 
@@ -324,11 +325,11 @@ fn handle_sub_menu_button_press(
 
 fn render_sub_menu(sub_menu: &ScalarSubMenu, state: &QuantizerChannel) -> [LedColor; 12] {
     match sub_menu {
-        ScalarSubMenu::Glide => render_sub_menu_unsigned(state.glide_amount),
-        ScalarSubMenu::Delay => render_sub_menu_unsigned(state.trigger_delay_amount),
-        ScalarSubMenu::PreShift => render_sub_menu_signed(state.pre_shift),
-        ScalarSubMenu::ScaleShift => render_sub_menu_signed(state.scale_shift),
-        ScalarSubMenu::PostShift => render_sub_menu_signed(state.post_shift),
+        ScalarSubMenu::Glide => render_sub_menu_unsigned(state.config.glide_amount),
+        ScalarSubMenu::Delay => render_sub_menu_unsigned(state.config.trigger_delay_amount),
+        ScalarSubMenu::PreShift => render_sub_menu_signed(state.config.pre_shift),
+        ScalarSubMenu::ScaleShift => render_sub_menu_signed(state.config.scale_shift),
+        ScalarSubMenu::PostShift => render_sub_menu_signed(state.config.post_shift),
     }
 }
 
