@@ -61,10 +61,14 @@ impl QuantizerChannel {
 
     fn step(&mut self, input_semitones: I8F8) -> ChannelOutput {
         // TODO use channel parameters
-        let semitones = self.state.quantize(input_semitones, &self.notes);
+        let pre_shifted = (input_semitones + I8F8::from_num(self.pre_shift))
+            .clamp(I8F8::ZERO, I8F8::from_num(120));
+        let quantized = self.state.quantize(pre_shifted, &self.notes);
+        let scale_shifted = step_in_scale(&self.notes, quantized, self.scale_shift);
+        let post_shifted = (scale_shifted + self.post_shift).clamp(0, 120);
         ChannelOutput {
-            nominal_semitones: semitones,
-            actual_semitones: I8F8::from_num(semitones),
+            nominal_semitones: scale_shifted,
+            actual_semitones: I8F8::from_num(post_shifted),
         }
     }
 }
@@ -156,6 +160,25 @@ impl HysteresisState {
 
         Some((upper_hyst_thresh, lower_hyst_thresh))
     }
+}
+
+fn step_in_scale(notes: &[bool; 12], starting_note: i8, num_steps: i8) -> i8 {
+    let mut note = starting_note;
+    let mut steps_remaining = num_steps;
+
+    while steps_remaining != 0 {
+        let direction = if steps_remaining < 0 {
+            steps_remaining += 1;
+            Direction::Negative
+        } else {
+            steps_remaining -= 1;
+            Direction::Positive
+        };
+
+        note = get_next_selected_note(notes, note, direction);
+    }
+
+    note
 }
 
 fn get_next_selected_note(notes: &[bool; 12], starting_note: i8, direction: Direction) -> i8 {
