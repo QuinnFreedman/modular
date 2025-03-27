@@ -12,10 +12,16 @@ pub struct QuantizerState {
 }
 
 impl QuantizerState {
-    pub fn step(&mut self, input_semitones_a: I8F8, input_semitones_b: I8F8) -> QuantizationResult {
+    pub fn step(
+        &mut self,
+        input_semitones_a: I8F8,
+        input_semitones_b: I8F8,
+        trig_a: bool,
+        trig_b: bool,
+    ) -> QuantizationResult {
         QuantizationResult {
-            channel_a: self.channels[0].step(input_semitones_a),
-            channel_b: self.channels[1].step(input_semitones_b),
+            channel_a: self.channels[0].step(input_semitones_a, trig_a),
+            channel_b: self.channels[1].step(input_semitones_b, trig_b),
         }
     }
 }
@@ -29,6 +35,8 @@ pub struct QuantizerChannel {
     pub scale_shift: i8,
     pub post_shift: i8,
     state: HysteresisState,
+    last_output: Option<ChannelOutput>,
+    last_trigger_input: bool,
 }
 
 pub enum PitchMode {
@@ -36,6 +44,7 @@ pub enum PitchMode {
     Absolute,
 }
 
+#[derive(PartialEq, Eq)]
 pub enum SampleMode {
     TrackAndHold,
     SampleAndHold,
@@ -55,12 +64,31 @@ impl QuantizerChannel {
             pre_shift: 0,
             scale_shift: 0,
             post_shift: 0,
+            last_output: None,
+            last_trigger_input: false,
             state: HysteresisState { last_output: 0 },
         }
     }
 
-    fn step(&mut self, input_semitones: I8F8) -> ChannelOutput {
-        // TODO use channel parameters
+    fn step(&mut self, input_semitones: I8F8, sample_trigger: bool) -> ChannelOutput {
+        let should_update = self.last_output.is_none()
+            || match self.sample_mode {
+                SampleMode::TrackAndHold => sample_trigger,
+                SampleMode::SampleAndHold => !self.last_trigger_input && sample_trigger,
+            };
+        self.last_trigger_input = sample_trigger;
+
+        if should_update {
+            self.last_output = Some(self._calculate_output(input_semitones))
+        }
+
+        // TODO set trigger output here correctly once I add that
+        // (won't be the same as last output)
+        self.last_output.clone().unwrap()
+    }
+
+    fn _calculate_output(&mut self, input_semitones: I8F8) -> ChannelOutput {
+        // TODO use all channel parameters
         let pre_shifted = (input_semitones + I8F8::from_num(self.pre_shift))
             .clamp(I8F8::ZERO, I8F8::from_num(120));
         let quantized = self.state.quantize(pre_shifted, &self.notes);
@@ -228,6 +256,7 @@ impl QuantizationResult {
     }
 }
 
+#[derive(Clone)]
 pub struct ChannelOutput {
     pub nominal_semitones: i8,
     pub actual_semitones: I8F8,
