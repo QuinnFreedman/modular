@@ -1,9 +1,7 @@
-use arduino_hal::prelude::*;
 use fixed::{
-    traits::ToFixed,
-    types::{I16F16, I8F8, U8F8},
+    traits::FromFixed,
+    types::{I8F24, I8F8},
 };
-use ufmt::{uwrite, uwriteln};
 
 pub struct QuantizerState {
     pub channels_linked: bool,
@@ -42,7 +40,7 @@ pub struct ChannelConfig {
 }
 
 struct ChannelState {
-    last_output: Option<ChannelOutput>,
+    last_output: Option<InternalChannelOutput>,
     last_trigger_input: bool,
     hysteresis_state: HysteresisState,
 }
@@ -83,6 +81,8 @@ impl QuantizerChannel {
     }
 
     fn step(&mut self, input_semitones: I8F8, sample_trigger: bool) -> ChannelOutput {
+        // NOTE: right now, does not update when current note is de-selected from scale
+        // Maybe it should?
         let should_update = self.ephemeral.last_output.is_none()
             || match self.config.sample_mode {
                 SampleMode::TrackAndHold => sample_trigger,
@@ -90,17 +90,70 @@ impl QuantizerChannel {
             };
         self.ephemeral.last_trigger_input = sample_trigger;
 
-        if should_update {
-            self.ephemeral.last_output = Some(self._calculate_output(input_semitones))
-        }
+        let (nominal_semitones, glide_target) = if should_update {
+            let result = self._calculate_quantization(input_semitones);
+            (
+                result.nominal_semitones,
+                I8F24::from_fixed(result.actual_semitones),
+            )
+        } else {
+            let last_output = self.ephemeral.last_output.as_ref().unwrap();
+            (last_output.nominal_semitones, last_output.glide_target)
+        };
 
-        // TODO set trigger output here correctly once I add that
-        // (won't be the same as last output)
-        self.ephemeral.last_output.clone().unwrap()
+        let last_actual_output = self
+            .ephemeral
+            .last_output
+            .as_ref()
+            .map(|x| x.glide_current)
+            .unwrap_or(I8F24::ZERO);
+        let actual_output = self._calculate_glide(last_actual_output, glide_target);
+        self.ephemeral.last_output = Some(InternalChannelOutput {
+            nominal_semitones,
+            glide_target,
+            glide_current: actual_output,
+        });
+
+        // TODO handle trigger outputs
+
+        ChannelOutput {
+            nominal_semitones,
+            actual_semitones: I8F8::from_fixed(actual_output),
+        }
     }
 
-    fn _calculate_output(&mut self, input_semitones: I8F8) -> ChannelOutput {
-        // TODO use all channel parameters
+    fn _calculate_glide(&self, current: I8F24, target: I8F24) -> I8F24 {
+        debug_assert!(target >= 0);
+        debug_assert!(target <= 120);
+        debug_assert!(current >= 0);
+        debug_assert!(current <= 120);
+        if current == target {
+            return current;
+        }
+
+        let alpha = I8F24::ONE >> self.config.glide_amount;
+
+        let mut delta = alpha * (target - current);
+        if delta == 0 {
+            delta = if target > current {
+                I8F24::from_bits(1)
+            } else {
+                -I8F24::from_bits(1)
+            }
+        }
+        let result = current + delta;
+
+        if current < target {
+            assert!(result <= target);
+        } else {
+            assert!(result >= target);
+        }
+        debug_assert!(result >= 0);
+        result
+    }
+
+    fn _calculate_quantization(&mut self, input_semitones: I8F8) -> ChannelOutput {
+        // TODO implement shift/relative mode
         let pre_shifted = (input_semitones + I8F8::from_num(self.config.pre_shift))
             .clamp(I8F8::ZERO, I8F8::from_num(120));
         let quantized = self
@@ -134,24 +187,12 @@ impl HysteresisState {
 
         debug_assert!(input_semitones >= 0);
 
-        // let dp = unsafe { arduino_hal::Peripherals::steal() };
-        // let pins = arduino_hal::pins!(dp);
-        // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-        // uwrite!(
-        //     &mut serial,
-        //     "{}",
-        //     (input_semitones.to_fixed::<I16F16>() * 1000).to_num::<u16>()
-        // )
-        // .unwrap_infallible();
-
         if let Some((upper_thresh, lower_thresh)) = self.calculate_hysteresis_thresholds(notes) {
             if input_semitones <= upper_thresh && input_semitones >= lower_thresh {
                 // uwriteln!(&mut serial, " <").unwrap_infallible();
                 return self.last_output;
             }
         }
-
-        // uwriteln!(&mut serial, "").unwrap_infallible();
 
         let floor = input_semitones.int();
         let should_round_up = input_semitones.frac() >= I8F8::ONE / 2;
@@ -275,4 +316,15 @@ impl QuantizationResult {
 pub struct ChannelOutput {
     pub nominal_semitones: i8,
     pub actual_semitones: I8F8,
+}
+
+struct InternalQuantizationResult {
+    channel_a: InternalChannelOutput,
+    channel_b: InternalChannelOutput,
+}
+
+struct InternalChannelOutput {
+    nominal_semitones: i8,
+    glide_target: I8F24,
+    glide_current: I8F24,
 }
