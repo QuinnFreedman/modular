@@ -14,10 +14,13 @@ mod menu;
 mod quantizer;
 mod resistor_ladder_buttons;
 
+use core::cell::Cell;
+
 use arduino_hal::delay_ms;
 use arduino_hal::prelude::*;
 use arduino_hal::Spi;
 use avr_device::interrupt;
+use avr_device::interrupt::Mutex;
 use embedded_hal::digital::v2::InputPin;
 use fixed::traits::Fixed;
 use fixed::types::I1F15;
@@ -25,6 +28,9 @@ use fixed::types::I8F8;
 use fixed::types::U16F16;
 use fixed::types::U8F8;
 use fm_lib::async_adc::new_averaging_async_adc_state;
+use fm_lib::asynchronous::assert_interrupts_disabled;
+use fm_lib::asynchronous::unsafe_access_mutex;
+use fm_lib::asynchronous::AtomicRead as _;
 use fm_lib::mcp4922::ChannelConfig;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
@@ -40,6 +46,7 @@ use menu::{LedColor, MenuState};
 use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
 use resistor_ladder_buttons::ButtonLadderState;
+use ufmt::uwrite;
 use ufmt::uwriteln;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
@@ -47,6 +54,7 @@ static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
 handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3, 3> = new_averaging_async_adc_state();
+static DAC_WRITE_QUEUED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
@@ -59,7 +67,7 @@ fn main() -> ! {
     let pins = arduino_hal::pins!(dp);
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
-    let (mut spi, mut d10) = arduino_hal::spi::Spi::new(
+    let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
         pins.d13.into_output(),        // Clock
         pins.d11.into_output(),        // MOSI
@@ -79,9 +87,7 @@ fn main() -> ! {
     led_driver_cs_pin.set_high();
     delay_ms(1);
 
-    unsafe {
-        avr_device::interrupt::enable();
-    };
+    configure_timer(&dp.TC2);
 
     init_async_adc(
         adc,
@@ -92,6 +98,10 @@ fn main() -> ! {
             arduino_hal::adc::channel::ADC7.into_channel(),
         ],
     );
+
+    unsafe {
+        avr_device::interrupt::enable();
+    };
 
     let shift_btn_pin = pins.d8.into_pull_up_input();
     let trig_input_pin_a = pins.d2.into_floating_input();
@@ -118,6 +128,7 @@ fn main() -> ! {
     let dac_config = Default::default();
 
     loop {
+        while DAC_WRITE_QUEUED.atomic_read() {}
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
         let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
 
@@ -157,10 +168,14 @@ fn main() -> ! {
             );
         }
 
-        if wrote_data {
-            last_output = result;
-            dac.end_write();
-        }
+        last_output = result;
+
+        unsafe_access_mutex(|cs| DAC_WRITE_QUEUED.borrow(cs).set(true));
+
+        // if wrote_data {
+        //     last_output = result;
+        //     dac.end_write();
+        // }
 
         update_leds(&mut spi, &leds);
         delay_ms(1);
@@ -205,4 +220,37 @@ fn semitones_to_dac(semitones: I8F8) -> u16 {
     let bits = (volts / U16F16::from_num(10)).to_bits();
     assert!(bits < u16::MAX as u32);
     (bits as u16) >> 4
+}
+
+fn configure_timer(tc2: &arduino_hal::pac::TC2) {
+    // reset timer counter at TOP set by OCRA
+    tc2.tccr2a.write(|w| w.wgm2().ctc());
+    // set timer frequency to cycle at ~780Hz
+    // (16MHz clock speed / 128 prescale factor / 160 count/reset )
+    tc2.tccr2b.write(|w| w.cs2().prescale_128());
+    tc2.ocr2a.write(|w| w.bits(180));
+
+    // enable interrupt on match to compare register A
+    tc2.timsk2.write(|w| w.ocie2a().set_bit());
+}
+
+#[avr_device::interrupt(atmega328p)]
+fn TIMER2_COMPA() {
+    let dp = unsafe { arduino_hal::Peripherals::steal() };
+
+    assert_interrupts_disabled(|cs| {
+        if DAC_WRITE_QUEUED.borrow(cs).get() {
+            DAC_WRITE_QUEUED.borrow(cs).set(false);
+            dp.PORTB
+                .portb
+                .modify(|r, w| unsafe { w.bits(r.bits()) }.pb2().set_bit());
+        } else {
+            // #[cfg(feature = "debug")]
+            // DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).update(|x| x + 1);
+            let dp = unsafe { arduino_hal::Peripherals::steal() };
+            let pins = arduino_hal::pins!(dp);
+            let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+            uwrite!(&mut serial, ".",).unwrap_infallible();
+        }
+    });
 }
