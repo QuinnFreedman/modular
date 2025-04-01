@@ -1,10 +1,12 @@
+use core::arch::asm;
 use core::panic;
 
 use arduino_hal::Eeprom;
 use fm_lib::button_debouncer::ButtonState;
 
 use crate::{
-    persistence::{check_scale_save_slots, read_scale, write_scale},
+    bitvec::BitVec,
+    persistence::{check_save_slots, read_config, read_scale, write_config, write_scale},
     quantizer::{PitchMode, QuantizationResult, QuantizerChannel, QuantizerState, SampleMode},
     resistor_ladder_buttons::ButtonEvent,
 };
@@ -61,25 +63,34 @@ enum MenuPage {
     MainMenu,
     ScalarSubMenu(ScalarSubMenuStatus, ScalarSubMenu),
     ShowChangedBoolOption(BoolOption),
-    SelectSaveSlot,
-    SelectLoadSlot,
-    ConfirmSaveSlot(u8, u32),
+    SelectSaveSlot(SaveSlotType),
+    SelectLoadSlot(SaveSlotType),
+    ConfirmSaveSlot(u8, SaveSlotType, u32),
+}
+
+#[derive(Clone, Copy)]
+enum SaveSlotType {
+    Scale,
+    FullConfig,
 }
 
 pub struct MenuState {
     selected_channel: Channel,
     menu_page: MenuPage,
     shift_was_pressed: bool,
-    save_slots_in_use: [bool; 12],
+    scale_save_slots_in_use: BitVec<12>,
+    config_save_slots_in_use: BitVec<12>,
 }
 
 impl MenuState {
     pub fn new(eeprom: &mut Eeprom) -> Self {
+        let (scale_save_slots_in_use, config_save_slots_in_use) = check_save_slots(eeprom);
         Self {
             selected_channel: Channel::A,
             menu_page: MenuPage::MainMenu,
             shift_was_pressed: false,
-            save_slots_in_use: check_scale_save_slots(eeprom),
+            scale_save_slots_in_use,
+            config_save_slots_in_use,
         }
     }
 
@@ -176,14 +187,32 @@ impl MenuState {
         self.shift_was_pressed = buttons.shift_pressed;
 
         if buttons.save_button == ButtonState::ButtonJustPressed {
-            self.menu_page = match self.menu_page {
-                MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => MenuPage::MainMenu,
-                _ => MenuPage::SelectSaveSlot,
+            match self.menu_page {
+                MenuPage::SelectSaveSlot(_) | MenuPage::SelectLoadSlot(_) => {
+                    self.menu_page = MenuPage::MainMenu
+                }
+                MenuPage::ConfirmSaveSlot(_, _, _) => {}
+                _ => {
+                    self.menu_page = MenuPage::SelectSaveSlot(if self.shift_was_pressed {
+                        SaveSlotType::FullConfig
+                    } else {
+                        SaveSlotType::Scale
+                    })
+                }
             };
         } else if buttons.load_button == ButtonState::ButtonJustPressed {
-            self.menu_page = match self.menu_page {
-                MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => MenuPage::MainMenu,
-                _ => MenuPage::SelectLoadSlot,
+            match self.menu_page {
+                MenuPage::SelectSaveSlot(_) | MenuPage::SelectLoadSlot(_) => {
+                    self.menu_page = MenuPage::MainMenu;
+                }
+                MenuPage::ConfirmSaveSlot(_, _, _) => {}
+                _ => {
+                    self.menu_page = MenuPage::SelectLoadSlot(if self.shift_was_pressed {
+                        SaveSlotType::FullConfig
+                    } else {
+                        SaveSlotType::Scale
+                    });
+                }
             };
         }
 
@@ -214,16 +243,31 @@ impl MenuState {
                     }
                 }
                 MenuPage::ShowChangedBoolOption(_) => {}
-                MenuPage::SelectSaveSlot => {
-                    write_scale(eeprom, n, quantizer_state, &self.selected_channel);
-                    self.save_slots_in_use[n as usize] = true;
-                    self.menu_page = MenuPage::ConfirmSaveSlot(n, current_time_ms);
+                MenuPage::SelectSaveSlot(slot_type) => {
+                    match slot_type {
+                        SaveSlotType::Scale => {
+                            write_scale(eeprom, n, quantizer_state, &self.selected_channel);
+                            self.scale_save_slots_in_use.set(n, true);
+                        }
+                        SaveSlotType::FullConfig => {
+                            write_config(eeprom, n, quantizer_state);
+                            self.config_save_slots_in_use.set(n, true);
+                        }
+                    }
+                    self.menu_page = MenuPage::ConfirmSaveSlot(n, slot_type, current_time_ms);
                 }
-                MenuPage::SelectLoadSlot => {
-                    read_scale(eeprom, n, quantizer_state, &self.selected_channel);
+                MenuPage::SelectLoadSlot(slot_type) => {
+                    match slot_type {
+                        SaveSlotType::Scale => {
+                            read_scale(eeprom, n, quantizer_state, &self.selected_channel);
+                        }
+                        SaveSlotType::FullConfig => {
+                            read_config(eeprom, n, quantizer_state);
+                        }
+                    }
                     self.menu_page = MenuPage::MainMenu;
                 }
-                MenuPage::ConfirmSaveSlot(_, _) => {}
+                MenuPage::ConfirmSaveSlot(_, _, _) => {}
             },
             ButtonEvent::ButtonJustReleased => match self.menu_page {
                 MenuPage::ScalarSubMenu(ScalarSubMenuStatus::ExitOnButtonRelease, _) => {
@@ -246,15 +290,19 @@ impl MenuState {
             MenuPage::ShowChangedBoolOption(ref option) => {
                 render_bool_option(&quantizer_state, &self.selected_channel, option)
             }
-            MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => {
-                render_save_menu(&self.selected_channel, &self.save_slots_in_use)
+            MenuPage::SelectSaveSlot(ref slot_type) | MenuPage::SelectLoadSlot(ref slot_type) => {
+                let slots = match slot_type {
+                    SaveSlotType::Scale => &self.scale_save_slots_in_use,
+                    SaveSlotType::FullConfig => &self.config_save_slots_in_use,
+                };
+                render_save_menu(&self.selected_channel, slot_type, slots)
             }
-            MenuPage::ConfirmSaveSlot(slot, start) => {
+            MenuPage::ConfirmSaveSlot(slot, slot_type, start) => {
                 let time = current_time_ms - start;
                 if time >= 1024 {
                     self.menu_page = MenuPage::MainMenu
                 }
-                render_confirm_save(&self.selected_channel, time, slot)
+                render_confirm_save(&self.selected_channel, &slot_type, &time, slot)
             }
         }
     }
@@ -334,6 +382,14 @@ fn handle_sub_menu_button_press(
         }
     }
 
+    // I could not begin to tell you why this is necessary, but if I don't
+    // convince the compiler that button_idx is important, it just sets it to 0.
+    // It's either a compiler bug or just the optimization lottery that is
+    // avoiding a memory overflow/corruption error
+    unsafe {
+        asm!("and {0}, {0}", in(reg) button_idx);
+    }
+
     match menu {
         ScalarSubMenu::Glide => {
             channel_state.config.glide_amount = button_idx;
@@ -401,16 +457,23 @@ fn render_sub_menu_signed(n: i8) -> [LedColor; 12] {
     leds
 }
 
-fn render_save_menu(selected_channel: &Channel, save_slots: &[bool; 12]) -> [LedColor; 12] {
-    let color = match selected_channel {
-        Channel::A => LedColor::GREEN,
-        Channel::B => LedColor::RED,
+fn render_save_menu(
+    selected_channel: &Channel,
+    slot_type: &SaveSlotType,
+    save_slots: &BitVec<12>,
+) -> [LedColor; 12] {
+    let color = match slot_type {
+        SaveSlotType::FullConfig => LedColor::AMBER,
+        SaveSlotType::Scale => match selected_channel {
+            Channel::A => LedColor::GREEN,
+            Channel::B => LedColor::RED,
+        },
     };
 
     let mut result = [LedColor::OFF; 12];
 
     for i in 0..12u8 {
-        if save_slots[i as usize] {
+        if save_slots.get(i) {
             result[i as usize] = color;
         }
     }
@@ -418,13 +481,21 @@ fn render_save_menu(selected_channel: &Channel, save_slots: &[bool; 12]) -> [Led
     result
 }
 
-fn render_confirm_save(selected_channel: &Channel, time: u32, slot: u8) -> [LedColor; 12] {
+fn render_confirm_save(
+    selected_channel: &Channel,
+    slot_type: &SaveSlotType,
+    time: &u32,
+    slot: u8,
+) -> [LedColor; 12] {
     let mut result = [LedColor::OFF; 12];
 
     if time & 128 == 0 {
-        let color = match selected_channel {
-            Channel::A => LedColor::GREEN,
-            Channel::B => LedColor::RED,
+        let color = match slot_type {
+            SaveSlotType::FullConfig => LedColor::AMBER,
+            SaveSlotType::Scale => match selected_channel {
+                Channel::A => LedColor::GREEN,
+                Channel::B => LedColor::RED,
+            },
         };
         result[slot as usize] = color;
     }

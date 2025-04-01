@@ -10,6 +10,7 @@
 #![feature(inline_const)]
 #![feature(cell_update)]
 
+mod bitvec;
 mod menu;
 mod persistence;
 mod quantizer;
@@ -24,24 +25,18 @@ use arduino_hal::prelude::*;
 use arduino_hal::Spi;
 use avr_device::interrupt;
 use avr_device::interrupt::Mutex;
-use embedded_hal::digital::v2::InputPin;
-use fixed::traits::Fixed;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
 use fixed::types::U16F16;
-use fixed::types::U8F8;
 use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
 use fm_lib::asynchronous::unsafe_access_mutex;
 use fm_lib::asynchronous::AtomicRead as _;
 use fm_lib::button_debouncer::ButtonDebouncer;
-use fm_lib::mcp4922::ChannelConfig;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
 use fm_lib::{
-    async_adc::{
-        handle_conversion_result, init_async_adc, new_async_adc_state, AsyncAdc, GetAdcValues,
-    },
+    async_adc::{handle_conversion_result, init_async_adc, AsyncAdc, GetAdcValues},
     asynchronous::Borrowable,
     handle_system_clock_interrupt,
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
@@ -52,7 +47,6 @@ use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
 use resistor_ladder_buttons::ButtonLadderState;
 use ufmt::uwrite;
-use ufmt::uwriteln;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
@@ -252,7 +246,7 @@ fn TIMER2_COMPA() {
             let dp = unsafe { arduino_hal::Peripherals::steal() };
             let pins = arduino_hal::pins!(dp);
             let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-            uwrite!(&mut serial, ".",).unwrap_infallible();
+            uwrite!(&mut serial, ".").unwrap_infallible();
         }
     });
 }

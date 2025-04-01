@@ -57,7 +57,8 @@
     "prng",
     "timestep",
     "quantizer",
-    "OscfOver"
+    "OscfOver",
+    "bitvec"
   ],
   "patterns": [
     {
