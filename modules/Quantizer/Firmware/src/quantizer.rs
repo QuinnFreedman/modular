@@ -17,9 +17,16 @@ impl QuantizerState {
         trig_a: bool,
         trig_b: bool,
     ) -> QuantizationResult {
+        let input_b = match self.channel_b_mode {
+            PitchMode::Relative => input_semitones_a
+                .saturating_add(input_semitones_b)
+                .min(I8F8::from_num(120)),
+            PitchMode::Absolute => input_semitones_b,
+        };
+
         QuantizationResult {
             channel_a: self.channels[0].step(input_semitones_a, trig_a),
-            channel_b: self.channels[1].step(input_semitones_b, trig_b),
+            channel_b: self.channels[1].step(input_b, trig_b),
         }
     }
 }
@@ -91,7 +98,7 @@ impl QuantizerChannel {
         self.ephemeral.last_trigger_input = sample_trigger;
 
         let (nominal_semitones, glide_target) = if should_update {
-            let result = self._calculate_quantization(input_semitones);
+            let result = self._calculate_quantization_with_transposition(input_semitones);
             (
                 result.nominal_semitones,
                 I8F24::from_fixed(result.actual_semitones),
@@ -152,8 +159,10 @@ impl QuantizerChannel {
         result
     }
 
-    fn _calculate_quantization(&mut self, input_semitones: I8F8) -> ChannelOutput {
-        // TODO implement shift/relative mode
+    fn _calculate_quantization_with_transposition(
+        &mut self,
+        input_semitones: I8F8,
+    ) -> ChannelOutput {
         let pre_shifted = (input_semitones + I8F8::from_num(self.config.pre_shift))
             .clamp(I8F8::ZERO, I8F8::from_num(120));
         let quantized = self
