@@ -11,12 +11,15 @@
 #![feature(cell_update)]
 
 mod menu;
+mod persistence;
 mod quantizer;
 mod resistor_ladder_buttons;
 
 use core::cell::Cell;
 
 use arduino_hal::delay_ms;
+use arduino_hal::hal::port::PD6;
+use arduino_hal::hal::port::PD7;
 use arduino_hal::prelude::*;
 use arduino_hal::Spi;
 use avr_device::interrupt;
@@ -31,6 +34,7 @@ use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
 use fm_lib::asynchronous::unsafe_access_mutex;
 use fm_lib::asynchronous::AtomicRead as _;
+use fm_lib::button_debouncer::ButtonDebouncer;
 use fm_lib::mcp4922::ChannelConfig;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
@@ -42,6 +46,7 @@ use fm_lib::{
     handle_system_clock_interrupt,
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
+use menu::ButtonInput;
 use menu::{LedColor, MenuState};
 use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
@@ -66,6 +71,7 @@ fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    let mut eeprom = arduino_hal::Eeprom::new(dp.EEPROM);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
@@ -121,6 +127,8 @@ fn main() -> ! {
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
+    let mut save_button = ButtonDebouncer::<PD7, 32>::new(pins.d7.into_pull_up_input());
+    let mut load_button = ButtonDebouncer::<PD6, 32>::new(pins.d6.into_pull_up_input());
 
     let mut last_output = QuantizationResult::zero();
 
@@ -130,7 +138,10 @@ fn main() -> ! {
     loop {
         while DAC_WRITE_QUEUED.atomic_read() {}
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
-        let button_event = button_state.sample_adc_value(sys_clock.millis(), cv[0]);
+        let current_time_ms = sys_clock.millis();
+        let button_event = button_state.sample_adc_value(current_time_ms, cv[0]);
+        let save_button_state = save_button.sample(current_time_ms);
+        let load_button_state = load_button.sample(current_time_ms);
 
         let adc_value_a = I1F15::from_bits((cv[1] << 5) as i16);
         let adc_value_b = I1F15::from_bits((cv[2] << 5) as i16);
@@ -143,14 +154,17 @@ fn main() -> ! {
 
         let leds = menu_state.handle_button_input_and_render_display(
             &mut quantizer_state,
-            &button_event,
-            shift_btn_pin.is_low(),
+            &ButtonInput {
+                key_event: button_event,
+                load_button: load_button_state,
+                save_button: save_button_state,
+                shift_pressed: shift_btn_pin.is_low(),
+            },
             &result,
+            &mut eeprom,
         );
 
-        let mut wrote_data = false;
         if result.channel_a.actual_semitones != last_output.channel_a.actual_semitones {
-            wrote_data = true;
             dac.write_keep_cs_pin_low(
                 &mut spi,
                 DacChannel::ChannelA,
@@ -159,7 +173,6 @@ fn main() -> ! {
             );
         }
         if result.channel_b.actual_semitones != last_output.channel_b.actual_semitones {
-            wrote_data = true;
             dac.write_keep_cs_pin_low(
                 &mut spi,
                 DacChannel::ChannelB,
@@ -172,13 +185,7 @@ fn main() -> ! {
 
         unsafe_access_mutex(|cs| DAC_WRITE_QUEUED.borrow(cs).set(true));
 
-        // if wrote_data {
-        //     last_output = result;
-        //     dac.end_write();
-        // }
-
         update_leds(&mut spi, &leds);
-        delay_ms(1);
     }
 }
 
@@ -211,10 +218,6 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
 }
 
 fn semitones_to_dac(semitones: I8F8) -> u16 {
-    // let int_volts = semitones.div_euclid_int(12);
-    // let frac_volts = U16F16::from_num(semitones.rem_euclid_int(12)) / 12;
-    // assert!(frac_volts < 1);
-    // let volts = U16F16::from_num(int_volts) + frac_volts;
     assert!(semitones >= 0);
     let volts = U16F16::from_num(semitones / 12);
     let bits = (volts / U16F16::from_num(10)).to_bits();
@@ -228,7 +231,7 @@ fn configure_timer(tc2: &arduino_hal::pac::TC2) {
     // set timer frequency to cycle at ~780Hz
     // (16MHz clock speed / 128 prescale factor / 160 count/reset )
     tc2.tccr2b.write(|w| w.cs2().prescale_128());
-    tc2.ocr2a.write(|w| w.bits(180));
+    tc2.ocr2a.write(|w| w.bits(160));
 
     // enable interrupt on match to compare register A
     tc2.timsk2.write(|w| w.ocie2a().set_bit());
@@ -245,8 +248,6 @@ fn TIMER2_COMPA() {
                 .portb
                 .modify(|r, w| unsafe { w.bits(r.bits()) }.pb2().set_bit());
         } else {
-            // #[cfg(feature = "debug")]
-            // DEBUG_SKIPPED_WRITE_COUNT.borrow(cs).update(|x| x + 1);
             let dp = unsafe { arduino_hal::Peripherals::steal() };
             let pins = arduino_hal::pins!(dp);
             let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
