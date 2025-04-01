@@ -69,6 +69,10 @@ pub struct MenuState {
     selected_channel: Channel,
     menu_page: MenuPage,
     shift_was_pressed: bool,
+    // TODO: keep track of which save slots have been written to
+    // check sentinel values on init menu state (user-set, factory-set, or unset)
+    // if they are not known values, init w/ factory patterns and write factory sentinels
+    // keep track of state over runtime
 }
 
 impl MenuState {
