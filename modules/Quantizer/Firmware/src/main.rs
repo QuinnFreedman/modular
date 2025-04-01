@@ -114,7 +114,7 @@ fn main() -> ! {
     let trig_input_pin_b = pins.d3.into_floating_input();
 
     let mut quantizer_state = QuantizerState::new();
-    let mut menu_state = MenuState::new();
+    let mut menu_state = MenuState::new(&mut eeprom);
 
     let mut update_leds = |spi: &mut Spi, leds: &[LedColor; 12]| {
         led_driver_cs_pin.set_low();
@@ -161,6 +161,7 @@ fn main() -> ! {
                 shift_pressed: shift_btn_pin.is_low(),
             },
             &result,
+            current_time_ms,
             &mut eeprom,
         );
 

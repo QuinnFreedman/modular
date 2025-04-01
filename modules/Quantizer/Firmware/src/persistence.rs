@@ -1,5 +1,9 @@
 use arduino_hal::Eeprom;
 
+const SENTINEL_VALUE: u8 = 0b10101010;
+
+const STORAGE_OFFSET: u8 = 1;
+
 use crate::{
     menu::Channel,
     quantizer::{ChannelConfig, QuantizerState, SampleMode},
@@ -27,6 +31,15 @@ fn encode_notes(notes: &[bool; 12]) -> [u8; 2] {
     bytes
 }
 
+pub fn check_scale_save_slots(eeprom: &mut Eeprom) -> [bool; 12] {
+    let mut full = [false; 12];
+    for i in 0..12 {
+        let address = STORAGE_OFFSET + i * 3;
+        full[i as usize] = eeprom.read_byte(address as u16) == SENTINEL_VALUE;
+    }
+    full
+}
+
 pub fn write_scale(
     eeprom: &mut Eeprom,
     slot: u8,
@@ -34,9 +47,9 @@ pub fn write_scale(
     channel: &Channel,
 ) {
     let notes = &quantizer_state.channels[channel.index()].config.notes;
-    let address = 1 + slot * 3;
+    let address = STORAGE_OFFSET + slot * 3;
     let buff = encode_notes(notes);
-    eeprom.write_byte(address as u16, 0b10101010);
+    eeprom.write_byte(address as u16, SENTINEL_VALUE);
     eeprom.write((address + 1) as u16, &buff).unwrap();
 }
 
@@ -46,7 +59,7 @@ pub fn read_scale(
     quantizer_state: &mut QuantizerState,
     channel: &Channel,
 ) {
-    let address = 1 + slot * 3;
+    let address = STORAGE_OFFSET + slot * 3;
     let mut bytes = [0u8; 3];
     eeprom.read(address as u16, &mut bytes).unwrap();
     quantizer_state.channels[channel.index()].config.notes = parse_notes(&bytes[1..3]);
