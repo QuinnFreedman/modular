@@ -1,6 +1,10 @@
 use core::panic;
 
+use arduino_hal::Eeprom;
+use fm_lib::button_debouncer::ButtonState;
+
 use crate::{
+    persistence::{read_scale, write_scale},
     quantizer::{PitchMode, QuantizationResult, QuantizerChannel, QuantizerState, SampleMode},
     resistor_ladder_buttons::ButtonEvent,
 };
@@ -57,6 +61,8 @@ enum MenuPage {
     MainMenu,
     ScalarSubMenu(ScalarSubMenuStatus, ScalarSubMenu),
     ShowChangedBoolOption(BoolOption),
+    SelectSaveSlot,
+    SelectLoadSlot,
 }
 
 pub struct MenuState {
@@ -148,11 +154,11 @@ impl MenuState {
     pub fn handle_button_input_and_render_display(
         &mut self,
         quantizer_state: &mut QuantizerState,
-        button_event: &ButtonEvent,
-        shift_pressed: bool,
+        buttons: &ButtonInput,
         active_notes: &QuantizationResult,
+        eeprom: &mut Eeprom,
     ) -> [LedColor; 12] {
-        if self.shift_was_pressed && !shift_pressed {
+        if self.shift_was_pressed && !buttons.shift_pressed {
             if let MenuPage::ScalarSubMenu(ref mut menu_status, _) = self.menu_page {
                 match menu_status {
                     ScalarSubMenuStatus::AwaitingFirstInput => {
@@ -163,9 +169,21 @@ impl MenuState {
                 }
             }
         }
-        self.shift_was_pressed = shift_pressed;
+        self.shift_was_pressed = buttons.shift_pressed;
 
-        match button_event {
+        if buttons.save_button == ButtonState::ButtonJustPressed {
+            self.menu_page = match self.menu_page {
+                MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => MenuPage::MainMenu,
+                _ => MenuPage::SelectSaveSlot,
+            };
+        } else if buttons.load_button == ButtonState::ButtonJustPressed {
+            self.menu_page = match self.menu_page {
+                MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => MenuPage::MainMenu,
+                _ => MenuPage::SelectLoadSlot,
+            };
+        }
+
+        match buttons.key_event {
             ButtonEvent::ButtonJustPressed(n) => match self.menu_page {
                 MenuPage::ScalarSubMenu(ref mut status, ref menu) => {
                     let selected_channel =
@@ -174,24 +192,32 @@ impl MenuState {
                         selected_channel,
                         status,
                         menu,
-                        *n,
-                        shift_pressed,
+                        n,
+                        buttons.shift_pressed,
                     ) {
                         Some(new_menu_status) => *status = new_menu_status,
                         None => self.menu_page = MenuPage::MainMenu,
                     }
                 }
                 MenuPage::MainMenu => {
-                    if shift_pressed {
-                        self.handle_shift_button_press(quantizer_state, *n);
+                    if buttons.shift_pressed {
+                        self.handle_shift_button_press(quantizer_state, n);
                     } else {
                         let selected_channel =
                             &mut quantizer_state.channels[self.selected_channel.index()];
-                        selected_channel.config.notes[*n as usize] =
-                            !selected_channel.config.notes[*n as usize];
+                        selected_channel.config.notes[n as usize] =
+                            !selected_channel.config.notes[n as usize];
                     }
                 }
                 MenuPage::ShowChangedBoolOption(_) => {}
+                MenuPage::SelectSaveSlot => {
+                    write_scale(eeprom, n, quantizer_state, &self.selected_channel);
+                    self.menu_page = MenuPage::MainMenu;
+                }
+                MenuPage::SelectLoadSlot => {
+                    read_scale(eeprom, n, quantizer_state, &self.selected_channel);
+                    self.menu_page = MenuPage::MainMenu;
+                }
             },
             ButtonEvent::ButtonJustReleased => match self.menu_page {
                 MenuPage::ScalarSubMenu(ScalarSubMenuStatus::ExitOnButtonRelease, _) => {
@@ -213,6 +239,9 @@ impl MenuState {
             }
             MenuPage::ShowChangedBoolOption(ref option) => {
                 render_bool_option(&quantizer_state, &self.selected_channel, option)
+            }
+            MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => {
+                render_save_menu(&self.selected_channel)
             }
         }
     }
@@ -357,4 +386,18 @@ fn render_sub_menu_signed(n: i8) -> [LedColor; 12] {
     }
 
     leds
+}
+
+fn render_save_menu(selected_channel: &Channel) -> [LedColor; 12] {
+    match selected_channel {
+        Channel::A => [LedColor::GREEN; 12],
+        Channel::B => [LedColor::RED; 12],
+    }
+}
+
+pub struct ButtonInput {
+    pub key_event: ButtonEvent,
+    pub load_button: ButtonState,
+    pub save_button: ButtonState,
+    pub shift_pressed: bool,
 }
