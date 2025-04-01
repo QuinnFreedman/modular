@@ -5,8 +5,9 @@ const SENTINEL_VALUE: u8 = 0b10101010;
 const STORAGE_OFFSET: u8 = 1;
 
 use crate::{
+    bitvec::BitVec,
     menu::Channel,
-    quantizer::{ChannelConfig, QuantizerState, SampleMode},
+    quantizer::{ChannelConfig, PitchMode, QuantizerChannel, QuantizerState, SampleMode},
 };
 
 fn parse_notes(bytes: &[u8]) -> [bool; 12] {
@@ -31,13 +32,19 @@ fn encode_notes(notes: &[bool; 12]) -> [u8; 2] {
     bytes
 }
 
-pub fn check_scale_save_slots(eeprom: &mut Eeprom) -> [bool; 12] {
-    let mut full = [false; 12];
+pub fn check_save_slots(eeprom: &mut Eeprom) -> (BitVec<12>, BitVec<12>) {
+    let mut scales = BitVec::<12>::new();
     for i in 0..12 {
         let address = STORAGE_OFFSET + i * 3;
-        full[i as usize] = eeprom.read_byte(address as u16) == SENTINEL_VALUE;
+        scales.set(i, eeprom.read_byte(address as u16) == SENTINEL_VALUE);
     }
-    full
+    let offset = STORAGE_OFFSET + 12 * 3;
+    let mut configs = BitVec::<12>::new();
+    for i in 0..12 {
+        let address = offset + i * 18;
+        configs.set(i, eeprom.read_byte(address as u16) == SENTINEL_VALUE);
+    }
+    (scales, configs)
 }
 
 pub fn write_scale(
@@ -62,13 +69,36 @@ pub fn read_scale(
     let address = STORAGE_OFFSET + slot * 3;
     let mut bytes = [0u8; 3];
     eeprom.read(address as u16, &mut bytes).unwrap();
+    if bytes[0] != SENTINEL_VALUE {
+        return;
+    }
     quantizer_state.channels[channel.index()].config.notes = parse_notes(&bytes[1..3]);
 }
 
+pub fn write_config(eeprom: &mut Eeprom, slot: u8, quantizer_state: &QuantizerState) {
+    let offset = STORAGE_OFFSET + 12 * 3;
+    let address = offset + slot * 18;
+    let buff = quantizer_state.to_bytes();
+    eeprom.write_byte(address as u16, SENTINEL_VALUE);
+    eeprom.write((address + 1) as u16, &buff).unwrap();
+}
+
+pub fn read_config(eeprom: &mut Eeprom, slot: u8, quantizer_state: &mut QuantizerState) {
+    let offset = STORAGE_OFFSET + 12 * 3;
+    let address = offset + slot * 18;
+    let sentinel = eeprom.read_byte(address as u16);
+    if sentinel != SENTINEL_VALUE {
+        return;
+    }
+    let mut buff = [0u8; 17];
+    eeprom.read((address + 1) as u16, &mut buff).unwrap();
+    *quantizer_state = QuantizerState::from_bytes(&buff);
+}
+
 impl ChannelConfig {
-    pub fn from_bytes(bytes: &[u8; 8]) -> Self {
+    fn from_bytes(bytes: &[u8; 8]) -> Self {
         ChannelConfig {
-            notes: parse_notes(&bytes[0..1]),
+            notes: parse_notes(&bytes[0..2]),
             sample_mode: if bytes[2] == 0 {
                 SampleMode::TrackAndHold
             } else {
@@ -82,9 +112,9 @@ impl ChannelConfig {
         }
     }
 
-    pub fn to_bytes(&self) -> [u8; 8] {
+    fn to_bytes(&self) -> [u8; 8] {
         let mut bytes = [0u8; 8];
-        bytes[0..1].copy_from_slice(&encode_notes(&self.notes));
+        bytes[0..2].copy_from_slice(&encode_notes(&self.notes));
         bytes[2] = match self.sample_mode {
             SampleMode::TrackAndHold => 0,
             SampleMode::SampleAndHold => 1,
@@ -94,6 +124,43 @@ impl ChannelConfig {
         bytes[5] = unsafe { core::mem::transmute(self.pre_shift) };
         bytes[6] = unsafe { core::mem::transmute(self.scale_shift) };
         bytes[7] = unsafe { core::mem::transmute(self.post_shift) };
+        bytes
+    }
+}
+
+impl QuantizerState {
+    fn from_bytes(bytes: &[u8; 17]) -> Self {
+        Self {
+            channels_linked: bytes[0] & 1 != 0,
+            channel_b_mode: if bytes[0] & 2 == 0 {
+                PitchMode::Relative
+            } else {
+                PitchMode::Absolute
+            },
+            channels: [
+                QuantizerChannel::from_config(ChannelConfig::from_bytes(
+                    bytes[1..9].try_into().unwrap(),
+                )),
+                QuantizerChannel::from_config(ChannelConfig::from_bytes(
+                    bytes[9..17].try_into().unwrap(),
+                )),
+            ],
+        }
+    }
+
+    fn to_bytes(&self) -> [u8; 17] {
+        let mut flags = 0u8;
+        if self.channels_linked {
+            flags |= 1;
+        }
+        if self.channel_b_mode == PitchMode::Absolute {
+            flags |= 2;
+        }
+
+        let mut bytes = [0u8; 17];
+        bytes[0] = flags;
+        bytes[1..9].clone_from_slice(&self.channels[0].config.to_bytes());
+        bytes[9..17].clone_from_slice(&self.channels[1].config.to_bytes());
         bytes
     }
 }

@@ -52,6 +52,7 @@ struct ChannelState {
     hysteresis_state: HysteresisState,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum PitchMode {
     Relative,
     Absolute,
@@ -69,16 +70,21 @@ struct HysteresisState {
 
 impl QuantizerChannel {
     pub const fn new() -> Self {
+        let default_config = ChannelConfig {
+            notes: [false; 12],
+            sample_mode: SampleMode::TrackAndHold,
+            glide_amount: 0,
+            trigger_delay_amount: 0,
+            pre_shift: 0,
+            scale_shift: 0,
+            post_shift: 0,
+        };
+        Self::from_config(default_config)
+    }
+
+    pub const fn from_config(config: ChannelConfig) -> Self {
         Self {
-            config: ChannelConfig {
-                notes: [false; 12],
-                sample_mode: SampleMode::TrackAndHold,
-                glide_amount: 0,
-                trigger_delay_amount: 0,
-                pre_shift: 0,
-                scale_shift: 0,
-                post_shift: 0,
-            },
+            config,
             ephemeral: ChannelState {
                 last_output: None,
                 last_trigger_input: false,
