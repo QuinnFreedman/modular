@@ -4,7 +4,7 @@ use arduino_hal::Eeprom;
 use fm_lib::button_debouncer::ButtonState;
 
 use crate::{
-    persistence::{read_scale, write_scale},
+    persistence::{check_scale_save_slots, read_scale, write_scale},
     quantizer::{PitchMode, QuantizationResult, QuantizerChannel, QuantizerState, SampleMode},
     resistor_ladder_buttons::ButtonEvent,
 };
@@ -63,24 +63,23 @@ enum MenuPage {
     ShowChangedBoolOption(BoolOption),
     SelectSaveSlot,
     SelectLoadSlot,
+    ConfirmSaveSlot(u8, u32),
 }
 
 pub struct MenuState {
     selected_channel: Channel,
     menu_page: MenuPage,
     shift_was_pressed: bool,
-    // TODO: keep track of which save slots have been written to
-    // check sentinel values on init menu state (user-set, factory-set, or unset)
-    // if they are not known values, init w/ factory patterns and write factory sentinels
-    // keep track of state over runtime
+    save_slots_in_use: [bool; 12],
 }
 
 impl MenuState {
-    pub fn new() -> Self {
+    pub fn new(eeprom: &mut Eeprom) -> Self {
         Self {
             selected_channel: Channel::A,
             menu_page: MenuPage::MainMenu,
             shift_was_pressed: false,
+            save_slots_in_use: check_scale_save_slots(eeprom),
         }
     }
 
@@ -160,6 +159,7 @@ impl MenuState {
         quantizer_state: &mut QuantizerState,
         buttons: &ButtonInput,
         active_notes: &QuantizationResult,
+        current_time_ms: u32,
         eeprom: &mut Eeprom,
     ) -> [LedColor; 12] {
         if self.shift_was_pressed && !buttons.shift_pressed {
@@ -216,12 +216,14 @@ impl MenuState {
                 MenuPage::ShowChangedBoolOption(_) => {}
                 MenuPage::SelectSaveSlot => {
                     write_scale(eeprom, n, quantizer_state, &self.selected_channel);
-                    self.menu_page = MenuPage::MainMenu;
+                    self.save_slots_in_use[n as usize] = true;
+                    self.menu_page = MenuPage::ConfirmSaveSlot(n, current_time_ms);
                 }
                 MenuPage::SelectLoadSlot => {
                     read_scale(eeprom, n, quantizer_state, &self.selected_channel);
                     self.menu_page = MenuPage::MainMenu;
                 }
+                MenuPage::ConfirmSaveSlot(_, _) => {}
             },
             ButtonEvent::ButtonJustReleased => match self.menu_page {
                 MenuPage::ScalarSubMenu(ScalarSubMenuStatus::ExitOnButtonRelease, _) => {
@@ -245,7 +247,14 @@ impl MenuState {
                 render_bool_option(&quantizer_state, &self.selected_channel, option)
             }
             MenuPage::SelectSaveSlot | MenuPage::SelectLoadSlot => {
-                render_save_menu(&self.selected_channel)
+                render_save_menu(&self.selected_channel, &self.save_slots_in_use)
+            }
+            MenuPage::ConfirmSaveSlot(slot, start) => {
+                let time = current_time_ms - start;
+                if time >= 1024 {
+                    self.menu_page = MenuPage::MainMenu
+                }
+                render_confirm_save(&self.selected_channel, time, slot)
             }
         }
     }
@@ -392,11 +401,35 @@ fn render_sub_menu_signed(n: i8) -> [LedColor; 12] {
     leds
 }
 
-fn render_save_menu(selected_channel: &Channel) -> [LedColor; 12] {
-    match selected_channel {
-        Channel::A => [LedColor::GREEN; 12],
-        Channel::B => [LedColor::RED; 12],
+fn render_save_menu(selected_channel: &Channel, save_slots: &[bool; 12]) -> [LedColor; 12] {
+    let color = match selected_channel {
+        Channel::A => LedColor::GREEN,
+        Channel::B => LedColor::RED,
+    };
+
+    let mut result = [LedColor::OFF; 12];
+
+    for i in 0..12u8 {
+        if save_slots[i as usize] {
+            result[i as usize] = color;
+        }
     }
+
+    result
+}
+
+fn render_confirm_save(selected_channel: &Channel, time: u32, slot: u8) -> [LedColor; 12] {
+    let mut result = [LedColor::OFF; 12];
+
+    if time & 128 == 0 {
+        let color = match selected_channel {
+            Channel::A => LedColor::GREEN,
+            Channel::B => LedColor::RED,
+        };
+        result[slot as usize] = color;
+    }
+
+    result
 }
 
 pub struct ButtonInput {
