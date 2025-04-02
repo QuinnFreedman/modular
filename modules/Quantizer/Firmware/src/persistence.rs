@@ -47,6 +47,18 @@ pub fn check_save_slots(eeprom: &mut Eeprom) -> (BitVec<12>, BitVec<12>) {
     (scales, configs)
 }
 
+pub fn erase_all_save_slots(eeprom: &mut Eeprom) {
+    for i in 0..12 {
+        let address = STORAGE_OFFSET + i * 3;
+        eeprom.erase_byte(address as u16);
+    }
+    let offset = STORAGE_OFFSET + 12 * 3;
+    for i in 0..12 {
+        let address = offset + i * 18;
+        eeprom.erase_byte(address as u16);
+    }
+}
+
 pub fn write_scale(
     eeprom: &mut Eeprom,
     slot: u8,
