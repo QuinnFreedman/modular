@@ -7,7 +7,6 @@
 #![feature(adt_const_params)]
 #![feature(generic_const_exprs)]
 #![feature(const_trait_impl)]
-#![feature(inline_const)]
 #![feature(cell_update)]
 
 mod bitvec;
@@ -32,7 +31,7 @@ use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
 use fm_lib::asynchronous::unsafe_access_mutex;
 use fm_lib::asynchronous::AtomicRead as _;
-use fm_lib::button_debouncer::ButtonDebouncer;
+use fm_lib::button_debouncer::ButtonWithLongPress;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
 use fm_lib::{
@@ -64,7 +63,6 @@ fn ADC() {
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
-    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let mut eeprom = arduino_hal::Eeprom::new(dp.EEPROM);
     let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
@@ -121,8 +119,8 @@ fn main() -> ! {
 
     let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
     let mut button_state = ButtonLadderState::new();
-    let mut save_button = ButtonDebouncer::<PD7, 32>::new(pins.d7.into_pull_up_input());
-    let mut load_button = ButtonDebouncer::<PD6, 32>::new(pins.d6.into_pull_up_input());
+    let mut save_button = ButtonWithLongPress::<PD7, 32, 2000>::new(pins.d7.into_pull_up_input());
+    let mut load_button = ButtonWithLongPress::<PD6, 32, 2000>::new(pins.d6.into_pull_up_input());
 
     let mut last_output = QuantizationResult::zero();
 
