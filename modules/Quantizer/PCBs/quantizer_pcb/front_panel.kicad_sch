@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "Quantizer")
-		(date "2024-12-18")
-		(rev "v0.1")
+		(date "2025-04-02")
+		(rev "v0.2")
 		(company "Free Modular")
 	)
 	(lib_symbols
@@ -3769,6 +3769,17 @@
 		)
 		(uuid "ac8f056b-8500-4f77-9517-db509897c562")
 	)
+	(hierarchical_label "vref_+5"
+		(shape input)
+		(at 49.53 21.59 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b45894be-3f3c-435a-b0d9-b4085225dfda")
+	)
 	(hierarchical_label "GND"
 		(shape input)
 		(at 91.44 168.91 270)
@@ -3801,17 +3812,6 @@
 			(justify left)
 		)
 		(uuid "c6737e18-3751-4a3d-9620-b64d3889f26b")
-	)
-	(hierarchical_label "5V"
-		(shape input)
-		(at 49.53 21.59 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "cb8197f1-8957-4c1b-aab4-34adb9f974bc")
 	)
 	(hierarchical_label "GND"
 		(shape input)
