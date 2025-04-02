@@ -2,11 +2,13 @@ use core::arch::asm;
 use core::panic;
 
 use arduino_hal::Eeprom;
-use fm_lib::button_debouncer::ButtonState;
+use fm_lib::button_debouncer::{ButtonState, LongPressButtonState};
 
 use crate::{
     bitvec::BitVec,
-    persistence::{check_save_slots, read_config, read_scale, write_config, write_scale},
+    persistence::{
+        check_save_slots, erase_all_save_slots, read_config, read_scale, write_config, write_scale,
+    },
     quantizer::{PitchMode, QuantizationResult, QuantizerChannel, QuantizerState, SampleMode},
     resistor_ladder_buttons::ButtonEvent,
 };
@@ -66,6 +68,7 @@ enum MenuPage {
     SelectSaveSlot(SaveSlotType),
     SelectLoadSlot(SaveSlotType),
     ConfirmSaveSlot(u8, SaveSlotType, u32),
+    ConfirmErase(u32),
 }
 
 #[derive(Clone, Copy)]
@@ -186,7 +189,7 @@ impl MenuState {
         }
         self.shift_was_pressed = buttons.shift_pressed;
 
-        if buttons.save_button == ButtonState::ButtonJustPressed {
+        if buttons.save_button == LongPressButtonState::ButtonJustDown {
             match self.menu_page {
                 MenuPage::SelectSaveSlot(_) | MenuPage::SelectLoadSlot(_) => {
                     self.menu_page = MenuPage::MainMenu
@@ -200,7 +203,7 @@ impl MenuState {
                     })
                 }
             };
-        } else if buttons.load_button == ButtonState::ButtonJustPressed {
+        } else if buttons.load_button == LongPressButtonState::ButtonJustDown {
             match self.menu_page {
                 MenuPage::SelectSaveSlot(_) | MenuPage::SelectLoadSlot(_) => {
                     self.menu_page = MenuPage::MainMenu;
@@ -214,6 +217,15 @@ impl MenuState {
                     });
                 }
             };
+        } else if (buttons.load_button == LongPressButtonState::ButtonHeldDownLong
+            && buttons.save_button == LongPressButtonState::ButtonJustClickedLong)
+            || (buttons.load_button == LongPressButtonState::ButtonJustClickedLong
+                && buttons.save_button == LongPressButtonState::ButtonHeldDownLong)
+        {
+            self.menu_page = MenuPage::ConfirmErase(current_time_ms);
+            self.scale_save_slots_in_use = BitVec::new();
+            self.config_save_slots_in_use = BitVec::new();
+            erase_all_save_slots(eeprom);
         }
 
         match buttons.key_event {
@@ -268,6 +280,7 @@ impl MenuState {
                     self.menu_page = MenuPage::MainMenu;
                 }
                 MenuPage::ConfirmSaveSlot(_, _, _) => {}
+                MenuPage::ConfirmErase(_) => {}
             },
             ButtonEvent::ButtonJustReleased => match self.menu_page {
                 MenuPage::ScalarSubMenu(ScalarSubMenuStatus::ExitOnButtonRelease, _) => {
@@ -303,6 +316,13 @@ impl MenuState {
                     self.menu_page = MenuPage::MainMenu
                 }
                 render_confirm_save(&self.selected_channel, &slot_type, &time, slot)
+            }
+            MenuPage::ConfirmErase(start) => {
+                let time = current_time_ms - start;
+                if time >= 832 {
+                    self.menu_page = MenuPage::MainMenu
+                }
+                render_confirm_erse(&time)
             }
         }
     }
@@ -503,9 +523,18 @@ fn render_confirm_save(
     result
 }
 
+fn render_confirm_erse(time: &u32) -> [LedColor; 12] {
+    let time_lsbs = (time & u16::MAX as u32) as u16;
+
+    let index = (time_lsbs / 64).min(12) % 12;
+    let mut leds = [LedColor::OFF; 12];
+    leds[index as usize] = LedColor::AMBER;
+    leds
+}
+
 pub struct ButtonInput {
     pub key_event: ButtonEvent,
-    pub load_button: ButtonState,
-    pub save_button: ButtonState,
+    pub load_button: LongPressButtonState,
+    pub save_button: LongPressButtonState,
     pub shift_pressed: bool,
 }
