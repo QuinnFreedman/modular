@@ -1516,10 +1516,6 @@
 		(uuid "fd8741ff-c0b0-4605-8ff0-a95de28625f4")
 	)
 	(no_connect
-		(at 256.54 123.19)
-		(uuid "192e9e59-ef9e-4967-b59b-3c5f342f6473")
-	)
-	(no_connect
 		(at 137.16 149.86)
 		(uuid "27c26e08-78b2-4a92-912c-ecbbe9a170bc")
 	)
@@ -1528,8 +1524,12 @@
 		(uuid "29efcf28-2935-4bca-b61d-3ed26ec84e73")
 	)
 	(no_connect
-		(at 214.63 151.13)
-		(uuid "2f00c0fc-69be-42fb-ab7a-813baa19845c")
+		(at 256.54 151.13)
+		(uuid "3e18d0b1-b712-4ebb-a356-b069dc7cf610")
+	)
+	(no_connect
+		(at 256.54 128.27)
+		(uuid "49d7ada1-86a8-47ad-bee5-bf1d0ae112a9")
 	)
 	(no_connect
 		(at 101.6 165.1)
@@ -1540,15 +1540,15 @@
 		(uuid "6a943617-763f-4e65-926f-6a6234f94f9d")
 	)
 	(no_connect
+		(at 214.63 146.05)
+		(uuid "917b794e-498a-4ff3-8390-124a6b6124cd")
+	)
+	(no_connect
 		(at 101.6 149.86)
 		(uuid "a9756c23-2ccc-444c-9aee-ca26e3cd414f")
 	)
 	(no_connect
-		(at 256.54 146.05)
-		(uuid "aad012b6-c38a-45a8-8a4a-96efaa68af31")
-	)
-	(no_connect
-		(at 214.63 128.27)
+		(at 214.63 123.19)
 		(uuid "d9f6ac78-a726-4143-8d8d-2c9f127edb8a")
 	)
 	(no_connect
@@ -1587,7 +1587,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 123.19) (xy 219.71 123.19)
+			(xy 214.63 128.27) (xy 219.71 128.27)
 		)
 		(stroke
 			(width 0)
@@ -1717,7 +1717,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 146.05) (xy 219.71 148.59)
+			(xy 219.71 151.13) (xy 219.71 153.67)
 		)
 		(stroke
 			(width 0)
@@ -1817,7 +1817,7 @@
 	)
 	(wire
 		(pts
-			(xy 256.54 151.13) (xy 261.62 151.13)
+			(xy 256.54 146.05) (xy 261.62 146.05)
 		)
 		(stroke
 			(width 0)
@@ -1847,7 +1847,7 @@
 	)
 	(wire
 		(pts
-			(xy 261.62 151.13) (xy 261.62 153.67)
+			(xy 261.62 146.05) (xy 261.62 148.59)
 		)
 		(stroke
 			(width 0)
@@ -2297,7 +2297,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 146.05) (xy 219.71 146.05)
+			(xy 214.63 151.13) (xy 219.71 151.13)
 		)
 		(stroke
 			(width 0)
@@ -2647,7 +2647,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 123.19) (xy 219.71 125.73)
+			(xy 219.71 128.27) (xy 219.71 130.81)
 		)
 		(stroke
 			(width 0)
@@ -2747,7 +2747,7 @@
 	)
 	(wire
 		(pts
-			(xy 261.62 128.27) (xy 261.62 130.81)
+			(xy 261.62 123.19) (xy 261.62 125.73)
 		)
 		(stroke
 			(width 0)
@@ -3057,7 +3057,7 @@
 	)
 	(wire
 		(pts
-			(xy 256.54 128.27) (xy 261.62 128.27)
+			(xy 256.54 123.19) (xy 261.62 123.19)
 		)
 		(stroke
 			(width 0)
@@ -3573,7 +3573,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 261.62 130.81 270)
+		(at 261.62 125.73 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3661,7 +3661,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 261.62 153.67 270)
+		(at 261.62 148.59 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3716,7 +3716,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 219.71 148.59 270)
+		(at 219.71 153.67 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3815,7 +3815,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 219.71 125.73 270)
+		(at 219.71 130.81 270)
 		(effects
 			(font
 				(size 1.27 1.27)
