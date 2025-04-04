@@ -24,12 +24,12 @@ use arduino_hal::prelude::*;
 use arduino_hal::Spi;
 use avr_device::interrupt;
 use avr_device::interrupt::Mutex;
+use embedded_hal::digital::v2::OutputPin;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
 use fixed::types::U16F16;
 use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
-use fm_lib::asynchronous::unsafe_access_mutex;
 use fm_lib::asynchronous::AtomicRead as _;
 use fm_lib::button_debouncer::ButtonWithLongPress;
 use fm_lib::mcp4922::DacChannel;
@@ -53,6 +53,8 @@ handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
 
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3, 3> = new_averaging_async_adc_state();
 static DAC_WRITE_QUEUED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+static TRIGGER_A_QUEUED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
+static TRIGGER_B_QUEUED: Mutex<Cell<bool>> = Mutex::new(Cell::new(false));
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
@@ -79,6 +81,13 @@ fn main() -> ! {
     );
     let a5 = pins.a5.into_analog_input(&mut adc);
     let mut led_driver_cs_pin = pins.d9.into_output_high();
+    let mut input_led_a_pin = pins.a1.into_output();
+    let mut output_led_a_pin = pins.a2.into_output();
+    let mut input_led_b_pin = pins.a3.into_output();
+    let mut output_led_b_pin = pins.a4.into_output();
+    pins.d4.into_output(); // Trigger output A
+    pins.d5.into_output(); // Trigger output B
+
     // TODO replace this with pullup resistor to BLANK pin
     led_driver_cs_pin.set_low();
     spi.transfer(&mut [0x00u8; 36]).unwrap_infallible();
@@ -176,8 +185,16 @@ fn main() -> ! {
 
         last_output = result;
 
-        unsafe_access_mutex(|cs| DAC_WRITE_QUEUED.borrow(cs).set(true));
+        TRIGGER_A_QUEUED.atomic_write(last_output.channel_a.trigger_output);
+        TRIGGER_B_QUEUED.atomic_write(last_output.channel_b.trigger_output);
+        DAC_WRITE_QUEUED.atomic_write(true);
 
+        output_led_a_pin
+            .set_state(last_output.channel_a.trigger_ui.into())
+            .unwrap_infallible();
+        output_led_b_pin
+            .set_state(last_output.channel_b.trigger_ui.into())
+            .unwrap_infallible();
         update_leds(&mut spi, &leds);
     }
 }
@@ -221,10 +238,10 @@ fn semitones_to_dac(semitones: I8F8) -> u16 {
 fn configure_timer(tc2: &arduino_hal::pac::TC2) {
     // reset timer counter at TOP set by OCRA
     tc2.tccr2a.write(|w| w.wgm2().ctc());
-    // set timer frequency to cycle at ~780Hz
-    // (16MHz clock speed / 128 prescale factor / 160 count/reset )
+    // set timer frequency to cycle at 1kHz
+    // (16MHz clock speed / 128 prescale factor / 125 count/reset )
     tc2.tccr2b.write(|w| w.cs2().prescale_128());
-    tc2.ocr2a.write(|w| w.bits(160));
+    tc2.ocr2a.write(|w| w.bits(125));
 
     // enable interrupt on match to compare register A
     tc2.timsk2.write(|w| w.ocie2a().set_bit());
@@ -240,8 +257,14 @@ fn TIMER2_COMPA() {
             dp.PORTB
                 .portb
                 .modify(|r, w| unsafe { w.bits(r.bits()) }.pb2().set_bit());
+            dp.PORTD.portd.modify(|r, w| {
+                unsafe { w.bits(r.bits()) }
+                    .pd4()
+                    .bit(TRIGGER_A_QUEUED.borrow(cs).get())
+                    .pd5()
+                    .bit(TRIGGER_B_QUEUED.borrow(cs).get())
+            });
         } else {
-            let dp = unsafe { arduino_hal::Peripherals::steal() };
             let pins = arduino_hal::pins!(dp);
             let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
             uwrite!(&mut serial, ".").unwrap_infallible();
