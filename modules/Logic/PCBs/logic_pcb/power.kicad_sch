@@ -4503,6 +4503,15 @@
 				(hide yes)
 			)
 		)
+		(property "JLC" "C156291"
+			(at 86.36 63.5 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "3"
 			(uuid "2ba042b3-a125-48c9-9a3e-11e7aa4ebe1f")
 		)
@@ -4799,7 +4808,7 @@
 		(at 74.93 96.52 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
