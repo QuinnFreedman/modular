@@ -10223,6 +10223,103 @@
 			)
 		)
 	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "6e58a29c-7fd4-47f2-ae3d-a03fc1b5b401")
+		(at 118.9925 50.82)
+		(descr "Mark board for extraction")
+		(property "Reference" "B2"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "1fc52417-1c15-4ebd-8681-d94050ae97b0")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "ebd9beb2-e9ca-469f-9ba3-1b6577bc9db7")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "d877a484-f232-42fe-beac-35b2332e2e6e")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "a659d0d4-0cff-4721-8338-1335232e6206")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "b1adbf0d-b43b-4e44-88c0-8584b38f2a8a")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "01ef2158-4c98-43bb-9dff-3fd082d67d64")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "1172b5c7-36ba-4f3d-8617-55e0f01990fd")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "86768e8e-b4c2-4ced-8926-cf9d7e9fef23")
+		)
+		(embedded_fonts no)
+	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "F.Cu")
 		(uuid "764fcec1-1096-4c53-aa07-79b74884e200")
@@ -15487,6 +15584,103 @@
 				(xyz 0 0 0)
 			)
 		)
+	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "cc80a2bb-22b5-44f1-b87c-92426252ae0f")
+		(at 72.0025 50.82)
+		(descr "Mark board for extraction")
+		(property "Reference" "B1"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "e688dbf2-69d1-4fff-bf05-bef415e651c4")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "a7ac6cbb-2492-4121-8c1e-865df13afd0e")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "61a984d9-5628-40e3-a1f5-235a7c48ec38")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "0a560412-5891-4b29-8c6c-ee7853c6a7a1")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "cce99961-062c-481f-b4e3-403ef83d738d")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "88100519-01c7-4e93-8e42-c1156ed0cf88")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "5121299e-c20a-4c39-af9f-2a5e0e5d82da")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "ad17851b-d85a-4352-abb9-c02b58f9dfea")
+		)
+		(embedded_fonts no)
 	)
 	(footprint "FreeModular:logo_very_small"
 		(layer "F.Cu")

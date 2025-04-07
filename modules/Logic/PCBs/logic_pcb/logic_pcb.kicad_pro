@@ -534,7 +534,7 @@
   },
   "schematic": {
     "annotate_start_num": 0,
-    "bom_export_filename": "",
+    "bom_export_filename": "logic_pcb.csv",
     "bom_fmt_presets": [],
     "bom_fmt_settings": {
       "field_delimiter": ",",
@@ -550,6 +550,12 @@
       "exclude_dnp": false,
       "fields_ordered": [
         {
+          "group_by": false,
+          "label": "Designator",
+          "name": "Reference",
+          "show": true
+        },
+        {
           "group_by": true,
           "label": "Comment",
           "name": "Value",
@@ -557,8 +563,8 @@
         },
         {
           "group_by": false,
-          "label": "Designator",
-          "name": "Reference",
+          "label": "Footprint",
+          "name": "Footprint",
           "show": true
         },
         {
@@ -569,9 +575,9 @@
         },
         {
           "group_by": false,
-          "label": "Footprint",
-          "name": "Footprint",
-          "show": true
+          "label": "Description",
+          "name": "Description",
+          "show": false
         },
         {
           "group_by": false,
@@ -581,15 +587,21 @@
         },
         {
           "group_by": false,
-          "label": "DNP",
-          "name": "${DNP}",
+          "label": "#",
+          "name": "${ITEM_NUMBER}",
           "show": false
         },
         {
           "group_by": false,
-          "label": "#",
-          "name": "${ITEM_NUMBER}",
+          "label": "Footprint JLCPCB",
+          "name": "Footprint JLCPCB",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "JLCPCB Part #",
+          "name": "JLC",
+          "show": true
         },
         {
           "group_by": false,
@@ -605,15 +617,9 @@
         },
         {
           "group_by": false,
-          "label": "Description",
-          "name": "Description",
+          "label": "DNP",
+          "name": "${DNP}",
           "show": false
-        },
-        {
-          "group_by": false,
-          "label": "JLCPCB Part #",
-          "name": "JLC",
-          "show": true
         }
       ],
       "filter_string": "",
