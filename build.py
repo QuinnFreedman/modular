@@ -366,4 +366,5 @@ if __name__ == "__main__":
     build("Drift", output_dir, [("front", "B1"), ("back", "B2")], manual_pages=2)
     build("Boost", output_dir)
     build("Quantizer", output_dir, [("front", "B1"), ("back", "B2")])
+    build("Logic", output_dir, [("front", "B1"), ("back", "B2")])
 
