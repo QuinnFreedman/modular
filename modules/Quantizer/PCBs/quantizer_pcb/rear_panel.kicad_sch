@@ -1776,6 +1776,113 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -4565,6 +4672,12 @@
 		(uuid "1a935143-1c60-45dc-9efe-925645a21be3")
 	)
 	(junction
+		(at 243.84 113.03)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1e46a8e1-ee9e-4c98-889c-c94d7eefd24c")
+	)
+	(junction
 		(at 259.08 85.09)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4605,6 +4718,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "3e436b3b-b41e-42b6-9814-c135224aaa6f")
+	)
+	(junction
+		(at 180.34 138.43)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "3f464dd1-0006-4b57-9452-928db77b1bc2")
 	)
 	(junction
 		(at 213.36 55.88)
@@ -5554,7 +5673,7 @@
 	)
 	(wire
 		(pts
-			(xy 250.19 113.03) (xy 231.14 113.03)
+			(xy 250.19 113.03) (xy 243.84 113.03)
 		)
 		(stroke
 			(width 0)
@@ -5654,7 +5773,7 @@
 	)
 	(wire
 		(pts
-			(xy 175.26 138.43) (xy 189.23 138.43)
+			(xy 175.26 138.43) (xy 180.34 138.43)
 		)
 		(stroke
 			(width 0)
@@ -6191,6 +6310,16 @@
 			(type default)
 		)
 		(uuid "993d40b8-595c-4f1d-9508-1152d1a4fa86")
+	)
+	(wire
+		(pts
+			(xy 180.34 138.43) (xy 189.23 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c4fe152-aca2-4f0a-bf8a-9092aaeba90a")
 	)
 	(wire
 		(pts
@@ -6821,6 +6950,16 @@
 			(type default)
 		)
 		(uuid "da986b8a-7656-4ae9-a7c1-b295c75ec3b6")
+	)
+	(wire
+		(pts
+			(xy 243.84 113.03) (xy 231.14 113.03)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd009aec-afc7-4b90-ac95-2942de2270fe")
 	)
 	(wire
 		(pts
@@ -11250,6 +11389,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 243.84 113.03 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e5ba17c7-2c5c-4f2a-a909-efd05788d4c2")
+		(property "Reference" "TP1"
+			(at 246.38 108.4579 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "5VREF"
+			(at 246.38 110.9979 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x01_P2.54mm_Vertical"
+			(at 248.92 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 248.92 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 243.84 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "05ba5169-2fb9-48e8-a442-127e32b01a64")
+		)
+		(instances
+			(project ""
+				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
+					(reference "TP1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Amplifier_Operational:MCP6004")
 		(at 59.69 44.45 0)
 		(unit 4)
@@ -11516,6 +11722,73 @@
 			(project "quantizer_pcb"
 				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
 					(reference "R20")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 180.34 138.43 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f144af52-6fc0-46fc-81b8-14ab711c148d")
+		(property "Reference" "TP2"
+			(at 182.88 133.8579 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "5V"
+			(at 182.88 136.3979 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x01_P2.54mm_Vertical"
+			(at 185.42 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 185.42 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 180.34 138.43 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "662424e8-2682-47de-99c1-fdbdeec8d1eb")
+		)
+		(instances
+			(project "quantizer_pcb"
+				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
+					(reference "TP2")
 					(unit 1)
 				)
 			)
