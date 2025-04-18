@@ -2457,7 +2457,7 @@
 				)
 			)
 		)
-		(property "Value" "Conn_01x08_Pin"
+		(property "Value" "Conn_01x09_Pin"
 			(at 119.634 116.586 90)
 			(effects
 				(font
@@ -2794,7 +2794,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x08_Socket"
+		(property "Value" "Conn_01x09_Socket"
 			(at 111.76 127.508 90)
 			(effects
 				(font
