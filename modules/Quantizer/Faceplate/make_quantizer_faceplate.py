@@ -47,7 +47,7 @@ for i in range(12):
     x = math.cos(theta)
     y = math.sin(theta)
     module.add(TL1105SP(x * r1, circle_center + y * r1))
-    module.add(SmallLED(x * r2, circle_center + y * r2 - inches(.05)))
+    module.add(SmallLED(x * r2, circle_center + y * r2 - inches(.05), color="#fca002"))
 
     def add_icon(d):
         group = d.g(transform=f"translate({(x * r3) - 1.5},{circle_center + (y * r3) - 1.5})")
@@ -95,10 +95,10 @@ module.add(JackSocketCentered(-(jack_pos_x + jack_spacing_x), jack_start_y + jac
 module.add(JackSocketCentered(-jack_pos_x, jack_start_y + jack_spacing_y, "Out", True, rotation=2))
 
 led_pos_1 = -(jack_pos_x + jack_spacing_x / 2), jack_start_y - jack_spacing_x / 2 - inches(.05)
-module.add(SmallLED(*led_pos_1))
+module.add(SmallLED(*led_pos_1, color="#08c914"))
 draw_line((led_pos_1[0], led_pos_1[1] + inches(.05)), (-jack_pos_x, jack_start_y))
 led_pos_2 = -(jack_pos_x + jack_spacing_x / 2), jack_start_y + jack_spacing_y - jack_spacing_x / 2 - inches(.05)
-module.add(SmallLED(*led_pos_2))
+module.add(SmallLED(*led_pos_2, color="#08c914"))
 draw_line((led_pos_2[0], led_pos_2[1] + inches(.05)), (-(jack_pos_x+jack_spacing_x), jack_start_y+jack_spacing_y))
 
 module.add(JackSocketCentered(jack_pos_x, jack_start_y, "V/O In", False, rotation=2))
