@@ -27,26 +27,13 @@ pub fn render_submenu_page<DI, SIZE>(
 {
     match menu_update {
         MenuUpdate::UpdateValueAtCursor | MenuUpdate::ToggleEditingAtCursor => {
-            draw_submenu_item(
-                cursor,
-                true,
-                scroll,
-                editing.into(),
-                false,
-                channel,
-                display,
-            );
+            draw_submenu_item(cursor, true, 0, editing.into(), false, channel, display);
         }
         MenuUpdate::MoveCursorFrom(_) | MenuUpdate::Scroll(_) | MenuUpdate::SwitchScreens => {
-            let at_top = scroll == 0;
-            let at_bottom = scroll >= 3;
-            draw_arrows(true, !at_top, display);
-            draw_arrows(false, !at_bottom, display);
-            for i in scroll..scroll + 2 {
-                let selected = cursor == i;
-                let editing_item = match editing {
+            if channel.division == -65 {
+                let editing_division = match editing {
                     EditingState::Editing => {
-                        if selected {
+                        if cursor == 0 {
                             EditingState::Editing
                         } else {
                             EditingState::Navigating
@@ -54,7 +41,43 @@ pub fn render_submenu_page<DI, SIZE>(
                     }
                     EditingState::Navigating => EditingState::Navigating,
                 };
-                draw_submenu_item(i, selected, scroll, editing_item, true, channel, display);
+                draw_arrows(true, false, display);
+                draw_arrows(false, false, display);
+                draw_submenu_item(
+                    0,
+                    cursor == 0,
+                    scroll,
+                    editing_division,
+                    true,
+                    channel,
+                    display,
+                );
+                let exit_y_offset = 24 + 8;
+                draw_submenu_item_label(exit_y_offset, cursor == 4, SubMenuItem::Exit, display);
+                let mut buffer = MiniBuffer::<54, 24>::new();
+                if cursor == 4 {
+                    buffer.clear(BinaryColor::On).assert_ok();
+                }
+                buffer.blit(display, 74, exit_y_offset).assert_ok();
+            } else {
+                let at_top = scroll == 0;
+                let at_bottom = scroll >= 3;
+                draw_arrows(true, !at_top, display);
+                draw_arrows(false, !at_bottom, display);
+                for i in scroll..scroll + 2 {
+                    let selected = cursor == i;
+                    let editing_item = match editing {
+                        EditingState::Editing => {
+                            if selected {
+                                EditingState::Editing
+                            } else {
+                                EditingState::Navigating
+                            }
+                        }
+                        EditingState::Navigating => EditingState::Navigating,
+                    };
+                    draw_submenu_item(i, selected, scroll, editing_item, true, channel, display);
+                }
             }
         }
         MenuUpdate::NoUpdate | MenuUpdate::ScreenSaverStep(_) => {}

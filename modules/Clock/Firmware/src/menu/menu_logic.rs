@@ -235,16 +235,22 @@ fn handle_rotary_knob_change(
             channel: channel_idx,
             ref mut cursor,
             ref mut scroll,
-        } => match menu_state.editing {
-            EditingState::Editing => {
-                let channel: &mut ClockChannelConfig =
-                    &mut clock_state.channels[channel_idx as usize];
-                match SubMenuItem::from(*cursor) {
+        } => {
+            let channel: &mut ClockChannelConfig = &mut clock_state.channels[channel_idx as usize];
+            match menu_state.editing {
+                EditingState::Editing => match SubMenuItem::from(*cursor) {
                     SubMenuItem::Division => {
+                        let old_division = channel.division;
                         channel.division =
                             single_step_clock_division(channel.division, rotary_encoder_delta);
                         persistance_manager.set_division(channel_idx, channel.division);
-                        MenuUpdate::UpdateValueAtCursor
+                        if channel.division != old_division
+                            && (old_division == -65 || channel.division == -65)
+                        {
+                            MenuUpdate::SwitchScreens
+                        } else {
+                            MenuUpdate::UpdateValueAtCursor
+                        }
                     }
                     SubMenuItem::PulseWidth => {
                         channel.pulse_width = channel
@@ -271,23 +277,36 @@ fn handle_rotary_knob_change(
                         MenuUpdate::UpdateValueAtCursor
                     }
                     SubMenuItem::Exit => MenuUpdate::NoUpdate,
+                },
+                EditingState::Navigating => {
+                    let old_cursor = *cursor;
+                    if channel.division == -65 {
+                        if rotary_encoder_delta < 0 {
+                            *cursor = 0;
+                        } else if rotary_encoder_delta > 0 {
+                            *cursor = 4;
+                        }
+                        if old_cursor == *cursor {
+                            MenuUpdate::NoUpdate
+                        } else {
+                            MenuUpdate::MoveCursorFrom(old_cursor)
+                        }
+                    } else {
+                        *cursor = cursor.saturating_add_signed(rotary_encoder_delta).min(4);
+                        if old_cursor == *cursor {
+                            MenuUpdate::NoUpdate
+                        } else if *cursor < *scroll {
+                            *scroll = *cursor;
+                            MenuUpdate::Scroll(ScrollDirection::Up)
+                        } else if *cursor > *scroll + 1 {
+                            *scroll = *cursor - 1;
+                            MenuUpdate::Scroll(ScrollDirection::Down)
+                        } else {
+                            MenuUpdate::MoveCursorFrom(old_cursor)
+                        }
+                    }
                 }
             }
-            EditingState::Navigating => {
-                let old_cursor = *cursor;
-                *cursor = cursor.saturating_add_signed(rotary_encoder_delta).min(4);
-                if old_cursor == *cursor {
-                    MenuUpdate::NoUpdate
-                } else if *cursor < *scroll {
-                    *scroll = *cursor;
-                    MenuUpdate::Scroll(ScrollDirection::Up)
-                } else if *cursor > *scroll + 1 {
-                    *scroll = *cursor - 1;
-                    MenuUpdate::Scroll(ScrollDirection::Down)
-                } else {
-                    MenuUpdate::MoveCursorFrom(old_cursor)
-                }
-            }
-        },
+        }
     }
 }

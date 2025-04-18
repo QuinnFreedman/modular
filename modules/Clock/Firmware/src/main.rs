@@ -162,12 +162,7 @@ fn main() -> ! {
         match pause_button_state {
             LongPressButtonState::ButtonJustDown => {
                 is_paused = !is_paused;
-                if is_paused {
-                    unsafe_peripherals
-                        .PORTD
-                        .portd
-                        .write(|w| unsafe { w.bits(0x00) });
-                } else {
+                if !is_paused {
                     clock_state.reset();
                     start_time = current_time_us;
                 }
@@ -200,13 +195,12 @@ fn main() -> ! {
 
         // Handle clock logic and write clock state to output pins
         let clock_time = current_time_us.wrapping_sub(start_time);
-        let (pin_state, did_rollover) = clock::sample(&clock_config, &mut clock_state, clock_time);
-        if !is_paused {
-            unsafe_peripherals
-                .PORTD
-                .portd
-                .write(|w| unsafe { w.bits(pin_state) });
-        }
+        let (pin_state, did_rollover) =
+            clock::sample(&clock_config, &mut clock_state, clock_time, is_paused);
+        unsafe_peripherals
+            .PORTD
+            .portd
+            .write(|w| unsafe { w.bits(pin_state) });
 
         // Handle menu logic
         let menu_update = update_menu(

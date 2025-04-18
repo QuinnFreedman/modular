@@ -69,7 +69,17 @@ pub fn sample(
     config: &ClockConfig,
     state: &mut ClockState,
     current_time_micros: u64,
+    is_paused: bool,
 ) -> (u8, bool) {
+    if is_paused {
+        let mut result: u8 = 0;
+        for i in 0..NUM_CHANNELS {
+            let channel = &config.channels[i as usize];
+            let is_on = channel.division == -65;
+            result |= (is_on as u8) << i;
+        }
+        return (result, false);
+    }
     let mut did_rollover = false;
     let mut micros_in_current_cycle = (current_time_micros - state.last_cycle_start_time) as u32;
     let micros_per_cycle = MICROS_PER_MINUTE / config.bpm as u32;
@@ -133,14 +143,7 @@ fn channel_is_on(
     // depending on if channel is a multiple or division)
     let (ms_per_channel_period, mut ms_into_current_channel_period, mut is_even_channel_period) =
         if channel.division == -65 {
-            // -65 is the "ONCE" speed. It behaves like 1x on the first cycle
-            // and then is always off after that
-            let time = if core_cycle_count == 0 {
-                ms_into_current_core_cycle
-            } else {
-                ms_per_core_cycle
-            };
-            (ms_per_core_cycle, time, false)
+            return false;
         } else if channel.division <= 1 {
             let core_cycles_per_period = channel.division.abs() as u32;
             (

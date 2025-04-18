@@ -47,10 +47,10 @@ pub fn tempo_to_str<'a>(buffer: &'a mut [u8], n: i8) -> &'a [u8] {
     debug_assert!(n != 0);
 
     if n < -64 {
-        buffer[0] = b'O';
-        buffer[1] = b'N';
-        buffer[2] = b'C';
-        buffer[3] = b'E';
+        buffer[0] = b'S';
+        buffer[1] = b'T';
+        buffer[2] = b'O';
+        buffer[3] = b'P';
         return buffer;
     }
 
