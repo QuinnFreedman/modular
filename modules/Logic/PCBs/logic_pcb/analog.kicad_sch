@@ -4,6 +4,12 @@
 	(generator_version "9.0")
 	(uuid "30bf1d3c-84f5-4b22-9a08-9d31b5404abf")
 	(paper "A4")
+	(title_block
+		(title "ALU")
+		(date "2025-04-18")
+		(rev "v1.0")
+		(company "Free Modular")
+	)
 	(lib_symbols
 		(symbol "Amplifier_Operational:LM324"
 			(pin_names
