@@ -4,6 +4,12 @@
 	(generator_version "9.0")
 	(uuid "827d49e1-3b8d-4b64-8b47-ab3af8e7db97")
 	(paper "A4")
+	(title_block
+		(title "ALU")
+		(date "2025-04-18")
+		(rev "v1.0")
+		(company "Free Modular")
+	)
 	(lib_symbols
 		(symbol "FreeModular:THONKICONN"
 			(pin_names
@@ -561,7 +567,7 @@
 		(uuid "fcf10eea-c56e-4d6b-8c0e-9aa54ba58491")
 	)
 	(hierarchical_label "XOR_OUT"
-		(shape output)
+		(shape input)
 		(at 125.73 109.22 180)
 		(effects
 			(font
@@ -572,7 +578,7 @@
 		(uuid "029f9472-7f8e-46ff-8f4d-63255df900d2")
 	)
 	(hierarchical_label "OR_OUT"
-		(shape output)
+		(shape input)
 		(at 125.73 63.5 180)
 		(effects
 			(font
@@ -583,7 +589,7 @@
 		(uuid "131ff2e0-339f-41c0-b1c2-73636aab48a2")
 	)
 	(hierarchical_label "ABS_A-B_OUT"
-		(shape output)
+		(shape input)
 		(at 176.53 109.22 180)
 		(effects
 			(font
@@ -605,7 +611,7 @@
 		(uuid "204c8e0a-9e98-4e33-b149-9d3ea7b6b6c8")
 	)
 	(hierarchical_label "MAX_OUT"
-		(shape output)
+		(shape input)
 		(at 176.53 93.98 180)
 		(effects
 			(font
@@ -649,7 +655,7 @@
 		(uuid "45d83965-d778-43dd-a5c5-422ac44ed296")
 	)
 	(hierarchical_label "AND_OUT"
-		(shape output)
+		(shape input)
 		(at 125.73 78.74 180)
 		(effects
 			(font
@@ -693,7 +699,7 @@
 		(uuid "73fa3eca-e7ee-40d2-a355-e1fc1275f466")
 	)
 	(hierarchical_label "A+B_OUT"
-		(shape output)
+		(shape input)
 		(at 176.53 63.5 180)
 		(effects
 			(font
@@ -781,7 +787,7 @@
 		(uuid "bb43c07f-7701-4b1a-a1c8-bef8d630f873")
 	)
 	(hierarchical_label "NOR_OUT"
-		(shape output)
+		(shape input)
 		(at 125.73 93.98 180)
 		(effects
 			(font
@@ -803,7 +809,7 @@
 		(uuid "cb85a048-e555-4a31-b90d-ada82e500a78")
 	)
 	(hierarchical_label "A-B_OUT"
-		(shape output)
+		(shape input)
 		(at 176.53 78.74 180)
 		(effects
 			(font

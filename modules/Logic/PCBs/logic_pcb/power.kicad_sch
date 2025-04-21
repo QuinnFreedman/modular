@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "ALU")
-		(date "2025-04-06")
-		(rev "v0.1")
+		(date "2025-04-18")
+		(rev "v1.0")
 		(company "Free Modular")
 	)
 	(lib_symbols
