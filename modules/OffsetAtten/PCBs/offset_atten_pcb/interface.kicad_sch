@@ -1,19 +1,21 @@
 (kicad_sch
-	(version 20231120)
+	(version 20250114)
 	(generator "eeschema")
-	(generator_version "8.0")
+	(generator_version "9.0")
 	(uuid "185f88c3-19d5-4022-919e-f244905e0e20")
 	(paper "A4")
 	(title_block
 		(title "OffsetAtten")
-		(date "2024-05-01")
-		(rev "v2.0")
+		(date "2025-04-23")
+		(rev "v2.1")
 		(company "Free Modular")
 	)
 	(lib_symbols
 		(symbol "Device:LED_Dual_Bidirectional"
 			(pin_names
-				(offset 0) hide)
+				(offset 0)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -79,17 +81,6 @@
 				)
 			)
 			(symbol "LED_Dual_Bidirectional_0_1"
-				(circle
-					(center -2.032 0)
-					(radius 0.254)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
 				(polyline
 					(pts
 						(xy -4.572 0) (xy -2.54 0)
@@ -100,6 +91,17 @@
 					)
 					(fill
 						(type none)
+					)
+				)
+				(circle
+					(center -2.032 0)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
 					)
 				)
 				(polyline
@@ -128,10 +130,92 @@
 				)
 				(polyline
 					(pts
+						(xy -1.016 -1.27) (xy -1.016 -3.81) (xy 1.27 -2.54) (xy -1.016 -1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 0)
+					(radius 4.572)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 3.81) (xy 1.27 1.27) (xy -1.016 2.54) (xy 1.27 3.81)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
 						(xy 1.27 -1.27) (xy 1.27 -3.81)
 					)
 					(stroke
 						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.286 2.54) (xy -2.032 2.54) (xy -2.032 -2.54) (xy 2.286 -2.54) (xy 2.286 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.286 0)
+					(radius 0.254)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
+				(polyline
+					(pts
+						(xy 2.794 4.318) (xy 4.318 5.842) (xy 3.556 5.842)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 4.064 3.048) (xy 5.588 4.572) (xy 4.826 4.572)
+					)
+					(stroke
+						(width 0.2032)
 						(type default)
 					)
 					(fill
@@ -174,108 +258,8 @@
 						(type none)
 					)
 				)
-				(polyline
-					(pts
-						(xy 2.794 4.318) (xy 4.318 5.842) (xy 3.556 5.842)
-					)
-					(stroke
-						(width 0.2032)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 4.064 3.048) (xy 5.588 4.572) (xy 4.826 4.572)
-					)
-					(stroke
-						(width 0.2032)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy -1.016 -1.27) (xy -1.016 -3.81) (xy 1.27 -2.54) (xy -1.016 -1.27)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 1.27 3.81) (xy 1.27 1.27) (xy -1.016 2.54) (xy 1.27 3.81)
-					)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 2.286 2.54) (xy -2.032 2.54) (xy -2.032 -2.54) (xy 2.286 -2.54) (xy 2.286 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(circle
-					(center 0 0)
-					(radius 4.572)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(circle
-					(center 2.286 0)
-					(radius 0.254)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
 			)
 			(symbol "LED_Dual_Bidirectional_1_1"
-				(pin input line
-					(at 7.62 0 180)
-					(length 3.81)
-					(name "KA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
 				(pin input line
 					(at -7.62 0 0)
 					(length 3.048)
@@ -294,10 +278,31 @@
 						)
 					)
 				)
+				(pin input line
+					(at 7.62 0 180)
+					(length 3.81)
+					(name "KA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Device:R"
-			(pin_numbers hide)
+			(pin_numbers
+				(hide yes)
+			)
 			(pin_names
 				(offset 0)
 			)
@@ -416,10 +421,13 @@
 					)
 				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "Device:R_Potentiometer"
 			(pin_names
-				(offset 1.016) hide)
+				(offset 1.016)
+				(hide yes)
+			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -485,12 +493,11 @@
 				)
 			)
 			(symbol "R_Potentiometer_0_1"
-				(polyline
-					(pts
-						(xy 2.54 0) (xy 1.524 0)
-					)
+				(rectangle
+					(start 1.016 2.54)
+					(end -1.016 -2.54)
 					(stroke
-						(width 0)
+						(width 0.254)
 						(type default)
 					)
 					(fill
@@ -509,11 +516,12 @@
 						(type outline)
 					)
 				)
-				(rectangle
-					(start 1.016 2.54)
-					(end -1.016 -2.54)
+				(polyline
+					(pts
+						(xy 2.54 0) (xy 1.524 0)
+					)
 					(stroke
-						(width 0.254)
+						(width 0)
 						(type default)
 					)
 					(fill
@@ -541,24 +549,6 @@
 					)
 				)
 				(pin passive line
-					(at 3.81 0 180)
-					(length 1.27)
-					(name "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
 					(at 0 -3.81 90)
 					(length 1.27)
 					(name "3"
@@ -576,7 +566,26 @@
 						)
 					)
 				)
+				(pin passive line
+					(at 3.81 0 180)
+					(length 1.27)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 			)
+			(embedded_fonts no)
 		)
 		(symbol "FreeModular:THONKICONN"
 			(pin_names
@@ -675,10 +684,10 @@
 				)
 				(polyline
 					(pts
-						(xy 2.54 0) (xy -0.635 0) (xy -0.635 2.413) (xy -1.016 1.651)
+						(xy 2.54 2.54) (xy -1.905 2.54) (xy -2.54 1.905) (xy -3.175 2.54)
 					)
 					(stroke
-						(width 0)
+						(width 0.254)
 						(type solid)
 					)
 					(fill
@@ -687,10 +696,10 @@
 				)
 				(polyline
 					(pts
-						(xy 2.54 2.54) (xy -1.905 2.54) (xy -2.54 1.905) (xy -3.175 2.54)
+						(xy 2.54 0) (xy -0.635 0) (xy -0.635 2.413) (xy -1.016 1.651)
 					)
 					(stroke
-						(width 0.254)
+						(width 0)
 						(type solid)
 					)
 					(fill
@@ -718,24 +727,6 @@
 					)
 				)
 				(pin passive line
-					(at 5.08 0 180)
-					(length 2.54)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
 					(at 5.08 2.54 180)
 					(length 2.54)
 					(name "~"
@@ -753,29 +744,36 @@
 						)
 					)
 				)
+				(pin passive line
+					(at 5.08 0 180)
+					(length 2.54)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
 			)
+			(embedded_fonts no)
 		)
 	)
 	(junction
-		(at 76.2 124.46)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2b49579e-312a-484b-bf58-c6afb9231d00")
-	)
-	(junction
-		(at 76.2 66.04)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "50913e9b-a515-4254-9176-dd0531f0c8f0")
-	)
-	(junction
-		(at 58.42 129.54)
+		(at 53.34 129.54)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8e2e195e-9fe7-4e9f-a8d9-b377a466c701")
 	)
 	(junction
-		(at 58.42 71.12)
+		(at 53.34 71.12)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "e85ab79e-8da3-42ff-b61b-19fe35e8d3b8")
@@ -820,7 +818,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 127) (xy 68.58 129.54)
+			(xy 63.5 127) (xy 63.5 129.54)
 		)
 		(stroke
 			(width 0)
@@ -890,7 +888,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 129.54) (xy 58.42 129.54)
+			(xy 63.5 129.54) (xy 53.34 129.54)
 		)
 		(stroke
 			(width 0)
@@ -907,16 +905,6 @@
 			(type default)
 		)
 		(uuid "48dec932-69f9-4d83-9262-1ac3f2925ddc")
-	)
-	(wire
-		(pts
-			(xy 76.2 66.04) (xy 76.2 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "61c5d4b0-2b11-4be8-be86-8c8f047e57a5")
 	)
 	(wire
 		(pts
@@ -940,7 +928,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 68.58) (xy 68.58 71.12)
+			(xy 63.5 68.58) (xy 63.5 71.12)
 		)
 		(stroke
 			(width 0)
@@ -960,6 +948,16 @@
 	)
 	(wire
 		(pts
+			(xy 83.82 124.46) (xy 86.36 124.46)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "814f73e3-7d03-46a4-be51-e04ea02235f0")
+	)
+	(wire
+		(pts
 			(xy 121.92 121.92) (xy 119.38 121.92)
 		)
 		(stroke
@@ -970,7 +968,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 71.12) (xy 58.42 71.12)
+			(xy 63.5 71.12) (xy 53.34 71.12)
 		)
 		(stroke
 			(width 0)
@@ -990,16 +988,6 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 124.46) (xy 86.36 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "964f2852-5037-41d9-9f6a-1ad803910ef7")
-	)
-	(wire
-		(pts
 			(xy 118.11 125.73) (xy 119.38 125.73)
 		)
 		(stroke
@@ -1010,17 +998,7 @@
 	)
 	(wire
 		(pts
-			(xy 76.2 66.04) (xy 86.36 66.04)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a3290da4-1a86-4b2f-afb3-5cc043df7a1f")
-	)
-	(wire
-		(pts
-			(xy 58.42 130.81) (xy 58.42 129.54)
+			(xy 53.34 130.81) (xy 53.34 129.54)
 		)
 		(stroke
 			(width 0)
@@ -1030,23 +1008,13 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 66.04) (xy 76.2 66.04)
+			(xy 63.5 66.04) (xy 66.04 66.04)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "afa4497a-6c79-4eef-9664-90fb070b9138")
-	)
-	(wire
-		(pts
-			(xy 76.2 132.08) (xy 76.2 124.46)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b039c61b-884b-4657-8af4-996d8e232586")
 	)
 	(wire
 		(pts
@@ -1077,6 +1045,16 @@
 			(type default)
 		)
 		(uuid "bbedc0ac-2e5f-4d0d-973f-e0873b188d05")
+	)
+	(wire
+		(pts
+			(xy 83.82 66.04) (xy 86.36 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3305c72-9a20-4e3f-9351-540184894005")
 	)
 	(wire
 		(pts
@@ -1120,7 +1098,7 @@
 	)
 	(wire
 		(pts
-			(xy 58.42 72.39) (xy 58.42 71.12)
+			(xy 53.34 72.39) (xy 53.34 71.12)
 		)
 		(stroke
 			(width 0)
@@ -1140,7 +1118,17 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 124.46) (xy 76.2 124.46)
+			(xy 83.82 66.04) (xy 83.82 73.66)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e70c48f4-cb41-4cfd-967d-f0e5dbdd636a")
+	)
+	(wire
+		(pts
+			(xy 63.5 124.46) (xy 66.04 124.46)
 		)
 		(stroke
 			(width 0)
@@ -1160,6 +1148,16 @@
 	)
 	(wire
 		(pts
+			(xy 83.82 124.46) (xy 83.82 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fbee6c56-acef-41cb-9555-4ae681b6dc6c")
+	)
+	(wire
+		(pts
 			(xy 140.97 121.92) (xy 144.78 121.92)
 		)
 		(stroke
@@ -1171,7 +1169,6 @@
 	(hierarchical_label "-12V"
 		(shape bidirectional)
 		(at 118.11 125.73 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1183,7 +1180,6 @@
 	(hierarchical_label "output_b"
 		(shape input)
 		(at 185.42 129.54 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1195,7 +1191,6 @@
 	(hierarchical_label "GND"
 		(shape bidirectional)
 		(at 96.52 68.58 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1206,20 +1201,18 @@
 	)
 	(hierarchical_label "input_a"
 		(shape output)
-		(at 76.2 73.66 270)
-		(fields_autoplaced yes)
+		(at 66.04 66.04 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "2c7eeff4-46f6-432a-b92e-3aeb01469646")
 	)
 	(hierarchical_label "GND"
 		(shape bidirectional)
-		(at 58.42 130.81 270)
-		(fields_autoplaced yes)
+		(at 53.34 130.81 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1231,7 +1224,6 @@
 	(hierarchical_label "out_a_led_1"
 		(shape bidirectional)
 		(at 182.88 50.8 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1243,7 +1235,6 @@
 	(hierarchical_label "atten_input_b"
 		(shape output)
 		(at 90.17 132.08 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1252,10 +1243,20 @@
 		)
 		(uuid "42fb66ee-456f-4515-bc11-68908a287764")
 	)
+	(hierarchical_label "buffered_input_a"
+		(shape input)
+		(at 83.82 73.66 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "485b411e-b25e-4462-8aa3-b1790f630a4c")
+	)
 	(hierarchical_label "offset_a"
 		(shape output)
 		(at 137.16 69.85 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1266,8 +1267,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape bidirectional)
-		(at 58.42 72.39 270)
-		(fields_autoplaced yes)
+		(at 53.34 72.39 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1279,7 +1279,6 @@
 	(hierarchical_label "GND"
 		(shape bidirectional)
 		(at 96.52 127 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1291,7 +1290,6 @@
 	(hierarchical_label "GND"
 		(shape bidirectional)
 		(at 198.12 76.2 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1303,7 +1301,6 @@
 	(hierarchical_label "-12V"
 		(shape bidirectional)
 		(at 118.11 67.31 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1314,20 +1311,18 @@
 	)
 	(hierarchical_label "input_b"
 		(shape output)
-		(at 76.2 132.08 270)
-		(fields_autoplaced yes)
+		(at 66.04 124.46 0)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
 		(uuid "769e6023-e2e3-4e56-8a5f-c112902c9225")
 	)
 	(hierarchical_label "output_a"
 		(shape input)
 		(at 185.42 71.12 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1336,10 +1331,20 @@
 		)
 		(uuid "8bdbeed1-9fce-40ae-b7aa-e3d7e88859b6")
 	)
+	(hierarchical_label "buffered_input_b"
+		(shape input)
+		(at 83.82 132.08 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9058b557-7592-4c7c-be8f-327437aceed9")
+	)
 	(hierarchical_label "GND"
 		(shape bidirectional)
 		(at 198.12 134.62 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1351,7 +1356,6 @@
 	(hierarchical_label "out_a_led_2"
 		(shape bidirectional)
 		(at 198.12 50.8 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1363,7 +1367,6 @@
 	(hierarchical_label "out_b_led_1"
 		(shape bidirectional)
 		(at 180.34 109.22 180)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1375,7 +1378,6 @@
 	(hierarchical_label "out_b_led_2"
 		(shape bidirectional)
 		(at 195.58 109.22 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1387,7 +1389,6 @@
 	(hierarchical_label "offset_b"
 		(shape output)
 		(at 137.16 128.27 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1399,7 +1400,6 @@
 	(hierarchical_label "+12V"
 		(shape bidirectional)
 		(at 157.48 118.11 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1411,7 +1411,6 @@
 	(hierarchical_label "atten_input_a"
 		(shape output)
 		(at 90.17 73.66 270)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1423,7 +1422,6 @@
 	(hierarchical_label "+12V"
 		(shape bidirectional)
 		(at 157.48 59.69 0)
-		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1502,7 +1500,7 @@
 	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 63.5 68.58 0)
+		(at 58.42 68.58 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1511,7 +1509,7 @@
 		(fields_autoplaced yes)
 		(uuid "6b1df1bb-db33-4ab7-9c7e-2105766b5780")
 		(property "Reference" "J1"
-			(at 62.23 63.5 0)
+			(at 57.15 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1519,7 +1517,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 64.77 71.12 0)
+			(at 59.69 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1528,7 +1526,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN_perf"
-			(at 69.85 66.04 0)
+			(at 64.77 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1537,7 +1535,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 69.85 66.04 0)
+			(at 64.77 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1546,7 +1544,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 63.5 68.58 0)
+			(at 58.42 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1642,7 +1640,7 @@
 	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 63.5 127 0)
+		(at 58.42 127 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1651,7 +1649,7 @@
 		(fields_autoplaced yes)
 		(uuid "6eb4ffd8-a68f-49cd-9f76-9f6c18535a49")
 		(property "Reference" "J3"
-			(at 62.23 121.92 0)
+			(at 57.15 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1659,7 +1657,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 64.77 129.54 0)
+			(at 59.69 129.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1668,7 +1666,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN_perf"
-			(at 69.85 124.46 0)
+			(at 64.77 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1677,7 +1675,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 69.85 124.46 0)
+			(at 64.77 124.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1686,7 +1684,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 63.5 127 0)
+			(at 58.42 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
