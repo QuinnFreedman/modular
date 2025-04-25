@@ -13,7 +13,7 @@ use crate::{
     resistor_ladder_buttons::ButtonEvent,
 };
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub enum LedColor {
     GREEN,
     RED,
