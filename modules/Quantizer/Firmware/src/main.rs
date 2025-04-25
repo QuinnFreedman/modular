@@ -136,6 +136,8 @@ fn main() -> ! {
     let mut dac = MCP4922::new(d10);
     let dac_config = Default::default();
 
+    let mut cached_led_state = [LedColor::OFF; 12];
+
     loop {
         while DAC_WRITE_QUEUED.atomic_read() {}
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
@@ -195,7 +197,10 @@ fn main() -> ! {
         output_led_b_pin
             .set_state(last_output.channel_b.trigger_ui.into())
             .unwrap_infallible();
-        update_leds(&mut spi, &leds);
+        if !all_equal(leds, cached_led_state) {
+            update_leds(&mut spi, &leds);
+            cached_led_state = leds;
+        }
     }
 }
 
@@ -270,4 +275,17 @@ fn TIMER2_COMPA() {
             uwrite!(&mut serial, ".").unwrap_infallible();
         }
     });
+}
+
+fn all_equal<T, const N: usize>(a: [T; N], b: [T; N]) -> bool
+where
+    T: PartialEq,
+{
+    for i in 0..N {
+        if a[i] != b[i] {
+            return false;
+        }
+    }
+
+    true
 }
