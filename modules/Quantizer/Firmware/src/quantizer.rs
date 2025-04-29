@@ -216,7 +216,6 @@ impl HysteresisState {
 
         if let Some((upper_thresh, lower_thresh)) = self.calculate_hysteresis_thresholds(notes) {
             if input_semitones <= upper_thresh && input_semitones >= lower_thresh {
-                // uwriteln!(&mut serial, " <").unwrap_infallible();
                 return self.last_output;
             }
         }
@@ -274,6 +273,10 @@ impl HysteresisState {
 }
 
 fn step_in_scale(notes: &[bool; 12], starting_note: i8, num_steps: i8) -> i8 {
+    if notes.iter().all(|x| !x) {
+        return starting_note;
+    }
+
     let direction = if num_steps < 0 {
         Direction::Negative
     } else {

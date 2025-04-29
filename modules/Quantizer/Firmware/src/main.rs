@@ -234,6 +234,7 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
 
 fn semitones_to_dac(semitones: I8F8) -> u16 {
     assert!(semitones >= 0);
+    assert!(semitones <= 120);
     let volts = U16F16::from_num(semitones / 12);
     let bits = (volts / U16F16::from_num(10)).to_bits();
     assert!(bits < u16::MAX as u32);
