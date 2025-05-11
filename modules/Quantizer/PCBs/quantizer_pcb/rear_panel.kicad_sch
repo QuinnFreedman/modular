@@ -8861,7 +8861,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "1kΩ"
 			(at 149.86 67.31 90)
 			(effects
 				(font
@@ -9139,7 +9139,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "1kΩ"
 			(at 139.7 64.77 90)
 			(effects
 				(font
@@ -10011,7 +10011,7 @@
 				)
 			)
 		)
-		(property "Value" "15kΩ"
+		(property "Value" "10kΩ"
 			(at 58.42 143.51 90)
 			(effects
 				(font

@@ -24230,7 +24230,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "1kΩ"
 			(at 5.08 2.37 0)
 			(layer "F.Fab")
 			(uuid "02bcecfb-748b-4422-9993-3503fe6f5242")
@@ -28304,7 +28304,7 @@
 				)
 			)
 		)
-		(property "Value" "15kΩ"
+		(property "Value" "10kΩ"
 			(at 5.08 2.37 0)
 			(layer "F.Fab")
 			(uuid "d0e9f9b6-a965-4009-99b4-a130bcb022e6")
@@ -28567,7 +28567,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "1kΩ"
 			(at 5.08 2.37 0)
 			(layer "F.Fab")
 			(uuid "fc988094-3ab4-4b37-a863-0bb6977f2826")
@@ -29592,7 +29592,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "Conn_01x08_Socket"
+		(property "Value" "Conn_01x09_Socket"
 			(at 0 -23.09 0)
 			(layer "B.Fab")
 			(uuid "ff41a5d9-2ab4-48d7-b5ae-825a391d9cd0")
@@ -33425,7 +33425,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "Conn_01x08_Pin"
+		(property "Value" "Conn_01x09_Pin"
 			(at 0 -23.09 0)
 			(layer "B.Fab")
 			(uuid "4d8384fa-7319-4587-9d61-0fcf199cee1c")
