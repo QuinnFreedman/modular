@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "Quantizer")
-		(date "2025-04-02")
-		(rev "v0.2")
+		(date "2025-05-25")
+		(rev "v1.0")
 		(company "Free Modular")
 	)
 	(lib_symbols

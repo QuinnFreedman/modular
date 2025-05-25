@@ -85,14 +85,16 @@ fn main() -> ! {
     let mut output_led_a_pin = pins.a2.into_output();
     let mut input_led_b_pin = pins.a3.into_output();
     let mut output_led_b_pin = pins.a4.into_output();
+    let mut led_blank_pin = pins.a0.into_output_high();
     pins.d4.into_output(); // Trigger output A
     pins.d5.into_output(); // Trigger output B
 
-    // TODO replace this with pullup resistor to BLANK pin
     led_driver_cs_pin.set_low();
     spi.transfer(&mut [0x00u8; 36]).unwrap_infallible();
     led_driver_cs_pin.set_high();
     delay_ms(1);
+
+    led_blank_pin.set_low();
 
     configure_timer(&dp.TC2);
 
@@ -187,15 +189,21 @@ fn main() -> ! {
 
         last_output = result;
 
-        TRIGGER_A_QUEUED.atomic_write(last_output.channel_a.trigger_output);
-        TRIGGER_B_QUEUED.atomic_write(last_output.channel_b.trigger_output);
+        TRIGGER_A_QUEUED.atomic_write(last_output.channel_a.output_trigger);
+        TRIGGER_B_QUEUED.atomic_write(last_output.channel_b.output_trigger);
         DAC_WRITE_QUEUED.atomic_write(true);
 
         output_led_a_pin
-            .set_state(last_output.channel_a.trigger_ui.into())
+            .set_state(last_output.channel_a.output_trigger_ui.into())
             .unwrap_infallible();
         output_led_b_pin
-            .set_state(last_output.channel_b.trigger_ui.into())
+            .set_state(last_output.channel_b.output_trigger_ui.into())
+            .unwrap_infallible();
+        input_led_a_pin
+            .set_state(last_output.channel_a.input_trigger_ui.into())
+            .unwrap_infallible();
+        input_led_b_pin
+            .set_state(last_output.channel_b.input_trigger_ui.into())
             .unwrap_infallible();
         if !all_equal(leds, cached_led_state) {
             update_leds(&mut spi, &leds);

@@ -51,6 +51,7 @@ struct ChannelState {
     last_trigger_input: bool,
     hysteresis_state: HysteresisState,
     output_trigger_countdown: u8,
+    input_trigger_timer: u8,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -91,6 +92,7 @@ impl QuantizerChannel {
                 last_trigger_input: false,
                 hysteresis_state: HysteresisState { last_output: 0 },
                 output_trigger_countdown: 0,
+                input_trigger_timer: 0,
             },
         }
     }
@@ -98,12 +100,21 @@ impl QuantizerChannel {
     fn step(&mut self, input_semitones: I8F8, sample_trigger: bool) -> ChannelOutput {
         // NOTE: right now, does not update when current note is de-selected from scale
         // Maybe it should?
-        let should_update = self.ephemeral.last_output.is_none()
+        let received_trigger = self.ephemeral.last_output.is_none()
             || match self.config.sample_mode {
                 SampleMode::TrackAndHold => sample_trigger,
                 SampleMode::SampleAndHold => !self.ephemeral.last_trigger_input && sample_trigger,
             };
         self.ephemeral.last_trigger_input = sample_trigger;
+
+        if received_trigger {
+            self.ephemeral.input_trigger_timer = 0;
+        } else {
+            self.ephemeral.input_trigger_timer =
+                self.ephemeral.input_trigger_timer.saturating_add(1);
+        }
+
+        let should_update = self.ephemeral.input_trigger_timer == self.config.trigger_delay_amount;
 
         let (nominal_semitones, glide_target) = if should_update {
             let (nominal, actual) =
@@ -147,9 +158,10 @@ impl QuantizerChannel {
         ChannelOutput {
             nominal_semitones,
             actual_semitones: I8F8::from_fixed(actual_output),
-            trigger_output: self.ephemeral.output_trigger_countdown
+            output_trigger: self.ephemeral.output_trigger_countdown
                 > TRIGGER_LED_TIME_MS - TRIGGER_CV_TIME_MS,
-            trigger_ui: self.ephemeral.output_trigger_countdown != 0,
+            output_trigger_ui: self.ephemeral.output_trigger_countdown != 0,
+            input_trigger_ui: self.ephemeral.input_trigger_timer < TRIGGER_LED_TIME_MS,
         }
     }
 
@@ -333,14 +345,16 @@ impl QuantizationResult {
             channel_a: ChannelOutput {
                 nominal_semitones: 0,
                 actual_semitones: I8F8::ZERO,
-                trigger_output: false,
-                trigger_ui: false,
+                output_trigger: false,
+                output_trigger_ui: false,
+                input_trigger_ui: false,
             },
             channel_b: ChannelOutput {
                 nominal_semitones: 0,
                 actual_semitones: I8F8::ZERO,
-                trigger_output: false,
-                trigger_ui: false,
+                output_trigger: false,
+                output_trigger_ui: false,
+                input_trigger_ui: false,
             },
         }
     }
@@ -350,13 +364,9 @@ impl QuantizationResult {
 pub struct ChannelOutput {
     pub nominal_semitones: i8,
     pub actual_semitones: I8F8,
-    pub trigger_output: bool,
-    pub trigger_ui: bool,
-}
-
-struct InternalQuantizationResult {
-    channel_a: InternalChannelOutput,
-    channel_b: InternalChannelOutput,
+    pub output_trigger: bool,
+    pub output_trigger_ui: bool,
+    pub input_trigger_ui: bool,
 }
 
 struct InternalChannelOutput {

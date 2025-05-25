@@ -24,7 +24,7 @@ where
         self.data[byte_index as usize] |= bit_value << bit_index;
     }
 
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             data: [0u8; SIZE.div_ceil(8)],
         }
@@ -36,5 +36,43 @@ where
 
     pub fn get_bytes<'a>(&'a self) -> &'a [u8; SIZE.div_ceil(8)] {
         &self.data
+    }
+}
+
+impl<'a, const SIZE: usize> IntoIterator for &'a BitVec<SIZE>
+where
+    [(); SIZE.div_ceil(8)]: Sized,
+{
+    type Item = bool;
+    type IntoIter = BitVecIterator<'a, SIZE>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        BitVecIterator {
+            bit_vec: self,
+            index: 0,
+        }
+    }
+}
+pub struct BitVecIterator<'a, const N: usize>
+where
+    [(); N.div_ceil(8)]: Sized,
+{
+    bit_vec: &'a BitVec<N>,
+    index: u8,
+}
+
+impl<'a, const N: usize> Iterator for BitVecIterator<'a, N>
+where
+    [(); N.div_ceil(8)]: Sized,
+{
+    type Item = bool;
+    fn next(&mut self) -> Option<Self::Item> {
+        if (self.index as usize) >= N {
+            return None;
+        }
+
+        let result = self.bit_vec.get(self.index);
+        self.index += 1;
+        Some(result)
     }
 }
