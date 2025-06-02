@@ -39,6 +39,13 @@ impl Channel {
     pub fn index(&self) -> usize {
         Into::<usize>::into(self)
     }
+
+    pub fn other(&self) -> Self {
+        match self {
+            Channel::A => Channel::B,
+            Channel::B => Channel::A,
+        }
+    }
 }
 
 enum ScalarSubMenuStatus {
@@ -105,10 +112,22 @@ impl MenuState {
         let active_channel = &mut quantizer_state.channels[self.selected_channel.index()];
         match button_index {
             0 => {
-                active_channel.config.notes.rotate_left(1);
+                if quantizer_state.channels_linked {
+                    for channel in quantizer_state.channels.iter_mut() {
+                        channel.config.notes.rotate_left(1);
+                    }
+                } else {
+                    active_channel.config.notes.rotate_left(1);
+                }
             }
             1 => {
-                active_channel.config.notes.rotate_right(1);
+                if quantizer_state.channels_linked {
+                    for channel in quantizer_state.channels.iter_mut() {
+                        channel.config.notes.rotate_right(1);
+                    }
+                } else {
+                    active_channel.config.notes.rotate_right(1);
+                }
             }
             2 => {
                 self.menu_page = MenuPage::ScalarSubMenu(
@@ -157,12 +176,20 @@ impl MenuState {
             9 => {
                 quantizer_state.channels_linked = !quantizer_state.channels_linked;
                 self.menu_page = MenuPage::ShowChangedBoolOption(BoolOption::ChannelsLinked);
-            }
-            10 => {
+                if quantizer_state.channels_linked {
+                    quantizer_state.channels[1].config = quantizer_state.channels[0].config.clone();
+                }
                 self.selected_channel = Channel::A;
             }
+            10 => {
+                if !quantizer_state.channels_linked {
+                    self.selected_channel = Channel::A;
+                }
+            }
             11 => {
-                self.selected_channel = Channel::B;
+                if !quantizer_state.channels_linked {
+                    self.selected_channel = Channel::B;
+                }
             }
             _ => panic!(),
         }
@@ -231,15 +258,16 @@ impl MenuState {
         match buttons.key_event {
             ButtonEvent::ButtonJustPressed(n) => match self.menu_page {
                 MenuPage::ScalarSubMenu(ref mut status, ref menu) => {
-                    let selected_channel =
-                        &mut quantizer_state.channels[self.selected_channel.index()];
-                    match handle_sub_menu_button_press(
-                        selected_channel,
-                        status,
-                        menu,
-                        n,
-                        buttons.shift_pressed,
-                    ) {
+                    if quantizer_state.channels_linked {
+                        for channel in quantizer_state.channels.iter_mut() {
+                            apply_sub_menu_button_press_effect(channel, menu, n);
+                        }
+                    } else {
+                        let selected_channel =
+                            &mut quantizer_state.channels[self.selected_channel.index()];
+                        apply_sub_menu_button_press_effect(selected_channel, menu, n);
+                    }
+                    match get_sub_menu_button_press_result(status, buttons.shift_pressed) {
                         Some(new_menu_status) => *status = new_menu_status,
                         None => self.menu_page = MenuPage::MainMenu,
                     }
@@ -248,10 +276,17 @@ impl MenuState {
                     if buttons.shift_pressed {
                         self.handle_shift_button_press(quantizer_state, n);
                     } else {
-                        let selected_channel =
-                            &mut quantizer_state.channels[self.selected_channel.index()];
-                        selected_channel.config.notes[n as usize] =
-                            !selected_channel.config.notes[n as usize];
+                        if quantizer_state.channels_linked {
+                            for channel in quantizer_state.channels.iter_mut() {
+                                channel.config.notes[n as usize] =
+                                    !channel.config.notes[n as usize];
+                            }
+                        } else {
+                            let selected_channel =
+                                &mut quantizer_state.channels[self.selected_channel.index()];
+                            selected_channel.config.notes[n as usize] =
+                                !selected_channel.config.notes[n as usize];
+                        }
                     }
                 }
                 MenuPage::ShowChangedBoolOption(_) => {}
@@ -322,7 +357,7 @@ impl MenuState {
                 if time >= 832 {
                     self.menu_page = MenuPage::MainMenu
                 }
-                render_confirm_erse(&time)
+                render_confirm_erase(&time)
             }
         }
     }
@@ -332,24 +367,39 @@ impl MenuState {
         quantizer_state: &QuantizerState,
         active_notes: &QuantizationResult,
     ) -> [LedColor; 12] {
-        let selected_channel = &quantizer_state.channels[self.selected_channel.index()];
-        let color = match self.selected_channel {
-            Channel::A => LedColor::GREEN,
-            Channel::B => LedColor::RED,
-        };
         let mut leds = [LedColor::OFF; 12];
-        for i in 0..12 {
-            if selected_channel.config.notes[i] {
-                leds[i] = color;
-            }
-        }
+        match quantizer_state.channels_linked {
+            false => {
+                let selected_channel = &quantizer_state.channels[self.selected_channel.index()];
+                let color = match self.selected_channel {
+                    Channel::A => LedColor::GREEN,
+                    Channel::B => LedColor::RED,
+                };
+                for i in 0..12 {
+                    if selected_channel.config.notes[i] {
+                        leds[i] = color;
+                    }
+                }
 
-        match self.selected_channel {
-            Channel::A => {
-                leds[(active_notes.channel_a.nominal_semitones as usize) % 12] = LedColor::AMBER
+                match self.selected_channel {
+                    Channel::A => {
+                        leds[(active_notes.channel_a.nominal_semitones as usize) % 12] =
+                            LedColor::AMBER
+                    }
+                    Channel::B => {
+                        leds[(active_notes.channel_b.nominal_semitones as usize) % 12] =
+                            LedColor::AMBER
+                    }
+                }
             }
-            Channel::B => {
-                leds[(active_notes.channel_b.nominal_semitones as usize) % 12] = LedColor::AMBER
+            true => {
+                for i in 0..12 {
+                    if quantizer_state.channels[0].config.notes[i] {
+                        leds[i] = LedColor::AMBER;
+                    }
+                }
+                leds[(active_notes.channel_b.nominal_semitones as usize) % 12] = LedColor::RED;
+                leds[(active_notes.channel_a.nominal_semitones as usize) % 12] = LedColor::GREEN;
             }
         }
 
@@ -387,13 +437,11 @@ fn render_bool_option(
     leds
 }
 
-fn handle_sub_menu_button_press(
+fn apply_sub_menu_button_press_effect(
     channel_state: &mut QuantizerChannel,
-    status: &ScalarSubMenuStatus,
     menu: &ScalarSubMenu,
     button_idx: u8,
-    shift_pressed: bool,
-) -> Option<ScalarSubMenuStatus> {
+) {
     fn button_idx_to_i8(idx: u8) -> i8 {
         if idx <= 6 {
             idx as i8
@@ -427,7 +475,12 @@ fn handle_sub_menu_button_press(
             channel_state.config.post_shift = button_idx_to_i8(button_idx);
         }
     }
+}
 
+fn get_sub_menu_button_press_result(
+    status: &ScalarSubMenuStatus,
+    shift_pressed: bool,
+) -> Option<ScalarSubMenuStatus> {
     match status {
         ScalarSubMenuStatus::AwaitingFirstInput => Some(ScalarSubMenuStatus::ExitOnShiftRelease),
         ScalarSubMenuStatus::ExitOnShiftRelease => {
@@ -523,7 +576,7 @@ fn render_confirm_save(
     result
 }
 
-fn render_confirm_erse(time: &u32) -> [LedColor; 12] {
+fn render_confirm_erase(time: &u32) -> [LedColor; 12] {
     let time_lsbs = (time & u16::MAX as u32) as u16;
 
     let index = (time_lsbs / 64).min(12) % 12;

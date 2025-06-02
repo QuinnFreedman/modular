@@ -4763,10 +4763,6 @@
 		(uuid "8ee77a04-706e-442c-bcaf-ddcc4d204816")
 	)
 	(no_connect
-		(at 186.69 63.5)
-		(uuid "e53b6266-2792-47e0-9a60-3d2fafc53c13")
-	)
-	(no_connect
 		(at 99.06 35.56)
 		(uuid "e8e7756f-2b04-4d35-8b1d-ae2ebec90e65")
 	)
@@ -5546,6 +5542,16 @@
 	)
 	(wire
 		(pts
+			(xy 171.45 63.5) (xy 171.45 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5858c7f0-ecf1-4ffc-ae16-fd7043cdf63c")
+	)
+	(wire
+		(pts
 			(xy 236.22 35.56) (xy 241.3 35.56)
 		)
 		(stroke
@@ -5833,6 +5839,16 @@
 			(type default)
 		)
 		(uuid "71e4c1ce-7def-4242-b2b5-8954e48d55ac")
+	)
+	(wire
+		(pts
+			(xy 186.69 63.5) (xy 171.45 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "73b14d4f-e4da-4211-b11a-21fbe57047b8")
 	)
 	(wire
 		(pts
@@ -7658,6 +7674,17 @@
 			(justify left)
 		)
 		(uuid "8635a09b-25db-4531-8807-d2f42f662d47")
+	)
+	(hierarchical_label "GND"
+		(shape output)
+		(at 171.45 66.04 270)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "8abdbe26-b225-4552-a48b-d9aca760afd5")
 	)
 	(hierarchical_label "led_output_b"
 		(shape output)

@@ -36,6 +36,7 @@ pub struct QuantizerChannel {
     ephemeral: ChannelState,
 }
 
+#[derive(Clone, Copy)]
 pub struct ChannelConfig {
     pub notes: [bool; 12],
     pub sample_mode: SampleMode,
@@ -60,7 +61,7 @@ pub enum PitchMode {
     Absolute,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum SampleMode {
     TrackAndHold,
     SampleAndHold,
