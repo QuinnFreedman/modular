@@ -27,7 +27,49 @@ Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/Quantizer/
 | 🔴 | Back  | U1                         | DAC              | MCP4922-E/P                             | [DigiKey](https://www.digikey.com/en/products/detail/microchip-technology/MCP4922-E-P/716251), [Mouser](https://mou.sr/4cwtePf) | |
 |    | Back  | U2                         | Op-amp           | TL072                                   | [Tayda](https://www.taydaelectronics.com/tl072-low-noise-j-fet-dual-op-amp-ic.html) | TL082 is probably fine too |
 |    | Back  | U3                         | Op-amp           | MCP6004                                 | [Tayda](https://www.taydaelectronics.com/mcp6004-single-supply-cmos-ic.html) | |
+| 🔴 | Back  | U4                         | LED driver       | TLC5947DAP                              | [Mouser](https://www.mouser.com/ProductDetail/595-TLC5947DAP) | This is the only surface mount part. It is relatively small (HTSSOP). |
+| 🔴 | Back  | U5                         | Voltage Regulator| LM4040LP-5                              | []() | This is used as a reference voltage for digital <> analog conversions. If you don't care as much about accuracy or if you have a very stable 5V power rail, you can leave this out and use the 5V power rail as the reference voltage. If you do, just jump the hole labelled "5V" to the hole labelled "5VREF". In that case, leave out R33. |
 | 🔴 | Front | SW1-SW15                   | Button           | TL1105SP (e.g. TL1105SPF250Q) + 1RBLK   | [DigiKey (switch)](https://www.digikey.com/en/products/detail/e-switch/TL1105SPF250Q/271559), [DigiKey (cap)](https://www.digikey.com/en/products/detail/e-switch/1RBLK/271579) | The caps for these switches need to be purchased separately. The caps I use are `#1RBLK`. The switches are available in different actuation forces and materials, so the last part of the part number might be a little different. Sometimes, the switches and caps will be sold together and the cap number is appended to the end of the part number. If you don't want to use these specific switches, any "6mm tactile switch" with a standard 4.5mm x 6.5mm mounting pattern like [this one](https://www.taydaelectronics.com/tact-switch-6-6mm-13mm-through-hole-spst-no.html) should work here. Those are a bit narrower, though, so you might want to adjust the faceplate accordingly. |
 | 🔴 | Both  | -                          | Mounting screw   | 2 M3x10mm standoff, 1 M3x11mm standoff or bolt |  | Two standoffs hold the front PCB to the faceplate, since the buttons don't attach to the faceplate. Optionally, you can also use one more standoff or bolt to hold the two PCBs together. |
 
 🔴 = Missing from Tayda BOM
+
+## Build Guide
+
+![](images/tutorial_01.jpg)
+
+Start by soldering the TLC5947DAP. The pins are quite fine and it is very easy to accidentally short together or not connect fully. Double check that it is connected correctly before continuing.
+
+![](images/tutorial_02.jpg)
+
+Starting on the rear board, add the resistors. Refer the interactive BOM to see which values go where.
+
+![](images/tutorial_03.jpg)
+
+Add the IC sockets and small capacitors.
+
+![](images/tutorial_04.jpg)
+
+Flip the board over and add the resistor and capacitors on the back side.
+
+![](images/tutorial_05.jpg)
+
+Attach the Arduino using female pin headers, then remove it to make it easier to add the power header and electrolytic capacitors. Optionally, you can add the two trim pots for tuning. If you don't want to bother with fine-tuning, just short all three holes for each trim pot together using a cut off leg of a resistor.
+
+![](images/tutorial_06.jpg)
+
+Optionally, add the 5V regulator. This is used as a precision reference voltage to make sure the output of the module is accurate. If you don't want to use it, you can just use the 5V power rail instead. Just connect the pad labelled "5V" to the one labelled "5VREF" using som insulated wire.
+
+![](images/tutorial_07.jpg)
+
+On the front PCB, add in the resistors just as on the rear board.
+
+![](images/tutorial_08.jpg)
+
+Put in all the interface components. Bolt down the faceplate using the 10-mm standoffs and tighten everything in place before soldering. Make sure you push the LEDs through to the desired depth before soldering them in place.
+
+![](images/tutorial_09.jpg)
+
+Solder the two boards together using pin headers. You can take the faceplate back off if it makes it easier to reach. Then put the ICs and the Arduino back in their sockets.
+
+Lastly, [upload the firmware](https://freemodular.org/docs/assembly#firmware).

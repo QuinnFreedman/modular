@@ -1776,6 +1776,113 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 5.08 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -4613,6 +4720,12 @@
 		(uuid "49d9c8ed-9d01-4198-856f-973e015994bb")
 	)
 	(junction
+		(at 248.92 134.62)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "51886424-7f00-4b52-a2ba-d86fca25564b")
+	)
+	(junction
 		(at 229.87 153.67)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5432,7 +5545,7 @@
 	)
 	(wire
 		(pts
-			(xy 260.35 138.43) (xy 259.08 138.43)
+			(xy 260.35 138.43) (xy 256.54 138.43)
 		)
 		(stroke
 			(width 0)
@@ -6392,6 +6505,16 @@
 	)
 	(wire
 		(pts
+			(xy 256.54 134.62) (xy 256.54 138.43)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b025cc82-0710-45c2-8a3b-9906d2d7764f")
+	)
+	(wire
+		(pts
 			(xy 66.04 31.75) (xy 66.04 24.13)
 		)
 		(stroke
@@ -6589,6 +6712,16 @@
 			(type default)
 		)
 		(uuid "c1e31806-f183-4470-8d97-d4ff2b4b243d")
+	)
+	(wire
+		(pts
+			(xy 246.38 134.62) (xy 248.92 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c2c0b2fc-708a-47f2-93c2-18a5bd573422")
 	)
 	(wire
 		(pts
@@ -6969,6 +7102,16 @@
 			(type default)
 		)
 		(uuid "e902f49b-429c-400d-a359-c32c22246494")
+	)
+	(wire
+		(pts
+			(xy 248.92 134.62) (xy 256.54 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ea0a5245-1f5d-4420-a6af-2c0b5d22ef3c")
 	)
 	(wire
 		(pts
@@ -7842,7 +7985,7 @@
 	)
 	(hierarchical_label "+5V"
 		(shape output)
-		(at 259.08 138.43 180)
+		(at 246.38 134.62 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8001,6 +8144,72 @@
 			(project ""
 				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
 					(reference "A1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 248.92 134.62 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "05dea91e-1f43-4f91-8f3c-344b972e0108")
+		(property "Reference" "TP2"
+			(at 251.46 130.0479 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "5V"
+			(at 251.46 132.5879 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm"
+			(at 254 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 254 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 248.92 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "13c03bf9-f5d1-4a84-b3e8-fbb3827fd015")
+		)
+		(instances
+			(project "quantizer_pcb"
+				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
+					(reference "TP2")
 					(unit 1)
 				)
 			)
@@ -11108,6 +11317,73 @@
 			(project "quantizer_pcb"
 				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
 					(reference "R15")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 250.19 113.03 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d546893a-4c17-4a25-88af-bb93e2a3ece5")
+		(property "Reference" "TP1"
+			(at 252.73 108.4579 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "5VREF"
+			(at 252.73 110.9979 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm"
+			(at 255.27 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 255.27 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 250.19 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d9ac552d-5e38-4a86-bfde-67fb38d3da77")
+		)
+		(instances
+			(project ""
+				(path "/d5bdb32d-953d-4685-9d01-576ed8bc78ad/6088f9ac-4ce3-4960-b07a-633633e81c3d"
+					(reference "TP1")
 					(unit 1)
 				)
 			)
