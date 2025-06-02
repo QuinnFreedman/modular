@@ -131,13 +131,6 @@ where
         self.write_with_config(spi, channel, value, &ChannelConfig::default())
     }
 
-    pub fn write_both_channels(&mut self, spi: &mut Spi, channel_a: u16, channel_b: u16) {
-        let config = Default::default();
-        self.write_keep_cs_pin_low(spi, DacChannel::ChannelA, channel_a, &config);
-        self.write_keep_cs_pin_low(spi, DacChannel::ChannelB, channel_b, &config);
-        self.end_write();
-    }
-
     /**
     Sets the CS pin back high. Only needs to be called if you are using write_keep_cs_pin_low.
     */
