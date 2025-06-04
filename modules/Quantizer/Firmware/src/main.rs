@@ -25,6 +25,7 @@ use arduino_hal::Spi;
 use avr_device::interrupt;
 use avr_device::interrupt::Mutex;
 use embedded_hal::digital::v2::OutputPin;
+use fixed::traits::FromFixed as _;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
 use fixed::types::U16F16;
@@ -248,9 +249,9 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
 fn semitones_to_dac(semitones: I8F8) -> u16 {
     assert!(semitones >= 0);
     assert!(semitones <= 120);
-    let volts = U16F16::from_num(semitones / 12);
-    let bits = (volts / U16F16::from_num(10)).to_bits();
-    assert!(bits < u16::MAX as u32);
+    let bits = (U16F16::from_fixed(semitones) / U16F16::from_num(120))
+        .to_bits()
+        .min(0xFFFF);
     (bits as u16) >> 4
 }
 
