@@ -26,6 +26,33 @@
       </div>
     </div>
   </a>
+  <a href="https://freemodular.org/modules/Drift" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://freemodular.org/modules/Drift/docs/images/drift.svg" />
+      <div>
+        <h2>Drift</h2>
+        <p>An organically moving, never repeating modulation source with 4 different algorithms</p>
+      </div>
+    </div>
+  </a>
+  <a href="https://freemodular.org/modules/Quantizer" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://freemodular.org/modules/Quantizer/docs/images/quantizer.svg" />
+      <div>
+        <h2>Quantizer</h2>
+        <p>Round random 1V/oct control voltages to any musical scale</p>
+      </div>
+    </div>
+  </a>
+  <a href="https://freemodular.org/modules/Logic" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://freemodular.org/modules/Logic/docs/images/logic.svg" />
+      <div>
+        <h2>ALU</h2>
+        <p>A utility module for performing various math/logic functions on CV</p>
+      </div>
+    </div>
+  </a>
   <a href="https://freemodular.org/modules/OffsetAtten" class="fm-hidden-link">
     <div class="fm-module-box">
       <img src="https://freemodular.org/modules/OffsetAtten/docs/images/offset_atten_faceplate.svg" />
@@ -53,15 +80,6 @@
       </div>
     </div>
   </a>
-  <a href="https://freemodular.org/modules/Drift" class="fm-hidden-link">
-    <div class="fm-module-box">
-      <img src="https://freemodular.org/modules/Drift/docs/images/drift.svg" />
-      <div>
-        <h2>Drift</h2>
-        <p>An organically moving, never repeating modulation source with 4 different algorithms</p>
-      </div>
-    </div>
-  </a>
   <a href="https://freemodular.org/modules/Boost" class="fm-hidden-link">
     <div class="fm-module-box">
       <img src="https://freemodular.org/modules/Boost/docs/images/boost.svg" />
@@ -71,15 +89,9 @@
       </div>
     </div>
   </a>
-  <a href="https://freemodular.org/modules/Quantizer" class="fm-hidden-link">
-    <div class="fm-module-box">
-      <img src="https://freemodular.org/modules/Quantizer/docs/images/quantizer.svg" />
-      <div>
-        <h2>Quantizer</h2>
-        <p>Round random 1V/oct control voltages to any musical scale</p>
-      </div>
-    </div>
-  </a>
+  <div class="fm-module-box">
+  Coming soon...
+  </div>
   <div class="fm-module-box">
   Coming soon...
   </div>

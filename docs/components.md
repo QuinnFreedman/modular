@@ -69,7 +69,7 @@ I use the THONKICONN style jacks from Thonk (a.k.a PJ301M-12 or PJ398SM). Buy th
 A few of my modules use rotary encoders in addition to potentiometers. I have not been able to find a model of encoder that I am totally happy with. I either use the Alpha [RE111F-41B3-15F-20P](https://www.taydaelectronics.com/rotary-encoder-11mm-20-detents-d-shaft-with-switch-vertical.html), which has a very clicky action and is frustratingly a little shorter than the alpha potentiometers, or I use EC11M D-type encoders, which have a much smoother feeling click and are a bit too tall.
 I have had trouble finding the EC11M from suppliers, but you can get them on amazon [here](https://www.amazon.com/DIYhz-Rotary-Encoder-Digital-Potentiometer/dp/B07D3DF8TK/).
 
-In my experience, any rotary encoders you can buy online in the same rought form factor are totally interchangeable. The only think you need to look out for is the number of pulses per detent. My firmware expects a 1:1 relationship (i.e. 20 pulses and 20 detents per rotation) but some encoders use a half-time encoding.
+In my experience, any rotary encoders you can buy online in the same rough form factor are totally interchangeable. The only thing you need to look out for is the number of pulses per detent. My firmware expects a 1:1 relationship (i.e. 20 pulses and 20 detents per rotation) but some encoders use a half-time encoding.
 
 ### Switches
 
