@@ -31,7 +31,6 @@ use fixed::types::I8F8;
 use fixed::types::U16F16;
 use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
-use fm_lib::asynchronous::AtomicRead;
 use fm_lib::asynchronous::AtomicRead as _;
 use fm_lib::button_debouncer::ButtonWithLongPress;
 use fm_lib::mcp4922::DacChannel;
@@ -247,8 +246,8 @@ fn adc_to_semitones(raw_adc_value: I1F15) -> I8F8 {
 }
 
 fn semitones_to_dac(semitones: I8F8) -> u16 {
-    assert!(semitones >= 0);
-    assert!(semitones <= 120);
+    debug_assert!(semitones >= 0);
+    debug_assert!(semitones <= 120);
     let bits = (U16F16::from_fixed(semitones) / U16F16::from_num(120))
         .to_bits()
         .min(0xFFFF);
