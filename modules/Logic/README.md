@@ -16,7 +16,7 @@
 <ul>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Logic/logic_manual.pdf">Manual</a></li>
   <li><a href="https://quinnfreedman.github.io/modular/modules/Logic/docs/assembly_instructions">Assembly instructions and BOM</a></li>
-  <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Logic/logic_front_pcb_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Logic/logic_back_pcb_interactive_bom.html">back panel</a></li>
+  <li>Interactive BOM: <a href="https://quinnfreedman.github.io/fm-artifacts/Logic/logic_pcb_front_interactive_bom.html">front panel</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Logic/logic_pcb_back_interactive_bom.html">back panel</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Logic/logic_faceplate.svg">Faceplate stencil SVG</a></li>
   <li>GERBER files:
     <ul>
