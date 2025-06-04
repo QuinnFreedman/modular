@@ -9,7 +9,7 @@
 
 <p>A multi-purpose utility module for performing various mathematical functions with voltage.</p>
 
-<p>ALU (named for the **arithmetic logic unit** of a CPU) has two independent parts: a logic section capable of computing AND, OR, NOR, and XOR on two input gates, and an arithmetic section that can compute the sum, difference, maximum, and absolute value of two analog input signals.</p>
+<p>ALU (named for the <b>arithmetic logic unit</b> of a CPU) has two independent parts: a logic section capable of computing AND, OR, NOR, and XOR on two input gates, and an arithmetic section that can compute the sum, difference, maximum, and absolute value of two analog input signals.</p>
 
 <h2>Resources</h2>
 
