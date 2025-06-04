@@ -71,6 +71,15 @@
       </div>
     </div>
   </a>
+  <a href="https://freemodular.org/modules/Quantizer" class="fm-hidden-link">
+    <div class="fm-module-box">
+      <img src="https://freemodular.org/modules/Quantizer/docs/images/quantizer.svg" />
+      <div>
+        <h2>Quantizer</h2>
+        <p>Round random 1V/oct control voltages to any musical scale</p>
+      </div>
+    </div>
+  </a>
   <div class="fm-module-box">
   Coming soon...
   </div>
