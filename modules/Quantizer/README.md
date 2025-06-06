@@ -25,7 +25,7 @@
       <li>Back panel: <a href="https://quinnfreedman.github.io/fm-artifacts/Quantizer/quantizer_pcb_back_jlcpcb.zip">JLCPCB</a>, <a href="https://quinnfreedman.github.io/fm-artifacts/Quantizer/quantizer_pcb_back_pcbway.zip">PCBway</a></li>
     </ul>
   </li>
-  <li><a href="https://www.taydaelectronics.com/savecartpro/index/savenewquote/qid/82040858402">Tayda quick-order CSV (incomplete)</a></li>
+  <li><a href="https://freemodular.org/modules/Quantizer/fm_quantizer_tayda_bom.csv">Tayda quick-order CSV</a> (incomplete)</li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Quantizer/fm-quantizer.hex">Firmware HEX</a></li>
   <li><a href="https://github.com/QuinnFreedman/modular/tree/main/modules/Quantizer">Source code</a></li>
   <li><a href="https://quinnfreedman.github.io/fm-artifacts/Quantizer/quantizer_schematic.pdf">Schematic</a></li>
