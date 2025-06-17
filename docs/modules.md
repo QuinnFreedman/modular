@@ -40,7 +40,7 @@
       <img src="https://freemodular.org/modules/Quantizer/docs/images/quantizer.svg" />
       <div>
         <h2>Quantizer</h2>
-        <p>Round random 1V/oct control voltages to any musical scale</p>
+        <p>Constrain random 1V/oct control voltages to any musical scale</p>
       </div>
     </div>
   </a>
