@@ -58,12 +58,10 @@
   </tr>
 </table>
 
-<!--
-<a class="fm-etsy-link" href="https://www.etsy.com/listing/___">
+<a class="fm-etsy-link" href="https://www.etsy.com/listing/4321694908">
   <img src="docs/images/00-quantizer-front.jpg" /><img src="docs/images/01-quantizer-back.jpg" />
   <h3>Available on Etsy</h3>
   <p>You can buy PCBs, full kits, or hand-assembled modules directly from me on Etsy</p>
 </a>
--->
 
 </div>
