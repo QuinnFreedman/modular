@@ -22,7 +22,7 @@
       <img src="https://freemodular.org/modules/RNG/docs/images/rng_faceplate_display.svg" />
       <div>
         <h2>RNG</h2>
-        <p>The Random Number Generator -- A module for creating semi-looping, randomized CV and gates. Inspired by the Turning Machine</p>
+        <p>The Random Number Generator -- A module for creating semi-looping, randomized CV and gates. Inspired by the Turing Machine</p>
       </div>
     </div>
   </a>
