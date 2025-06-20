@@ -58,7 +58,8 @@
     "timestep",
     "quantizer",
     "OscfOver",
-    "bitvec"
+    "bitvec",
+    "Aref"
   ],
   "patterns": [
     {

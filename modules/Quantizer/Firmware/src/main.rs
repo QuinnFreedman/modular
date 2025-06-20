@@ -46,7 +46,6 @@ use menu::{LedColor, MenuState};
 use quantizer::QuantizationResult;
 use quantizer::QuantizerState;
 use resistor_ladder_buttons::ButtonLadderState;
-use ufmt::uwrite;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
@@ -65,7 +64,13 @@ fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
     let mut eeprom = arduino_hal::Eeprom::new(dp.EEPROM);
-    let mut adc = arduino_hal::Adc::new(dp.ADC, Default::default());
+    let mut adc = arduino_hal::Adc::new(
+        dp.ADC,
+        arduino_hal::adc::AdcSettings {
+            ref_voltage: arduino_hal::adc::ReferenceVoltage::Aref,
+            ..Default::default()
+        },
+    );
     let (mut spi, d10) = arduino_hal::spi::Spi::new(
         dp.SPI,
         pins.d13.into_output(),        // Clock
@@ -268,16 +273,18 @@ fn configure_timer(tc2: &arduino_hal::pac::TC2) {
 
 #[avr_device::interrupt(atmega328p)]
 fn TIMER2_COMPA() {
-    let dp = unsafe { arduino_hal::Peripherals::steal() };
+    // use ufmt::uwrite;
+    // let dp = unsafe { arduino_hal::Peripherals::steal() };
 
     assert_interrupts_disabled(|cs| {
         if !SAMPLE_READY.borrow(cs).get() {
             SAMPLE_READY.borrow(cs).set(true);
-        } else {
-            let pins = arduino_hal::pins!(dp);
-            let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
-            uwrite!(&mut serial, ".").unwrap_infallible();
         }
+        // else {
+        //     let pins = arduino_hal::pins!(dp);
+        //     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+        //     uwrite!(&mut serial, ".").unwrap_infallible();
+        // }
     });
 }
 

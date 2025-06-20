@@ -39,15 +39,28 @@ impl ButtonLadderState {
     }
 }
 
+// expected voltages readings resulting from a voltage divider resistor ladder with
+// a 10k resistor to 5V against up to 12 1k resistors to ground, measured by a
+// 10-bit dac referenced to 5V
+const EXPECTED_BUTTON_VALUES: [u16; 13] =
+    [0, 93, 171, 236, 292, 341, 384, 421, 455, 485, 512, 536, 558];
+
 fn get_closest_button_index(adc_value: u16) -> Option<u8> {
-    // (n / (R1 + n)) * 1024 = adc_value;
-    const R1_VALUE: u16 = 10;
-    let divisor = 1024 - adc_value;
-    let idx = (R1_VALUE * adc_value + (divisor - 1)) / divisor;
-    if idx >= 12 {
-        None
+    let mut closest_idx: u8 = 12;
+    let mut best_delta: u16 = adc_value.abs_diff(EXPECTED_BUTTON_VALUES[12]);
+
+    for i in (0..=11u8).rev() {
+        let delta = adc_value.abs_diff(EXPECTED_BUTTON_VALUES[i as usize]);
+        if delta < best_delta {
+            closest_idx = i;
+            best_delta = delta;
+        }
+    }
+
+    if closest_idx < 12 {
+        Some(closest_idx)
     } else {
-        Some(idx as u8)
+        None
     }
 }
 
