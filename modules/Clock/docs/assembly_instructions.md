@@ -70,17 +70,17 @@ Make sure to trim the tips extra flush so they don't short out against the facep
 
 **Be careful connecting the screen to the PCB**. The pins on the screen may not be in the same order or labelled with the same names as they are on the PCB. This display uses the [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface) protocol, which has very inconsistent naming conventions and every order of the display sub-module I get has a slightly different pinout or labels. There should be 6 (or 7) pins on the screen. Connect each one to the matching connection on the module PCB according to the following table:
 
-| PCB marking | Other abbreviations | Function            |
-| ----------- | ------------------- | ------------------- |
-| GND         | 0V, Vss             | ground              |
-| +5V         | 5V, PWR, Vcc        | power               |
-| SCK         | CLK, SCLK, CK, SLK  | serial clock        |
-| SDA         | MOSI, PICO, DATA    | serial data         |
-| RES         | RESET               | reset (optional*)   |
-| DC          | D/C, MODE, DATA     | data/command toggle |
-| CS          | SS, /SS, /CS        | chip select         |
+| PCB marking | Other abbreviations | Function                |
+| ----------- | ------------------- | ----------------------- |
+| GND         | 0V, Vss             | ground                  |
+| +5V         | 5V, PWR, Vcc        | power                   |
+| SCK         | CLK, SCLK, CK, SLK  | serial clock            |
+| SDA         | MOSI, PICO, DATA    | serial data             |
+| RES         | RESET               | reset (optional*)       |
+| DC          | D/C, MODE, DATA     | data/command toggle     |
+| CS          | SS, /SS, /CS        | chip select (optional*) |
 
-\* The reset pin may not exist on the screen sub-module. If not, just leave it unconnected. If it does exist, then you need to connect it.
+\* The reset and/or CS pins may not exist on the screen sub-module. If not, just leave them unconnected. If they are present then you need to connect them.
 
 ![](images/tutorial_09.jpg)
 
@@ -94,7 +94,7 @@ Place all the UI components in the PCB. Make sure to align the flat edge of the 
 
 Add the faceplate before soldering to make sure everything is aligned properly. Screw the jack sockets down tightly. The rotary encoder will not have a surface to tighten the nut against, so don't screw it on tightly or it will pull the boards out of alignment.
 
-Then flip the whole board over and solder. The button might fall out of place since it isn't attatched. Make sure to hold it flush while you solder.
+Then flip the whole board over and solder. The button might fall out of place since it isn't attached. Make sure to hold it flush while you solder.
 
 ![](images/tutorial_11.jpg)
 
