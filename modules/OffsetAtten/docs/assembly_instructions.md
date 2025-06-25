@@ -8,7 +8,7 @@ All parts are available on Tayda ([cart link](https://www.taydaelectronics.com/s
 
 See [general components notes](https://quinnfreedman.github.io/modular/docs/components) for more info about acquiring parts.
 
-Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/rng_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/rng_pcb_back_interactive_bom.html)
+Interactive BOM: [front](https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/offset_atten_pcb_front_interactive_bom.html), [back](https://quinnfreedman.github.io/fm-artifacts/OffsetAtten/offset_atten_pcb_back_interactive_bom.html)
 
 | Board | Reference | Part             | Value                                   | Source  | Comment |
 | ----- | --------- | ---------------- | --------------------------------------- | ------- | ------- |
