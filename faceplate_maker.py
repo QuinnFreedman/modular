@@ -644,7 +644,7 @@ def draw_bumpy_circle(context, center, r1, r2, n, **kwargs):
             r = r1
         else:
             r = r2
-        theta = 2 * math.pi / n * i
+        theta = 2 * math.pi / n * (i - 0.5)
         x = center[0] + math.cos(theta) * r
         y = center[1] + math.sin(theta) * r
         path.push(f"{'M' if i == 0 else 'L'} {x} {y}")
@@ -1334,6 +1334,71 @@ class Potentiometer(BasicCircle(inches(.1), inches(-.3), 3.5 + HOLE_ALLOWANCE)):
             fill="black"
         ))
         return elements
+
+
+class SmallPotentiometer(BasicCircle(inches(.1), inches(-.3), 3.25)):
+    def __init__(self, x, y, label=None, rotation=0, font_size=None, text_offset=None):
+        super().__init__(x, y, rotation)
+        if text_offset is None:
+            text_offset = self.radius + 4.85
+        self.label = label
+        self.font_size = font_size
+        self.text_offset = text_offset
+        self.cosmetic_holes = False
+
+    def draw_stencil(self, context):
+        elements = []
+        text_props = {
+            "insert": (self.offset[0], self.offset[1] + self.text_offset),
+            "text_anchor": "middle",
+        }
+
+        if self.font_size:
+            text_props["font_size"] = self.font_size
+
+        if self.label:
+            elements.append(context.text(self.label, **text_props))
+        
+        return elements
+
+    def draw_debug(self, context):
+        return [
+            *super().draw_debug(context),
+            context.circle(center=self.rotated((inches( 0), 0)), r=0.25),
+            context.circle(center=self.rotated((inches(.1), 0)), r=0.25),
+            context.circle(center=self.rotated((inches(.2), 0)), r=0.25),
+        ]
+    
+    def draw_cosmetics(self, context):
+        cx, cy = self.offset
+        def from_polar(theta, r):
+            return cx + math.cos(theta) * r, cy + math.sin(theta) * r
+
+        surface_gradient = context.linearGradient(
+            (sqrt(1/2), 0),
+            (0, sqrt(1/2)),
+        )
+        surface_gradient.add_stop_color(0, "#444")
+        surface_gradient.add_stop_color(1, "#212121")
+        context.defs.add(surface_gradient)
+
+        knob_theta = -math.pi * 3/4
+        elements = []
+        elements.append(draw_bumpy_circle(
+            context,
+            self.offset,
+            self.radius - .2,
+            self.radius,
+            32,
+            fill=surface_gradient.get_paint_server()
+        ))
+        elements.append(context.line(
+            self.offset,
+            from_polar(knob_theta, self.radius),
+            stroke_width=.8,
+            stroke="white"))
+        return elements
+
 
 
 def draw_regular_polygon(context: Group, center:Tuple[float, float], n: int, r: float, rotation: float=0, **kwargs):
