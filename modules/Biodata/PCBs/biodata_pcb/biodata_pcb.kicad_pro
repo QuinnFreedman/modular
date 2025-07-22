@@ -249,7 +249,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "biofeedback_pcb.kicad_pro",
+    "filename": "biodata_pcb.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -415,6 +415,10 @@
     [
       "c75a632f-e661-4484-8d06-5c636c2b505d",
       "Rear Board"
+    ],
+    [
+      "79efe637-0b74-4c20-a98b-9e582c7ffb39",
+      "Front Board"
     ]
   ],
   "text_variables": {}

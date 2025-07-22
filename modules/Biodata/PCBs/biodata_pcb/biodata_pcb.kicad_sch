@@ -6,6 +6,48 @@
 	(paper "A4")
 	(lib_symbols)
 	(sheet
+		(at 83.82 68.58)
+		(size 36.83 44.45)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "79efe637-0b74-4c20-a98b-9e582c7ffb39")
+		(property "Sheetname" "Front Board"
+			(at 83.82 67.8684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "front_board.kicad_sch"
+			(at 83.82 113.6146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "biodata_pcb"
+				(path "/b52d098f-d782-4794-942d-95fe9e334d06"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
 		(at 154.94 68.58)
 		(size 41.91 43.18)
 		(exclude_from_sim no)
@@ -39,8 +81,168 @@
 				(justify left top)
 			)
 		)
+		(pin "+5V" input
+			(at 177.8 68.58 90)
+			(uuid "2729c992-5bee-4dbb-86a5-b20cc1a80535")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "density" input
+			(at 154.94 82.55 180)
+			(uuid "b4602142-e175-490d-8737-ca0782ef872e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "gate_in_a" input
+			(at 154.94 96.52 180)
+			(uuid "8bd0168b-f216-47a0-9513-cb140ba1ae65")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "gate_in_b" input
+			(at 154.94 99.06 180)
+			(uuid "d023a589-d940-422e-867e-231bc5bfc9cc")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "gate_out_a" output
+			(at 154.94 104.14 180)
+			(uuid "a1a064e5-5f66-4aab-84fe-fd61107078f5")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "gate_out_b" output
+			(at 154.94 106.68 180)
+			(uuid "ea9d1d68-c8df-4215-99a7-8273e64bf3c8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "GND" input
+			(at 180.34 68.58 90)
+			(uuid "404f82e6-0388-456a-ba0f-faa614392330")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(pin "probe_neg" bidirectional
+			(at 154.94 76.2 180)
+			(uuid "e7bccaa0-f3f9-4522-af91-84c244c02e2a")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "probe_pos" bidirectional
+			(at 154.94 74.93 180)
+			(uuid "e13e6f1b-37c5-484c-a04e-ba54cf16ab10")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "sensitivity" input
+			(at 154.94 85.09 180)
+			(uuid "550e2444-c01e-4ea1-86c8-5668316b3d69")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "slew_a" input
+			(at 154.94 93.98 180)
+			(uuid "ac9d387d-22c2-48c1-9348-128b2496afd8")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "slew_b" input
+			(at 154.94 101.6 180)
+			(uuid "c3f5f5b0-1586-4aa6-be71-4ea83e2bf42b")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "spread_a" input
+			(at 154.94 95.25 180)
+			(uuid "e760ec7f-f564-458e-9839-48524defee6f")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "spread_b" input
+			(at 154.94 100.33 180)
+			(uuid "ebac0112-2e51-48f3-a5ab-84182b7c908e")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "cv_out_a" output
+			(at 154.94 87.63 180)
+			(uuid "c8d5bf29-fb51-40e8-a6bb-18eb76920ec0")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(pin "cv_out_b" output
+			(at 154.94 90.17 180)
+			(uuid "4683a8fc-8ead-4004-b806-03d704b7d0f3")
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
 		(instances
-			(project "biofeedback_pcb"
+			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06"
 					(page "2")
 				)
