@@ -1,13 +1,13 @@
 cargo-features = ["profile-rustflags"]
 
 [package]
-name = "fm-quantizer"
+name = "fm-biodata"
 version = "0.1.0"
 authors = ["Quinn Freedman <quinnfreedman@gmail.com>"]
 edition = "2021"
 
 [[bin]]
-name = "fm-quantizer"
+name = "fm-biodata"
 test = false
 bench = false
 
