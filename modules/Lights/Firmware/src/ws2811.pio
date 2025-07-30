@@ -1,0 +1,74 @@
+.program ws2811
+;.side_set 1 opt
+
+; This is run from C
+; set y 20
+; mov osr y
+; out null 5 ; osr = 20 * 2^5 = 640 -> 640*2*8ns = 10240ns
+
+.wrap_target
+sopt_wait_bit:
+    mov y osr
+sopt_wait_bit_loop:
+    jmp pin sopt_handle_bit
+    jmp y-- sopt_wait_bit_loop
+    ; RESET
+
+
+reset:
+    ; Set x to number of bits to read
+num_bits_const_1:
+    set x 24
+    mov isr x
+num_bits_shift_1:
+    in null 1 ; shift left 1 times
+    mov x isr  ; x = 24 * 2^1 = 48
+    mov isr null ; reset shift counter
+    jmp x-- consume_wait_bit ; y = 47
+
+consume_wait_bit:
+    mov y osr
+consume_wait_bit_loop:
+    jmp pin consume_handle_bit     ; start of bit detected
+    jmp y-- consume_wait_bit_loop  ; loop until a reset pulse is detected
+    ; RESET
+
+    ; some bits/leds might not have been read yet
+    ; push number of unread bits to isr if at least 1 bit has already been pushed
+num_bits_const_2:
+    set y 24
+    mov isr y
+num_bits_shift_2:
+    in null 1 ; shift left 1 times
+    mov y isr  ; x = 24 * 2^1 = 48
+    jmp y-- tmp
+tmp:
+    jmp x!=y push_remaining_bits_loop
+    jmp reset
+push_remaining_bits_loop:
+    in null 1
+    jmp x-- push_remaining_bits_loop
+    jmp reset
+
+consume_handle_bit:
+;    set y 5            [1]  ; 2 cycles
+;delay_loop:                 ; + 6*(
+;    nop                [4]  ;     5 cycles
+;    jmp y-- delay_loop [4]  ;   + 5 cycles) = 62 cycles -> 62*8ns = 496ns
+
+    nop                 [30] ; 31 cycles
+    nop                 [30] ; + 31 cycles = 62 cycles -> 62*8ns = 496ns
+
+    ; now check if this is a 1 or 0 bit
+    in pins 1                         ; shift 1 or 0 into result
+    wait 0 pin 0                      ;
+    jmp x-- consume_wait_bit          ; read next bit
+    ; ALL BITS READ
+    jmp sopt_wait_bit                 ;
+
+
+sopt_handle_bit:
+    set pins 1                        ;
+    wait 0 pin 0                      ; wait for low
+    set pins 0                        ;
+    .wrap ; wait for next pass through bit, reset reset pulse counter
