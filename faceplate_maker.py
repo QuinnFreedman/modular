@@ -152,7 +152,7 @@ class Module:
 
         # Draw logo
         if not hide_logo:
-            logo_width = min(self.width, 15)
+            logo_width = min(self.width-2, 15)
             # logo_height = .465 * logo_width
             logo_y = self.height - 9
             if hp < 8:
