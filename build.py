@@ -277,13 +277,14 @@ def build_faceplate(name, output_dir, last_commit):
     log_ok()
 
 
-def build_rust_firmware(name: str, output_dir: str, last_commit: str, stable=False):
+def build_rust_firmware(name: str, output_dir: str, last_commit: str, rp2040=False):
     firmware_dir = path.join("modules", name, "Firmware")
     if not has_changed_since(firmware_dir, last_commit):
         return
     log(1, "🦀", "Building firmware", True)
     env = os.environ.copy()
-    env["RUSTFLAGS"] = "-Zlocation-detail=none"
+    if not rp2040:
+        env["RUSTFLAGS"] = "-Zlocation-detail=none"
     run_command_or_exit_with_error(
         ["cargo", "build", "--release"],
         env=env,
@@ -291,16 +292,21 @@ def build_rust_firmware(name: str, output_dir: str, last_commit: str, stable=Fal
     )
 
     firmware_name = f"fm-{to_snake_case(name).replace('_', '-')}"
-    elf_file = path.join(firmware_dir, "target", "avr-atmega328p", "release", f"{firmware_name}.elf")
-    hex_file = path.join(output_dir, f"{firmware_name}.hex")
+    if not rp2040:
+        elf_file = path.join(firmware_dir, "target", "avr-atmega328p", "release", f"{firmware_name}.elf")
+        hex_file = path.join(output_dir, f"{firmware_name}.hex")
 
-    run_command_or_exit_with_error(
-        ["avr-objcopy", "-O", "ihex", elf_file, hex_file],
-    )
+        run_command_or_exit_with_error(
+            ["avr-objcopy", "-O", "ihex", elf_file, hex_file],
+        )
+    else:
+        bin_file = path.join(firmware_dir, "target", "thumbv6m-none-eabi", "release", firmware_name)
+        dest = path.join(output_dir, f"{firmware_name}-firmware")
+        shutil.copy(bin_file, dest)
     log_ok()
 
 
-def build(name, output_dir, multiboard_refs=None, manual_pages=1, stable_rust=False):
+def build(name, output_dir, multiboard_refs=None, manual_pages=1, rp2040=False):
     dir = path.join("modules", name)
     output_dir = path.join(output_dir, name)
     last_commit = get_last_commit(output_dir)
@@ -344,7 +350,7 @@ def build(name, output_dir, multiboard_refs=None, manual_pages=1, stable_rust=Fa
 
     cargo_toml = path.join(dir, "Firmware", "Cargo.toml")
     if path.exists(cargo_toml):
-        build_rust_firmware(name, output_dir, last_commit, stable_rust)
+        build_rust_firmware(name, output_dir, last_commit, rp2040)
 
     build_manual(name, output_dir, last_commit, manual_pages)
 
@@ -367,5 +373,5 @@ if __name__ == "__main__":
     build("Quantizer", output_dir, [("front", "B1"), ("back", "B2")], manual_pages=2)
     build("Logic", output_dir, [("front", "B1"), ("back", "B2")])
     build("Biodata", output_dir, [("front", "B1"), ("back", "B2")])
-    build("Lights", output_dir, [("front", "B1"), ("back", "B2")], stable_rust=True)
+    build("Lights", output_dir, [("front", "B1"), ("back", "B2")], rp2040=True)
 
