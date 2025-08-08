@@ -78,6 +78,17 @@
 		)
 	)
 	(net 0 "")
+	(gr_circle
+		(center 70.8025 34.6075)
+		(end 71.4375 35.56)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill yes)
+		(layer "F.Mask")
+		(uuid "7c72f410-398d-41b0-a56d-090139e58cd8")
+	)
 	(gr_line
 		(start 67.700075 44.641627)
 		(end 67.531754 44.819488)
