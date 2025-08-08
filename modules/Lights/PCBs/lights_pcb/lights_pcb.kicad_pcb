@@ -16137,6 +16137,103 @@
 			)
 		)
 	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "ccf8b5f8-3ef1-413e-8891-8409f4d68c7d")
+		(at 63.5 31.75)
+		(descr "Mark board for extraction")
+		(property "Reference" "B1"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "226ac6d5-3865-4050-9145-1e46b0bf0ff8")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "949bc24c-0b0f-46c5-bbb5-57ea4640b42d")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "b5a173b9-2612-4d42-971a-65f10f78a1cd")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "de1dc9f1-d9dd-461c-8bd3-3477302010d9")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "e541ffae-082a-486f-b422-c04a8d2c60b1")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "82583143-1c18-4f39-830d-5421b6ca5bbc")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "05919680-95be-44fa-970d-3f9e6e836d9b")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "d519587b-904c-4674-8f7b-1693441d87b8")
+		)
+		(embedded_fonts no)
+	)
 	(footprint "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical"
 		(layer "F.Cu")
 		(uuid "d1476653-4215-4eb7-9ba8-205e7159c156")
@@ -16786,6 +16883,103 @@
 				(xyz 0 0 0)
 			)
 		)
+	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "fafa8f0b-20d4-4dd7-ba67-db4eaa248d04")
+		(at 120.25 31.75)
+		(descr "Mark board for extraction")
+		(property "Reference" "B2"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "44115f39-91cd-4f6f-be9a-4e99a75acce6")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "8f35179b-0ac2-4a61-bd4d-fe97235bee38")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "bee18022-71c7-4aa3-8574-5166e3276857")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "987c1e1c-0230-4ba0-9bee-c32a03405ff1")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "5c239c66-d1da-4e91-8f8a-ddffa8ccde54")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "6f56c3cb-eff3-4c7c-9e64-230d2663274a")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "44eab907-9bb4-4700-884d-a7ed71986ecc")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "21e81e62-8864-4421-9da7-8148dc63535f")
+		)
+		(embedded_fonts no)
 	)
 	(footprint "FreeModular:THONKICONN"
 		(layer "F.Cu")
@@ -19040,6 +19234,26 @@
 		(uuid "54e98442-9b49-4476-b471-7eb9573fa921")
 	)
 	(gr_line
+		(start 59.69 73.66)
+		(end 59.69 52.705)
+		(stroke
+			(width 0.3)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "3dc27ff8-eb0f-465a-8935-bf52cd35d65f")
+	)
+	(gr_line
+		(start 59.69 113.665)
+		(end 59.69 92.71)
+		(stroke
+			(width 0.3)
+			(type solid)
+		)
+		(layer "B.SilkS")
+		(uuid "721f0022-32f5-4e49-b3b1-7b881f9bdc16")
+	)
+	(gr_line
 		(start 120.25 31.75)
 		(end 147.75 31.75)
 		(stroke
@@ -20112,6 +20326,18 @@
 				(thickness 0.12)
 			)
 			(justify left bottom mirror)
+		)
+	)
+	(gr_text "perpendicular PCB goes here"
+		(at 59.69 83.185 90)
+		(layer "B.SilkS")
+		(uuid "578a9997-2aab-464e-8ee6-f86a7416e8f1")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify mirror)
 		)
 	)
 	(gr_text "Free Modular Lights front v0.1"
