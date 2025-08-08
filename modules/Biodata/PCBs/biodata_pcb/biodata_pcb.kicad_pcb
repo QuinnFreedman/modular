@@ -19677,6 +19677,200 @@
 			)
 		)
 	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "dba54065-d6f0-4324-8298-059fa12d2c4d")
+		(at 171.45 63.5)
+		(descr "Mark board for extraction")
+		(property "Reference" "B2"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "00ade4da-5e3f-4b70-ae0b-09be9090ec0d")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "8db5e2a3-21f5-4678-a575-e1eb104b90b6")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "85bec719-5fc0-4960-9c1c-12d0bebda35f")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "61fcc1d1-0ed2-48d4-b2e9-9e502808e1c3")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "22492ab4-4476-4b68-b292-aecd14e625c7")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "3f401d39-2e69-46c6-b5ca-8b69520954c8")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "a3ee51b9-44be-4e35-bfc9-415294286eb7")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "201d8dc8-2c1d-47dd-8104-a8e61c93c0fe")
+		)
+		(embedded_fonts no)
+	)
+	(footprint "kikit:Board"
+		(layer "F.Cu")
+		(uuid "dc907707-ad33-4390-8f24-48479be0089d")
+		(at 95.25 63.5)
+		(descr "Mark board for extraction")
+		(property "Reference" "B1"
+			(at -4.5 -5 0)
+			(layer "Dwgs.User")
+			(uuid "6ef80d3d-9782-4541-805c-a8c1979f6a15")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Board"
+			(at -7.25 -5 0)
+			(layer "Dwgs.User")
+			(uuid "aa31a1bd-d94c-4187-a64f-960ab6f63bf3")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "0a851756-7f13-433a-9bbd-fb8147bee010")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "0ced5ffc-63a6-4cbe-9dd0-a59c44bedaef")
+			(effects
+				(font
+					(size 1.27 1.27)
+					(thickness 0.15)
+				)
+			)
+		)
+		(attr through_hole)
+		(fp_line
+			(start -1.25 -4)
+			(end -9.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "8fc0f0c7-92bc-43e8-b34d-81f547ac6015")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1.25 -4)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "4ae82dd3-607e-4651-8231-b33a2b0c8370")
+		)
+		(fp_line
+			(start 0 0)
+			(end -1 -0.5)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "a8ca0f29-cf97-487d-884d-f18d2b993886")
+		)
+		(fp_line
+			(start 0 0)
+			(end 0.5 -1)
+			(stroke
+				(width 0.2)
+				(type solid)
+			)
+			(layer "Dwgs.User")
+			(uuid "8577afc8-127a-4f3b-ac60-a78ce691736a")
+		)
+		(embedded_fonts no)
+	)
 	(footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
 		(layer "F.Cu")
 		(uuid "e0fac712-9f9c-4567-adc8-793562e613c5")
@@ -24229,7 +24423,7 @@
 		(start 91.440002 134.889997)
 		(end 91.440002 136.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24261,7 +24455,7 @@
 		(start 74.930001 87.9)
 		(end 74.930001 89.9)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24283,7 +24477,7 @@
 		(start 118.110002 118.379995)
 		(end 118.110002 120.379995)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24326,7 +24520,7 @@
 		(start 103.775003 91.440001)
 		(end 105.775003 91.440001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24336,7 +24530,7 @@
 		(start 73.930002 152.4)
 		(end 75.930002 152.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24357,7 +24551,7 @@
 		(start 73.930001 88.9)
 		(end 75.930001 88.9)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24378,7 +24572,7 @@
 		(start 72.390002 51.039999)
 		(end 72.390002 53.039999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24399,7 +24593,7 @@
 		(start 104.774999 118.379995)
 		(end 104.774999 120.379995)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24409,7 +24603,7 @@
 		(start 73.930002 68.58)
 		(end 75.930002 68.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24441,7 +24635,7 @@
 		(start 73.930001 113.030001)
 		(end 75.930001 113.030001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24462,7 +24656,7 @@
 		(start 117.110002 68.58)
 		(end 119.110002 68.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24472,7 +24666,7 @@
 		(start 104.775003 90.440001)
 		(end 104.775003 92.440001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24482,7 +24676,7 @@
 		(start 117.110002 152.4)
 		(end 119.110002 152.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24514,7 +24708,7 @@
 		(start 91.44 90.440001)
 		(end 91.44 92.440001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24535,7 +24729,7 @@
 		(start 118.110002 90.440001)
 		(end 118.110002 92.440001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24545,7 +24739,7 @@
 		(start 90.440002 119.379995)
 		(end 92.440002 119.379995)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24566,7 +24760,7 @@
 		(start 103.774999 135.889997)
 		(end 105.774999 135.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24587,7 +24781,7 @@
 		(start 104.774999 151.4)
 		(end 104.774999 153.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24597,7 +24791,7 @@
 		(start 118.110002 151.4)
 		(end 118.110002 153.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24629,7 +24823,7 @@
 		(start 90.440002 152.4)
 		(end 92.440002 152.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24650,7 +24844,7 @@
 		(start 74.930002 134.889997)
 		(end 74.930002 136.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24660,7 +24854,7 @@
 		(start 103.774999 152.4)
 		(end 105.774999 152.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24681,7 +24875,7 @@
 		(start 71.390002 174.539999)
 		(end 73.390003 174.539999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24713,7 +24907,7 @@
 		(start 73.930002 135.889997)
 		(end 75.930002 135.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24723,7 +24917,7 @@
 		(start 104.774999 106.949999)
 		(end 104.774999 108.949999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24733,7 +24927,7 @@
 		(start 118.110002 51.039999)
 		(end 118.110002 53.039999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24787,7 +24981,7 @@
 		(start 90.440002 107.949999)
 		(end 92.440002 107.949999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24808,7 +25002,7 @@
 		(start 117.110002 107.949999)
 		(end 119.110002 107.949999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24829,7 +25023,7 @@
 		(start 90.440002 135.889997)
 		(end 92.440002 135.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24872,7 +25066,7 @@
 		(start 103.774999 119.379995)
 		(end 105.774999 119.379995)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24893,7 +25087,7 @@
 		(start 74.930001 112.030001)
 		(end 74.930001 114.029997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24903,7 +25097,7 @@
 		(start 91.440002 151.4)
 		(end 91.440002 153.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24913,7 +25107,7 @@
 		(start 117.110002 119.379995)
 		(end 119.110002 119.379995)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24934,7 +25128,7 @@
 		(start 117.110002 174.539999)
 		(end 119.110002 174.539999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24955,7 +25149,7 @@
 		(start 91.440002 106.949999)
 		(end 91.440002 108.949999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24965,7 +25159,7 @@
 		(start 74.930002 67.58)
 		(end 74.930002 69.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -24986,7 +25180,7 @@
 		(start 74.930002 151.4)
 		(end 74.930002 153.4)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25007,7 +25201,7 @@
 		(start 117.110002 52.039999)
 		(end 119.110002 52.039999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25028,7 +25222,7 @@
 		(start 71.390002 52.039999)
 		(end 73.390003 52.039999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25060,7 +25254,7 @@
 		(start 104.774999 134.889997)
 		(end 104.774999 136.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25070,7 +25264,7 @@
 		(start 104.775003 67.58)
 		(end 104.775003 69.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25113,7 +25307,7 @@
 		(start 118.110002 134.889997)
 		(end 118.110002 136.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25134,7 +25328,7 @@
 		(start 118.110002 67.58)
 		(end 118.110002 69.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25177,7 +25371,7 @@
 		(start 117.110002 91.440001)
 		(end 119.110002 91.440001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25187,7 +25381,7 @@
 		(start 118.110002 106.949999)
 		(end 118.110002 108.949999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25197,7 +25391,7 @@
 		(start 103.775003 68.58)
 		(end 105.775003 68.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25207,7 +25401,7 @@
 		(start 72.390002 173.539999)
 		(end 72.390002 175.539999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25239,7 +25433,7 @@
 		(start 90.44 68.58)
 		(end 92.44 68.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25249,7 +25443,7 @@
 		(start 91.440002 118.379995)
 		(end 91.440002 120.379995)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25270,7 +25464,7 @@
 		(start 90.44 91.440001)
 		(end 92.44 91.440001)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25313,7 +25507,7 @@
 		(start 103.774999 107.949999)
 		(end 105.774999 107.949999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25334,7 +25528,7 @@
 		(start 117.110002 135.889997)
 		(end 119.110002 135.889997)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25355,7 +25549,7 @@
 		(start 118.110002 173.539999)
 		(end 118.110002 175.539999)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")
@@ -25365,7 +25559,7 @@
 		(start 91.44 67.58)
 		(end 91.44 69.58)
 		(stroke
-			(width 0)
+			(width 0.1)
 			(type solid)
 		)
 		(layer "User.2")

@@ -277,7 +277,7 @@ def build_faceplate(name, output_dir, last_commit):
     log_ok()
 
 
-def build_rust_firmware(name: str, output_dir: str, last_commit: str):
+def build_rust_firmware(name: str, output_dir: str, last_commit: str, stable=False):
     firmware_dir = path.join("modules", name, "Firmware")
     if not has_changed_since(firmware_dir, last_commit):
         return
@@ -296,12 +296,11 @@ def build_rust_firmware(name: str, output_dir: str, last_commit: str):
 
     run_command_or_exit_with_error(
         ["avr-objcopy", "-O", "ihex", elf_file, hex_file],
-        env={"RUSTFLAGS": "-Zlocation-detail=none"},
     )
     log_ok()
 
 
-def build(name, output_dir, multiboard_refs=None, manual_pages=1):
+def build(name, output_dir, multiboard_refs=None, manual_pages=1, stable_rust=False):
     dir = path.join("modules", name)
     output_dir = path.join(output_dir, name)
     last_commit = get_last_commit(output_dir)
@@ -345,7 +344,7 @@ def build(name, output_dir, multiboard_refs=None, manual_pages=1):
 
     cargo_toml = path.join(dir, "Firmware", "Cargo.toml")
     if path.exists(cargo_toml):
-        build_rust_firmware(name, output_dir, last_commit)
+        build_rust_firmware(name, output_dir, last_commit, stable_rust)
 
     build_manual(name, output_dir, last_commit, manual_pages)
 
@@ -367,4 +366,6 @@ if __name__ == "__main__":
     build("Boost", output_dir)
     build("Quantizer", output_dir, [("front", "B1"), ("back", "B2")], manual_pages=2)
     build("Logic", output_dir, [("front", "B1"), ("back", "B2")])
+    build("Biodata", output_dir, [("front", "B1"), ("back", "B2")])
+    build("Lights", output_dir, [("front", "B1"), ("back", "B2")], stable_rust=True)
 
