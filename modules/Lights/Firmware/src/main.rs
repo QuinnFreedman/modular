@@ -1,89 +1,26 @@
-//! # Pico PIO PWM Blink Example
-//!
-//! Fades the LED on a Pico board using the PIO peripheral with an pwm program.
-//!
-//! This will fade in the LED attached to GP25, which is the pin the Pico
-//! uses for the on-board LED.
-//!
-//! This example uses a few advance pio tricks such as side setting pins and instruction injection.
-//!
-//! See the `Cargo.toml` file for Copyright and license details. Except for the pio program which is subject to a different license.
-
 #![no_std]
 #![no_main]
 
 use defmt::info;
 use defmt_rtt as _;
 use embedded_hal::pwm::SetDutyCycle;
-// The macro for our start-up function
 use rp_pico::entry;
 
-// Ensure we halt the program on panic (if we don't mention this crate it won't
-// be linked)
 use panic_halt as _;
 
-// Pull in any important traits
 use rp_pico::hal::prelude::*;
 
-// A shorter alias for the Peripheral Access Crate, which provides low-level
-// register access
 use rp_pico::hal::pac;
 
-// A shorter alias for the Hardware Abstraction Layer, which provides
-// higher-level drivers.
 use rp_pico::hal;
 
-// Import pio crates
-use hal::pio::{PIOBuilder, Running, StateMachine, Tx, ValidStateMachine, SM0};
-use pio::{Instruction, InstructionOperands, OutDestination};
-use pio_proc::pio_file;
-
-/// Set pio pwm period
-///
-/// This uses a sneaky trick to set a second value besides the duty cycle.
-/// We first write a value to the tx fifo. But instead of the normal instructions we
-/// have stopped the state machine and inject our own instructions that move the written value to the ISR.
-fn pio_pwm_set_period<T: ValidStateMachine>(
-    sm: StateMachine<(hal::pac::PIO0, SM0), Running>,
-    tx: &mut Tx<T>,
-    period: u32,
-) -> StateMachine<(hal::pac::PIO0, SM0), Running> {
-    // To make sure the inserted instructions actually use our newly written value
-    // We first busy loop to empty the queue. (Which typically should be the case)
-    while !tx.is_empty() {}
-
-    let mut sm = sm.stop();
-    tx.write(period);
-    sm.exec_instruction(Instruction {
-        operands: InstructionOperands::PULL {
-            if_empty: false,
-            block: false,
-        },
-        delay: 0,
-        side_set: None,
-    });
-    sm.exec_instruction(Instruction {
-        operands: InstructionOperands::OUT {
-            destination: OutDestination::ISR,
-            bit_count: 32,
-        },
-        delay: 0,
-        side_set: None,
-    });
-    sm.start()
-}
-
-/// Set pio pwm duty cycle
-///
-/// The value written to the TX FIFO is used directly by the normal pio program
-fn pio_pwm_set_level<T: ValidStateMachine>(tx: &mut Tx<T>, level: u32) {
-    // Write duty cycle to TX Fifo
-    tx.write(level);
-}
+use rp_pico::hal::pio::PIOExt;
+use rp_pico::hal::Timer;
+use smart_leds::{brightness, SmartLedsWrite, RGB8};
+use ws2812_pio::Ws2812;
 
 #[entry]
 fn main() -> ! {
-    // Grab our singleton objects
     let mut pac = pac::Peripherals::take().unwrap();
     let core = pac::CorePeripherals::take().unwrap();
 
@@ -116,39 +53,68 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    // The delay object lets us wait for specified amounts of time (in
-    // milliseconds)
     let mut delay = cortex_m::delay::Delay::new(core.SYST, clocks.system_clock.freq().to_Hz());
 
-    let (mut pio0, sm0, _, _, _) = pac.PIO0.split(&mut pac.RESETS);
+    // let _led: hal::gpio::Pin<_, hal::gpio::FunctionPio0, hal::gpio::PullNone> =
+    //     pins.led.reconfigure();
+    // let _led: hal::gpio::Pin<_, hal::gpio::FunctionPio0, hal::gpio::PullNone> =
+    //     pins.gpio5.reconfigure();
+    // let led_pin_id = 5;
 
-    // Create a pio program
-    let program = pio_file!("./src/pwm.pio");
-    let installed = pio0.install(&program.program).unwrap();
+    let sin = hal::rom_data::float_funcs::fsin::ptr();
+    let timer = Timer::new(pac.TIMER, &mut pac.RESETS, &clocks);
+    let (mut pio, sm0, _, _, _) = pac.PIO0.split(&mut pac.RESETS);
 
-    // Set gpio25 to pio
-    let _led: hal::gpio::Pin<_, hal::gpio::FunctionPio0, hal::gpio::PullNone> =
-        pins.led.reconfigure();
-    let _led: hal::gpio::Pin<_, hal::gpio::FunctionPio0, hal::gpio::PullNone> =
-        pins.gpio5.reconfigure();
-    let led_pin_id = 5;
+    let mut ws = Ws2812::new(
+        pins.gpio6.into_function(),
+        &mut pio,
+        sm0,
+        clocks.peripheral_clock.freq(),
+        timer.count_down(),
+    );
 
-    // Build the pio program and set pin both for set and side set!
-    // We are running with the default divider which is 1 (max speed)
-    let (mut sm, _, mut tx) = PIOBuilder::from_installed_program(installed)
-        .set_pins(led_pin_id, 1)
-        .side_set_pin_base(led_pin_id)
-        .build(sm0);
+    const STRIP_LEN: usize = 100;
+    let mut leds: [RGB8; STRIP_LEN] = [(0, 0, 0).into(); STRIP_LEN];
+    let mut t = 0.0;
 
-    // Set pio pindir for gpio25
-    sm.set_pindirs([(led_pin_id, hal::pio::PinDir::Output)]);
+    let strip_brightness = 64u8; // Limit brightness to 64/256
+    let animation_speed = 0.1;
 
-    // Start state machine
-    let sm = sm.start();
+    // WS2812 demo
+    loop {
+        for (i, led) in leds.iter_mut().enumerate() {
+            // An offset to give 3 consecutive LEDs a different color:
+            let hue_offs = match i % 3 {
+                1 => 0.25,
+                2 => 0.5,
+                _ => 0.0,
+            };
 
-    // Set period
-    pio_pwm_set_period(sm, &mut tx, u16::MAX as u32 - 1);
+            let sin_11 = sin((t + hue_offs) * 2.0 * core::f32::consts::PI);
+            // Bring -1..1 sine range to 0..1 range:
+            let sin_01 = (sin_11 + 1.0) * 0.5;
 
+            let hue = 360.0 * sin_01;
+            let sat = 1.0;
+            let val = 1.0;
+
+            let rgb = hsv2rgb_u8(hue, sat, val);
+            *led = rgb.into();
+        }
+
+        ws.write(brightness(leds.iter().copied(), strip_brightness))
+            .unwrap();
+
+        delay.delay_ms(16); // ~60 FPS
+
+        t += (16.0 / 1000.0) * animation_speed;
+        while t > 1.0 {
+            t -= 1.0;
+        }
+    }
+
+    // PWM demo
+    /*
     let mut pwm_slices = hal::pwm::Slices::new(pac.PWM, &mut pac.RESETS);
     let pwm = &mut pwm_slices.pwm1;
     pwm.set_ph_correct();
@@ -165,15 +131,45 @@ fn main() -> ! {
     let channel3 = &mut pwm2.channel_a;
     channel3.output_to(pins.gpio4);
 
-    // Loop forever and adjust duty cycle to make te led brighter
     let mut level = 0;
     loop {
-        // info!("Level = {}", level);
-        pio_pwm_set_level(&mut tx, level * level);
         level = (level + 1) % 256;
         channel1.set_duty_cycle_fraction(level as u16, 255).unwrap();
         channel2.set_duty_cycle_fraction(level as u16, 255).unwrap();
         channel3.set_duty_cycle_fraction(level as u16, 255).unwrap();
         delay.delay_ms(10);
     }
+    */
+}
+
+pub fn hsv2rgb(hue: f32, sat: f32, val: f32) -> (f32, f32, f32) {
+    let c = val * sat;
+    let v = (hue / 60.0) % 2.0 - 1.0;
+    let v = if v < 0.0 { -v } else { v };
+    let x = c * (1.0 - v);
+    let m = val - c;
+    let (r, g, b) = if hue < 60.0 {
+        (c, x, 0.0)
+    } else if hue < 120.0 {
+        (x, c, 0.0)
+    } else if hue < 180.0 {
+        (0.0, c, x)
+    } else if hue < 240.0 {
+        (0.0, x, c)
+    } else if hue < 300.0 {
+        (x, 0.0, c)
+    } else {
+        (c, 0.0, x)
+    };
+    (r + m, g + m, b + m)
+}
+
+pub fn hsv2rgb_u8(h: f32, s: f32, v: f32) -> (u8, u8, u8) {
+    let r = hsv2rgb(h, s, v);
+
+    (
+        (r.0 * 255.0) as u8,
+        (r.1 * 255.0) as u8,
+        (r.2 * 255.0) as u8,
+    )
 }

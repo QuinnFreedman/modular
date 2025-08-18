@@ -59,7 +59,12 @@
     "quantizer",
     "OscfOver",
     "bitvec",
-    "Aref"
+    "Aref",
+    "gpio",
+    "pindir",
+    "pindirs",
+    "defmt",
+    "XOSC"
   ],
   "patterns": [
     {
