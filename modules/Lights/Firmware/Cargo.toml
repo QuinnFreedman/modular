@@ -22,6 +22,10 @@ panic-halt = "1.0.0"
 # pio = "0.2.1"
 # pio-proc = "0.2.1"
 ws2812-pio = "0.8.0"
+heapless = "0.8.0"
+spectrum-analyzer = "1.7.0"
+embedded-alloc = "0.6.0"
+fixed = "1.29.0"
 
 # cargo build/run
 [profile.dev]
