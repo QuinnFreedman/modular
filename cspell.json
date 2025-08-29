@@ -64,7 +64,14 @@
     "pindir",
     "pindirs",
     "defmt",
-    "XOSC"
+    "XOSC",
+    "hann",
+    "coeffs",
+    "fsin",
+    "fcos",
+    "funcs",
+    "biquad",
+    "bandpass"
   ],
   "patterns": [
     {
