@@ -10,14 +10,15 @@ impl PeakDetector {
     }
 
     pub fn step(&mut self, x: I1F31) -> I1F31 {
-        I1F31::max(
-            x.abs(),
-            I1F31::max(I1F31::ZERO, self.value - I1F31::from_bits(0x2222222)),
-        )
+        const ALPHA: I1F31 = I1F31::from_bits(2146624653);
+        let p = x * x;
+        self.value = ALPHA.lerp(p, self.value);
+        self.value //.sqrt()
 
-        // if x >= self.value {
-        //     self.value = x;
-        //     x
-        // }
+        // self.value = I1F31::max(
+        //     x * x,
+        //     I1F31::max(I1F31::ZERO, self.value - I1F31::from_bits(429496)),
+        // );
+        // self.value
     }
 }

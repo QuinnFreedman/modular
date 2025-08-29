@@ -5,13 +5,17 @@ mod bp_filter;
 mod peak_detector;
 mod ringbuffer;
 
-use bp_filter::BiquadBandPass;
+use bp_filter::BiquadDF2;
 use core::panic::PanicInfo;
 use defmt_rtt as _;
 use embedded_alloc::LlffHeap as Heap;
 use embedded_hal::digital::OutputPin;
 use embedded_hal::pwm::SetDutyCycle;
+use fixed::traits::Fixed;
+use fixed::traits::ToFixed as _;
 use fixed::types::I1F31;
+use fixed::types::I32F32;
+use fixed::types::U32F32;
 use peak_detector::PeakDetector;
 use rp_pico::entry;
 use rp_pico::hal;
@@ -25,8 +29,6 @@ use rp_pico::hal::Adc;
 use rp_pico::hal::Timer;
 use smart_leds::{brightness, SmartLedsWrite, RGB8};
 use ws2812_pio::Ws2812;
-
-use ringbuffer::RingBuffer;
 
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
@@ -165,8 +167,17 @@ fn main() -> ! {
     let strip_brightness = 64u8; // out of 256
     let mut double_buffer_idx = false;
 
-    let mut filter = BiquadBandPass::new(10000.0, 500.0, 5.0);
-    let mut input_peak_detector = PeakDetector::new();
+    let sample_rate = 10000;
+    let q_value = 2.0;
+    let mut filters = [
+        BiquadDF2::new_bandpass(100.0, q_value, sample_rate),
+        BiquadDF2::new_bandpass(200.0, q_value, sample_rate),
+        BiquadDF2::new_bandpass(400.0, q_value, sample_rate),
+        BiquadDF2::new_bandpass(800.0, q_value, sample_rate),
+        BiquadDF2::new_bandpass(1600.0, q_value, sample_rate),
+        BiquadDF2::new_bandpass(3200.0, q_value, sample_rate),
+    ];
+    let mut peak_detectors: [PeakDetector; 6] = core::array::from_fn(|_| PeakDetector::new());
 
     let mut debug_pin = pins.gpio0.into_push_pull_output();
     loop {
@@ -184,9 +195,10 @@ fn main() -> ! {
         channel1.set_duty_cycle_fraction(level as u16, 255).unwrap();
         channel2.set_duty_cycle_fraction(level as u16, 255).unwrap();
         channel3.set_duty_cycle_fraction(level as u16, 255).unwrap();
-        let leds = calculate_leds(full_buffer, &mut filter, &mut input_peak_detector);
-        ws.write(brightness(leds.iter().copied(), strip_brightness))
-            .unwrap();
+        let leds = calculate_leds(full_buffer, &mut filters, &mut peak_detectors);
+        // ws.write(brightness(leds.iter().copied(), strip_brightness))
+        //     .unwrap();
+        ws.write(leds.iter().copied()).unwrap();
         debug_pin.set_high().unwrap();
         delay.delay_us(80); // ~60 FPS
         debug_pin.set_low().unwrap();
@@ -200,66 +212,86 @@ fn sample_to_fixed(sample: u16) -> I1F31 {
     I1F31::from_bits(centered << 20)
 }
 
-const STRIP_LEN: usize = 10;
-fn calculate_leds(
+const STRIP_LEN: usize = 30;
+fn calculate_leds<const N: usize>(
     samples: &[u16],
-    filter: &mut BiquadBandPass,
-    peak_detector: &mut PeakDetector,
+    filters: &mut [BiquadDF2; N],
+    peak_detectors: &mut [PeakDetector; N],
 ) -> [RGB8; STRIP_LEN] {
-    let mut peak = I1F31::ZERO;
-    let mut result = I1F31::ZERO;
+    const GAMMA8: [u8; 256] = [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4,
+        4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 10, 10, 11, 11, 11, 12, 12,
+        13, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 24,
+        24, 25, 25, 26, 27, 27, 28, 29, 29, 30, 31, 32, 32, 33, 34, 35, 35, 36, 37, 38, 39, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+        64, 66, 67, 68, 69, 70, 72, 73, 74, 75, 77, 78, 79, 81, 82, 83, 85, 86, 87, 89, 90, 92, 93,
+        95, 96, 98, 99, 101, 102, 104, 105, 107, 109, 110, 112, 114, 115, 117, 119, 120, 122, 124,
+        126, 127, 129, 131, 133, 135, 137, 138, 140, 142, 144, 146, 148, 150, 152, 154, 156, 158,
+        160, 162, 164, 167, 169, 171, 173, 175, 177, 180, 182, 184, 186, 189, 191, 193, 196, 198,
+        200, 203, 205, 208, 210, 213, 215, 218, 220, 223, 225, 228, 231, 233, 236, 239, 241, 244,
+        247, 249, 252, 255,
+    ];
+
+    let mut peaks = [I1F31::ZERO; N];
     for sample in samples.iter().copied() {
         let sample_fixed = sample_to_fixed(sample);
-        peak = peak_detector.step(sample_fixed);
-        result = filter.step(sample_fixed);
+        for i in 0..N {
+            let result = filters[i].process_sample(sample_fixed);
+            peaks[i] = peak_detectors[i].step(result);
+        }
     }
 
     let mut leds: [RGB8; STRIP_LEN] = [(0, 0, 0).into(); STRIP_LEN];
-    // for (i, led) in leds.iter_mut().enumerate() {
-    //     let red = if peak > (I1F31::MAX / STRIP_LEN as i32) * i as i32 {
-    //         255
-    //     } else {
-    //         0
-    //     };
-    //     *led = (red, 0, 0).into();
-    //     // *led = hsv2rgb_u8(360.0 / STRIP_LEN as f32 * i as f32, 1.0, 1.0).into();
-    // }
-
-    leds[0] = (255, 0, 0).into();
-    leds[1] = (0, 255, 0).into();
-    leds[2] = (0, 0, 255).into();
+    for (i, led) in leds.iter_mut().enumerate() {
+        let value = interpolate::<N, STRIP_LEN>(peaks, i);
+        *led = hsv_to_rgb(
+            (255 * i as u32 / STRIP_LEN as u32) as u8,
+            255,
+            // GAMMA8[(value.to_bits() >> 23) as usize],
+            (value.to_bits() >> 23) as u8,
+        )
+        .into();
+        // *led = hsv_to_rgb((value.to_bits() >> 23) as u8, 255, 255).into();
+    }
 
     leds
 }
 
-pub fn hsv2rgb(hue: f32, sat: f32, val: f32) -> (f32, f32, f32) {
-    let c = val * sat;
-    let v = (hue / 60.0) % 2.0 - 1.0;
-    let v = if v < 0.0 { -v } else { v };
-    let x = c * (1.0 - v);
-    let m = val - c;
-    let (r, g, b) = if hue < 60.0 {
-        (c, x, 0.0)
-    } else if hue < 120.0 {
-        (x, c, 0.0)
-    } else if hue < 180.0 {
-        (0.0, c, x)
-    } else if hue < 240.0 {
-        (0.0, x, c)
-    } else if hue < 300.0 {
-        (x, 0.0, c)
+fn interpolate<const N: usize, const M: usize>(values: [I1F31; N], i: usize) -> I1F31 {
+    // const scale =
+    let scale = U32F32::const_from_int((N as u64) - 1) / U32F32::const_from_int((M as u64) - 1);
+    let t = i as u64 * scale;
+    let k = t.int().to_num::<usize>();
+    let alpha = t.frac().to_fixed::<I1F31>();
+    if k >= N - 1 {
+        values[N - 1]
     } else {
-        (c, 0.0, x)
-    };
-    (r + m, g + m, b + m)
+        (I1F31::MAX - alpha) * values[k] + alpha * values[k + 1]
+    }
 }
 
-pub fn hsv2rgb_u8(h: f32, s: f32, v: f32) -> (u8, u8, u8) {
-    let r = hsv2rgb(h, s, v);
+pub fn hsv_to_rgb(h: u8, s: u8, v: u8) -> (u8, u8, u8) {
+    if s == 0 {
+        return (v, v, v);
+    }
 
-    (
-        (r.0 * 255.0) as u8,
-        (r.1 * 255.0) as u8,
-        (r.2 * 255.0) as u8,
-    )
+    // Hue scaled to [0..=1535] (6 * 256)
+    let region = (h as u16 * 6) >> 8; // [0..=5]
+    let remainder = (h as u16 * 6) & 0xFF; // [0..=255]
+
+    let p = (v as u16 * (255 - s as u16)) >> 8;
+    let q = (v as u16 * (255 - ((s as u16 * remainder) >> 8))) >> 8;
+    let t = (v as u16 * (255 - ((s as u16 * (255 - remainder)) >> 8))) >> 8;
+
+    let (r, g, b) = match region {
+        0 => (v as u16, t, p),
+        1 => (q, v as u16, p),
+        2 => (p, v as u16, t),
+        3 => (p, q, v as u16),
+        4 => (t, p, v as u16),
+        _ => (v as u16, p, q),
+    };
+
+    (r as u8, g as u8, b as u8)
 }
