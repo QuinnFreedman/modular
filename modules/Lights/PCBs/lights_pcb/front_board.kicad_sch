@@ -4,6 +4,12 @@
 	(generator_version "9.0")
 	(uuid "2f0859ac-cd5b-4898-b567-cb8d211d7de5")
 	(paper "A4")
+	(title_block
+		(title "Lights")
+		(date "2025-08-27")
+		(rev "v0.2")
+		(company "Free Modular")
+	)
 	(lib_symbols
 		(symbol "Device:LED_RKBG"
 			(pin_names
