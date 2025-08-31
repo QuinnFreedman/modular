@@ -4,6 +4,12 @@
 	(generator_version "9.0")
 	(uuid "bf0b830d-6ea8-4ffe-b350-63f7ac69529d")
 	(paper "A4")
+	(title_block
+		(title "Lights")
+		(date "2025-08-27")
+		(rev "v0.2")
+		(company "Free Modular")
+	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_02x02_Top_Bottom"
 			(pin_names

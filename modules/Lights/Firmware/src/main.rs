@@ -19,6 +19,7 @@ use fixed::types::U32F32;
 use peak_detector::PeakDetector;
 use rp_pico::entry;
 use rp_pico::hal;
+use rp_pico::hal::adc::AdcChannel;
 use rp_pico::hal::adc::AdcPin;
 use rp_pico::hal::dma::double_buffer;
 use rp_pico::hal::dma::DMAExt;
@@ -33,7 +34,7 @@ use ws2812_pio::Ws2812;
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
 
-const BUF_LEN: usize = 160;
+const BUF_LEN: usize = 160 * 2;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -113,13 +114,20 @@ fn main() -> ! {
 
     let mut adc = Adc::new(pac.ADC, &mut pac.RESETS);
     let mut adc_pin0 = AdcPin::new(pins.gpio26.into_floating_input()).unwrap();
+    let mut adc_pin1 = AdcPin::new(pins.gpio27.into_floating_input()).unwrap();
     let mut adc_fifo = adc
         .build_fifo()
-        .clock_divider(4799, 0) // ~10 kS/s
-        .set_channel(&mut adc_pin0)
-        // TODO, use round robin
+        .clock_divider(9599, 0) // ~10 kS/s, doubled for round robin
+        // .set_channel(&mut adc_pin0)
+        .round_robin((&adc_pin0, &adc_pin1))
         .enable_dma()
         .start_paused();
+    // fn assert_adc_channel<T>(channel: T)
+    // where
+    //     T: AdcChannel,
+    // {
+    // }
+    // assert_adc_channel(adc_pin1);
     let dma = pac.DMA.dyn_split(&mut pac.RESETS);
     static mut BUF_A: [u16; BUF_LEN] = [0; BUF_LEN];
     static mut BUF_B: [u16; BUF_LEN] = [0; BUF_LEN];
@@ -179,6 +187,8 @@ fn main() -> ! {
     ];
     let mut peak_detectors: [PeakDetector; 6] = core::array::from_fn(|_| PeakDetector::new());
 
+    let mut hue: f32 = 0.0;
+
     let mut debug_pin = pins.gpio0.into_push_pull_output();
     loop {
         #[allow(static_mut_refs)]
@@ -191,11 +201,28 @@ fn main() -> ! {
             .wait();
         double_buffer_idx = !double_buffer_idx;
 
-        let level: u8 = 64;
-        channel1.set_duty_cycle_fraction(level as u16, 255).unwrap();
-        channel2.set_duty_cycle_fraction(level as u16, 255).unwrap();
-        channel3.set_duty_cycle_fraction(level as u16, 255).unwrap();
-        let leds = calculate_leds(full_buffer, &mut filters, &mut peak_detectors);
+        let mut samples = [[0u16; BUF_LEN / 2]; 2];
+        for (i, sample) in full_buffer.iter().enumerate() {
+            samples[i % 2][i / 2] = *sample;
+        }
+
+        let level = samples[1]
+            .iter()
+            .map(|x| 4095u16.saturating_sub(*x) as u32)
+            .sum::<u32>()
+            / (BUF_LEN as u32 / 2);
+        hue += 0.1;
+        let (r, g, b) = hsv_to_rgb_f32(hue, 1.0, level as f32 / 4095.0);
+        channel1
+            .set_duty_cycle_fraction((b * 4095.0) as u16, 4095)
+            .unwrap();
+        channel2
+            .set_duty_cycle_fraction((g * 4095.0) as u16, 4095)
+            .unwrap();
+        channel3
+            .set_duty_cycle_fraction((r * 4095.0) as u16, 4095)
+            .unwrap();
+        let leds = calculate_leds(&samples[0], &mut filters, &mut peak_detectors);
         // ws.write(brightness(leds.iter().copied(), strip_brightness))
         //     .unwrap();
         ws.write(leds.iter().copied()).unwrap();
@@ -294,4 +321,26 @@ pub fn hsv_to_rgb(h: u8, s: u8, v: u8) -> (u8, u8, u8) {
     };
 
     (r as u8, g as u8, b as u8)
+}
+
+pub fn hsv_to_rgb_f32(hue: f32, sat: f32, val: f32) -> (f32, f32, f32) {
+    let c = val * sat;
+    let v = (hue / 60.0) % 2.0 - 1.0;
+    let v = if v < 0.0 { -v } else { v };
+    let x = c * (1.0 - v);
+    let m = val - c;
+    let (r, g, b) = if hue < 60.0 {
+        (c, x, 0.0)
+    } else if hue < 120.0 {
+        (x, c, 0.0)
+    } else if hue < 180.0 {
+        (0.0, c, x)
+    } else if hue < 240.0 {
+        (0.0, x, c)
+    } else if hue < 300.0 {
+        (x, 0.0, c)
+    } else {
+        (c, 0.0, x)
+    };
+    (r + m, g + m, b + m)
 }
