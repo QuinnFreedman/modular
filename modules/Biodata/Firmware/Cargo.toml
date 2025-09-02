@@ -13,12 +13,13 @@ bench = false
 
 [dependencies]
 nb = "0.1.2"
-ufmt = "0.1.0"
+ufmt = "0.2.0"
 embedded-hal = "0.2.3"
 avr-progmem = { version = "0.4.0" }
 avr-device = { version = "0.5.3", features = ["atmega328p"] }
 fm-lib = { path = "../../../fm-lib", features = ["panic"]  }
 fixed = "1.27.0"
+softfloat = "1.0.0"
 
 [dependencies.arduino-hal]
 git = "https://github.com/rahix/avr-hal"
