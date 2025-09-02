@@ -28,10 +28,12 @@ use fixed::traits::FromFixed as _;
 use fixed::types::I1F15;
 use fixed::types::I8F8;
 use fixed::types::U16F16;
+use fixed::types::U32F32;
 use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
 use fm_lib::asynchronous::AtomicRead as _;
 use fm_lib::button_debouncer::ButtonWithLongPress;
+use fm_lib::display::show_float;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
 use fm_lib::{
@@ -40,6 +42,7 @@ use fm_lib::{
     handle_system_clock_interrupt,
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
+use ufmt::uDisplay as _;
 use ufmt::uwrite;
 use ufmt::uwriteln;
 
@@ -113,17 +116,26 @@ fn main() -> ! {
     //     },
     // );
 
-    // let d2 = pins.d2.into_floating_input();
-    let a5 = pins.a5.into_analog_input(&mut adc);
     let mut d13 = pins.d13.into_output();
 
+    let a0 = pins.a0.into_analog_input(&mut adc);
+    let a1 = pins.a1.into_analog_input(&mut adc);
+    let a2 = pins.a2.into_analog_input(&mut adc);
+    // let a3 = pins.a3.into_analog_input(&mut adc);
+    // let a4 = pins.a4.into_analog_input(&mut adc);
+    // let a5 = pins.a5.into_analog_input(&mut adc);
     init_async_adc(
         adc,
         &GLOBAL_ASYNC_ADC_STATE,
         [
-            a5.into_channel(),
-            arduino_hal::adc::channel::ADC6.into_channel(),
-            arduino_hal::adc::channel::ADC7.into_channel(),
+            a0.into_channel(),
+            a1.into_channel(),
+            a2.into_channel(),
+            // a3.into_channel(),
+            // a4.into_channel(),
+            // a5.into_channel(),
+            // arduino_hal::adc::channel::ADC6.into_channel(),
+            // arduino_hal::adc::channel::ADC7.into_channel(),
         ],
     );
 
@@ -142,6 +154,8 @@ fn main() -> ! {
         // d13.set_low();
         // delay_ms(1000);
 
+        let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
+
         let mut array = [0u16; ARRAY_SIZE];
         let ready_to_analyze = interrupt::free(|cs| {
             let mut idx = SAMPLE_ARRAY_INDEX.borrow(cs).borrow_mut();
@@ -154,31 +168,74 @@ fn main() -> ! {
             }
         });
         if ready_to_analyze {
-            let (mean, std_dev) = analyze_samples(&array);
-            uwriteln!(&mut serial, "{}, {}", mean, std_dev).unwrap_infallible();
+            let (mean, std_dev, spread) = analyze_samples(&array);
+
+            // These constants (and this algorithm) is copied directly from the MIDI Sprout
+            // (https://github.com/electricityforprogress/MIDIsprout)
+            // This method seems a little arbitrary. I'll probably change it before version 1.0
+            let thresh = lerp(1.61, 3.51, (cv[0] as f32) / 1023.0);
+            let change = spread as f32 > std_dev.max(1.0) * thresh;
+
+            uwriteln!(
+                &mut serial,
+                "{}, {}, {} {}",
+                spread,
+                show_float(std_dev),
+                show_float(thresh),
+                if change { '*' } else { ' ' }
+            )
+            .unwrap_infallible();
+
+            /*
+            let thresh = (cv[0] as f32) * std_dev.max(1.0);
+
+            uwriteln!(
+                &mut serial,
+                "{}, {}, {}, {}, {}, {}",
+                mean,
+                show_float(std_dev),
+                spread,
+                show_float(thresh),
+                if spread as f32 > thresh { '*' } else { ' ' },
+                show_float(3.141592),
+            )
+            .unwrap_infallible();
+            */
         }
     }
 }
 
-fn analyze_samples(samples: &[u16; ARRAY_SIZE]) -> (u16, u16) {
-    // let mut mean: u16 = 0;
-    let mut sum: i32 = 0;
-    for sample in samples {
-        sum += *sample as i32;
-        // mean += sample / ARRAY_SIZE as u16;
-    }
+fn lerp(a: f32, b: f32, t: f32) -> f32 {
+    (1.0 - t) * a + t * b
+}
 
-    let mean = (sum / ARRAY_SIZE as i32) as u16;
+fn analyze_samples(samples: &[u16; ARRAY_SIZE]) -> (u16, f32, u16) {
+    let mut min: u16 = samples[0];
+    let mut max: u16 = samples[0];
+    let mut sum: u32 = 0;
+    for sample in samples.iter().copied() {
+        sum += sample as u32;
+        if sample < min {
+            min = sample;
+        } else if sample > max {
+            max = sample;
+        }
+    }
+    let delta = max - min;
+
+    let mean = (sum / ARRAY_SIZE as u32) as u16;
 
     let mut variance: u32 = 0;
     for sample in samples {
         let delta = mean.abs_diff(*sample);
         let delta_squared = (delta as u32) * (delta as u32);
-        variance += delta_squared;
+        variance = variance.saturating_add(delta_squared);
     }
-    let std_dev = variance.isqrt() as u16;
+    let std_dev = softfloat::F32::from_u32(variance / ARRAY_SIZE as u32)
+        .sqrt()
+        .to_native_f32();
 
-    (mean, std_dev)
+    (mean, std_dev, delta)
 }
 
 fn semitones_to_dac(semitones: I8F8) -> u16 {
