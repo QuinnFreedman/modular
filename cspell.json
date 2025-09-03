@@ -71,7 +71,8 @@
     "fcos",
     "funcs",
     "biquad",
-    "bandpass"
+    "bandpass",
+    "cooldown"
   ],
   "patterns": [
     {
