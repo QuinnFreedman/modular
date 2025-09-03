@@ -46,6 +46,10 @@ use ufmt::uDisplay as _;
 use ufmt::uwrite;
 use ufmt::uwriteln;
 
+static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
+    GlobalSystemClockState::new();
+handle_system_clock_interrupt!(&SYSTEM_CLOCK_STATE);
+
 const ARRAY_SIZE: usize = 16;
 
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3, 3> = new_averaging_async_adc_state();
@@ -97,6 +101,13 @@ fn configure_timer(tc1: &arduino_hal::pac::TC1) {
     tc1.tccr1b.write(|w| w.cs1().prescale_64());
 }
 
+#[derive(PartialEq, Eq)]
+enum NoteState {
+    GateOn(u32),
+    GateCooldown(u32),
+    GateOff,
+}
+
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
@@ -124,6 +135,7 @@ fn main() -> ! {
     // let a3 = pins.a3.into_analog_input(&mut adc);
     // let a4 = pins.a4.into_analog_input(&mut adc);
     // let a5 = pins.a5.into_analog_input(&mut adc);
+    let mut gate_out_a_pin = pins.d6.into_output();
     init_async_adc(
         adc,
         &GLOBAL_ASYNC_ADC_STATE,
@@ -140,6 +152,9 @@ fn main() -> ! {
     );
 
     configure_timer(&dp.TC1);
+    let sys_clock = SystemClock::init_system_clock(dp.TC0, &SYSTEM_CLOCK_STATE);
+
+    delay_ms(1);
 
     unsafe {
         avr_device::interrupt::enable();
@@ -147,6 +162,8 @@ fn main() -> ! {
 
     let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     // let mut dac = MCP4922::new(d10);
+
+    let mut note_state = NoteState::GateOff;
 
     loop {
         // d13.set_high();
@@ -167,13 +184,13 @@ fn main() -> ! {
                 false
             }
         });
-        if ready_to_analyze {
+        if ready_to_analyze && note_state == NoteState::GateOff {
             let (mean, std_dev, spread) = analyze_samples(&array);
 
             // These constants (and this algorithm) is copied directly from the MIDI Sprout
             // (https://github.com/electricityforprogress/MIDIsprout)
             // This method seems a little arbitrary. I'll probably change it before version 1.0
-            let thresh = lerp(1.61, 3.51, (cv[0] as f32) / 1023.0);
+            let thresh = lerp(5.0, 1.61, (cv[0] as f32) / 1023.0);
             let change = spread as f32 > std_dev.max(1.0) * thresh;
 
             uwriteln!(
@@ -186,27 +203,43 @@ fn main() -> ! {
             )
             .unwrap_infallible();
 
-            /*
-            let thresh = (cv[0] as f32) * std_dev.max(1.0);
+            if change {
+                let gate_len = lerp_u7_to_u16((spread & 127) as u8, 100, 2500);
+                note_state = NoteState::GateOn(sys_clock.millis() + gate_len as u32);
 
-            uwriteln!(
-                &mut serial,
-                "{}, {}, {}, {}, {}, {}",
-                mean,
-                show_float(std_dev),
-                spread,
-                show_float(thresh),
-                if spread as f32 > thresh { '*' } else { ' ' },
-                show_float(3.141592),
-            )
-            .unwrap_infallible();
-            */
+                gate_out_a_pin.set_high();
+            }
+        }
+
+        let time = sys_clock.millis();
+        match note_state {
+            NoteState::GateOn(until) => {
+                if time > until {
+                    note_state = NoteState::GateCooldown(time + 10);
+                    gate_out_a_pin.set_low();
+                }
+            }
+            NoteState::GateCooldown(until) => {
+                if time > until {
+                    note_state = NoteState::GateOff
+                }
+            }
+            NoteState::GateOff => {}
         }
     }
 }
 
 fn lerp(a: f32, b: f32, t: f32) -> f32 {
     (1.0 - t) * a + t * b
+}
+
+#[inline]
+pub fn lerp_u7_to_u16(x: u8, out_min: u16, out_max: u16) -> u16 {
+    debug_assert!(x <= 127);
+    debug_assert!(out_min <= out_max);
+    let range = (out_max - out_min) as u32;
+    let scaled = (x as u32 * range + 63) / 127;
+    out_min.wrapping_add(scaled as u16)
 }
 
 fn analyze_samples(samples: &[u16; ARRAY_SIZE]) -> (u16, f32, u16) {
