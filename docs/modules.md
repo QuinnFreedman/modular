@@ -89,10 +89,24 @@
       </div>
     </div>
   </a>
-  <div class="fm-module-box">
-  Coming soon...
+  <a href="https://freemodular.org/modules/Biodata" class="fm-hidden-link">
+    <div class="fm-module-box">
+        <img src="https://freemodular.org/modules/Biodata/docs/images/biodata.svg" />
+        <div>
+          <h2>Biodata</h2>
+          <p>Listen to plants! Generate pich CV, gates, and raw waveforms from any biological signal</p>
+          <p><b>Coming soon...</b></p>
+        </div>
+    </div>
+  </a>
+  <a href="https://freemodular.org/modules/Lights" class="fm-hidden-link">
+    <div class="fm-module-box">
+        <img src="https://freemodular.org/modules/Lights/docs/images/lights.svg" />
+        <div>
+          <h2>Lights</h2>
+          <p>Control almost any kind of LED strips with audio or CV. Turn any RGB LED strip into a spectrum analyzer, VU meter, or reactive display</p>
+          <p><b>Coming soon...</b></p>
+        </div>
   </div>
-  <div class="fm-module-box">
-  Coming soon...
-  </div>
+  </a>
 </div>
