@@ -58,3 +58,5 @@ To get started, check out some of the links below.
 </ul>
 
 {% include_relative docs/modules.md %}
+
+Get in touch! Send me a message at <a href="mailto:freemodular@gmail.com">freemodular@gmail.com</a>. Follow my <a href="https://www.reddit.com/user/FreeModular/submitted/">reddit</a> or <a href="https://freemodular.etsy.com/">Etsy shop</a>.
