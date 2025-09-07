@@ -2,7 +2,7 @@ This project is an attempt to make Eurorack modular synthesis affordable and acc
 
 This repository contains open source software and hardware schematics for Eurorack modules which are designed to be assembled easily and cheaply without any technical knowledge. Every module should be able to be assembled for around $20 in about an hour of work, even with limited experience.
 
-To get started, check out some of the links below.
+To get started, check out some of the links below. Or get in touch! Send me a message at <a href="mailto:freemodular@gmail.com">freemodular@gmail.com</a>. Follow my <a href="https://www.reddit.com/user/FreeModular/submitted/">reddit</a>, <a href="https://freemodular.etsy.com/">Etsy shop</a>, or <a href="https://github.com/QuinnFreedman/modular">GitHub</a>.
 
 **Happy travels on your modular journey!**
 
@@ -58,5 +58,3 @@ To get started, check out some of the links below.
 </ul>
 
 {% include_relative docs/modules.md %}
-
-Get in touch! Send me a message at <a href="mailto:freemodular@gmail.com">freemodular@gmail.com</a>. Follow my <a href="https://www.reddit.com/user/FreeModular/submitted/">reddit</a> or <a href="https://freemodular.etsy.com/">Etsy shop</a>.
