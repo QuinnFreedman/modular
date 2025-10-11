@@ -83,3 +83,22 @@ Lastly, [upload the firmware](https://freemodular.org/docs/assembly#firmware).
 Tuning is probably not necessary since the oscillator you are driving with this module likely already has less precise tracking than the quantizer. But, if you want to fine-tune the output scale, you can use the trim pots on the back. Plug in the module and power it on. Enable the top note (C) and send a known integer voltage <10V into the V/O input of channel 1. 5V works well. It doesn't have to be exact, since the module will round it. Then hook up a multimeter in Volts DC mode to the output of channel 1. Use a screwdriver to adjust the top potentiometer on the back of the module until the reading is exactly 5V (or whatever voltage you are expecting). Then do the same with the other potentiometer for channel 2.
 
 The trim potentiometers allow you to dial in the 1 Volt / octave rate. If you want to shift the whole scale up or down (i.e. set the "zero" note), just use the pre- and/or post-shift setting on each channel, or tune your oscillator.
+
+## Troubleshooting
+
+My LED's aren't working! What do I do?
+
+When the module turns on with default configuration, the "Sample" LED's for both channels should be on.
+
+- If ALL LED's are off, including the "Sample" and "Trig" LED's, then it is likely a problem with the Arduino firmware or with power delivery.
+  1. Is the Arduino getting power? Check for the status LED's on the back of the Arduino board.
+  2. Is the module getting power? Use a multimeter to probe the +5V, +12V, and -12V rails at the input.
+  3. Is the correct firmware uploaded to the Arduino? Double check by re-flashing.
+- If all 12 note LED's aren't working (but the other LEDs are working), it is probably an issue around the LED driver chip.
+  1. With the module powered on, probe R30. It should have about 1.2V across it. If it has no voltage on either side, that's an indication that the TLC5947DAP LED driver is not powered on or working correctly.
+  2. Check your PCB version. The version number will be printed on the back. If you have a pre-1.0 version, you will need to solder an extra jumper wire. See instructions above.
+  3. If the LED driver is pulling current but not turning on any LED's, it is probably a problem with the signal on one of the bottom 8 pins of the driver. Because they are so small, they are easy to not connect properly. Refer to the PCB files and use a continuity meter make sure that the GND, +5V, BLANK/XLAT, and SDI pins are connected to where they should be.
+- If just a few LEDs are not working (or are the wrong color) it is probably just an issue with the connections between the LED driver and the LED's themselves.
+  1. The problem is probably at the LED driver side. The pins are small and can be difficult to get a solid solder joint with. Double-check all the solder joints.
+  2. Using a continuity meter, check for continuity between the pins on the chip and the pin headers on the board. The top 12 pins on each side of the chip should connect to the top 12 pins on each side of the module. Check that neighboring pins are not shorted together.
+  3. In a rare case, there could be a broken trace on the PCB. You could try bridging a broken trace with a bit of wire.
