@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "Biodata")
-		(date "2025-08-07")
-		(rev "v0.1")
+		(date "2025-10-11")
+		(rev "v0.2")
 		(company "Free Modular")
 	)
 	(lib_symbols
@@ -2245,7 +2245,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5564fcb1-6f9d-447b-8fc9-6126ca918efb")
-		(property "Reference" "R14"
+		(property "Reference" "R18"
 			(at 64.77 82.55 90)
 			(effects
 				(font
@@ -2297,7 +2297,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/c75a632f-e661-4484-8d06-5c636c2b505d/afacce7b-5b17-4257-bd34-0cb53028cdba"
-					(reference "R14")
+					(reference "R18")
 					(unit 1)
 				)
 			)

@@ -6,8 +6,8 @@
 	(paper "A4")
 	(title_block
 		(title "Biodata")
-		(date "2025-08-07")
-		(rev "v0.1")
+		(date "2025-10-11")
+		(rev "v0.2")
 		(company "Free Modular")
 	)
 	(lib_symbols
@@ -661,88 +661,28 @@
 			(embedded_fonts no)
 		)
 	)
-	(junction
-		(at 132.08 106.68)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2675339a-0e15-43e2-bc21-7b5ec7cc8511")
-	)
-	(junction
-		(at 168.91 106.68)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "458087d4-f600-477c-9797-c0b34f104883")
-	)
-	(junction
-		(at 226.06 92.71)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "729fc345-0231-472d-a464-3e790e8151d9")
-	)
-	(junction
-		(at 152.4 92.71)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b42f8da8-85f5-408e-909e-6781560f587c")
-	)
-	(junction
-		(at 189.23 92.71)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d5d300dd-df73-4295-992b-b3326b28e5ec")
-	)
-	(junction
-		(at 205.74 106.68)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "db1cadab-0be4-40aa-9ef7-10378ad93434")
-	)
 	(no_connect
-		(at 142.24 95.25)
+		(at 217.17 66.04)
 		(uuid "053e1b4d-a503-4856-ab55-bbbd3f689cc6")
 	)
 	(no_connect
-		(at 215.9 95.25)
-		(uuid "11249197-1840-4016-b9bc-a5b9af8d2993")
-	)
-	(no_connect
-		(at 144.78 123.19)
+		(at 160.02 66.04)
 		(uuid "1a8b0983-b965-474d-ac65-880ace474f44")
 	)
 	(no_connect
-		(at 179.07 95.25)
-		(uuid "48cdab11-7e35-4f49-896f-b1da17802553")
-	)
-	(no_connect
-		(at 99.06 142.24)
+		(at 160.02 91.44)
 		(uuid "746845e7-18ce-4374-b540-aa40a81a1031")
-	)
-	(no_connect
-		(at 218.44 142.24)
-		(uuid "753b2034-95e2-407b-bc87-e6df60e7c856")
 	)
 	(no_connect
 		(at 93.98 50.8)
 		(uuid "7ac0a4b5-92da-40fa-a806-c371e523af12")
 	)
 	(no_connect
-		(at 218.44 123.19)
-		(uuid "abb162d2-a5ad-47ae-a6bb-8c953afd7d1c")
-	)
-	(no_connect
-		(at 99.06 123.19)
+		(at 190.5 91.44)
 		(uuid "e3504447-1461-4fdc-aaf2-b7a925687e9d")
 	)
 	(no_connect
-		(at 181.61 123.19)
-		(uuid "f0dff09e-e4c1-40c6-8ce4-a1c3c82b5070")
-	)
-	(no_connect
-		(at 181.61 142.24)
-		(uuid "f88db645-c2a6-4a3a-b2f0-aa488ea50365")
-	)
-	(no_connect
-		(at 144.78 142.24)
+		(at 217.17 91.44)
 		(uuid "fd169605-4b7e-4455-acaa-624e22fa09c9")
 	)
 	(wire
@@ -757,73 +697,13 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 71.12) (xy 138.43 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "059fa9b2-989c-430f-860f-69684a092aaa")
-	)
-	(wire
-		(pts
-			(xy 99.06 139.7) (xy 100.33 139.7)
+			(xy 160.02 88.9) (xy 161.29 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "09ceeed6-0d16-4a82-8c0b-d5604a044855")
-	)
-	(wire
-		(pts
-			(xy 181.61 139.7) (xy 182.88 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0b4a8b35-e353-4f0e-b43d-9f7c2ef14643")
-	)
-	(wire
-		(pts
-			(xy 213.36 55.88) (xy 213.36 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0ce934d9-1fee-4b73-be5c-9a74ce66977c")
-	)
-	(wire
-		(pts
-			(xy 184.15 106.68) (xy 189.23 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "148aa4bf-2308-49e9-b65f-0ad09d23289e")
-	)
-	(wire
-		(pts
-			(xy 189.23 92.71) (xy 189.23 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "15c4bb50-2a82-480a-8da0-032d8431b696")
-	)
-	(wire
-		(pts
-			(xy 179.07 92.71) (xy 180.34 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1ab8a3c5-ff70-4ae7-8f8a-00d08165e0e5")
 	)
 	(wire
 		(pts
@@ -837,7 +717,17 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 120.65) (xy 100.33 120.65)
+			(xy 207.01 69.85) (xy 207.01 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "22bb2872-e38e-401e-8db1-24aa44e0503c")
+	)
+	(wire
+		(pts
+			(xy 190.5 88.9) (xy 191.77 88.9)
 		)
 		(stroke
 			(width 0)
@@ -847,27 +737,7 @@
 	)
 	(wire
 		(pts
-			(xy 132.08 106.68) (xy 132.08 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "29ab5fa0-e68f-45af-8830-b014eab3cca8")
-	)
-	(wire
-		(pts
-			(xy 205.74 106.68) (xy 205.74 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2f0c2d4d-a340-4de2-800a-9136e63a2101")
-	)
-	(wire
-		(pts
-			(xy 138.43 45.72) (xy 138.43 46.99)
+			(xy 93.98 121.92) (xy 93.98 123.19)
 		)
 		(stroke
 			(width 0)
@@ -877,17 +747,7 @@
 	)
 	(wire
 		(pts
-			(xy 152.4 92.71) (xy 152.4 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "337b826f-6ef8-488e-9b18-60b4beb8df0e")
-	)
-	(wire
-		(pts
-			(xy 144.78 120.65) (xy 146.05 120.65)
+			(xy 160.02 63.5) (xy 161.29 63.5)
 		)
 		(stroke
 			(width 0)
@@ -907,26 +767,6 @@
 	)
 	(wire
 		(pts
-			(xy 171.45 127) (xy 171.45 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3b7fbe44-7d6d-42c8-b6b8-29f5bdc220be")
-	)
-	(wire
-		(pts
-			(xy 168.91 106.68) (xy 168.91 97.79)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3f36352a-6b5d-4295-89ef-29b2e335041b")
-	)
-	(wire
-		(pts
 			(xy 93.98 96.52) (xy 93.98 97.79)
 		)
 		(stroke
@@ -937,33 +777,13 @@
 	)
 	(wire
 		(pts
-			(xy 176.53 71.12) (xy 176.53 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "48ded774-4a77-4b9b-864c-b91060cc58bd")
-	)
-	(wire
-		(pts
-			(xy 138.43 55.88) (xy 138.43 54.61)
+			(xy 93.98 132.08) (xy 93.98 130.81)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "4f9752ab-1142-493d-8a08-a671d67896f2")
-	)
-	(wire
-		(pts
-			(xy 213.36 71.12) (xy 213.36 72.39)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "541767b2-fe99-44a1-9a54-56ef771fa750")
 	)
 	(wire
 		(pts
@@ -977,7 +797,7 @@
 	)
 	(wire
 		(pts
-			(xy 152.4 104.14) (xy 152.4 106.68)
+			(xy 184.15 66.04) (xy 184.15 67.31)
 		)
 		(stroke
 			(width 0)
@@ -987,17 +807,7 @@
 	)
 	(wire
 		(pts
-			(xy 217.17 50.8) (xy 219.71 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5ba24d36-d0da-4862-9998-56a30be520a2")
-	)
-	(wire
-		(pts
-			(xy 134.62 127) (xy 134.62 125.73)
+			(xy 149.86 69.85) (xy 149.86 68.58)
 		)
 		(stroke
 			(width 0)
@@ -1007,33 +817,13 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 76.2) (xy 144.78 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5e31a7b9-56ae-45c4-99ac-0243027f872a")
-	)
-	(wire
-		(pts
-			(xy 144.78 139.7) (xy 146.05 139.7)
+			(xy 217.17 88.9) (xy 218.44 88.9)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "5e3f85ec-f4ab-4862-b474-120b89226f62")
-	)
-	(wire
-		(pts
-			(xy 213.36 45.72) (xy 213.36 46.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6192216b-b381-4087-9a40-21361c84871b")
 	)
 	(wire
 		(pts
@@ -1047,26 +837,6 @@
 	)
 	(wire
 		(pts
-			(xy 220.98 106.68) (xy 226.06 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "640b234c-4efb-45cb-8057-b79379fc2eed")
-	)
-	(wire
-		(pts
-			(xy 215.9 92.71) (xy 217.17 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "66987e72-9316-46d6-900e-f8af9e5fd538")
-	)
-	(wire
-		(pts
 			(xy 97.79 101.6) (xy 100.33 101.6)
 		)
 		(stroke
@@ -1077,37 +847,17 @@
 	)
 	(wire
 		(pts
-			(xy 189.23 92.71) (xy 190.5 92.71)
+			(xy 184.15 58.42) (xy 184.15 54.61)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "7851ae78-178b-4ad0-804e-1479be4821bb")
+		(uuid "777e6003-3e81-4b5a-b966-567c7790e723")
 	)
 	(wire
 		(pts
-			(xy 152.4 92.71) (xy 153.67 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7856c872-e4e2-4e4f-bd0d-44a6d3cd883e")
-	)
-	(wire
-		(pts
-			(xy 205.74 109.22) (xy 205.74 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7eb7ff04-a57f-409c-b497-3da2e83f00e6")
-	)
-	(wire
-		(pts
-			(xy 88.9 127) (xy 88.9 125.73)
+			(xy 180.34 95.25) (xy 180.34 93.98)
 		)
 		(stroke
 			(width 0)
@@ -1117,67 +867,7 @@
 	)
 	(wire
 		(pts
-			(xy 217.17 76.2) (xy 219.71 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "83d05630-d479-4dc3-9fe3-a4c50a60ca3b")
-	)
-	(wire
-		(pts
-			(xy 171.45 146.05) (xy 171.45 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8c1a48ff-0fde-46d5-9ff3-d3a442c6bdbc")
-	)
-	(wire
-		(pts
-			(xy 168.91 109.22) (xy 168.91 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8cb17ec2-96e1-417b-9cdc-4917f2260693")
-	)
-	(wire
-		(pts
-			(xy 226.06 104.14) (xy 226.06 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8cf45a0f-a71d-4d73-b3b5-51e33e875ff6")
-	)
-	(wire
-		(pts
-			(xy 218.44 139.7) (xy 219.71 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8eeb1cf3-61ea-4f4d-9134-069ba9f62f9a")
-	)
-	(wire
-		(pts
-			(xy 181.61 120.65) (xy 182.88 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "919044b5-bf85-4f34-ac29-94ee83abe6cb")
-	)
-	(wire
-		(pts
-			(xy 88.9 146.05) (xy 88.9 144.78)
+			(xy 149.86 95.25) (xy 149.86 93.98)
 		)
 		(stroke
 			(width 0)
@@ -1187,7 +877,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 50.8) (xy 144.78 50.8)
+			(xy 97.79 127) (xy 100.33 127)
 		)
 		(stroke
 			(width 0)
@@ -1197,7 +887,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.62 146.05) (xy 134.62 144.78)
+			(xy 207.01 95.25) (xy 207.01 93.98)
 		)
 		(stroke
 			(width 0)
@@ -1207,17 +897,7 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 81.28) (xy 138.43 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a082cc3c-6e10-4bb0-8862-e63093298ea8")
-	)
-	(wire
-		(pts
-			(xy 142.24 92.71) (xy 143.51 92.71)
+			(xy 217.17 63.5) (xy 218.44 63.5)
 		)
 		(stroke
 			(width 0)
@@ -1227,57 +907,7 @@
 	)
 	(wire
 		(pts
-			(xy 176.53 81.28) (xy 176.53 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a9b262e3-8f69-43da-89e7-b0d15e80fd7a")
-	)
-	(wire
-		(pts
-			(xy 180.34 76.2) (xy 182.88 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b181fc99-684c-4f65-8e7f-7a6baa1d8cf0")
-	)
-	(wire
-		(pts
-			(xy 224.79 92.71) (xy 226.06 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b195ba56-2d12-4fb8-9f51-d04a8a4f9a1c")
-	)
-	(wire
-		(pts
-			(xy 208.28 127) (xy 208.28 125.73)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b3381206-829d-46f4-a6e4-fbe67ad209a1")
-	)
-	(wire
-		(pts
-			(xy 189.23 104.14) (xy 189.23 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b4899032-3fe4-4e02-9d2f-21200d6e19f4")
-	)
-	(wire
-		(pts
-			(xy 151.13 92.71) (xy 152.4 92.71)
+			(xy 226.06 63.5) (xy 228.6 63.5)
 		)
 		(stroke
 			(width 0)
@@ -1287,143 +917,13 @@
 	)
 	(wire
 		(pts
-			(xy 208.28 146.05) (xy 208.28 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b7487a13-96ce-483b-8dce-18edd3f77029")
-	)
-	(wire
-		(pts
-			(xy 226.06 92.71) (xy 227.33 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "bfff9a87-f618-4926-9342-9850b995f952")
-	)
-	(wire
-		(pts
-			(xy 132.08 109.22) (xy 132.08 106.68)
+			(xy 184.15 77.47) (xy 184.15 74.93)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "d3b0f9d1-ad2f-40bb-834f-79f8a55feb52")
-	)
-	(wire
-		(pts
-			(xy 176.53 55.88) (xy 176.53 54.61)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d3eab3cb-3d89-454b-9429-4f5f92260848")
-	)
-	(wire
-		(pts
-			(xy 218.44 120.65) (xy 219.71 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e113b90f-d789-426c-b346-72b955e04c44")
-	)
-	(wire
-		(pts
-			(xy 180.34 50.8) (xy 182.88 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e2094722-09da-4f27-b24d-42670ea11c70")
-	)
-	(wire
-		(pts
-			(xy 176.53 45.72) (xy 176.53 46.99)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e3c34ba2-9607-4fea-aedd-f71708ef66b9")
-	)
-	(wire
-		(pts
-			(xy 187.96 92.71) (xy 189.23 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e4addafb-a99d-4d8a-9344-6b7738c4fd21")
-	)
-	(wire
-		(pts
-			(xy 213.36 81.28) (xy 213.36 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e506f636-23a4-4d43-a969-9a220d9f8af7")
-	)
-	(wire
-		(pts
-			(xy 168.91 106.68) (xy 176.53 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e6df1317-6e1c-4389-8592-12ebdbc7e853")
-	)
-	(wire
-		(pts
-			(xy 147.32 106.68) (xy 152.4 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ef262da1-2c0a-4333-9369-c40225171de0")
-	)
-	(wire
-		(pts
-			(xy 132.08 106.68) (xy 139.7 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f3ab6895-6fd7-4154-a1a3-316739bd2ede")
-	)
-	(wire
-		(pts
-			(xy 226.06 92.71) (xy 226.06 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f4456623-2101-4ed2-b83d-96066f30db27")
-	)
-	(wire
-		(pts
-			(xy 205.74 106.68) (xy 213.36 106.68)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f57a7c14-ff1a-4a9b-9597-cdf106c07053")
 	)
 	(wire
 		(pts
@@ -1456,31 +956,9 @@
 		)
 		(uuid "00fab3b9-8550-43a4-a4c2-3a589ae0188d")
 	)
-	(hierarchical_label "cv_out_b"
-		(shape input)
-		(at 182.88 139.7 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "05a71e89-1362-492c-b72a-c139c9fff6d9")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 213.36 55.88 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "06c2e405-e97f-407c-a192-d841b8a75cfb")
-	)
-	(hierarchical_label "gate_in_a"
+	(hierarchical_label "trig"
 		(shape output)
-		(at 146.05 120.65 0)
+		(at 161.29 63.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1491,7 +969,7 @@
 	)
 	(hierarchical_label "+5V"
 		(shape input)
-		(at 138.43 45.72 90)
+		(at 93.98 121.92 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1499,28 +977,6 @@
 			(justify left)
 		)
 		(uuid "0b71bc1c-561f-4efc-aa41-8e8dde09376f")
-	)
-	(hierarchical_label "cv_out_c"
-		(shape input)
-		(at 219.71 139.7 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "0e1324b2-5df8-4bc2-af4c-28b87bacf478")
-	)
-	(hierarchical_label "+5V"
-		(shape input)
-		(at 176.53 71.12 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "1dfec39e-ca27-4a9d-9587-0c95acd79b57")
 	)
 	(hierarchical_label "GND"
 		(shape input)
@@ -1533,9 +989,9 @@
 		)
 		(uuid "1e004b62-267c-45de-a409-bbf936fda349")
 	)
-	(hierarchical_label "raw_out"
+	(hierarchical_label "raw"
 		(shape input)
-		(at 100.33 139.7 0)
+		(at 161.29 88.9 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1544,20 +1000,9 @@
 		)
 		(uuid "2079d030-1d67-4d51-99b2-4c021a5f82a1")
 	)
-	(hierarchical_label "+5V"
-		(shape input)
-		(at 176.53 45.72 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "28ab5209-828e-479c-b5d8-487a82b7f9f7")
-	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 88.9 127 270)
+		(at 180.34 95.25 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1566,20 +1011,9 @@
 		)
 		(uuid "29f2742a-8e28-4493-b6fd-9967226f7967")
 	)
-	(hierarchical_label "GND"
+	(hierarchical_label "vpo"
 		(shape input)
-		(at 208.28 127 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "3fe83c2b-665c-4796-a203-3cdb7bee1fb5")
-	)
-	(hierarchical_label "cv_out_a"
-		(shape input)
-		(at 146.05 139.7 0)
+		(at 218.44 88.9 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1588,64 +1022,9 @@
 		)
 		(uuid "40d01491-3aba-4ce9-91fa-ffb9770c8657")
 	)
-	(hierarchical_label "slew_c"
-		(shape output)
-		(at 219.71 76.2 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "41c141cc-20d1-4eff-9a61-d0c03efd378e")
-	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 171.45 127 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4328d6a8-aebb-470d-aeb0-8912916dca48")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 208.28 146.05 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4c310a01-d4f0-4af0-82f2-a1f343229874")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 176.53 81.28 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4f7cb7e8-c279-46df-919a-1aca88cce954")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 176.53 55.88 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "51cd3632-4975-4757-8879-1375a3dcc4d6")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 88.9 146.05 270)
+		(at 149.86 95.25 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1653,17 +1032,6 @@
 			(justify right)
 		)
 		(uuid "6550bf98-85b1-4764-80eb-ee467741ddee")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 138.43 81.28 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "6ee850e6-d958-423b-ad06-8dcb64b4c391")
 	)
 	(hierarchical_label "+5V"
 		(shape input)
@@ -1678,7 +1046,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 134.62 127 270)
+		(at 149.86 69.85 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1687,9 +1055,9 @@
 		)
 		(uuid "7558bfc6-7f09-4ab7-a351-1f1e783705b0")
 	)
-	(hierarchical_label "gate_out_a"
+	(hierarchical_label "gate"
 		(shape input)
-		(at 153.67 92.71 0)
+		(at 228.6 63.5 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1697,17 +1065,6 @@
 			(justify left)
 		)
 		(uuid "76cce410-35ec-4d98-963c-ae7b1ee366e0")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 168.91 109.22 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7c08cadb-d9ca-41e9-b300-5f126396e99e")
 	)
 	(hierarchical_label "density"
 		(shape output)
@@ -1733,40 +1090,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 205.74 109.22 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "88e12ce3-baac-418f-84c6-c579c93c7e12")
-	)
-	(hierarchical_label "+5V"
-		(shape input)
-		(at 213.36 71.12 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "89d42cdf-da4b-4c97-8d0d-6c9ddec9f179")
-	)
-	(hierarchical_label "spread_c"
-		(shape output)
-		(at 219.71 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8d626937-7898-481e-8a23-344ceeae590c")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 134.62 146.05 270)
+		(at 207.01 95.25 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1775,20 +1099,9 @@
 		)
 		(uuid "a30edaee-862e-4edf-87b8-20bd2e86d8b4")
 	)
-	(hierarchical_label "gate_in_c"
-		(shape output)
-		(at 219.71 120.65 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a9b3e7e7-047d-41e9-a176-6a085fc63ce1")
-	)
-	(hierarchical_label "cv_out"
+	(hierarchical_label "cv"
 		(shape input)
-		(at 100.33 120.65 0)
+		(at 191.77 88.9 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1799,7 +1112,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 132.08 109.22 270)
+		(at 184.15 77.47 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1808,53 +1121,31 @@
 		)
 		(uuid "ac65088d-3617-4906-9dec-93cec57861eb")
 	)
-	(hierarchical_label "gate_out_b"
-		(shape input)
-		(at 190.5 92.71 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b3099e56-0bd3-4e98-b188-693609242a93")
-	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 171.45 146.05 270)
+		(at 207.01 69.85 270)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "b54b77da-477c-4915-8a14-1942fc62b873")
+		(uuid "ad658a14-6d72-466c-85de-466fd4617240")
 	)
-	(hierarchical_label "+5V"
+	(hierarchical_label "led"
 		(shape input)
-		(at 138.43 71.12 90)
+		(at 184.15 54.61 90)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify left)
 		)
-		(uuid "b884c936-2b95-42b4-96b8-3c01f5902222")
-	)
-	(hierarchical_label "slew_a"
-		(shape output)
-		(at 144.78 76.2 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "c6549062-1da7-417b-84b8-cc6d8283a4e3")
+		(uuid "d0e0ba78-df28-4e99-a9ff-fdb89607d882")
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 138.43 55.88 270)
+		(at 93.98 132.08 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1862,28 +1153,6 @@
 			(justify right)
 		)
 		(uuid "d12ab1e8-1605-457a-83a7-501a813e30f0")
-	)
-	(hierarchical_label "spread_b"
-		(shape output)
-		(at 182.88 50.8 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d402cdbd-dd7d-42c2-af1b-cdef581b2075")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 213.36 81.28 270)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d52e73ff-d376-41a9-9aef-c437e19c75c0")
 	)
 	(hierarchical_label "GND"
 		(shape input)
@@ -1896,20 +1165,9 @@
 		)
 		(uuid "d9309b73-b12a-4086-b33e-d68cc2ffd5b0")
 	)
-	(hierarchical_label "gate_in_b"
+	(hierarchical_label "spread"
 		(shape output)
-		(at 182.88 120.65 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "dab9f118-9b5e-4b09-beb9-bfc3bbecdb9f")
-	)
-	(hierarchical_label "spread_a"
-		(shape output)
-		(at 144.78 50.8 0)
+		(at 100.33 127 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1917,28 +1175,6 @@
 			(justify left)
 		)
 		(uuid "ea112b25-67f4-4f84-9f6c-3a1c03adbc5d")
-	)
-	(hierarchical_label "gate_out_c"
-		(shape input)
-		(at 227.33 92.71 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "edac3d2c-406a-4d88-bad7-2fa57ebe422d")
-	)
-	(hierarchical_label "slew_b"
-		(shape output)
-		(at 182.88 76.2 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f73b2836-b85e-4973-a07c-670847d51e96")
 	)
 	(hierarchical_label "probe_pos"
 		(shape bidirectional)
@@ -1962,20 +1198,9 @@
 		)
 		(uuid "fca91206-9d16-428a-a357-16e6dcc19c40")
 	)
-	(hierarchical_label "+5V"
-		(shape input)
-		(at 213.36 45.72 90)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "fdcaf9a7-2596-4916-b03f-671b5b6d2456")
-	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 137.16 95.25 0)
+		(at 212.09 66.04 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -1983,8 +1208,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0e897c89-217d-4d30-8f53-0d13d37c9aca")
-		(property "Reference" "J2"
-			(at 135.89 90.17 0)
+		(property "Reference" "J3"
+			(at 210.82 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1992,7 +1217,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 138.43 97.79 0)
+			(at 213.36 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2001,7 +1226,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN"
-			(at 143.51 92.71 0)
+			(at 218.44 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2010,7 +1235,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 143.51 92.71 0)
+			(at 218.44 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2019,7 +1244,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 137.16 95.25 0)
+			(at 212.09 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2039,79 +1264,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "FreeModular:THONKICONN")
-		(at 213.36 123.19 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "14d1c4a1-ac7a-4539-9902-c52a97a51921")
-		(property "Reference" "J9"
-			(at 212.09 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THONKICONN"
-			(at 214.63 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "FreeModular:THONKICONN"
-			(at 219.71 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 219.71 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 213.36 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "dd91c5d2-7fd9-464f-af1d-345a92ac8444")
-		)
-		(pin "1"
-			(uuid "42aaacd1-473e-4e3c-8170-22d044aaa9a6")
-		)
-		(pin "3"
-			(uuid "3172ab50-65d1-4476-b937-72fcfbcd6ef5")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J9")
+					(reference "J3")
 					(unit 1)
 				)
 			)
@@ -2119,15 +1272,15 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 152.4 100.33 180)
+		(at 184.15 62.23 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "17cbcaf5-f90f-4a50-ad1c-eb522906cd2c")
-		(property "Reference" "R11"
-			(at 147.32 100.33 90)
+		(property "Reference" "R16"
+			(at 179.07 62.23 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2135,7 +1288,7 @@
 			)
 		)
 		(property "Value" "1kΩ"
-			(at 149.86 100.33 90)
+			(at 181.61 62.23 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2143,7 +1296,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 154.178 100.33 90)
+			(at 185.928 62.23 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2152,7 +1305,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 152.4 100.33 0)
+			(at 184.15 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2161,7 +1314,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 152.4 100.33 0)
+			(at 184.15 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2178,7 +1331,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "R11")
+					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -2186,15 +1339,15 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 147.32 92.71 90)
+		(at 222.25 63.5 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "1eccd4a4-bd8e-49fa-9fab-5ff2b772b3a2")
-		(property "Reference" "R10"
-			(at 147.32 87.63 90)
+		(property "Reference" "R17"
+			(at 222.25 58.42 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2202,7 +1355,7 @@
 			)
 		)
 		(property "Value" "1kΩ"
-			(at 147.32 90.17 90)
+			(at 222.25 60.96 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2210,7 +1363,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 147.32 94.488 90)
+			(at 222.25 65.278 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2219,7 +1372,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 147.32 92.71 0)
+			(at 222.25 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2228,7 +1381,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 147.32 92.71 0)
+			(at 222.25 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2245,7 +1398,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "R10")
+					(reference "R17")
 					(unit 1)
 				)
 			)
@@ -2253,7 +1406,7 @@
 	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 93.98 123.19 0)
+		(at 185.42 91.44 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2261,8 +1414,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2148660a-eafd-4ca6-b608-d7d4a891a472")
-		(property "Reference" "J11"
-			(at 92.71 118.11 0)
+		(property "Reference" "J6"
+			(at 184.15 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2270,7 +1423,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 95.25 125.73 0)
+			(at 186.69 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2279,7 +1432,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN"
-			(at 100.33 120.65 0)
+			(at 191.77 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2288,7 +1441,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 100.33 120.65 0)
+			(at 191.77 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2297,7 +1450,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 93.98 123.19 0)
+			(at 185.42 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2317,7 +1470,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J11")
+					(reference "J6")
 					(unit 1)
 				)
 			)
@@ -2325,7 +1478,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Potentiometer")
-		(at 138.43 50.8 0)
+		(at 93.98 127 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2334,7 +1487,7 @@
 		(fields_autoplaced yes)
 		(uuid "255cbb97-9fc3-43b0-aecd-efef706be8d6")
 		(property "Reference" "RV3"
-			(at 135.89 49.5299 0)
+			(at 91.44 125.7299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2343,7 +1496,7 @@
 			)
 		)
 		(property "Value" "50kΩ"
-			(at 135.89 52.0699 0)
+			(at 91.44 128.2699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2351,8 +1504,8 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
-			(at 138.43 50.8 0)
+		(property "Footprint" "FreeModular:Potentiometer_Alpha_Single_Vertical_trim"
+			(at 93.98 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2361,7 +1514,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 138.43 50.8 0)
+			(at 93.98 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2370,7 +1523,7 @@
 			)
 		)
 		(property "Description" "Potentiometer"
-			(at 138.43 50.8 0)
+			(at 93.98 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2397,153 +1550,8 @@
 		)
 	)
 	(symbol
-		(lib_id "FreeModular:THONKICONN")
-		(at 173.99 95.25 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "35c1fe46-5e30-4ff6-b648-935cd702cd08")
-		(property "Reference" "J5"
-			(at 172.72 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THONKICONN"
-			(at 175.26 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "FreeModular:THONKICONN"
-			(at 180.34 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 180.34 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 173.99 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "add04cf5-0239-47c7-8456-2a50ec56b1a5")
-		)
-		(pin "1"
-			(uuid "35af5274-9773-4bd4-94b5-1acbee1dd242")
-		)
-		(pin "3"
-			(uuid "241bf81b-7ac6-41ef-94a2-90de50ecc316")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Potentiometer")
-		(at 176.53 50.8 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "38506bed-209f-43ec-b270-e8b252a0ce3f")
-		(property "Reference" "RV5"
-			(at 173.99 49.5299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "50kΩ"
-			(at 173.99 52.0699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
-			(at 176.53 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 176.53 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Potentiometer"
-			(at 176.53 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "da1e1f62-2b6d-4d8d-8f68-13be8ff13a6e")
-		)
-		(pin "1"
-			(uuid "0b72b8e7-1b3c-464c-b051-1b383523a1f6")
-		)
-		(pin "3"
-			(uuid "317f20cc-f4a3-45ae-b29d-e2c589d70625")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "RV5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:LED")
-		(at 143.51 106.68 0)
+		(at 184.15 71.12 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -2552,23 +1560,25 @@
 		(fields_autoplaced yes)
 		(uuid "3bbea993-3919-4c68-99ed-0d541711c8f4")
 		(property "Reference" "D1"
-			(at 141.9225 100.33 0)
+			(at 187.96 71.4374 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Value" "LED"
-			(at 141.9225 102.87 0)
+			(at 187.96 73.9774 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 			)
 		)
 		(property "Footprint" "LED_THT:LED_D5.0mm"
-			(at 143.51 106.68 0)
+			(at 184.15 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2577,7 +1587,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 143.51 106.68 0)
+			(at 184.15 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2586,7 +1596,7 @@
 			)
 		)
 		(property "Description" "Light emitting diode"
-			(at 143.51 106.68 0)
+			(at 184.15 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2595,7 +1605,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 143.51 106.68 0)
+			(at 184.15 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2613,140 +1623,6 @@
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
 					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 184.15 92.71 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "47d4c7f2-7739-46ef-872e-041061af52ee")
-		(property "Reference" "R12"
-			(at 184.15 87.63 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1kΩ"
-			(at 184.15 90.17 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 184.15 94.488 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 184.15 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 184.15 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "ffc75c05-dc91-4166-bddd-b949a399174f")
-		)
-		(pin "1"
-			(uuid "2e5742b5-a2fe-49d6-b1e8-03e2d4c8f136")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 220.98 92.71 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "519ad840-bedf-4ad1-a3b9-4aefd7c5040e")
-		(property "Reference" "R16"
-			(at 220.98 87.63 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1kΩ"
-			(at 220.98 90.17 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 220.98 94.488 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 220.98 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 220.98 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "78d75103-38d0-463d-9936-bc1f870863be")
-		)
-		(pin "1"
-			(uuid "e7c9849d-36fb-4c77-b048-570185c6683e")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "R16")
 					(unit 1)
 				)
 			)
@@ -2780,7 +1656,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
+		(property "Footprint" "FreeModular:Potentiometer_Alpha_Single_Vertical_trim"
 			(at 93.98 101.6 0)
 			(effects
 				(font
@@ -2820,300 +1696,6 @@
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
 					(reference "RV2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Potentiometer")
-		(at 138.43 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5cd0c0ea-1daa-454d-a636-b290783eb437")
-		(property "Reference" "RV4"
-			(at 135.89 74.9299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "50kΩ"
-			(at 135.89 77.4699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
-			(at 138.43 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 138.43 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Potentiometer"
-			(at 138.43 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "fbc45206-8002-4aae-a994-e0a405aa2ac2")
-		)
-		(pin "1"
-			(uuid "5678d181-1173-4b16-8bc9-9f9a1570deb5")
-		)
-		(pin "3"
-			(uuid "ef67e1fd-fe5b-4f61-88f4-3c2ffbadca47")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "RV4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 217.17 106.68 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5fb7c0ac-d1aa-45dc-a159-3e3b4672ea36")
-		(property "Reference" "D3"
-			(at 215.5825 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED"
-			(at 215.5825 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_THT:LED_D5.0mm"
-			(at 217.17 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 217.17 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 217.17 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 217.17 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "8ec95f47-1aba-4a6d-9cd6-29fff8c73e17")
-		)
-		(pin "2"
-			(uuid "d24e58ab-f65c-4675-996e-54f4c3da79b5")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "D3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "FreeModular:THONKICONN")
-		(at 176.53 142.24 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "613a4cbc-1ffa-460b-adea-60e45f2d06ae")
-		(property "Reference" "J7"
-			(at 175.26 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THONKICONN"
-			(at 177.8 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "FreeModular:THONKICONN"
-			(at 182.88 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 182.88 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 176.53 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "6288a77d-651c-4e35-b24b-1260771ab972")
-		)
-		(pin "1"
-			(uuid "f302b148-c8a0-4a28-8c08-5ac646248dbd")
-		)
-		(pin "3"
-			(uuid "fe724566-c452-42ab-b401-3d0af38400f0")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "FreeModular:THONKICONN")
-		(at 213.36 142.24 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "686de8b0-23b9-4d86-a35d-b766bf2932f0")
-		(property "Reference" "J10"
-			(at 212.09 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THONKICONN"
-			(at 214.63 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "FreeModular:THONKICONN"
-			(at 219.71 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 219.71 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 213.36 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "5beba90a-4411-4001-b054-e2f7a334a6db")
-		)
-		(pin "1"
-			(uuid "0ee1d5f3-e072-4cdd-bc9b-9e00b87ece40")
-		)
-		(pin "3"
-			(uuid "f6fa2651-108d-4905-a53d-6ed9026dbe95")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J10")
 					(unit 1)
 				)
 			)
@@ -3193,368 +1775,7 @@
 	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 210.82 95.25 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7147be9a-8b36-4b6a-967a-36656fdbfbd7")
-		(property "Reference" "J8"
-			(at 209.55 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THONKICONN"
-			(at 212.09 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "FreeModular:THONKICONN"
-			(at 217.17 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 217.17 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 210.82 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "8708a62d-b507-49c7-9dca-0b558f5d7b58")
-		)
-		(pin "1"
-			(uuid "6447a7d3-e4dc-4d1e-a0f1-9043f7065fb1")
-		)
-		(pin "3"
-			(uuid "acbcbad9-a4bc-4c36-88b9-b71f245c8a3e")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 226.06 100.33 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "782bd520-f4e8-4bec-a4a6-23606ab89af4")
-		(property "Reference" "R17"
-			(at 220.98 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1kΩ"
-			(at 223.52 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 227.838 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 226.06 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 226.06 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e9b50765-c9c9-4414-9a49-66e817534f3e")
-		)
-		(pin "1"
-			(uuid "0720949d-a325-4094-8926-69e83ce82763")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "R17")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 180.34 106.68 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8d77fe1f-aa70-41a3-b410-527f61ed5d64")
-		(property "Reference" "D2"
-			(at 178.7525 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED"
-			(at 178.7525 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_THT:LED_D5.0mm"
-			(at 180.34 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 180.34 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 180.34 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Sim.Pins" "1=K 2=A"
-			(at 180.34 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "56a13342-d6ca-426f-bfa4-65764c0eee80")
-		)
-		(pin "2"
-			(uuid "9940dde6-44d1-4269-aa01-f3a5a5f867d6")
-		)
-		(instances
-			(project ""
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "D2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "FreeModular:THONKICONN")
-		(at 176.53 123.19 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "a64a6e75-c2a8-4fed-88bb-fc271be41c82")
-		(property "Reference" "J6"
-			(at 175.26 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "THONKICONN"
-			(at 177.8 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "FreeModular:THONKICONN"
-			(at 182.88 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 182.88 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 176.53 123.19 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "086da9e3-8862-4523-99ca-ef58a4947b2d")
-		)
-		(pin "1"
-			(uuid "2d6c785b-b576-437f-97c5-5293d862e2a0")
-		)
-		(pin "3"
-			(uuid "4df7a7f9-8d2c-48f6-a725-938ebd4d0609")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Potentiometer")
-		(at 176.53 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "aa7a6caf-92e6-4062-a5e3-107ad2bd535e")
-		(property "Reference" "RV6"
-			(at 173.99 74.9299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "50kΩ"
-			(at 173.99 77.4699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
-			(at 176.53 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 176.53 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Potentiometer"
-			(at 176.53 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e48df517-ab22-42e0-bb76-ffc17fcfbcfd")
-		)
-		(pin "1"
-			(uuid "9886c811-fb01-4c03-b9f1-76bb552ab638")
-		)
-		(pin "3"
-			(uuid "3512bbb1-d687-45aa-a199-ee1dcbabd1ac")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "RV6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "FreeModular:THONKICONN")
-		(at 139.7 142.24 0)
+		(at 212.09 91.44 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3562,8 +1783,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aeebf6ed-dc99-43d6-8b0a-ff0b0ea93e45")
-		(property "Reference" "J4"
-			(at 138.43 137.16 0)
+		(property "Reference" "J5"
+			(at 210.82 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3571,7 +1792,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 140.97 144.78 0)
+			(at 213.36 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3580,7 +1801,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN"
-			(at 146.05 139.7 0)
+			(at 218.44 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3589,7 +1810,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 146.05 139.7 0)
+			(at 218.44 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3598,7 +1819,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 139.7 142.24 0)
+			(at 212.09 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3618,147 +1839,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R")
-		(at 189.23 100.33 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "b9bb9a7b-a555-4453-ba5f-d1f4c1c65d3d")
-		(property "Reference" "R13"
-			(at 184.15 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1kΩ"
-			(at 186.69 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 191.008 100.33 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 189.23 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor"
-			(at 189.23 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "432fdf38-b4e5-4a8c-87d0-1753cc98f3a6")
-		)
-		(pin "1"
-			(uuid "c173862c-344d-4e73-8561-76ae8d283625")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "R13")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Potentiometer")
-		(at 213.36 76.2 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c246e298-504b-4865-8654-8041b9850057")
-		(property "Reference" "RV8"
-			(at 210.82 74.9299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "50kΩ"
-			(at 210.82 77.4699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
-			(at 213.36 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 213.36 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Potentiometer"
-			(at 213.36 76.2 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e50b7aee-c37c-4090-a572-0517caae4642")
-		)
-		(pin "1"
-			(uuid "588fa1e5-f168-47cf-bf81-3657b283e18e")
-		)
-		(pin "3"
-			(uuid "dce02208-a489-4d02-86be-e6fa0feb3b3a")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "RV8")
+					(reference "J5")
 					(unit 1)
 				)
 			)
@@ -3766,7 +1847,7 @@
 	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 93.98 142.24 0)
+		(at 154.94 91.44 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3774,8 +1855,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c5930245-09ed-49bd-bc7f-5a8224b957c0")
-		(property "Reference" "J12"
-			(at 92.71 137.16 0)
+		(property "Reference" "J4"
+			(at 153.67 86.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3783,7 +1864,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 95.25 144.78 0)
+			(at 156.21 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3792,7 +1873,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN"
-			(at 100.33 139.7 0)
+			(at 161.29 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3801,7 +1882,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 100.33 139.7 0)
+			(at 161.29 88.9 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3810,7 +1891,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 93.98 142.24 0)
+			(at 154.94 91.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3830,80 +1911,7 @@
 		(instances
 			(project "biodata_pcb"
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Potentiometer")
-		(at 213.36 50.8 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ca8c3028-5a9b-42fa-a668-7ac589330e60")
-		(property "Reference" "RV7"
-			(at 210.82 49.5299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "50kΩ"
-			(at 210.82 52.0699 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Potentiometer_THT:Potentiometer_Alpha_RD901F-40-00D_Single_Vertical"
-			(at 213.36 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 213.36 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Potentiometer"
-			(at 213.36 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "7e5d6292-2342-44da-a6cf-4db062cc58a8")
-		)
-		(pin "1"
-			(uuid "52501900-d3fa-4934-9708-28c42a67680a")
-		)
-		(pin "3"
-			(uuid "88bb2599-0e71-42eb-9c37-5aa63ee2eb92")
-		)
-		(instances
-			(project "biodata_pcb"
-				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "RV7")
+					(reference "J4")
 					(unit 1)
 				)
 			)
@@ -3911,7 +1919,7 @@
 	)
 	(symbol
 		(lib_id "FreeModular:THONKICONN")
-		(at 139.7 123.19 0)
+		(at 154.94 66.04 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3919,8 +1927,8 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f066c30a-c778-4125-9208-38b603988995")
-		(property "Reference" "J3"
-			(at 138.43 118.11 0)
+		(property "Reference" "J2"
+			(at 153.67 60.96 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3928,7 +1936,7 @@
 			)
 		)
 		(property "Value" "THONKICONN"
-			(at 140.97 125.73 0)
+			(at 156.21 68.58 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3937,7 +1945,7 @@
 			)
 		)
 		(property "Footprint" "FreeModular:THONKICONN"
-			(at 146.05 120.65 0)
+			(at 161.29 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3946,7 +1954,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 146.05 120.65 0)
+			(at 161.29 63.5 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3955,7 +1963,7 @@
 			)
 		)
 		(property "Description" "2-pin audio jack receptable (mono/TS connector) with switching contact"
-			(at 139.7 123.19 0)
+			(at 154.94 66.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3975,7 +1983,7 @@
 		(instances
 			(project ""
 				(path "/b52d098f-d782-4794-942d-95fe9e334d06/79efe637-0b74-4c20-a98b-9e582c7ffb39"
-					(reference "J3")
+					(reference "J2")
 					(unit 1)
 				)
 			)
