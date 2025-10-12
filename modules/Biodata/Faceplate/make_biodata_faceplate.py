@@ -29,13 +29,14 @@ module.add(SmallPotentiometer(inches(.3)-inches(.1), y, "Spread"))
 
  
 y = inches(2.75)
-module.add(JackSocketCentered(inches(-.4), y, "Trig", False, rotation=2))
-module.add(JackSocketCentered(inches(.4), y, "Gate", True, rotation=2))
+x = inches(.375)
+module.add(JackSocketCentered(-x, y, "Trig", False, rotation=2))
+module.add(JackSocketCentered(x, y, "Gate", True, rotation=2))
 module.add(LED(0, y-inches(.05), color="green"))
 
 y += inches(.65)
-module.add(JackSocketCentered(inches(-.4), y, "Raw", True, rotation=2))
-module.add(JackSocketCentered(inches(.4), y, "V/Oct", True, rotation=2))
+module.add(JackSocketCentered(-x, y, "Pulse", True, rotation=2))
+module.add(JackSocketCentered(x, y, "V/Oct", True, rotation=2))
 module.add(JackSocketCentered(inches(0), y, "CV", True, rotation=2))
 
 module.save()
