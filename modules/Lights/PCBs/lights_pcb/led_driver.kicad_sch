@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "Lights")
-		(date "2025-08-27")
+		(date "2025-10-13")
 		(rev "v0.2")
 		(company "Free Modular")
 	)
@@ -2011,6 +2011,182 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Switch:SW_SPDT_312"
+			(pin_names
+				(offset 1)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "SW"
+				(at 0 5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "SW_SPDT_312"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 -10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 -7.62 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Switch, single pole double throw"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "changeover single-pole double-throw spdt ON-ON"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "SW_SPDT_312_0_1"
+				(circle
+					(center -2.032 0)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.651 0.254) (xy 1.651 2.286)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 2.54)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 2.032 -2.54)
+					(radius 0.4572)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "SW_SPDT_312_1_1"
+				(rectangle
+					(start -3.175 3.81)
+					(end 3.175 -3.81)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 2.54)
+					(name "B"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 2.54 180)
+					(length 2.54)
+					(name "A"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 5.08 -2.54 180)
+					(length 2.54)
+					(name "C"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Transistor_FET:2N7000"
 			(pin_names
 				(hide yes)
@@ -2311,22 +2487,16 @@
 		)
 	)
 	(junction
+		(at 52.07 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "076826ec-b0f4-4834-a23e-4c9d43c21339")
+	)
+	(junction
 		(at 118.11 140.97)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "29ca79d7-d7e3-479e-a999-cef86d5fd9ad")
-	)
-	(junction
-		(at 44.45 165.1)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2cffb69d-d4bf-4116-ae3c-4807ff55bbee")
-	)
-	(junction
-		(at 69.85 165.1)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "328ced71-f03f-4648-b06a-afd279c0d8a3")
 	)
 	(junction
 		(at 140.97 140.97)
@@ -2341,6 +2511,12 @@
 		(uuid "60a536f8-342f-4f2b-a47b-d0599a917596")
 	)
 	(junction
+		(at 44.45 154.94)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "6262d13a-c67d-4aab-bf67-d837e8653b2b")
+	)
+	(junction
 		(at 242.57 128.27)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2351,6 +2527,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "dd4ad79f-8261-48ec-95ac-3b8e6d2a1a44")
+	)
+	(junction
+		(at 44.45 165.1)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f2be30cc-06c0-4b4e-ab52-32b9a8f9d6d2")
 	)
 	(no_connect
 		(at 71.12 74.93)
@@ -2378,13 +2560,13 @@
 	)
 	(wire
 		(pts
-			(xy 44.45 165.1) (xy 69.85 165.1)
+			(xy 44.45 165.1) (xy 44.45 166.37)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "0bcf5915-7044-4b44-a6bd-45e4e3148169")
+		(uuid "11adc902-bc62-4ca7-be7d-567d047b3ea0")
 	)
 	(wire
 		(pts
@@ -2445,16 +2627,6 @@
 			(type default)
 		)
 		(uuid "38c2c9af-3a0c-47b8-80f1-6bb07d436d87")
-	)
-	(wire
-		(pts
-			(xy 69.85 165.1) (xy 76.2 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "38cfc990-e5f7-47e8-89d3-3c2b6f6a1c78")
 	)
 	(wire
 		(pts
@@ -2558,6 +2730,16 @@
 	)
 	(wire
 		(pts
+			(xy 62.23 157.48) (xy 72.39 157.48)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7a6b534c-a44c-41d1-8c6b-a490ed331335")
+	)
+	(wire
+		(pts
 			(xy 90.17 92.71) (xy 82.55 92.71)
 		)
 		(stroke
@@ -2578,7 +2760,7 @@
 	)
 	(wire
 		(pts
-			(xy 69.85 175.26) (xy 69.85 173.99)
+			(xy 64.77 175.26) (xy 64.77 173.99)
 		)
 		(stroke
 			(width 0)
@@ -2608,6 +2790,26 @@
 	)
 	(wire
 		(pts
+			(xy 44.45 154.94) (xy 52.07 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8d6f86d8-eb35-4bc8-af8d-837e98d11375")
+	)
+	(wire
+		(pts
+			(xy 64.77 165.1) (xy 52.07 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fbc04ab-62da-4d73-bbaf-2ab7774482af")
+	)
+	(wire
+		(pts
 			(xy 252.73 128.27) (xy 242.57 128.27)
 		)
 		(stroke
@@ -2628,6 +2830,16 @@
 	)
 	(wire
 		(pts
+			(xy 44.45 151.13) (xy 44.45 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9a9b21b6-b486-4456-83e4-914f83eaa379")
+	)
+	(wire
+		(pts
 			(xy 110.49 73.66) (xy 91.44 73.66)
 		)
 		(stroke
@@ -2645,16 +2857,6 @@
 			(type default)
 		)
 		(uuid "a05b6867-d40e-45ce-888d-be4fad1f4e75")
-	)
-	(wire
-		(pts
-			(xy 44.45 152.4) (xy 44.45 156.21)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a2f7e9d3-4a35-44a0-9ebb-18478297c467")
 	)
 	(wire
 		(pts
@@ -2718,17 +2920,17 @@
 	)
 	(wire
 		(pts
-			(xy 69.85 165.1) (xy 69.85 166.37)
+			(xy 64.77 165.1) (xy 64.77 166.37)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "baca6432-8cdf-4c3f-b7a4-fdad48e40de2")
+		(uuid "b94b2892-660f-426b-a594-9914b713ad9e")
 	)
 	(wire
 		(pts
-			(xy 44.45 175.26) (xy 69.85 175.26)
+			(xy 44.45 175.26) (xy 64.77 175.26)
 		)
 		(stroke
 			(width 0)
@@ -2775,6 +2977,16 @@
 			(type default)
 		)
 		(uuid "cbda40d3-1dca-48d3-ae4b-8cd521b38738")
+	)
+	(wire
+		(pts
+			(xy 52.07 165.1) (xy 44.45 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cfb4bd9f-eb3f-428e-b5b2-f14c9c5d576f")
 	)
 	(wire
 		(pts
@@ -2848,16 +3060,6 @@
 	)
 	(wire
 		(pts
-			(xy 44.45 165.1) (xy 44.45 166.37)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f2ad5b16-3115-45c3-9b37-1f745e190436")
-	)
-	(wire
-		(pts
 			(xy 252.73 118.11) (xy 252.73 120.65)
 		)
 		(stroke
@@ -2865,6 +3067,26 @@
 			(type default)
 		)
 		(uuid "f2b28297-8708-4074-b9d1-db28a9fb4108")
+	)
+	(wire
+		(pts
+			(xy 44.45 154.94) (xy 44.45 156.21)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2fd12c9-2366-4bd7-8102-667db6b838ec")
+	)
+	(wire
+		(pts
+			(xy 52.07 160.02) (xy 52.07 165.1)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f6c96184-5884-41e2-a831-bffaa5fb2996")
 	)
 	(wire
 		(pts
@@ -2896,7 +3118,7 @@
 		)
 		(uuid "ff8056c0-a850-4962-ac2c-2fa297bda14e")
 	)
-	(label "LED_CATHODE_R"
+	(label "LED_ANODE_R"
 		(at 97.79 48.26 0)
 		(effects
 			(font
@@ -2976,6 +3198,16 @@
 		)
 		(uuid "394a798d-dc18-4739-8c80-aa51a53e2451")
 	)
+	(label "LED_PWR"
+		(at 233.68 63.5 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "3c277ad0-315a-4318-a90f-d6e8b0fe987f")
+	)
 	(label "LED_GND"
 		(at 140.97 153.67 270)
 		(effects
@@ -3036,16 +3268,6 @@
 		)
 		(uuid "9fe15967-df8f-4cba-8825-b5d2f94c447a")
 	)
-	(label "LED_GND"
-		(at 233.68 63.5 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "ab2cbf91-dcc9-4ece-b809-82efef96635f")
-	)
 	(label "LED_ANODE_B"
 		(at 233.68 71.12 180)
 		(effects
@@ -3057,7 +3279,7 @@
 		(uuid "b3b78b31-119f-4e23-8071-28a4ce16beb5")
 	)
 	(label "LED_PWR"
-		(at 44.45 152.4 90)
+		(at 44.45 151.13 90)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3097,7 +3319,7 @@
 		(uuid "d32e083e-1933-427d-8fed-bb89465458fd")
 	)
 	(label "LED_5V"
-		(at 76.2 165.1 0)
+		(at 72.39 157.48 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -3212,9 +3434,226 @@
 		)
 		(uuid "fde771e2-0c39-4658-b9ff-33eca14b9635")
 	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 97.79 85.09 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "1665275c-60b8-4e5b-8ef0-3c7708f2ccfb")
+		(property "Netclass" "High Current"
+			(at 95.25 84.3915 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at -40.64 -50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 64.77 165.1 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3a55f0f7-b69b-4aae-a6f1-beb8f17261ee")
+		(property "Netclass" "Power"
+			(at 65.4685 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at -73.66 29.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 236.22 120.65 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "85c75800-7c55-4f6c-b30c-d98df4cd2243")
+		(property "Netclass" "High Current"
+			(at 236.9185 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at 97.79 -15.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 118.11 66.04 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "8c3de0df-e95a-465e-92d7-1b797a4e55da")
+		(property "Netclass" "High Current"
+			(at 115.57 65.3415 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at -20.32 -69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 97.79 49.53 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "a22f6c38-15cb-4e2c-b376-6aae9f5fdb95")
+		(property "Netclass" "High Current"
+			(at 95.25 48.8315 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at -40.64 -86.36 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 64.77 157.48 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e37148c5-a38e-4e62-9c37-851ff754776d")
+		(property "Netclass" "Power"
+			(at 65.4685 154.94 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at -73.66 21.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 236.22 128.27 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "e943dfa5-c767-4cd6-8bcb-90210b5976c8")
+		(property "Netclass" "High Current"
+			(at 236.9185 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at 97.79 -7.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
+	)
 	(symbol
 		(lib_id "Device:C")
-		(at 69.85 170.18 0)
+		(at 64.77 170.18 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3223,7 +3662,7 @@
 		(fields_autoplaced yes)
 		(uuid "03923fbb-e7b5-4ec2-9540-36cdc8217784")
 		(property "Reference" "C5"
-			(at 73.66 169.545 0)
+			(at 68.58 169.545 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3232,7 +3671,7 @@
 			)
 		)
 		(property "Value" "100nF"
-			(at 73.66 172.085 0)
+			(at 68.58 172.085 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3241,7 +3680,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_THT:C_Disc_D5.0mm_W2.5mm_P5.00mm"
-			(at 70.8152 173.99 0)
+			(at 65.7352 173.99 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3250,7 +3689,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 69.85 170.18 0)
+			(at 64.77 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3259,7 +3698,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 69.85 170.18 0)
+			(at 64.77 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3497,6 +3936,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Switch:SW_SPDT_312")
+		(at 57.15 157.48 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "698c96ca-53ff-49d9-9bfc-040eafaa52c5")
+		(property "Reference" "SW2"
+			(at 57.15 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_SPDT"
+			(at 57.15 151.13 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Button_Switch_THT:SW_Slide-03_Wuerth-WS-SLTV_10x2.5x6.4_P2.54mm"
+			(at 57.15 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 57.15 149.86 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Switch, single pole double throw"
+			(at 57.15 157.48 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "6bf6cb16-bfb0-4483-85f0-7bff75406868")
+		)
+		(pin "3"
+			(uuid "1e2e9283-36f1-4756-93ec-9fbb1017257b")
+		)
+		(pin "2"
+			(uuid "74ae5170-d40f-4c91-b91e-1c0bf5ef2036")
+		)
+		(instances
+			(project ""
+				(path "/bf0b830d-6ea8-4ffe-b350-63f7ac69529d/fb67f68a-97d2-4622-a1dc-f7d875308de8/d5458d77-62c7-4a68-894a-9d5a4d1294f9"
+					(reference "SW2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_name "2N7000_1")
 		(lib_id "Transistor_FET:2N7000")
 		(at 95.25 55.88 0)
@@ -3653,7 +4162,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "8b26db18-910a-4bf4-b531-a6812f3f4a9a")
-		(property "Reference" "R16"
+		(property "Reference" "R21"
 			(at 41.91 158.7499 0)
 			(effects
 				(font
@@ -3707,7 +4216,7 @@
 		(instances
 			(project "lights_pcb"
 				(path "/bf0b830d-6ea8-4ffe-b350-63f7ac69529d/fb67f68a-97d2-4622-a1dc-f7d875308de8/d5458d77-62c7-4a68-894a-9d5a4d1294f9"
-					(reference "R16")
+					(reference "R21")
 					(unit 1)
 				)
 			)

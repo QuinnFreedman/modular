@@ -6,7 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "Lights")
-		(date "2025-08-27")
+		(date "2025-10-13")
 		(rev "v0.2")
 		(company "Free Modular")
 	)
@@ -865,6 +865,16 @@
 	)
 	(wire
 		(pts
+			(xy 95.25 71.12) (xy 101.6 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1405b582-f5c1-48c9-93a9-2e8cf230603e")
+	)
+	(wire
+		(pts
 			(xy 73.66 63.5) (xy 73.66 60.96)
 		)
 		(stroke
@@ -905,7 +915,7 @@
 	)
 	(wire
 		(pts
-			(xy 99.06 73.66) (xy 99.06 71.12)
+			(xy 95.25 73.66) (xy 95.25 71.12)
 		)
 		(stroke
 			(width 0)
@@ -922,16 +932,6 @@
 			(type default)
 		)
 		(uuid "49beef80-8b82-4492-80c4-ba2c2e6d43ef")
-	)
-	(wire
-		(pts
-			(xy 99.06 71.12) (xy 101.6 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4bebf2e0-ac63-4d0f-a58b-c2079a4a9963")
 	)
 	(wire
 		(pts
@@ -1154,7 +1154,7 @@
 	)
 	(hierarchical_label "GND"
 		(shape input)
-		(at 99.06 73.66 270)
+		(at 95.25 73.66 270)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1206,6 +1206,37 @@
 			(justify right)
 		)
 		(uuid "d6b4eda0-3c15-43ed-a1e1-1720130185f5")
+	)
+	(netclass_flag ""
+		(length 2.54)
+		(shape round)
+		(at 95.25 71.12 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2c0507ad-04a5-4272-8d61-075c1514d671")
+		(property "Netclass" "Power"
+			(at 95.9485 68.58 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Component Class" ""
+			(at -43.18 -64.77 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+			)
+		)
 	)
 	(symbol
 		(lib_id "Switch:SW_SPST")
