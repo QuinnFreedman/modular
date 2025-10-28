@@ -105,15 +105,15 @@ fn configure_timer(tc1: &arduino_hal::pac::TC1) {
 
 #[derive(PartialEq, Eq)]
 enum NoteState {
-    GateOn(u32),
-    GateCooldown(u32),
+    GateOn { start_time: u32, length: u32 },
+    GateCooldown { last_note_ended: u32 },
     GateOff,
 }
 
 impl NoteState {
     fn is_on_cooldown(&self) -> bool {
         match self {
-            NoteState::GateCooldown(_) => true,
+            NoteState::GateCooldown { last_note_ended: _ } => true,
             _ => false,
         }
     }
@@ -160,7 +160,8 @@ fn main() -> ! {
     // let a3 = pins.a3.into_analog_input(&mut adc);
     // let a4 = pins.a4.into_analog_input(&mut adc);
     // let a5 = pins.a5.into_analog_input(&mut adc);
-    let mut gate_out_a_pin = pins.d6.into_output();
+    let mut gate_out_pin = pins.d6.into_output();
+    let mut gate_out_led_pin = pins.d4.into_output();
     init_async_adc(
         adc,
         &GLOBAL_ASYNC_ADC_STATE,
@@ -245,11 +246,19 @@ fn main() -> ! {
 
             if change {
                 let gate_len = lerp_u7_to_u16((spread & 127) as u8, 100, 2500);
-                if let NoteState::GateOn(_) = note_state {
-                    gate_out_a_pin.set_low();
+                if let NoteState::GateOn {
+                    start_time: _,
+                    length: _,
+                } = note_state
+                {
+                    gate_out_pin.set_low();
+                    gate_out_led_pin.set_low();
                     delay_ms(4);
                 }
-                note_state = NoteState::GateOn(sys_clock.millis() + gate_len as u32);
+                note_state = NoteState::GateOn {
+                    start_time: sys_clock.millis(),
+                    length: gate_len as u32,
+                };
 
                 let absolute_max_semitones: u8 = 60;
                 let note_range = ((cv[2] * (absolute_max_semitones / 2) as u16) / 1024) as u8;
@@ -278,7 +287,8 @@ fn main() -> ! {
 
                 delay_us(5);
 
-                gate_out_a_pin.set_high();
+                gate_out_pin.set_high();
+                gate_out_led_pin.set_high();
             }
         }
 
@@ -286,14 +296,19 @@ fn main() -> ! {
 
         let time = sys_clock.millis();
         match note_state {
-            NoteState::GateOn(until) => {
-                if time > until {
-                    note_state = NoteState::GateCooldown(time + 5);
-                    gate_out_a_pin.set_low();
+            NoteState::GateOn { start_time, length } => {
+                if time > start_time + length {
+                    note_state = NoteState::GateCooldown {
+                        last_note_ended: time,
+                    };
+                    gate_out_pin.set_low();
+                }
+                if time > start_time + 50 {
+                    gate_out_led_pin.set_low();
                 }
             }
-            NoteState::GateCooldown(until) => {
-                if time > until {
+            NoteState::GateCooldown { last_note_ended } => {
+                if time > last_note_ended + 5 {
                     note_state = NoteState::GateOff
                 }
             }
