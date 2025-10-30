@@ -30,6 +30,7 @@ _site/
 *.sch-bak
 *~
 _autosave-*
+\#auto_saved_files\#
 *.tmp
 *-save.pro
 *-save.kicad_pcb

@@ -74,7 +74,8 @@
     "bandpass",
     "cooldown",
     "softfloat",
-    "tccr"
+    "tccr",
+    "biodata"
   ],
   "patterns": [
     {
