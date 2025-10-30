@@ -94,8 +94,7 @@
         <img src="https://freemodular.org/modules/Biodata/docs/images/biodata.svg" />
         <div>
           <h2>Biodata</h2>
-          <p>Listen to plants! Generate pich CV, gates, and raw waveforms from any biological signal</p>
-          <p><b>Coming soon...</b></p>
+          <p>Listen to plants! Generate pitch CV, gates, and raw waveforms from any biological signal</p>
         </div>
     </div>
   </a>
