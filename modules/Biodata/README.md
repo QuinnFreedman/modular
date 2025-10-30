@@ -40,19 +40,23 @@
 <table class="fm-current-table">
   <tr>
     <th></th>
-    <th>Maximum current</th>
+    <th>Typical current</th>
+    <th>Absolute maximum current</th>
   </tr>
   <tr>
     <td>+5V</td>
-    <td>??mA</td>
+    <td>65mA</td>
+    <td>75mA</td>
   </tr>
   <tr>
     <td>+12V</td>
-    <td>??mA</td>
+    <td>4mA</td>
+    <td>24mA</td>
   </tr>
   <tr>
     <td>-12V</td>
-    <td>??mA</td>
+    <td>4mA</td>
+    <td>5mA</td>
   </tr>
 </table>
 
