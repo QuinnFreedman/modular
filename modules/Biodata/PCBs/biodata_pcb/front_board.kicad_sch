@@ -1479,15 +1479,15 @@
 	(symbol
 		(lib_id "Device:R_Potentiometer")
 		(at 93.98 127 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "255cbb97-9fc3-43b0-aecd-efef706be8d6")
 		(property "Reference" "RV3"
-			(at 91.44 125.7299 0)
+			(at 91.44 128.2701 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1496,7 +1496,7 @@
 			)
 		)
 		(property "Value" "50kΩ"
-			(at 91.44 128.2699 0)
+			(at 91.44 125.7301 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1631,15 +1631,15 @@
 	(symbol
 		(lib_id "Device:R_Potentiometer")
 		(at 93.98 101.6 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "51a53b1d-f0cc-41f3-9517-92fcba522434")
 		(property "Reference" "RV2"
-			(at 91.44 100.3299 0)
+			(at 91.44 102.8701 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1648,7 +1648,7 @@
 			)
 		)
 		(property "Value" "50kΩ"
-			(at 91.44 102.8699 0)
+			(at 91.44 100.3301 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -1992,15 +1992,15 @@
 	(symbol
 		(lib_id "Device:R_Potentiometer")
 		(at 93.98 76.2 0)
+		(mirror x)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "fce48057-7a68-4196-b617-493ac4a962db")
 		(property "Reference" "RV1"
-			(at 91.44 74.9299 0)
+			(at 91.44 77.4701 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2009,7 +2009,7 @@
 			)
 		)
 		(property "Value" "50kΩ"
-			(at 91.44 77.4699 0)
+			(at 91.44 74.9301 0)
 			(effects
 				(font
 					(size 1.27 1.27)

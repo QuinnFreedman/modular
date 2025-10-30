@@ -9,33 +9,22 @@
 #![feature(const_trait_impl)]
 #![feature(cell_update)]
 
-use core::borrow::BorrowMut;
-use core::cell::Cell;
 use core::cell::RefCell;
-use core::default;
+use core::convert::Infallible;
 
 use arduino_hal::adc::AdcSettings;
 use arduino_hal::delay_ms;
 use arduino_hal::delay_us;
-use arduino_hal::hal::port::PD6;
-use arduino_hal::hal::port::PD7;
 use arduino_hal::prelude::*;
 use arduino_hal::Peripherals;
 use arduino_hal::Spi;
 use avr_device::interrupt;
 use avr_device::interrupt::Mutex;
 use embedded_hal::digital::v2::OutputPin;
-use fixed::traits::FromFixed as _;
-use fixed::types::I1F15;
-use fixed::types::I8F8;
 use fixed::types::U0F16;
 use fixed::types::U16F16;
-use fixed::types::U32F32;
 use fm_lib::async_adc::new_averaging_async_adc_state;
 use fm_lib::asynchronous::assert_interrupts_disabled;
-use fm_lib::asynchronous::AtomicRead as _;
-use fm_lib::button_debouncer::ButtonWithLongPress;
-use fm_lib::display::show_float;
 use fm_lib::mcp4922::DacChannel;
 use fm_lib::mcp4922::MCP4922;
 use fm_lib::{
@@ -44,9 +33,6 @@ use fm_lib::{
     handle_system_clock_interrupt,
     system_clock::{ClockPrecision, GlobalSystemClockState, SystemClock},
 };
-use ufmt::uDisplay as _;
-use ufmt::uwrite;
-use ufmt::uwriteln;
 
 static SYSTEM_CLOCK_STATE: GlobalSystemClockState<{ ClockPrecision::MS16 }> =
     GlobalSystemClockState::new();
@@ -57,13 +43,14 @@ const ARRAY_SIZE: usize = 16;
 static GLOBAL_ASYNC_ADC_STATE: AsyncAdc<3, 3> = new_averaging_async_adc_state();
 static SAMPLE_ARRAY: Mutex<RefCell<[u16; ARRAY_SIZE]>> = Mutex::new(RefCell::new([0; ARRAY_SIZE]));
 static SAMPLE_ARRAY_INDEX: Mutex<RefCell<u8>> = Mutex::new(RefCell::new(0));
+static INPUT_TRIGGER_QUEUED: Mutex<RefCell<bool>> = Mutex::new(RefCell::new(false));
 
 #[avr_device::interrupt(atmega328p)]
 fn ADC() {
     handle_conversion_result(&GLOBAL_ASYNC_ADC_STATE);
 }
 
-// pin d2
+// pin d2 interrupt handler
 #[avr_device::interrupt(atmega328p)]
 fn INT0() {
     let dp = unsafe { arduino_hal::Peripherals::steal() };
@@ -85,6 +72,12 @@ fn INT0() {
         array[*idx as usize] = delta;
         *idx += 1;
     })
+}
+
+// pin 3 interrupt handler
+#[avr_device::interrupt(atmega328p)]
+fn INT1() {
+    assert_interrupts_disabled(|cs| INPUT_TRIGGER_QUEUED.borrow(cs).replace(true));
 }
 
 /// Enable external interrupts for INT0 (digital pin 2)
@@ -154,27 +147,16 @@ fn main() -> ! {
         },
     );
 
+    let input_trigger_pin = pins.d3.into_pull_up_input();
     let a0 = pins.a0.into_analog_input(&mut adc);
     let a1 = pins.a1.into_analog_input(&mut adc);
     let a2 = pins.a2.into_analog_input(&mut adc);
-    // let a3 = pins.a3.into_analog_input(&mut adc);
-    // let a4 = pins.a4.into_analog_input(&mut adc);
-    // let a5 = pins.a5.into_analog_input(&mut adc);
     let mut gate_out_pin = pins.d6.into_output();
     let mut gate_out_led_pin = pins.d4.into_output();
     init_async_adc(
         adc,
         &GLOBAL_ASYNC_ADC_STATE,
-        [
-            a0.into_channel(),
-            a1.into_channel(),
-            a2.into_channel(),
-            // a3.into_channel(),
-            // a4.into_channel(),
-            // a5.into_channel(),
-            // arduino_hal::adc::channel::ADC6.into_channel(),
-            // arduino_hal::adc::channel::ADC7.into_channel(),
-        ],
+        [a0.into_channel(), a1.into_channel(), a2.into_channel()],
     );
 
     configure_timer(&dp.TC1);
@@ -186,113 +168,60 @@ fn main() -> ! {
         avr_device::interrupt::enable();
     };
 
-    let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
+    // let mut serial = arduino_hal::default_serial!(dp, pins, 57600);
     let mut dac = MCP4922::new(d10);
 
     let mut note_state = NoteState::GateOff;
-
-    let mut cv_output_current: u16 = 0;
-    let mut cv_output_target: u16 = 0;
-
-    let mut last_loop_time: u64 = 0;
+    let mut input_trigger_state = false;
 
     loop {
-        let loop_start_time = sys_clock.micros();
         let cv = interrupt::free(|cs| GLOBAL_ASYNC_ADC_STATE.get_inner(cs).get_all());
 
-        let mut array = [0u16; ARRAY_SIZE];
-        let ready_to_analyze = interrupt::free(|cs| {
-            let mut idx = SAMPLE_ARRAY_INDEX.borrow(cs).borrow_mut();
-            if *idx == ARRAY_SIZE as u8 {
-                *idx = 0;
-                array = *SAMPLE_ARRAY.borrow(cs).borrow_mut();
-                true
-            } else {
-                false
-            }
-        });
+        let incoming_trigger = {
+            let new_trigger_input = input_trigger_pin.is_low();
+            let old_trigger_input = input_trigger_state;
+            input_trigger_state = new_trigger_input;
+            !old_trigger_input && new_trigger_input
+        };
 
-        if ready_to_analyze && !note_state.is_on_cooldown() {
-            let (mean, std_dev, spread) = analyze_samples(&array);
-
-            cv_output_target = (std_dev * 16.0).min(4095.0) as u16;
-            let delta = U0F16::from_bits(cv_output_current.abs_diff(cv_output_target));
-            let delta_time = (loop_start_time - last_loop_time) as u32;
-            last_loop_time = loop_start_time;
-            let step_size = U0F16::from_bits((delta_time / 16).min(u16::MAX as u32) as u16);
-            if cv_output_current < cv_output_target {
-                cv_output_current += (step_size * delta).to_bits();
-            } else if cv_output_current > cv_output_target {
-                cv_output_current -= (step_size * delta).to_bits();
-            }
-            // uwriteln!(&mut serial, "{}->{}", cv_output_current, cv_output_target,)
-            //     .unwrap_infallible();
-
-            // These constants (and this algorithm) is copied directly from the MIDI Sprout
-            // (https://github.com/electricityforprogress/MIDIsprout)
-            // This method seems a little arbitrary. I'll probably change it before version 1.0
-            let thresh = lerp(5.0, 1.61, (cv[0] as f32) / 1023.0);
-            let change = spread as f32 > std_dev.max(1.0) * thresh;
-
-            // uwriteln!(
-            //     &mut serial,
-            //     "{}, {}, {} {}",
-            //     spread,
-            //     show_float(std_dev),
-            //     show_float(thresh),
-            //     if change { '*' } else { ' ' }
-            // )
-            // .unwrap_infallible();
-
-            if change {
-                let gate_len = lerp_u7_to_u16((spread & 127) as u8, 100, 2500);
-                if let NoteState::GateOn {
-                    start_time: _,
-                    length: _,
-                } = note_state
-                {
-                    gate_out_pin.set_low();
-                    gate_out_led_pin.set_low();
-                    delay_ms(4);
+        if incoming_trigger {
+            let array = interrupt::free(|cs| *SAMPLE_ARRAY.borrow(cs).borrow());
+            read_samples_and_update_outputs(
+                &array,
+                &cv,
+                &mut note_state,
+                &mut dac,
+                &mut spi,
+                sys_clock.millis(),
+                &mut gate_out_pin,
+                &mut gate_out_led_pin,
+            );
+        } else {
+            let mut array = [0u16; ARRAY_SIZE];
+            let ready_to_analyze = interrupt::free(|cs| {
+                let mut idx = SAMPLE_ARRAY_INDEX.borrow(cs).borrow_mut();
+                if *idx == ARRAY_SIZE as u8 {
+                    *idx = 0;
+                    array = *SAMPLE_ARRAY.borrow(cs).borrow();
+                    true
+                } else {
+                    false
                 }
-                note_state = NoteState::GateOn {
-                    start_time: sys_clock.millis(),
-                    length: gate_len as u32,
-                };
+            });
 
-                let absolute_max_semitones: u8 = 60;
-                let note_range = ((cv[2] * (absolute_max_semitones / 2) as u16) / 1024) as u8;
-                let min_semitones: u8 = absolute_max_semitones / 2 - note_range;
-                let max_semitones: u8 = absolute_max_semitones / 2 + note_range;
-
-                let semitones = lerp_u7_to_u16(
-                    (mean & 127) as u8,
-                    min_semitones as u16,
-                    max_semitones as u16,
+            if ready_to_analyze && !note_state.is_on_cooldown() {
+                read_samples_and_update_outputs(
+                    &array,
+                    &cv,
+                    &mut note_state,
+                    &mut dac,
+                    &mut spi,
+                    sys_clock.millis(),
+                    &mut gate_out_pin,
+                    &mut gate_out_led_pin,
                 );
-                let quant_table = &CIRCLE_OF_FIFTHS[(cv[1] / 93).min(10) as usize];
-                let quantized_note = get_nearest_active_note(quant_table, semitones as u8);
-
-                // uwriteln!(
-                //     &mut serial,
-                //     "{}({}.{})",
-                //     quantized_note,
-                //     quantized_note / 12,
-                //     quantized_note % 12,
-                // )
-                // .unwrap_infallible();
-
-                let dac_bits = semitones_to_dac(quantized_note.clamp(min_semitones, max_semitones));
-                dac.write(&mut spi, DacChannel::ChannelA, dac_bits);
-
-                delay_us(5);
-
-                gate_out_pin.set_high();
-                gate_out_led_pin.set_high();
             }
         }
-
-        dac.write(&mut spi, DacChannel::ChannelB, cv_output_current.min(4095));
 
         let time = sys_clock.millis();
         match note_state {
@@ -315,6 +244,74 @@ fn main() -> ! {
             NoteState::GateOff => {}
         }
     }
+}
+
+fn read_samples_and_update_outputs<DacCsPin, GateOutPin, LedOutPin>(
+    samples: &[u16; ARRAY_SIZE],
+    cv: &[u16; 3],
+    note_state: &mut NoteState,
+    dac: &mut MCP4922<DacCsPin>,
+    spi: &mut Spi,
+    current_time_ms: u32,
+    gate_out_pin: &mut GateOutPin,
+    gate_out_led_pin: &mut LedOutPin,
+) where
+    DacCsPin: OutputPin<Error = Infallible>,
+    GateOutPin: OutputPin<Error = Infallible>,
+    LedOutPin: OutputPin<Error = Infallible>,
+{
+    let (mean, std_dev, spread) = analyze_samples(samples);
+
+    let cv_output: u16 = U0F16::from_bits((std_dev.min(127.0) * 512.0) as u16)
+        .sqrt()
+        .to_bits()
+        >> 4;
+
+    // These constants (and this algorithm) is copied directly from the MIDI Sprout
+    // (https://github.com/electricityforprogress/MIDIsprout)
+    // This method seems a little arbitrary. I'll probably change it before version 1.0
+    let thresh = lerp(5.0, 1.61, (cv[0] as f32) / 1023.0);
+    let change_detected = spread as f32 > std_dev.max(1.0) * thresh;
+
+    if change_detected {
+        let gate_len = lerp_u7_to_u16((spread & 127) as u8, 100, 2500);
+        if let NoteState::GateOn {
+            start_time: _,
+            length: _,
+        } = note_state
+        {
+            gate_out_pin.set_low().unwrap_infallible();
+            gate_out_led_pin.set_low().unwrap_infallible();
+            delay_ms(4);
+        }
+        *note_state = NoteState::GateOn {
+            start_time: current_time_ms,
+            length: gate_len as u32,
+        };
+
+        let absolute_max_semitones: u8 = 120;
+        let note_range = ((cv[2] * (absolute_max_semitones / 2) as u16) / 1024) as u8;
+        let min_semitones: u8 = absolute_max_semitones / 2 - note_range;
+        let max_semitones: u8 = absolute_max_semitones / 2 + note_range;
+
+        let semitones = lerp_u7_to_u16(
+            (mean & 127) as u8,
+            min_semitones as u16,
+            max_semitones as u16,
+        );
+        let quant_table = &CIRCLE_OF_FIFTHS[(cv[1] / 93).min(10) as usize];
+        let quantized_note = get_nearest_active_note(quant_table, semitones as u8);
+
+        let dac_bits = semitones_to_dac(quantized_note.clamp(min_semitones, max_semitones));
+        dac.write(spi, DacChannel::ChannelA, dac_bits);
+
+        delay_us(5);
+
+        gate_out_pin.set_high().unwrap_infallible();
+        gate_out_led_pin.set_high().unwrap_infallible();
+    }
+
+    dac.write(spi, DacChannel::ChannelB, cv_output.min(4095));
 }
 
 fn lerp(a: f32, b: f32, t: f32) -> f32 {
@@ -378,9 +375,7 @@ fn get_nearest_active_note(notes: &[bool; 12], starting_note: u8) -> u8 {
 }
 
 fn semitones_to_dac(semitones: u8) -> u16 {
-    // const MAX_SEMITONES: u8 = 120;
-    // TODO: should be 120, but 60 for demo because the output is only 0-5V
-    const MAX_SEMITONES: u8 = 60;
+    const MAX_SEMITONES: u8 = 120;
     debug_assert!(semitones <= MAX_SEMITONES);
     let bits = (U16F16::const_from_int(semitones as u32)
         / U16F16::const_from_int(MAX_SEMITONES as u32))

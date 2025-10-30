@@ -72,7 +72,9 @@
     "funcs",
     "biquad",
     "bandpass",
-    "cooldown"
+    "cooldown",
+    "softfloat",
+    "tccr"
   ],
   "patterns": [
     {

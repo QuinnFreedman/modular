@@ -2876,12 +2876,36 @@
 		(uuid "0230f005-bcda-4fa4-a2ac-a4c9dd7b2bf9")
 	)
 	(no_connect
+		(at 129.54 74.93)
+		(uuid "0488335d-c8c6-447c-a533-df77c75ad325")
+	)
+	(no_connect
+		(at 129.54 67.31)
+		(uuid "0bfa9729-d625-42ec-92fe-f16c6428e85a")
+	)
+	(no_connect
+		(at 104.14 54.61)
+		(uuid "14e4ca44-0ff9-4c0c-80e7-6a8c7d113eda")
+	)
+	(no_connect
 		(at 104.14 44.45)
 		(uuid "2af69703-0c33-48e7-b08c-c25ba7ae8371")
 	)
 	(no_connect
+		(at 104.14 59.69)
+		(uuid "385be83b-bbae-4507-9bfc-b4a186f93754")
+	)
+	(no_connect
 		(at 129.54 44.45)
 		(uuid "552694d6-cc85-470a-a2d0-940c363b5776")
+	)
+	(no_connect
+		(at 129.54 69.85)
+		(uuid "552b410d-efeb-4c82-aa21-ef559ff0a96b")
+	)
+	(no_connect
+		(at 104.14 62.23)
+		(uuid "63c87ef0-8c70-43dc-9cd5-f30b7c0598ac")
 	)
 	(no_connect
 		(at 104.14 41.91)
@@ -2900,8 +2924,20 @@
 		(uuid "9dbe39d9-ac12-4c69-a80c-ccc106c41c69")
 	)
 	(no_connect
+		(at 129.54 72.39)
+		(uuid "a41bbc4d-8064-40a4-97fb-6ea9c68b72c0")
+	)
+	(no_connect
+		(at 129.54 64.77)
+		(uuid "adb35c97-d359-48a1-99ef-384581274e36")
+	)
+	(no_connect
 		(at 119.38 31.75)
 		(uuid "f43bf99c-814b-4914-bde6-04389134f6e2")
+	)
+	(no_connect
+		(at 104.14 64.77)
+		(uuid "fa6ae7e7-0f45-4f25-95b8-c3490fa38ea9")
 	)
 	(wire
 		(pts
@@ -4510,7 +4546,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "220kΩ"
 			(at 204.47 77.47 90)
 			(effects
 				(font
@@ -5625,7 +5661,7 @@
 				)
 			)
 		)
-		(property "Value" "10kΩ"
+		(property "Value" "220kΩ"
 			(at 179.07 77.47 90)
 			(effects
 				(font
