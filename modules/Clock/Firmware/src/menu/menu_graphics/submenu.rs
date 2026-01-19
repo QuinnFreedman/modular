@@ -27,7 +27,7 @@ pub fn render_submenu_page<DI, SIZE>(
 {
     match menu_update {
         MenuUpdate::UpdateValueAtCursor | MenuUpdate::ToggleEditingAtCursor => {
-            draw_submenu_item(cursor, true, 0, editing.into(), false, channel, display);
+            draw_submenu_item(cursor, true, scroll, editing.into(), false, channel, display);
         }
         MenuUpdate::MoveCursorFrom(_) | MenuUpdate::Scroll(_) | MenuUpdate::SwitchScreens => {
             if channel.division == -65 {
@@ -53,15 +53,15 @@ pub fn render_submenu_page<DI, SIZE>(
                     display,
                 );
                 let exit_y_offset = 24 + 8;
-                draw_submenu_item_label(exit_y_offset, cursor == 4, SubMenuItem::Exit, display);
+                draw_submenu_item_label(exit_y_offset, cursor == 5, SubMenuItem::Exit, display);
                 let mut buffer = MiniBuffer::<54, 24>::new();
-                if cursor == 4 {
+                if cursor == 5 {
                     buffer.clear(BinaryColor::On).assert_ok();
                 }
                 buffer.blit(display, 74, exit_y_offset).assert_ok();
             } else {
                 let at_top = scroll == 0;
-                let at_bottom = scroll >= 3;
+                let at_bottom = scroll >= 4;
                 draw_arrows(true, !at_top, display);
                 draw_arrows(false, !at_bottom, display);
                 for i in scroll..scroll + 2 {
@@ -214,7 +214,11 @@ fn draw_submenu_item_value<DI, SIZE>(
         ),
         SubMenuItem::Swing => (
             u8_to_str_b10(&mut text_buffer, channel.swing),
-            Some(SLASH_64.load()),
+            Some(SLASH_64.load())
+        ),
+        SubMenuItem::Probability => (
+            u8_to_str_b10(&mut text_buffer, channel.probability),
+            Some(PRO_FONT_22.get_glyph(b'^')),
         ),
         SubMenuItem::Exit => (&text_buffer[0..0], None),
     };
@@ -283,6 +287,13 @@ fn draw_submenu_item_label<DI, SIZE>(
             Justify::Start(2),
             Justify::Start(1),
             F!("Swing").as_bytes(),
+            &PRO_FONT_22,
+            text_color,
+        ),
+        SubMenuItem::Probability => buffer.fast_draw_ascii_text(
+            Justify::Start(2),
+            Justify::Start(1),
+            F!("Prob").as_bytes(),
             &PRO_FONT_22,
             text_color,
         ),

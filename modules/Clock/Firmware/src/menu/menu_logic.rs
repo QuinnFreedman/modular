@@ -276,6 +276,14 @@ fn handle_rotary_knob_change(
                         persistance_manager.set_swing(channel_idx, channel.swing);
                         MenuUpdate::UpdateValueAtCursor
                     }
+                    SubMenuItem::Probability => {
+                        channel.probability = channel
+                            .probability
+                            .saturating_add_signed(rotary_encoder_delta)
+                            .clamp(0,100);
+                        persistance_manager.set_probability(channel_idx, channel.probability);
+                        MenuUpdate::UpdateValueAtCursor
+                    }
                     SubMenuItem::Exit => MenuUpdate::NoUpdate,
                 },
                 EditingState::Navigating => {
@@ -284,7 +292,7 @@ fn handle_rotary_knob_change(
                         if rotary_encoder_delta < 0 {
                             *cursor = 0;
                         } else if rotary_encoder_delta > 0 {
-                            *cursor = 4;
+                            *cursor = 5;
                         }
                         if old_cursor == *cursor {
                             MenuUpdate::NoUpdate
@@ -292,7 +300,7 @@ fn handle_rotary_knob_change(
                             MenuUpdate::MoveCursorFrom(old_cursor)
                         }
                     } else {
-                        *cursor = cursor.saturating_add_signed(rotary_encoder_delta).min(4);
+                        *cursor = cursor.saturating_add_signed(rotary_encoder_delta).min(5);
                         if old_cursor == *cursor {
                             MenuUpdate::NoUpdate
                         } else if *cursor < *scroll {
