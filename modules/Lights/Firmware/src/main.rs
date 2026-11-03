@@ -34,7 +34,7 @@ use ws2812_pio::Ws2812;
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
 
-const BUF_LEN: usize = 160 * 2;
+const BUF_LEN: usize = 160 * 3;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -109,6 +109,8 @@ fn main() -> ! {
         sio.gpio_bank0,
         &mut pac.RESETS,
     );
+
+    let mut adc_mux_pin = pins.gpio7.into_push_pull_output();
 
     let mut delay = cortex_m::delay::Delay::new(core.SYST, clocks.system_clock.freq().to_Hz());
 
@@ -187,7 +189,7 @@ fn main() -> ! {
     ];
     let mut peak_detectors: [PeakDetector; 6] = core::array::from_fn(|_| PeakDetector::new());
 
-    let mut hue: f32 = 0.0;
+    adc_mux_pin.set_low().unwrap();
 
     let mut debug_pin = pins.gpio0.into_push_pull_output();
     loop {
@@ -201,16 +203,24 @@ fn main() -> ! {
             .wait();
         double_buffer_idx = !double_buffer_idx;
 
-        let mut samples = [[0u16; BUF_LEN / 2]; 2];
-        for (i, sample) in full_buffer.iter().enumerate() {
-            samples[i % 2][i / 2] = *sample;
+        const SAMPLES_PER_FRAME: usize = BUF_LEN / 3;
+        let mut audio_samples = [0u16; SAMPLES_PER_FRAME];
+        let mut green_total: u32 = 0;
+        let mut red_total: u32 = 0;
+        let mut j = 0;
+        for i in (0..BUF_LEN).step_by(3) {
+            audio_samples[j] = full_buffer[i];
+            j += 1;
+            green_total += full_buffer[i + 1] as u32;
+            red_total += full_buffer[i + 2] as u32;
         }
-
-        let level = samples[1]
-            .iter()
-            .map(|x| 4095u16.saturating_sub(*x) as u32)
-            .sum::<u32>()
-            / (BUF_LEN as u32 / 2);
+        let green_lvl = 4095 - (green_total / SAMPLES_PER_FRAME as u32) as u16;
+        let red_lvl = 4095 - (red_total / SAMPLES_PER_FRAME as u32) as u16;
+        let blue_lvl = red_lvl;
+        channel1.set_duty_cycle_fraction(red_lvl, 4095).unwrap();
+        channel2.set_duty_cycle_fraction(green_lvl, 4095).unwrap();
+        channel3.set_duty_cycle_fraction(blue_lvl, 4095).unwrap();
+        /*
         hue += 0.1;
         let (r, g, b) = hsv_to_rgb_f32(hue, 1.0, level as f32 / 4095.0);
         channel1
@@ -222,7 +232,8 @@ fn main() -> ! {
         channel3
             .set_duty_cycle_fraction((r * 4095.0) as u16, 4095)
             .unwrap();
-        let leds = calculate_leds(&samples[0], &mut filters, &mut peak_detectors);
+            */
+        let leds = calculate_leds(&audio_samples, &mut filters, &mut peak_detectors);
         // ws.write(brightness(leds.iter().copied(), strip_brightness))
         //     .unwrap();
         ws.write(leds.iter().copied()).unwrap();

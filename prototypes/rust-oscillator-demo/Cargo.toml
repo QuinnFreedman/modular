@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.93"
 atomic_float = "1.1.0"
-cpal = { version = "0.15.3", features = ["jack"] }
+cpal = "0.15.3"
 eframe = "0.29.1"
 egui_extras = "0.29.1"
 opensimplex2 = "1.1.0"
