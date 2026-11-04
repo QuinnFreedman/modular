@@ -128,9 +128,21 @@ fn main() -> ! {
         display
     };
 
+    let encoder_button_pin = pins.a4.into_pull_up_input();
+    let pause_button_pin = pins.a3.into_pull_up_input();
+
+    if encoder_button_pin.is_low() {
+        clock_config.invert_encoder = !clock_config.invert_encoder;
+        persistance_manager.set_invert_encoder(clock_config.invert_encoder);
+    }
+
+    if clock_config.invert_encoder {
+        ROTARY_ENCODER.invert();
+    } 
+
     // set up app state
-    let mut encoder_button = ButtonWithLongPress::<PC4, 32, 500>::new(pins.a4.into_pull_up_input());
-    let mut pause_button = ButtonWithLongPress::<PC3, 32, 2500>::new(pins.a3.into_pull_up_input());
+    let mut encoder_button = ButtonWithLongPress::<PC4, 32, 500>::new(encoder_button_pin);
+    let mut pause_button = ButtonWithLongPress::<PC3, 32, 2500>::new(pause_button_pin);
     let mut menu_state = MenuOrScreenSaverState::new(0);
     let mut clock_state = ClockState::new();
     let mut is_paused = false;

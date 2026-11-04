@@ -1,3 +1,5 @@
+use crate::random::Rng;
+
 // TODO maybe have candidate value in menu state for actively edited field so
 // changes aren't applied until commit
 #[repr(C)]
@@ -6,6 +8,7 @@ pub struct ClockChannelConfig {
     pub swing: u8,
     pub pulse_width: u8,
     pub phase_shift: i8,
+    pub probability: u8,
 }
 
 #[repr(C)]
@@ -14,6 +17,7 @@ pub struct ClockConfig {
     pub bpm: u8,
     // This isn't used right now, but reserving the space for a future feature
     pub _is_follower: bool,
+    pub invert_encoder: bool,
 }
 
 impl ClockConfig {
@@ -27,23 +31,40 @@ impl ClockConfig {
                 swing: 0,
                 pulse_width: 50,
                 phase_shift: 0,
+                probability: 100,
             }),
             _is_follower: false,
+            invert_encoder: false,
         }
     }
 }
 
 #[repr(packed)]
+pub struct ClockChannelState {
+    pub is_on: bool,
+    pub enable_output: bool
+}
+
+#[repr(packed)]
 pub struct ClockState {
+    pub channels: [ClockChannelState; 8],
     last_cycle_start_time: u64,
     cycle_count: u32,
+    rng: Rng,
 }
 
 impl ClockState {
     pub fn new() -> Self {
+        let rng = Rng::new(12345);
+        
         Self {
+            channels: [false; 8].map(|i| ClockChannelState {
+                is_on: i,
+                enable_output: i
+            }),
             last_cycle_start_time: 0,
             cycle_count: 0,
+            rng,
         }
     }
 
@@ -93,6 +114,7 @@ pub fn sample(
     let mut result: u8 = 0;
     for i in 0..NUM_CHANNELS {
         let channel = &config.channels[i as usize];
+        let channel_state = &mut state.channels[i as usize];
         // if the tempo is too slow, micros counts will overflow a u32 at some points in
         // the math, so fall back to lower temporal resolution
         let (time_in_current_cycle, time_per_cycle) = if channel.division < -32 && config.bpm < 50 {
@@ -101,6 +123,7 @@ pub fn sample(
             (micros_in_current_cycle, micros_per_cycle)
         };
         const TRIG_WIDTH_MICROS: u32 = 5000; // 5ms is the minimum pulse width
+
         let is_on = channel_is_on(
             channel,
             time_in_current_cycle,
@@ -108,7 +131,16 @@ pub fn sample(
             state.cycle_count,
             TRIG_WIDTH_MICROS,
         );
-        result |= (is_on as u8) << i;
+
+        if is_on && !channel_state.is_on {
+            let n = state.rng.next();
+
+            channel_state.enable_output = (channel.probability == 100) || (n < ((channel.probability as f32 / 100.0) * 255.0) as u8) ;
+        }
+
+        channel_state.is_on = is_on;
+
+        result |= ((channel_state.is_on && channel_state.enable_output) as u8) << i;
     }
     (result, did_rollover)
 }

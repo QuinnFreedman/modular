@@ -103,7 +103,8 @@ pub enum SubMenuItem {
     PulseWidth = 1,
     PhaseShift = 2,
     Swing = 3,
-    Exit = 4,
+    Probability = 4,
+    Exit = 5,
 }
 
 impl Into<u8> for SubMenuItem {
@@ -119,6 +120,7 @@ impl From<u8> for SubMenuItem {
             const { Self::PulseWidth as u8 } => Self::PulseWidth,
             const { Self::PhaseShift as u8 } => Self::PhaseShift,
             const { Self::Swing as u8 } => Self::Swing,
+            const { Self::Probability as u8 } => Self::Probability,
             const { Self::Exit as u8 } => Self::Exit,
             _ => panic!(),
         }

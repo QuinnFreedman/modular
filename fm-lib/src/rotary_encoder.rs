@@ -6,7 +6,7 @@ library uses a clever lookup from http://www.buxtronix.net/2011/10/rotary-encode
 to ensure that impossible state transitions are ignored, which makes the encoder
 much more accurate.
 */
-use core::sync::atomic::{AtomicI8, AtomicU8, Ordering};
+use core::sync::atomic::{AtomicI8, AtomicU8, AtomicBool, Ordering};
 
 use crate::{nybl_pair::{NyblPair, ConstNyblPair}, const_traits::{ConstInto, ConstFrom}};
 use avr_progmem::progmem;
@@ -135,6 +135,7 @@ progmem! {
 
 #[repr(align(1))]
 pub struct RotaryEncoderHandler {
+    invert: AtomicBool,
     state: AtomicU8,
     pub rotation: AtomicI8,
 }
@@ -142,6 +143,7 @@ pub struct RotaryEncoderHandler {
 impl RotaryEncoderHandler {
     pub const fn new() -> Self {
         Self {
+            invert: AtomicBool::new(false),
             state: AtomicU8::new(0),
             rotation: AtomicI8::new(0),
         }
@@ -163,10 +165,11 @@ impl RotaryEncoderHandler {
             .load();
         self.state.store(next_state.lsbs().const_into(), Ordering::SeqCst);
         let rotation = self.rotation.load(Ordering::SeqCst);
+        let invert = self.invert.load(Ordering::SeqCst);
         let delta = match next_state.msbs() {
             RotationTrigger::None => 0,
-            RotationTrigger::Clockwise => 1,
-            RotationTrigger::CounterClockwise => -1,
+            RotationTrigger::Clockwise => if invert { -1 } else { 1 },
+            RotationTrigger::CounterClockwise => if invert { 1 } else { -1 },
         };
         self.rotation.store(rotation + delta, Ordering::SeqCst);
     }
@@ -187,5 +190,10 @@ impl RotaryEncoderHandler {
             self.rotation.store(0, Ordering::SeqCst);
             current_value
         })
+    }
+
+    pub fn invert(&self) {
+        let invert = self.invert.load(Ordering::SeqCst);
+        self.invert.store(!invert, Ordering::SeqCst);
     }
 }
